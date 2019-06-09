@@ -1,0 +1,380 @@
+openapi: 3.0.0
+info:
+  version: 0.0.0a
+  title: AuthService API
+servers: 
+  - url: https://localhost:8443
+  - url: http://localhost:8080
+tags:
+- name: client
+  description: OAuth2 Client
+  externalDocs:
+    description: Find out more
+    url: https://tools.ietf.org/html/rfc6749#section-1.1
+- name: authorize
+  description: OAuth2 Authorize Code Endpoint
+  externalDocs:
+    description: Find out more
+    url: https://tools.ietf.org/html/rfc6749#section-1.1
+- name: resourceOwner
+  description: OAuth2 Resource Owner
+  externalDocs:
+    description: Find out more
+    url: https://tools.ietf.org/html/rfc6749#section-1.1
+- name: token
+  description: OAuth2 JWT token
+  externalDocs:
+    description: Find out more
+    url: https://jwt.io
+paths:
+  /client:
+    post:
+      tags:
+      - client
+      summary: Create oauth2 client
+      security:
+        - oauth2: [root]
+      requestBody:
+        $ref: "#/components/requestBodies/clientBody"
+      responses:
+        400:
+          $ref: "#/components/responses/BadRequest"
+        200:
+          description: OK
+          headers:
+            Location:
+              description: Location of created client
+              schema:
+                type: string
+  /client/{id}:
+    put:
+      tags:
+      - client
+      summary: Update an existing oauth2 client
+      security:
+        - oauth2: [root]
+      requestBody:
+        $ref: "#/components/requestBodies/clientBody"
+      parameters:
+      - $ref: "#/components/parameters/CommonId"
+      responses:
+        400:
+          $ref: "#/components/responses/BadRequest"
+        200:
+          $ref: "#/components/responses/OK"
+    delete:
+      tags:
+      - client
+      summary: Delete an existing oauth2 client
+      security:
+        - oauth2: [root]
+      parameters:
+      - $ref: "#/components/parameters/CommonId"
+      responses:
+        400:
+          $ref: "#/components/responses/BadRequest"
+        200:
+          $ref: "#/components/responses/OK"
+  /clients:
+    get:
+      tags:
+      - client
+      summary: find all clients
+      security:
+        - oauth2: [root]
+      responses:
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        200:
+          description: list of current clients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Client"
+  /resourceOwner:
+    post:
+      tags:
+      - resourceOwner
+      summary: Create oauth2 resource owner
+      security:
+        - oauth2: [write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourceOwner"
+      responses:
+        400:
+          $ref: "#/components/responses/BadRequest"
+        200:
+          $ref: "#/components/responses/OK"
+  /resourceOwner/{id}:
+    put:
+      tags:
+      - resourceOwner
+      summary: Update an existing resource owner authority or lock owner
+      security:
+        - oauth2: [root]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourceOwner"
+      parameters:
+      - $ref: "#/components/parameters/CommonId"
+      responses:
+        400:
+          $ref: "#/components/responses/BadRequest"
+        200:
+          $ref: "#/components/responses/OK"
+  /resourceOwner/{id}/pwd:
+    patch:
+      tags:
+      - resourceOwner
+      summary: Update an existing resource owner password
+      security:
+        - oauth2: [user,admin,root]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourceOwner"
+      parameters:
+      - $ref: "#/components/parameters/CommonId"
+      responses:
+        400:
+          $ref: "#/components/responses/BadRequest"
+        200:
+          $ref: "#/components/responses/OK"
+  /resourceOwners:
+    get:
+      tags:
+      - resourceOwner
+      summary: find all owners
+      security:
+        - oauth2: [admin,root]
+      responses:
+        200:
+          description: list of current clients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ResourceOwner"
+  /oauth/token_key:
+    get:
+      tags:
+      - token
+      summary: get oauth2 jwt RSA public key
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alg:
+                    type: string
+                  value:
+                    description: RSA public key
+                    type: string
+  /oauth/token:
+    post:
+      tags:
+      - token
+      summary:  get oauth2 jwt token
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/TokenForm"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+  /authorize:
+    post:
+      tags:
+      - authorize
+      summary: authorize access to third party apps
+      security:
+      - oauth2: [admin,root]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/AuthorizeForm"
+      responses:
+        200:
+          description: authorize code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizeCode"
+components:
+  schemas:
+    Client:
+      type: object
+      properties:
+        clientId:
+          type: string
+        clientSecret:
+          type: string
+        authorizedGrantTypes:
+          type: array
+          items:
+            type: string
+            enum: [password,refresh_token,client_credentials,authorization_code]
+        grantedAuthority:
+          type: array
+          items:
+            $ref: "#/components/schemas/GrantedAuthorityImpl"
+        scope:
+          type: array
+          items:
+            type: string
+        accessTokenValiditySeconds:
+          type: integer
+          format: int64
+        refreshTokenValiditySeconds:
+          type: integer
+          format: int64
+    GrantedAuthorityImpl:
+      type: object
+      properties:
+        authority:
+          type: string
+    ResourceOwner:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        locked:
+          type: boolean
+        grantedAuthority:
+          type: array
+          items:
+            $ref: "#/components/schemas/GrantedAuthorityImpl"
+    Token:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+        scope:
+          type: string
+        jti:
+          type: string
+    TokenForm:
+      type: object
+      required:
+        - grant_type
+      properties:
+        grant_type:
+          type: string
+          enum: [password,client_credentials,authorization_code]
+        username:
+          type: string
+          description: password flow only
+        password:
+          type: string
+          description: password flow only
+        code:
+          type: string
+          description: authorize code flow only
+        redirect_uri:
+          type: string
+          description: authorize code flow only
+    AuthorizeForm:
+      type: object
+      required:
+        - response_type
+        - client_id
+        - state
+        - redirect_uri
+      properties:
+        response_type:
+          type: string
+          default: code
+        client_id:
+          type: string
+        state:
+          type: string
+        redirect_uri:
+          type: string
+    AuthorizeCode:
+      type: object
+      required:
+        - authorize_code
+      properties:
+        authorize_code:
+          type: string
+  parameters:
+    CommonId:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+  responses:
+    NotFound:
+      description: Not found
+    BadRequest:
+      description: Bad request
+    Unauthorized:
+      description: Unauthorized
+    OK:
+      description: Ok
+  requestBodies:
+    clientBody:
+      required: true
+      content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Client"
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token
+          scopes:
+            write: Grant write access
+        password:
+          tokenUrl: /oauth/token
+          scopes:
+            root: Grant access to root operation including client CRUD
+            admin: Grant access to admin operation
+            user: Grant access to update user password
+        authorizationCode:
+          authorizationUrl: /authorize
+          tokenUrl: /oauth/token
+externalDocs:
+  description: GitHub URL
+  url: https://github.com/publicdevop2019/oauth2service
