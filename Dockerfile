@@ -4,6 +4,9 @@ COPY ./src ./src
 
 COPY ./pom.xml ./pom.xml
 
+# build all dependencies for offline use
+RUN mvn dependency:go-offline -B
+
 ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 
 RUN mvn package -Dmaven.test.skip=true
