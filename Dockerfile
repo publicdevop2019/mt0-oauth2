@@ -15,12 +15,16 @@ ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 # speed up Maven JVM a bit
 ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 
-COPY . .
+COPY ./src ./src
+COPY ./pom.xml ./pom.xml
 
-RUN mvn install -Dmaven.test.skip=true
+RUN mvn package -Dmaven.test.skip=true
 RUN rm -rf /usr/share/maven
 RUN rm -rf /root/.m2
-EXPOSE 8080
+RUN rm -rf /src
+RUN rm pom.xml
+RUN apt-get remove purge curl tar bash
+EXPOSE 8080 8443
 
 CMD java -jar /target/AuthService.jar
 
