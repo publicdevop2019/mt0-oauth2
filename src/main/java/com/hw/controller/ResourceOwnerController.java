@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import java.util.*;
 
 @RestController
+@RequestMapping("api/v1")
 public class ResourceOwnerController {
 
     @Autowired
@@ -25,8 +26,10 @@ public class ResourceOwnerController {
     @Autowired
     BCryptPasswordEncoder encoder;
 
-    @Description("update pwd")
-    @PatchMapping("/resourceOwner/{id}/pwd")
+    /**
+     * update pwd
+     */
+    @PatchMapping("resourceOwner/{id}/pwd")
     @PreAuthorize("hasRole('ROLE_USER') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> updateUserPwd(@RequestBody ResourceOwner resourceOwner) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -61,8 +64,10 @@ public class ResourceOwnerController {
 //        }
 //    }
 
-    @Description("default to lowest authority")
-    @GetMapping("/resourceOwners")
+    /**
+     * default to lowest authority
+     */
+    @GetMapping("resourceOwners")
     @PreAuthorize("hasRole('ROLE_ROOT') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public List<ResourceOwner> readUsers() {
         return userRepo.findAll();
@@ -70,7 +75,7 @@ public class ResourceOwnerController {
     }
 
     @Description("default to lowest authority")
-    @PostMapping("/resourceOwner")
+    @PostMapping("resourceOwner")
     @PreAuthorize("hasRole('ROLE_FRONTEND') and #oauth2.hasScope('write') and #oauth2.isClient()")
     public ResponseEntity<?> createUser(@RequestBody ResourceOwner newUser) {
         ResourceOwner existUser;
@@ -88,8 +93,10 @@ public class ResourceOwnerController {
         return ResponseEntity.ok().header("Location", String.valueOf(saved.getId())).build();
     }
 
-    @Description("update authority")
-    @PutMapping("/resourceOwner/{id}")
+    /**
+     * update authority
+     */
+    @PutMapping("resourceOwner/{id}")
     @PreAuthorize("hasRole('ROLE_ROOT') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> updateUser(@Valid @RequestBody ResourceOwner resourceOwner, @PathVariable Long id) {
         Optional<ResourceOwner> byId = userRepo.findById(id);
@@ -101,7 +108,7 @@ public class ResourceOwnerController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/resourceOwner/{id}")
+    @DeleteMapping("resourceOwner/{id}")
     @PreAuthorize("hasRole('ROLE_ROOT') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         ResourceOwner existUser;

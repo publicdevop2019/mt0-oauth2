@@ -24,10 +24,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/resourceOwner").permitAll()
-                .antMatchers("/client").permitAll()
+                .antMatchers("/api/v1/resourceOwner").permitAll()
+                .antMatchers("/api/v1/resourceOwners").permitAll()
+                .antMatchers("/api/v1/client").permitAll()
+                .antMatchers("/api/v1/clients").permitAll()
+                .antMatchers("/api/v1/authorize").permitAll()
                 .antMatchers("/oauth/token_key").permitAll()
-                .antMatchers("/authorize").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .anonymous().disable()

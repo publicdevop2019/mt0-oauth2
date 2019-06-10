@@ -64,14 +64,12 @@ public class BeanFactory {
         configuration.setMaxAge(3600L);
         source.registerCorsConfiguration("/oauth/token", configuration);
         source.registerCorsConfiguration("/oauth/token_key", configuration);
-        source.registerCorsConfiguration("/client/**", configuration);
-        source.registerCorsConfiguration("/clients", configuration);
-        source.registerCorsConfiguration("/resourceOwner/**", configuration);
-        source.registerCorsConfiguration("/resourceOwners", configuration);
-        source.registerCorsConfiguration("/resourceOwner/**/pwd", configuration);
-        source.registerCorsConfiguration("/oauth/authorize", configuration);
-        source.registerCorsConfiguration("/authorize", configuration);
-        source.registerCorsConfiguration("/login", configuration);
+        source.registerCorsConfiguration("/api/v1/client", configuration);
+        source.registerCorsConfiguration("/api/v1/clients", configuration);
+        source.registerCorsConfiguration("/api/v1/resourceOwner", configuration);
+        source.registerCorsConfiguration("/api/v1/resourceOwners", configuration);
+        source.registerCorsConfiguration("/api/v1/resourceOwner/**/pwd", configuration);
+        source.registerCorsConfiguration("/api/v1/authorize", configuration);
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
         //NOTE:make sure oauth security check happen after cors filter
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);

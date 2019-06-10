@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("api/v1")
 @PreAuthorize("hasRole('ROLE_ROOT') and #oauth2.hasScope('trust') and #oauth2.isUser()")
 public class OAuthClientController {
 
@@ -25,7 +26,7 @@ public class OAuthClientController {
     @Autowired
     BCryptPasswordEncoder encoder;
 
-    @PostMapping("/client")
+    @PostMapping("client")
     public ResponseEntity<?> createClient(@Valid @RequestBody OAuthClient oAuthClient) {
         OAuthClient clientId = oAuthClientRepo.findByClientId(oAuthClient.getClientId());
         if (clientId == null) {
@@ -36,12 +37,12 @@ public class OAuthClientController {
         }
     }
 
-    @GetMapping("/clients")
+    @GetMapping("clients")
     public List<OAuthClient> readClients() {
         return oAuthClientRepo.findAll();
     }
 
-    @PutMapping("/client/{id}")
+    @PutMapping("client/{id}")
     public ResponseEntity<?> replaceClient(@Valid @RequestBody OAuthClient oAuthClient, @PathVariable Long id) {
         Optional<OAuthClient> oAuthClient1 = oAuthClientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
@@ -60,7 +61,7 @@ public class OAuthClientController {
         }
     }
 
-    @DeleteMapping("/client/{id}")
+    @DeleteMapping("client/{id}")
     public ResponseEntity<?> deleteClient(@PathVariable Long id) {
         Optional<OAuthClient> oAuthClient1 = oAuthClientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
