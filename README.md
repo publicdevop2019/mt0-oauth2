@@ -10,5 +10,5 @@ For https, please use [**this**](https://editor.swagger.io) https://editor.swagg
 **Simply pull the latest image and run!**  
 ```shell
 docker pull publicdevop2019/oauth2service:latest  
-docker run -td --rm -p 8080:8080 --name oauth2service oauth2service:latest  
+docker run -td --rm -p 8080:8080 --name oauth2service publicdevop2019/oauth2service:latest  
 ```
