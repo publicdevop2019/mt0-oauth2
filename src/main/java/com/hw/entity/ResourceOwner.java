@@ -56,7 +56,11 @@ public class ResourceOwner extends Auditable implements UserDetails {
         setPassword(pwd);
     }
 
-    public ResourceOwner setLocked(boolean locked) {
+    public Boolean getLocked() {
+        return locked;
+    }
+
+    public ResourceOwner setLocked(Boolean locked) {
         this.locked = locked;
         return this;
     }
@@ -113,7 +117,7 @@ public class ResourceOwner extends Auditable implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !locked;
+        return locked == null || !locked ;
     }
 
     @Override
