@@ -1,5 +1,6 @@
 package com.hw.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.converter.GrantedAuthorityConverter;
@@ -111,6 +112,7 @@ public class OAuthClient extends Auditable implements ClientDetails {
     }
 
     @Override
+    @JsonIgnore
     public boolean isScoped() {
         return true;
     }
@@ -139,6 +141,7 @@ public class OAuthClient extends Auditable implements ClientDetails {
     }
 
     @Override
+    @JsonIgnore
     public Collection<GrantedAuthority> getAuthorities() {
         return grantedAuthority.stream().map(e -> (GrantedAuthority) e).collect(Collectors.toList());
     }
