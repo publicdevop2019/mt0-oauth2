@@ -25,3 +25,4 @@ nbdist/
 
 ### Removed from public ###
 *.db
+logs/
