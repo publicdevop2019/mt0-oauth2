@@ -1,6 +1,8 @@
 package com.hw.controller;
 
 import com.hw.service.ClientDetailsServiceImpl;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -92,9 +94,8 @@ public class AuthorizeCodeController {
             OAuth2Request storedOAuth2Request = defaultOAuth2RequestFactory.createOAuth2Request(authorizationRequest);
 
             OAuth2Authentication combinedAuth = new OAuth2Authentication(storedOAuth2Request, authentication);
-            String code = authorizationCodeServices.createAuthorizationCode(combinedAuth);
 
-            return code;
+            return authorizationCodeServices.createAuthorizationCode(combinedAuth);
 
         } catch (OAuth2Exception e) {
 
