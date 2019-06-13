@@ -92,9 +92,8 @@ public class AuthorizeCodeController {
             OAuth2Request storedOAuth2Request = defaultOAuth2RequestFactory.createOAuth2Request(authorizationRequest);
 
             OAuth2Authentication combinedAuth = new OAuth2Authentication(storedOAuth2Request, authentication);
-            String code = authorizationCodeServices.createAuthorizationCode(combinedAuth);
 
-            return code;
+            return authorizationCodeServices.createAuthorizationCode(combinedAuth);
 
         } catch (OAuth2Exception e) {
 

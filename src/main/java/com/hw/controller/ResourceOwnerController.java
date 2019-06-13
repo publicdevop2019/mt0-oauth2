@@ -108,7 +108,7 @@ public class ResourceOwnerController {
 
         }
 
-        newUser.setGrantedAuthority(Arrays.asList(new GrantedAuthorityImpl("ROLE_USER")));
+        newUser.setGrantedAuthority(Collections.singletonList(new GrantedAuthorityImpl("ROLE_USER")));
 
         newUser.setLocked(false);
 
@@ -135,7 +135,7 @@ public class ResourceOwnerController {
         Optional<ResourceOwner> byId = userRepo.findById(id);
 
         if (byId.isEmpty())
-            throw new NullPointerException(("user not exist:" + resourceOwner.getEmail()));
+            throw new IllegalArgumentException(("user not exist:" + resourceOwner.getEmail()));
 
         if (resourceOwner.getAuthorities() != null)
             byId.get().setGrantedAuthority(new ArrayList<>((Collection<? extends GrantedAuthorityImpl>) resourceOwner.getAuthorities()));
@@ -155,7 +155,7 @@ public class ResourceOwnerController {
         Optional<ResourceOwner> byId = userRepo.findById(id);
 
         if (byId.isEmpty())
-            throw new NullPointerException("user not exist" + id);
+            throw new IllegalArgumentException("user not exist" + id);
 
         userRepo.delete(byId.get());
 

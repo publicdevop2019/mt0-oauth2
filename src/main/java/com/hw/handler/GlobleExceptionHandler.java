@@ -15,12 +15,16 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobleExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler(value = {TransactionSystemException.class, IllegalArgumentException.class, NullPointerException.class})
-    protected ResponseEntity<?> handleTransactionSystemException(
-            RuntimeException ex, WebRequest request) {
+
+    @ExceptionHandler(value = {TransactionSystemException.class, IllegalArgumentException.class})
+    protected ResponseEntity<?> handleException(RuntimeException ex, WebRequest request) {
+
         Map<String, Object> body = new LinkedHashMap<>();
+
         String[] split = NestedExceptionUtils.getMostSpecificCause(ex).getMessage().replace("\t", "").split("\n");
+
         body.put("errors", split);
+
         return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 }
