@@ -1,6 +1,5 @@
 package com.hw.config;
 
-import com.hw.filter.LogFilter;
 import com.hw.service.ClientDetailsServiceImpl;
 import com.hw.service.UserDetailsServiceImpl;
 import jdk.jfr.Description;
@@ -60,7 +59,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) {
         oauthServer
                 .tokenKeyAccess("isAuthenticated()")
-                .addTokenEndpointAuthenticationFilter(new LogFilter())
         ;
     }
 
