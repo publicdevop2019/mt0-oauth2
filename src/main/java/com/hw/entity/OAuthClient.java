@@ -2,8 +2,10 @@ package com.hw.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hw.clazz.ClientAuthorityEnum;
+import com.hw.clazz.GrantTypeEnum;
 import com.hw.clazz.GrantedAuthorityImpl;
-import com.hw.converter.GrantedAuthorityConverter;
+import com.hw.clazz.ScopeEnum;
 import com.hw.converter.StringListConverter;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,11 +14,9 @@ import org.springframework.security.oauth2.provider.ClientDetails;
 import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,28 +34,28 @@ public class OAuthClient extends Auditable implements ClientDetails {
     @Column(nullable = false)
     private String clientId;
 
-    @NotEmpty
-    @Column(nullable = false)
+    @Nullable
+    @Column
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String clientSecret;
 
     @NotNull
     @NotEmpty
     @Column(nullable = false)
-    @Convert(converter = StringListConverter.class)
-    private Set<@NotBlank String> authorizedGrantTypes;
+    @Convert(converter = GrantTypeEnum.GrantTypeConverter.class)
+    private Set<GrantTypeEnum> authorizedGrantTypes;
 
     @NotNull
     @NotEmpty
     @Column(nullable = false)
-    @Convert(converter = GrantedAuthorityConverter.class)
-    private Collection<@Valid @NotNull GrantedAuthorityImpl> grantedAuthority;
+    @Convert(converter = ClientAuthorityEnum.ClientAuthorityConverter.class)
+    private Collection<@Valid @NotNull GrantedAuthorityImpl<ClientAuthorityEnum>> grantedAuthority;
 
     @NotNull
     @NotEmpty
     @Column(nullable = false)
-    @Convert(converter = StringListConverter.class)
-    private Set<@NotBlank String> scope;
+    @Convert(converter = ScopeEnum.ScopeConverter.class)
+    private Set<ScopeEnum> scope;
 
     @Min(value = 0)
     @Column(nullable = false)
@@ -70,11 +70,29 @@ public class OAuthClient extends Auditable implements ClientDetails {
     @Nullable
     private Integer refreshTokenValiditySeconds;
 
-    public Collection<GrantedAuthorityImpl> getGrantedAuthority() {
+    /**
+     * this field is not used in spring oauth2,
+     * client with no secret requires empty secret (mostly encoded)
+     * below is empty string "" encoded, use if needed
+     * $2a$10$KRp4.vK8F8MYLJGEz7im8.71T2.vFQj/rrNLQLOLPEADuv0Gdg.x6
+     */
+    @Column
+    @NotNull
+    private Boolean hasSecret;
+
+    public Boolean getHasSecret() {
+        return hasSecret;
+    }
+
+    public void setHasSecret(Boolean hasSecret) {
+        this.hasSecret = hasSecret;
+    }
+
+    public Collection<GrantedAuthorityImpl<ClientAuthorityEnum>> getGrantedAuthority() {
         return grantedAuthority;
     }
 
-    public void setGrantedAuthority(Collection<GrantedAuthorityImpl> grantedAuthoritys) {
+    public void setGrantedAuthority(Collection<GrantedAuthorityImpl<ClientAuthorityEnum>> grantedAuthoritys) {
         this.grantedAuthority = grantedAuthoritys;
     }
 
@@ -98,7 +116,7 @@ public class OAuthClient extends Auditable implements ClientDetails {
 
     @Override
     public boolean isSecretRequired() {
-        return true;
+        return hasSecret;
     }
 
     @Override
@@ -119,19 +137,19 @@ public class OAuthClient extends Auditable implements ClientDetails {
 
     @Override
     public Set<String> getScope() {
-        return new HashSet<>(scope);
+        return scope.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
     }
 
-    public void setScope(Set<String> scope) {
+    public void setScope(Set<ScopeEnum> scope) {
         this.scope = scope;
     }
 
     @Override
     public Set<String> getAuthorizedGrantTypes() {
-        return new HashSet<>(authorizedGrantTypes);
+        return authorizedGrantTypes.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
     }
 
-    public void setAuthorizedGrantTypes(Set<String> authorizedGrantTypes) {
+    public void setAuthorizedGrantTypes(Set<GrantTypeEnum> authorizedGrantTypes) {
         this.authorizedGrantTypes = authorizedGrantTypes;
     }
 
