@@ -2,13 +2,12 @@ package com.hw.clazz;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @NotNull
 public class GrantedAuthorityImpl<T extends Enum> implements GrantedAuthority {
-
-    @NotBlank
+    @Valid
     private T authority;
 
     public GrantedAuthorityImpl(T input) {
@@ -18,8 +17,8 @@ public class GrantedAuthorityImpl<T extends Enum> implements GrantedAuthority {
     public GrantedAuthorityImpl() {
     }
 
-    public static <T extends Enum> GrantedAuthorityImpl<T> getGrantedAuthority(Class<T> enumType,String string) {
-    return new GrantedAuthorityImpl(T.valueOf(enumType, string));
+    public static <T extends Enum> GrantedAuthorityImpl<T> getGrantedAuthority(Class<T> enumType, String string) {
+        return new GrantedAuthorityImpl(T.valueOf(enumType, string));
     }
 
     @Override

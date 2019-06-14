@@ -2,9 +2,8 @@ package com.hw.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hw.clazz.ClientRoleEnum;
+import com.hw.clazz.ClientAuthorityEnum;
 import com.hw.clazz.GrantedAuthorityImpl;
-import com.hw.converter.ClientAuthorityConverter;
 import com.hw.converter.StringListConverter;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,8 +48,8 @@ public class OAuthClient extends Auditable implements ClientDetails {
     @NotNull
     @NotEmpty
     @Column(nullable = false)
-    @Convert(converter = ClientAuthorityConverter.class)
-    private Collection<@Valid @NotNull GrantedAuthorityImpl<ClientRoleEnum>> grantedAuthority;
+    @Convert(converter = ClientAuthorityEnum.ClientAuthorityConverter.class)
+    private Collection<@Valid @NotNull GrantedAuthorityImpl<ClientAuthorityEnum>> grantedAuthority;
 
     @NotNull
     @NotEmpty
@@ -89,11 +88,11 @@ public class OAuthClient extends Auditable implements ClientDetails {
         this.hasSecret = hasSecret;
     }
 
-    public Collection<GrantedAuthorityImpl<ClientRoleEnum>> getGrantedAuthority() {
+    public Collection<GrantedAuthorityImpl<ClientAuthorityEnum>> getGrantedAuthority() {
         return grantedAuthority;
     }
 
-    public void setGrantedAuthority(Collection<GrantedAuthorityImpl<ClientRoleEnum>> grantedAuthoritys) {
+    public void setGrantedAuthority(Collection<GrantedAuthorityImpl<ClientAuthorityEnum>> grantedAuthoritys) {
         this.grantedAuthority = grantedAuthoritys;
     }
 
