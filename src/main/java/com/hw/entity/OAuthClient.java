@@ -34,8 +34,8 @@ public class OAuthClient extends Auditable implements ClientDetails {
     @Column(nullable = false)
     private String clientId;
 
-    @NotEmpty
-    @Column(nullable = false)
+    @Nullable
+    @Column
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String clientSecret;
 
@@ -70,6 +70,24 @@ public class OAuthClient extends Auditable implements ClientDetails {
     @Nullable
     private Integer refreshTokenValiditySeconds;
 
+    /**
+     * this field is not used in spring oauth2,
+     * client with no secret requires empty secret (mostly encoded)
+     * below is empty string "" encoded, use if needed
+     * $2a$10$KRp4.vK8F8MYLJGEz7im8.71T2.vFQj/rrNLQLOLPEADuv0Gdg.x6
+     */
+    @Column
+    @NotNull
+    private Boolean hasSecret;
+
+    public Boolean getHasSecret() {
+        return hasSecret;
+    }
+
+    public void setHasSecret(Boolean hasSecret) {
+        this.hasSecret = hasSecret;
+    }
+
     public Collection<GrantedAuthorityImpl> getGrantedAuthority() {
         return grantedAuthority;
     }
@@ -98,7 +116,7 @@ public class OAuthClient extends Auditable implements ClientDetails {
 
     @Override
     public boolean isSecretRequired() {
-        return true;
+        return hasSecret;
     }
 
     @Override
