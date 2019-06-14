@@ -6,30 +6,28 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @NotNull
-public class GrantedAuthorityImpl implements GrantedAuthority {
+public class GrantedAuthorityImpl<T extends Enum> implements GrantedAuthority {
 
     @NotBlank
-    private String authority;
+    private T authority;
 
-    public GrantedAuthorityImpl(String input) {
+    public GrantedAuthorityImpl(T input) {
         authority = input;
     }
 
     public GrantedAuthorityImpl() {
     }
 
-    public static GrantedAuthority getGrantedAuthority(String string) {
-
-        return new GrantedAuthorityImpl(string);
-
+    public static <T extends Enum> GrantedAuthorityImpl<T> getGrantedAuthority(Class<T> enumType,String string) {
+    return new GrantedAuthorityImpl(T.valueOf(enumType, string));
     }
 
     @Override
     public String getAuthority() {
-        return authority;
+        return authority.toString();
     }
 
-    public void setAuthority(String authority) {
+    public void setAuthority(T authority) {
         this.authority = authority;
     }
 }

@@ -1,6 +1,7 @@
 package com.hw.controller;
 
 import com.hw.clazz.GrantedAuthorityImpl;
+import com.hw.clazz.ResourceOwnerRoleEnum;
 import com.hw.entity.ResourceOwner;
 import com.hw.repo.ResourceOwnerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,7 +109,7 @@ public class ResourceOwnerController {
 
         }
 
-        newUser.setGrantedAuthority(Collections.singletonList(new GrantedAuthorityImpl("ROLE_USER")));
+        newUser.setGrantedAuthority(Collections.singletonList(new GrantedAuthorityImpl(ResourceOwnerRoleEnum.ROLE_USER)));
 
         newUser.setLocked(false);
 
@@ -138,7 +139,7 @@ public class ResourceOwnerController {
             throw new IllegalArgumentException(("user not exist:" + resourceOwner.getEmail()));
 
         if (resourceOwner.getAuthorities() != null)
-            byId.get().setGrantedAuthority(new ArrayList<>((Collection<? extends GrantedAuthorityImpl>) resourceOwner.getAuthorities()));
+            byId.get().setGrantedAuthority(new ArrayList<>((Collection<? extends GrantedAuthorityImpl<ResourceOwnerRoleEnum>>) resourceOwner.getAuthorities()));
 
         if (resourceOwner.getLocked() != null)
             byId.get().setLocked(resourceOwner.getLocked());

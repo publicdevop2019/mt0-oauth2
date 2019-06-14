@@ -2,7 +2,9 @@ package com.hw.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.clazz.GrantedAuthorityImpl;
-import com.hw.converter.GrantedAuthorityConverter;
+import com.hw.clazz.ResourceOwnerRoleEnum;
+import com.hw.converter.ClientAuthorityConverter;
+import com.hw.converter.ResourceOwnerAuthorityConverter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -41,8 +43,8 @@ public class ResourceOwner extends Auditable implements UserDetails {
     @Column(nullable = false)
     @NotNull
     @NotEmpty
-    @Convert(converter = GrantedAuthorityConverter.class)
-    private Collection<@Valid @NotNull GrantedAuthorityImpl> grantedAuthority;
+    @Convert(converter = ResourceOwnerAuthorityConverter.class)
+    private Collection<@Valid @NotNull GrantedAuthorityImpl<ResourceOwnerRoleEnum>> grantedAuthority;
 
     @Column
     private String resourceId;
@@ -90,7 +92,7 @@ public class ResourceOwner extends Auditable implements UserDetails {
         return grantedAuthority;
     }
 
-    public ResourceOwner setGrantedAuthority(List<GrantedAuthorityImpl> grantedAuthority) {
+    public ResourceOwner setGrantedAuthority(List<GrantedAuthorityImpl<ResourceOwnerRoleEnum>> grantedAuthority) {
         this.grantedAuthority = grantedAuthority;
         return this;
     }
