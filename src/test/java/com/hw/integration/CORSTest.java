@@ -15,7 +15,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CORS {
+public class CORSTest {
 
     @LocalServerPort
     private int randomServerPort;

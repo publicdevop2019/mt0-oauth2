@@ -23,7 +23,7 @@ import java.util.Collection;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = OAuth2Service.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class PasswordFlow {
+public class PasswordFlowTest {
     private String password = "password";
     private String client_credentials = "client_credentials";
     private String valid_clientId = "login-id";
