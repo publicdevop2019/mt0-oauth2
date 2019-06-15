@@ -2,10 +2,10 @@ package com.hw.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hw.clazz.ClientAuthorityEnum;
-import com.hw.clazz.GrantTypeEnum;
+import com.hw.clazz.eenum.ClientAuthorityEnum;
+import com.hw.clazz.eenum.GrantTypeEnum;
 import com.hw.clazz.GrantedAuthorityImpl;
-import com.hw.clazz.ScopeEnum;
+import com.hw.clazz.eenum.ScopeEnum;
 import com.hw.converter.StringListConverter;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -20,6 +20,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ public class Client extends Auditable implements ClientDetails {
     @NotEmpty
     @Column(nullable = false)
     @Convert(converter = ClientAuthorityEnum.ClientAuthorityConverter.class)
-    private Collection<@Valid @NotNull GrantedAuthorityImpl<ClientAuthorityEnum>> grantedAuthority;
+    private List<@Valid @NotNull GrantedAuthorityImpl<ClientAuthorityEnum>> grantedAuthority;
 
     @NotNull
     @NotEmpty
@@ -111,6 +112,7 @@ public class Client extends Auditable implements ClientDetails {
 
     @Override
     @JsonIgnore
+    //TODO remove
     public boolean isScoped() {
         return true;
     }
@@ -132,6 +134,7 @@ public class Client extends Auditable implements ClientDetails {
 
     @Override
     @JsonIgnore
+    //TODO remove
     public Collection<GrantedAuthority> getAuthorities() {
         return grantedAuthority.stream().map(e -> (GrantedAuthority) e).collect(Collectors.toList());
     }

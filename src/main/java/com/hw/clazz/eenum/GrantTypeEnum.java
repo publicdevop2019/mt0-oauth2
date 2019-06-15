@@ -1,4 +1,4 @@
-package com.hw.clazz;
+package com.hw.clazz.eenum;
 
 import com.hw.converter.EnumConverter;
 
