@@ -131,6 +131,19 @@ paths:
           $ref: "#/components/responses/BadRequest"
         200:
           $ref: "#/components/responses/OK"
+    delete:
+      tags:
+      - resourceOwner
+      summary: Delete an existing resource owner
+      security:
+        - oauth2: [root]
+      parameters:
+      - $ref: "#/components/parameters/CommonId"
+      responses:
+        400:
+          $ref: "#/components/responses/BadRequest"
+        200:
+          $ref: "#/components/responses/OK"
   /resourceOwner/{id}/pwd:
     patch:
       tags:
@@ -242,7 +255,7 @@ components:
           type: string
         clientSecret:
           type: string
-        authorizedGrantTypes:
+        grantTypeEnums:
           type: array
           items:
             type: string
@@ -251,10 +264,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GrantedAuthorityImpl"
-        scope:
+        scopeEnums:
           type: array
           items:
             type: string
+            enum: [read,write,trust]
         accessTokenValiditySeconds:
           type: integer
           format: int64
@@ -268,6 +282,7 @@ components:
       properties:
         authority:
           type: string
+          enum: [ROLE_FRONTEND,ROLE_ADMIN,ROLE_USER,ROLE_TRUST,ROLE_FIRST_PARTY,ROLE_THIRD_PARTY,ROLE_BACKEND]
     ResourceOwner:
       type: object
       properties:

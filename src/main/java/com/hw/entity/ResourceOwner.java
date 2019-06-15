@@ -2,7 +2,11 @@ package com.hw.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.clazz.GrantedAuthorityImpl;
-import com.hw.clazz.ResourceOwnerAuthorityEnum;
+import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
+import com.hw.converter.StringListConverter;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,15 +17,18 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "resource_owner")
 @SequenceGenerator(name = "userId_gen", sequenceName = "userId_gen", initialValue = 100)
+@Data
 public class ResourceOwner extends Auditable implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "userId_gen")
     @Column(nullable = false)
+    @Setter(AccessLevel.NONE)
     protected Long id;
 
     @Column(nullable = false)
@@ -42,57 +49,15 @@ public class ResourceOwner extends Auditable implements UserDetails {
     @NotNull
     @NotEmpty
     @Convert(converter = ResourceOwnerAuthorityEnum.ResourceOwnerAuthorityConverter.class)
-    private Collection<@Valid @NotNull GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>> grantedAuthority;
+    private List<@Valid @NotNull GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>> grantedAuthority;
 
     @Column
-    private String resourceId;
-
-    //NOTE: required by JPA
-    public ResourceOwner() {
-    }
-
-    public ResourceOwner(String username, String pwd) {
-        setEmail(username);
-        setPassword(pwd);
-    }
-
-    public Boolean getLocked() {
-        return locked;
-    }
-
-    public ResourceOwner setLocked(Boolean locked) {
-        this.locked = locked;
-        return this;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getResourceId() {
-        return resourceId;
-    }
-
-    public void setResourceId(String resourceId) {
-        this.resourceId = resourceId;
-    }
+    @Convert(converter = StringListConverter.class)
+    private Set<String> resourceId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return grantedAuthority;
-    }
-
-    public ResourceOwner setGrantedAuthority(List<GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>> grantedAuthority) {
-        this.grantedAuthority = grantedAuthority;
-        return this;
     }
 
     @Override
@@ -100,10 +65,6 @@ public class ResourceOwner extends Auditable implements UserDetails {
         return password;
     }
 
-    public ResourceOwner setPassword(String password) {
-        this.password = password;
-        return this;
-    }
 
     @Override
     public String getUsername() {

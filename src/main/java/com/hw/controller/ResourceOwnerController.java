@@ -1,7 +1,7 @@
 package com.hw.controller;
 
 import com.hw.clazz.GrantedAuthorityImpl;
-import com.hw.clazz.ResourceOwnerAuthorityEnum;
+import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.entity.ResourceOwner;
 import com.hw.repo.ResourceOwnerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,7 +113,9 @@ public class ResourceOwnerController {
 
         newUser.setLocked(false);
 
-        ResourceOwner saved = userRepo.save(newUser.setPassword(encoder.encode(newUser.getPassword())));
+        newUser.setPassword(encoder.encode(newUser.getPassword()));
+
+        ResourceOwner saved = userRepo.save(newUser);
 
         return ResponseEntity.ok().header("Location", String.valueOf(saved.getId())).build();
     }

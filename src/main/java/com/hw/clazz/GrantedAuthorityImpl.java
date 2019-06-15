@@ -6,7 +6,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @NotNull
-public class GrantedAuthorityImpl<T extends Enum> implements GrantedAuthority {
+public class GrantedAuthorityImpl<T extends Enum<T>> implements GrantedAuthority {
     @Valid
     private T authority;
 
@@ -17,7 +17,7 @@ public class GrantedAuthorityImpl<T extends Enum> implements GrantedAuthority {
     public GrantedAuthorityImpl() {
     }
 
-    public static <T extends Enum> GrantedAuthorityImpl<T> getGrantedAuthority(Class<T> enumType, String string) {
+    public static <T extends Enum> GrantedAuthorityImpl getGrantedAuthority(Class<T> enumType, String string) {
         return new GrantedAuthorityImpl(T.valueOf(enumType, string));
     }
 
