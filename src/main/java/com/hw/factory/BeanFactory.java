@@ -29,7 +29,10 @@ public class BeanFactory {
 
     @Autowired
     ClientDetailsService clientDetailsService;
-    @Description("use Resource annotation to solve invoked before spring load issue")
+
+    /**
+     * use Resource annotation to solve invoked before spring load issue
+     */
     @Resource
     private Environment env;
 

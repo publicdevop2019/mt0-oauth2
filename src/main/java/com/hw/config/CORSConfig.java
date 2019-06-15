@@ -10,6 +10,7 @@ import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 public class CORSConfig {
+
     @Bean
     FilterRegistrationBean corsConfiguration() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -37,7 +38,9 @@ public class CORSConfig {
         source.registerCorsConfiguration("/api/v1/resourceOwner/**/pwd", configuration);
         source.registerCorsConfiguration("/api/v1/authorize", configuration);
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
-        //NOTE:make sure oauth security check happen after cors filter
+        /**
+         * make sure oauth security check happen after cors filter
+         */
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return bean;
     }

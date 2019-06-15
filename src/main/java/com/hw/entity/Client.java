@@ -2,9 +2,9 @@ package com.hw.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.clazz.eenum.GrantTypeEnum;
-import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ScopeEnum;
 import com.hw.converter.StringListConverter;
 import lombok.AccessLevel;

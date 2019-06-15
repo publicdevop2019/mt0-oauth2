@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.client.token.grant.client.ClientCrede
 
 @Configuration
 public class OAuthRestTemplateConfig {
+
     @Value("${security.oauth2.client.clientId}")
     private String clientId;
 

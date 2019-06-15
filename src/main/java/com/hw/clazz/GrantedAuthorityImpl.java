@@ -3,9 +3,7 @@ package com.hw.clazz;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
-@NotNull
 public class GrantedAuthorityImpl<T extends Enum<T>> implements GrantedAuthority {
     @Valid
     private T authority;

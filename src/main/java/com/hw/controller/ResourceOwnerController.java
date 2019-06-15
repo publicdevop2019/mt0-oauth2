@@ -59,23 +59,6 @@ public class ResourceOwnerController {
 
     }
 
-//    @CrossOrigin(origins = "*")
-//    @GetMapping("/user/resourceId")
-//    @PreAuthorize("hasRole('ROLE_USER') and #oauth2.hasScope('trust') and #oauth2.isUser()")
-//    public ResponseEntity<String> getUserResourceId() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        ResourceOwner user2 = userRepo.findOneByEmail(authentication.getName());
-//        if (user2 == null) {
-//            return ResponseEntity.notFound().build();
-//        } else {
-//            if (user2.getResourceId() == null) {
-//                return ResponseEntity.notFound().build();
-//            } else {
-//                return ResponseEntity.ok(user2.getResourceId());
-//            }
-//        }
-//    }
-
     /**
      * default to lowest authority
      */
