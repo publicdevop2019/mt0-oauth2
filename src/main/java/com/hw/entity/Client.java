@@ -7,6 +7,9 @@ import com.hw.clazz.GrantTypeEnum;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.ScopeEnum;
 import com.hw.converter.StringListConverter;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
@@ -21,13 +24,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * use different field name to make it more flexible also avoid copy properties type mismatch
+ * e.g getting return string instead of enum
+ */
 @Entity
-@Table(name = "oauth_client")
+@Table(name = "client")
 @SequenceGenerator(name = "clientId_gen", sequenceName = "clientId_gen", initialValue = 100)
-public class OAuthClient extends Auditable implements ClientDetails {
+@Data
+public class Client extends Auditable implements ClientDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "clientId_gen")
+    @Setter(AccessLevel.NONE)
     private Long id;
 
     @NotNull
@@ -43,7 +52,7 @@ public class OAuthClient extends Auditable implements ClientDetails {
     @NotEmpty
     @Column(nullable = false)
     @Convert(converter = GrantTypeEnum.GrantTypeConverter.class)
-    private Set<GrantTypeEnum> authorizedGrantTypes;
+    private Set<GrantTypeEnum> grantTypeEnums;
 
     @NotNull
     @NotEmpty
@@ -55,7 +64,7 @@ public class OAuthClient extends Auditable implements ClientDetails {
     @NotEmpty
     @Column(nullable = false)
     @Convert(converter = ScopeEnum.ScopeConverter.class)
-    private Set<ScopeEnum> scope;
+    private Set<ScopeEnum> scopeEnums;
 
     @Min(value = 0)
     @Column(nullable = false)
@@ -80,33 +89,9 @@ public class OAuthClient extends Auditable implements ClientDetails {
     @NotNull
     private Boolean hasSecret;
 
-    public Boolean getHasSecret() {
-        return hasSecret;
-    }
-
-    public void setHasSecret(Boolean hasSecret) {
-        this.hasSecret = hasSecret;
-    }
-
-    public Collection<GrantedAuthorityImpl<ClientAuthorityEnum>> getGrantedAuthority() {
-        return grantedAuthority;
-    }
-
-    public void setGrantedAuthority(Collection<GrantedAuthorityImpl<ClientAuthorityEnum>> grantedAuthoritys) {
-        this.grantedAuthority = grantedAuthoritys;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
     @Override
     public String getClientId() {
         return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
     }
 
     @Override
@@ -124,11 +109,6 @@ public class OAuthClient extends Auditable implements ClientDetails {
         return clientSecret;
     }
 
-    public OAuthClient setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret;
-        return this;
-    }
-
     @Override
     @JsonIgnore
     public boolean isScoped() {
@@ -137,20 +117,12 @@ public class OAuthClient extends Auditable implements ClientDetails {
 
     @Override
     public Set<String> getScope() {
-        return scope.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
-    }
-
-    public void setScope(Set<ScopeEnum> scope) {
-        this.scope = scope;
+        return scopeEnums.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
     }
 
     @Override
     public Set<String> getAuthorizedGrantTypes() {
-        return authorizedGrantTypes.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
-    }
-
-    public void setAuthorizedGrantTypes(Set<GrantTypeEnum> authorizedGrantTypes) {
-        this.authorizedGrantTypes = authorizedGrantTypes;
+        return grantTypeEnums.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
     }
 
     @Override
@@ -169,17 +141,9 @@ public class OAuthClient extends Auditable implements ClientDetails {
         return accessTokenValiditySeconds;
     }
 
-    public void setAccessTokenValiditySeconds(Integer accessTokenValiditySeconds) {
-        this.accessTokenValiditySeconds = accessTokenValiditySeconds;
-    }
-
     @Override
     public Integer getRefreshTokenValiditySeconds() {
         return refreshTokenValiditySeconds;
-    }
-
-    public void setRefreshTokenValiditySeconds(@Nullable Integer refreshTokenValiditySeconds) {
-        this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
     }
 
     @Override

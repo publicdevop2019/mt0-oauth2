@@ -30,6 +30,7 @@ public class CORSConfig {
         source.registerCorsConfiguration("/oauth/token", configuration);
         source.registerCorsConfiguration("/oauth/token_key", configuration);
         source.registerCorsConfiguration("/api/v1/client", configuration);
+        source.registerCorsConfiguration("/api/v1/client/**", configuration);
         source.registerCorsConfiguration("/api/v1/clients", configuration);
         source.registerCorsConfiguration("/api/v1/resourceOwner/**", configuration);
         source.registerCorsConfiguration("/api/v1/resourceOwners", configuration);

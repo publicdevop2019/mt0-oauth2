@@ -1,6 +1,6 @@
 package com.hw.controller;
 
-import com.hw.entity.OAuthClient;
+import com.hw.entity.Client;
 import com.hw.repo.OAuthClientRepo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +27,11 @@ public class OAuthClientController {
     BCryptPasswordEncoder encoder;
 
     @PostMapping("client")
-    public ResponseEntity<?> createClient(@Valid @RequestBody OAuthClient oAuthClient) {
-        OAuthClient clientId = oAuthClientRepo.findByClientId(oAuthClient.getClientId());
+    public ResponseEntity<?> createClient(@Valid @RequestBody Client client) {
+        Client clientId = oAuthClientRepo.findByClientId(client.getClientId());
         if (clientId == null) {
-            OAuthClient saved = oAuthClientRepo.save(oAuthClient.setClientSecret(encoder.encode(oAuthClient.getClientSecret().trim())));
+            client.setClientSecret(encoder.encode(client.getClientSecret().trim()));
+            Client saved = oAuthClientRepo.save(client);
             return ResponseEntity.ok().header("Location", String.valueOf(saved.getId())).build();
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -38,32 +39,35 @@ public class OAuthClientController {
     }
 
     @GetMapping("clients")
-    public List<OAuthClient> readClients() {
+    public List<Client> readClients() {
         return oAuthClientRepo.findAll();
     }
 
     @PutMapping("client/{id}")
-    public ResponseEntity<?> replaceClient(@Valid @RequestBody OAuthClient oAuthClient, @PathVariable Long id) {
-        Optional<OAuthClient> oAuthClient1 = oAuthClientRepo.findById(id);
+    public ResponseEntity<?> replaceClient(@Valid @RequestBody Client client, @PathVariable Long id) {
+        Optional<Client> oAuthClient1 = oAuthClientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } else {
             if (StringUtils.hasText(oAuthClient1.get().getClientSecret())) {
-                oAuthClient.setClientSecret(encoder.encode(oAuthClient.getClientSecret()));
+                client.setClientSecret(encoder.encode(client.getClientSecret()));
             } else {
-                oAuthClient.setClientSecret(oAuthClient1.get().getClientSecret());
+                client.setClientSecret(oAuthClient1.get().getClientSecret());
             }
-            OAuthClient oAuthClient2 = oAuthClient1.get();
-            // Note: copy to prevent new id gen
-            BeanUtils.copyProperties(oAuthClient, oAuthClient2);
-            oAuthClientRepo.save(oAuthClient2);
+            Client client2 = oAuthClient1.get();
+            /**
+             * copy to prevent new id gen, below method rely on correct following java conventions
+             * setter & getter should return same type
+             */
+            BeanUtils.copyProperties(client, client2);
+            oAuthClientRepo.save(client2);
             return ResponseEntity.ok().build();
         }
     }
 
     @DeleteMapping("client/{id}")
     public ResponseEntity<?> deleteClient(@PathVariable Long id) {
-        Optional<OAuthClient> oAuthClient1 = oAuthClientRepo.findById(id);
+        Optional<Client> oAuthClient1 = oAuthClientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } else {

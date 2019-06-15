@@ -3,6 +3,7 @@ package com.hw.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.ResourceOwnerAuthorityEnum;
+import com.hw.converter.StringListConverter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "resource_owner")
@@ -45,7 +47,8 @@ public class ResourceOwner extends Auditable implements UserDetails {
     private Collection<@Valid @NotNull GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>> grantedAuthority;
 
     @Column
-    private String resourceId;
+    @Convert(converter = StringListConverter.class)
+    private Set<String> resourceId;
 
     //NOTE: required by JPA
     public ResourceOwner() {
@@ -77,11 +80,11 @@ public class ResourceOwner extends Auditable implements UserDetails {
         this.email = email;
     }
 
-    public String getResourceId() {
+    public Set<String> getResourceId() {
         return resourceId;
     }
 
-    public void setResourceId(String resourceId) {
+    public void setResourceId(Set<String> resourceId) {
         this.resourceId = resourceId;
     }
 
