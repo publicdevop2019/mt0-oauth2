@@ -1,4 +1,4 @@
-package com.hw;
+package com.hw.integration;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;

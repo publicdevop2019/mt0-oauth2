@@ -10,7 +10,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 @EnableResourceServer
 @Profile("h2")
 public class H2Config extends ResourceServerConfigurerAdapter {
-    String[] ignoredPaths = {"/h2-console/**"};
+
+    private String[] ignoredPaths = {"/h2-console/**"};
 
     @Override
     public void configure(HttpSecurity http) throws Exception {

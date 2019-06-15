@@ -2,7 +2,6 @@ package com.hw.config;
 
 import com.hw.service.ClientDetailsServiceImpl;
 import com.hw.service.UserDetailsServiceImpl;
-import jdk.jfr.Description;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,7 +42,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         clients.withClientDetails(clientDetailsService);
     }
 
-    @Description("explicitly set authenticationManager to enable password flow")
+    /**
+     * explicitly set authenticationManager to enable password flow
+     */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
         endpoints

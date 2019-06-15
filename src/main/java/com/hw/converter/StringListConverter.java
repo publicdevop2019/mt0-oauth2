@@ -10,16 +10,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class StringListConverter implements AttributeConverter<Set<String>, String> {
+
     @Override
     public String convertToDatabaseColumn(Set<String> strings) {
-        if(ObjectUtils.isEmpty(strings))
+        if (ObjectUtils.isEmpty(strings))
             return null;
         return String.join(",", strings);
     }
 
     @Override
     public Set<String> convertToEntityAttribute(String s) {
-        if(StringUtils.hasText(s))
+        if (StringUtils.hasText(s))
             return Arrays.stream(s.split(",")).collect(Collectors.toSet());
         return Collections.emptySet();
     }

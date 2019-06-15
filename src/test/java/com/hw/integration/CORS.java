@@ -1,4 +1,4 @@
-package com.hw;
+package com.hw.integration;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,18 +15,12 @@ import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CORSTest {
+public class CORS {
 
     @LocalServerPort
-    int randomServerPort;
+    private int randomServerPort;
 
-    @Autowired
-    private WebApplicationContext wac;
-
-    @Autowired
-    private FilterChainProxy springSecurityFilterChain;
-
-    private TestRestTemplate restTemplate;
+    private TestRestTemplate restTemplate=new TestRestTemplate();
 
     private String thirdPartyOrigin = "https://editor.swagger.io";
 
@@ -34,11 +28,6 @@ public class CORSTest {
 
     private String[] corsUris = {"oauth/token", "oauth/token_key", "client", "client/0", "clients",
             "authorize", "resourceOwner", "resourceOwner/0", "resourceOwner/0/pwd", "resourceOwners"};
-
-    @Before
-    public void beforeTest() {
-        restTemplate = new TestRestTemplate();
-    }
 
     @Test
     public void happy_oauthToken() {
