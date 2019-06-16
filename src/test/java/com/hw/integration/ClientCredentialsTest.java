@@ -45,14 +45,14 @@ public class ClientCredentialsTest {
     @Test
     public void sad_client_w_wrong_credentials() {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(client_credentials, valid_clientId, valid_empty_secret);
-        Assert.assertEquals(tokenResponse.getStatusCode(), HttpStatus.UNAUTHORIZED);
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse.getStatusCode());
 
     }
 
     @Test
     public void sad_client_w_wrong_grant_type() {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_clientId, valid_clientSecret);
-        Assert.assertEquals(tokenResponse.getStatusCode(), HttpStatus.UNAUTHORIZED);
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse.getStatusCode());
 
     }
 
