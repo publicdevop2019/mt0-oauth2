@@ -60,9 +60,9 @@ public class PasswordFlowTest {
         Assert.assertNotNull(tokenResponse.getBody().getRefreshToken().getValue());
         OAuth2Authentication oAuth2Authentication = jwtTokenStore.readAuthentication(tokenResponse.getBody());
         Collection<GrantedAuthority> authorities = oAuth2Authentication.getAuthorities();
-        Assert.assertEquals(authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_USER.toString())).count(), 1);
-        Assert.assertEquals(authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count(), 1);
-        Assert.assertEquals(authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count(), 1);
+        Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_USER.toString())).count());
+        Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count());
+        Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count());
     }
 
     @Test
@@ -72,9 +72,9 @@ public class PasswordFlowTest {
         Assert.assertNotNull(tokenResponse.getBody().getRefreshToken().getValue());
         OAuth2Authentication oAuth2Authentication = jwtTokenStore.readAuthentication(tokenResponse.getBody());
         Collection<GrantedAuthority> authorities = oAuth2Authentication.getAuthorities();
-        Assert.assertEquals(authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_USER.toString())).count(), 1);
-        Assert.assertEquals(authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count(), 1);
-        Assert.assertEquals(authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count(), 0);
+        Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_USER.toString())).count());
+        Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count());
+        Assert.assertEquals(0, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count());
     }
 
     @Test
@@ -84,9 +84,9 @@ public class PasswordFlowTest {
         Assert.assertNotNull(tokenResponse.getBody().getRefreshToken().getValue());
         OAuth2Authentication oAuth2Authentication = jwtTokenStore.readAuthentication(tokenResponse.getBody());
         Collection<GrantedAuthority> authorities = oAuth2Authentication.getAuthorities();
-        Assert.assertEquals(authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_USER.toString())).count(), 1);
-        Assert.assertEquals(authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count(), 0);
-        Assert.assertEquals(authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count(), 0);
+        Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_USER.toString())).count());
+        Assert.assertEquals(0, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count());
+        Assert.assertEquals(0, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count());
     }
 
     @Test

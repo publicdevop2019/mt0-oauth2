@@ -17,6 +17,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+/**
+ *  root has ROLE_ROOT, ROLE_ADMIN, ROLE_USER
+ *  admin has ROLE_ADMIN, ROLE_USER
+ *  user has ROLE_USER
+ */
 @RestController
 @RequestMapping("api/v1")
 public class ResourceOwnerController {
@@ -59,9 +64,6 @@ public class ResourceOwnerController {
 
     }
 
-    /**
-     * default to lowest authority
-     */
     @GetMapping("resourceOwners")
     @PreAuthorize("hasRole('ROLE_ADMIN') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public List<ResourceOwner> readUsers() {
@@ -107,7 +109,7 @@ public class ResourceOwnerController {
      * update authority, root user access can never be given, admin can only lock or unlock user
      */
     @PutMapping("resourceOwner/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ROOT','ROLE_ADMIN') and #oauth2.hasScope('trust') and #oauth2.isUser()")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> updateUser(@RequestBody ResourceOwner resourceOwner, @PathVariable Long id) {
 
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();

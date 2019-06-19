@@ -1,17 +1,13 @@
 package com.hw.integration;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
-import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -20,7 +16,7 @@ public class CORSTest {
     @LocalServerPort
     private int randomServerPort;
 
-    private TestRestTemplate restTemplate=new TestRestTemplate();
+    private TestRestTemplate restTemplate = new TestRestTemplate();
 
     private String thirdPartyOrigin = "https://editor.swagger.io";
 
@@ -140,11 +136,11 @@ public class CORSTest {
     }
 
     private void corsAssertToken(ResponseEntity res) {
-        Assert.assertEquals(res.getStatusCode(), HttpStatus.OK);
-        Assert.assertEquals(res.getHeaders().getAccessControlAllowOrigin(), "*");
-        Assert.assertEquals(res.getHeaders().getAccessControlAllowMethods().toString(), "[POST, PATCH, GET, DELETE, PUT, OPTIONS]");
-        Assert.assertEquals(res.getHeaders().getAccessControlAllowHeaders().toString(), "[authorization, x-requested-with]");
-        Assert.assertEquals(res.getHeaders().getAccessControlMaxAge(), 3600);
+        Assert.assertEquals(HttpStatus.OK, res.getStatusCode());
+        Assert.assertEquals("*", res.getHeaders().getAccessControlAllowOrigin());
+        Assert.assertEquals("[POST, PATCH, GET, DELETE, PUT, OPTIONS]", res.getHeaders().getAccessControlAllowMethods().toString());
+        Assert.assertEquals("[authorization, x-requested-with]", res.getHeaders().getAccessControlAllowHeaders().toString());
+        Assert.assertEquals(3600, res.getHeaders().getAccessControlMaxAge());
     }
 
     private ResponseEntity<?> sendValidCorsForNonTokenUri(String uri, HttpMethod method) {
@@ -163,11 +159,11 @@ public class CORSTest {
     }
 
     private void corsAssertNonToken(ResponseEntity res) {
-        Assert.assertEquals(res.getStatusCode(), HttpStatus.OK);
-        Assert.assertEquals(res.getHeaders().getAccessControlAllowOrigin(), "*");
-        Assert.assertEquals(res.getHeaders().getAccessControlAllowMethods().toString(), "[POST, PATCH, GET, DELETE, PUT, OPTIONS]");
-        Assert.assertEquals(res.getHeaders().getAccessControlAllowHeaders().toString(), "[authorization]");
-        Assert.assertEquals(res.getHeaders().getAccessControlMaxAge(), 3600);
+        Assert.assertEquals(HttpStatus.OK, res.getStatusCode());
+        Assert.assertEquals("*", res.getHeaders().getAccessControlAllowOrigin());
+        Assert.assertEquals("[POST, PATCH, GET, DELETE, PUT, OPTIONS]", res.getHeaders().getAccessControlAllowMethods().toString());
+        Assert.assertEquals("[authorization]", res.getHeaders().getAccessControlAllowHeaders().toString());
+        Assert.assertEquals(3600, res.getHeaders().getAccessControlMaxAge());
     }
 
 }

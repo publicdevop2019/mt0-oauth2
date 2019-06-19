@@ -18,7 +18,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("api/v1")
 @PreAuthorize("hasRole('ROLE_ROOT') and #oauth2.hasScope('trust') and #oauth2.isUser()")
-public class OAuthClientController {
+public class ClientController {
 
     @Autowired
     OAuthClientRepo oAuthClientRepo;
@@ -43,13 +43,20 @@ public class OAuthClientController {
         return oAuthClientRepo.findAll();
     }
 
+    /**
+     * replace an existing client, if no change to pwd then send empty
+     *
+     * @param client
+     * @param id
+     * @return
+     */
     @PutMapping("client/{id}")
     public ResponseEntity<?> replaceClient(@Valid @RequestBody Client client, @PathVariable Long id) {
         Optional<Client> oAuthClient1 = oAuthClientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } else {
-            if (StringUtils.hasText(oAuthClient1.get().getClientSecret())) {
+            if (StringUtils.hasText(client.getClientSecret())) {
                 client.setClientSecret(encoder.encode(client.getClientSecret()));
             } else {
                 client.setClientSecret(oAuthClient1.get().getClientSecret());

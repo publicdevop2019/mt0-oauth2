@@ -1,5 +1,6 @@
 package com.hw.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
@@ -55,6 +56,11 @@ public class ResourceOwner extends Auditable implements UserDetails {
     @Convert(converter = StringListConverter.class)
     private Set<String> resourceId;
 
+    /**
+     * make sure grantedAuthority only get serialized once
+     * @return
+     */
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return grantedAuthority;
