@@ -1,4 +1,5 @@
 # Swagger Editor
+![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/publicdevop2019/oauth2service.svg?style=flat-square)  ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/publicdevop2019/oauth2service.svg?style=flat-square)  ![Docker Pulls](https://img.shields.io/docker/pulls/publicdevop2019/oauth2service.svg?style=flat-square)  
 **copy content in swagger-editor.yaml to get start** 
 
 For http, please use [**this**](http://editor.swagger.io) http://editor.swagger.io swagger editor http url to avoid mix content error   
