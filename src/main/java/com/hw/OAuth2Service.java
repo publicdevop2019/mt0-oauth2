@@ -9,7 +9,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 public class OAuth2Service extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
-        SpringApplication.run(OAuth2Service.class, args);
+        SpringApplication.run(OAuth2Service.class);
     }
 
     @Override
