@@ -80,9 +80,10 @@ public class Client extends Auditable implements ClientDetails {
     @Nullable
     private Integer refreshTokenValiditySeconds;
 
-//    @Column
-//    @Nullable
-//    private Set<String> resourceIds;
+    @Column
+    @Nullable
+    @Convert(converter = StringListConverter.class)
+    private Set<String> resourceIds;
 
     /**
      * this field is not used in spring oauth2,
