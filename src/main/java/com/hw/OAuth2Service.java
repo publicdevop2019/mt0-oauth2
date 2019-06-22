@@ -6,15 +6,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class OAuth2Service extends SpringBootServletInitializer {
-
+public class OAuth2Service{
     public static void main(String[] args) {
         SpringApplication.run(OAuth2Service.class);
-    }
-
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(OAuth2Service.class);
     }
 }
 
