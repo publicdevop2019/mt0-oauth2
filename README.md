@@ -17,5 +17,5 @@ docker run -td --rm -p 8080:8080 --name oauth2service publicdevop2019/oauth2serv
 ```
 # Sonar Cloud command
 ```shell
-docker run -it --rm -v ~/oauth2service:/usr/src/app -v ~/.m2:/root/.m2 -w /usr/src/app maven:3.6.0-jdk-11 mvn sonar:sonar -Dsonar.projectKey=com.hw:OAuth2Service -Dsonar.organization=publicdevop2019-github -Dsonar.host.url=https://sonarcloud.io -Dsonar.login={generatedLoginID}
+docker run -it --rm -v ~/oauth2service:/usr/src/app -v ~/.m2:/root/.m2 -w /usr/src/app maven:3.6.0-jdk-11 mvn clean verify sonar:sonar -Dsonar.projectKey=com.hw:OAuth2Service -Dsonar.organization=publicdevop2019-github -Dsonar.host.url=https://sonarcloud.io -Dsonar.login={generatedLoginID}
 ```
