@@ -80,6 +80,10 @@ public class Client extends Auditable implements ClientDetails {
     @Nullable
     private Integer refreshTokenValiditySeconds;
 
+//    @Column
+//    @Nullable
+//    private Set<String> resourceIds;
+
     /**
      * this field is not used in spring oauth2,
      * client with no secret requires empty secret (mostly encoded)
@@ -91,11 +95,6 @@ public class Client extends Auditable implements ClientDetails {
     private Boolean hasSecret;
 
     @Override
-    public String getClientId() {
-        return clientId;
-    }
-
-    @Override
     public Set<String> getResourceIds() {
         return null;
     }
@@ -105,10 +104,6 @@ public class Client extends Auditable implements ClientDetails {
         return hasSecret;
     }
 
-    @Override
-    public String getClientSecret() {
-        return clientSecret;
-    }
 
     @Override
     @JsonIgnore
@@ -128,25 +123,10 @@ public class Client extends Auditable implements ClientDetails {
     }
 
     @Override
-    public Set<String> getRegisteredRedirectUri() {
-        return registeredRedirectUri;
-    }
-
-    @Override
     @JsonIgnore
     //TODO remove
     public Collection<GrantedAuthority> getAuthorities() {
         return grantedAuthority.stream().map(e -> (GrantedAuthority) e).collect(Collectors.toList());
-    }
-
-    @Override
-    public Integer getAccessTokenValiditySeconds() {
-        return accessTokenValiditySeconds;
-    }
-
-    @Override
-    public Integer getRefreshTokenValiditySeconds() {
-        return refreshTokenValiditySeconds;
     }
 
     @Override
