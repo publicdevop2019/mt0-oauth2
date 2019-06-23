@@ -79,6 +79,15 @@ public class ResourceOwnerControllerTest {
     }
 
     @Test
+    public void sad_createUser_invalid_username() throws JsonProcessingException {
+        ResourceOwner user = getUser_wrong_username();
+        ResponseEntity<DefaultOAuth2AccessToken> user1 = createUser(user);
+
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, user1.getStatusCode());
+
+    }
+
+    @Test
     public void sad_ceateUser_w_right_role_wrong_resourceId() throws JsonProcessingException {
         ResourceOwner user = getUser();
         ResponseEntity<DefaultOAuth2AccessToken> user1 = createUser(user, invalid_clientId);
@@ -285,6 +294,13 @@ public class ResourceOwnerControllerTest {
         ResourceOwner resourceOwner = new ResourceOwner();
         resourceOwner.setPassword(UUID.randomUUID().toString().replace("-", ""));
         resourceOwner.setEmail(UUID.randomUUID().toString().replace("-", "") + "@gmail.com");
+        return resourceOwner;
+    }
+
+    private ResourceOwner getUser_wrong_username() {
+        ResourceOwner resourceOwner = new ResourceOwner();
+        resourceOwner.setPassword(UUID.randomUUID().toString().replace("-", ""));
+        resourceOwner.setEmail(UUID.randomUUID().toString());
         return resourceOwner;
     }
 

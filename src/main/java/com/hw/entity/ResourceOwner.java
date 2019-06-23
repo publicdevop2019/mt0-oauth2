@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -34,6 +35,7 @@ public class ResourceOwner extends Auditable implements UserDetails {
 
     @Column(nullable = false)
     @NotBlank
+    @Email
     private String email;
 
     @Column(nullable = false)
