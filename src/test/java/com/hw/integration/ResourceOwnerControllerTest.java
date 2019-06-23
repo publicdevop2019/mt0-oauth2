@@ -35,6 +35,7 @@ public class ResourceOwnerControllerTest {
     private String password = "password";
     private String client_credentials = "client_credentials";
     private String valid_clientId = "login-id";
+    private String invalid_clientId = "rightRoleNotSufficientResourceId";
     private String valid_register_clientId = "register-id";
     private String valid_empty_secret = "";
     private String valid_username_root = "root";
@@ -75,6 +76,14 @@ public class ResourceOwnerControllerTest {
         Assert.assertEquals(0, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count());
         Assert.assertEquals(0, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count());
 
+    }
+
+    @Test
+    public void sad_ceateUser_w_right_role_wrong_resourceId() throws JsonProcessingException {
+        ResourceOwner user = getUser();
+        ResponseEntity<DefaultOAuth2AccessToken> user1 = createUser(user, invalid_clientId);
+
+        Assert.assertEquals(HttpStatus.FORBIDDEN, user1.getStatusCode());
     }
 
     @Test
@@ -302,8 +311,12 @@ public class ResourceOwnerControllerTest {
     }
 
     private ResponseEntity<DefaultOAuth2AccessToken> createUser(ResourceOwner user) throws JsonProcessingException {
+        return createUser(user, valid_register_clientId);
+    }
+
+    private ResponseEntity<DefaultOAuth2AccessToken> createUser(ResourceOwner user, String clientId) throws JsonProcessingException {
         String url = "http://localhost:" + randomServerPort + "/api/v1" + "/resourceOwner";
-        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = getRegisterTokenResponse(client_credentials, valid_register_clientId, valid_empty_secret);
+        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = getRegisterTokenResponse(client_credentials, clientId, valid_empty_secret);
         String value = registerTokenResponse.getBody().getValue();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

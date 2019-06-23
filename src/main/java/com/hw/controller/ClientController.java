@@ -28,6 +28,7 @@ public class ClientController {
 
     @PostMapping("client")
     public ResponseEntity<?> createClient(@Valid @RequestBody Client client) {
+        validateResourceId(client);
         Client clientId = oAuthClientRepo.findByClientId(client.getClientId());
         if (clientId == null) {
             client.setClientSecret(encoder.encode(client.getClientSecret().trim()));
@@ -52,6 +53,7 @@ public class ClientController {
      */
     @PutMapping("client/{id}")
     public ResponseEntity<?> replaceClient(@Valid @RequestBody Client client, @PathVariable Long id) {
+        validateResourceId(client);
         Optional<Client> oAuthClient1 = oAuthClientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -81,5 +83,10 @@ public class ClientController {
             oAuthClientRepo.delete(oAuthClient1.get());
             return ResponseEntity.ok().build();
         }
+    }
+
+    private void validateResourceId(Client client) throws IllegalArgumentException {
+        if (client.getResourceIds() != null && client.getResourceIds().stream().anyMatch(resourceId -> oAuthClientRepo.findByClientId(resourceId) == null))
+            throw new IllegalArgumentException("invalid resourceId found");
     }
 }
