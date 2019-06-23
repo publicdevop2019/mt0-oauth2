@@ -96,11 +96,6 @@ public class Client extends Auditable implements ClientDetails {
     private Boolean hasSecret;
 
     @Override
-    public Set<String> getResourceIds() {
-        return null;
-    }
-
-    @Override
     public boolean isSecretRequired() {
         return hasSecret;
     }

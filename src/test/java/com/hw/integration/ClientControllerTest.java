@@ -33,6 +33,7 @@ public class ClientControllerTest {
 
     private String password = "password";
     private String valid_clientId = "login-id";
+    private String valid_resourceId = "test-id";
     private String valid_empty_secret = "";
     private String valid_username_root = "root";
     private String valid_username_admin = "admin";
@@ -47,6 +48,20 @@ public class ClientControllerTest {
     @Test
     public void happy_createClient() throws JsonProcessingException {
         Client client = getClient();
+        ResponseEntity<String> exchange = createClient(client);
+
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assert.assertNotNull(exchange.getHeaders().getLocation());
+
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = getTokenResponse(password, valid_username_root, valid_pwd, client.getClientId(), client.getClientSecret());
+
+        Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
+        Assert.assertNotNull(tokenResponse1.getBody().getValue());
+    }
+
+    @Test
+    public void happy_createClient_w_resourceId() throws JsonProcessingException {
+        Client client = getClient(valid_resourceId);
         ResponseEntity<String> exchange = createClient(client);
 
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
@@ -169,7 +184,7 @@ public class ClientControllerTest {
     /**
      * @return different password client obj
      */
-    private Client getClient() {
+    private Client getClient(String... resourceIds) {
         Client client = new Client();
         client.setClientId(UUID.randomUUID().toString().replace("-", ""));
         client.setClientSecret(UUID.randomUUID().toString().replace("-", ""));
@@ -181,6 +196,7 @@ public class ClientControllerTest {
         client.setAccessTokenValiditySeconds(1800);
         client.setRefreshTokenValiditySeconds(null);
         client.setHasSecret(true);
+        client.setResourceIds(new HashSet<>(Arrays.asList(resourceIds)));
         return client;
     }
 
