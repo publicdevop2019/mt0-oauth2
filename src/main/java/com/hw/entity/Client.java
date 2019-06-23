@@ -81,7 +81,8 @@ public class Client extends Auditable implements ClientDetails {
     private Integer refreshTokenValiditySeconds;
 
     @Column
-    @Nullable
+    @NotNull
+    @NotEmpty
     @Convert(converter = StringListConverter.class)
     private Set<String> resourceIds;
 

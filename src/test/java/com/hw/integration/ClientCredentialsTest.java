@@ -22,6 +22,7 @@ public class ClientCredentialsTest {
     private String client_credentials = "client_credentials";
     private String valid_clientId = "oauth2-id";
     private String valid_clientId_no_secret = "register-id";
+    private String valid_clientId_no_access_authPort = "rightRoleNotSufficientResourceId";
     private String valid_clientSecret = "root";
     private String valid_empty_secret = "";
     private TestRestTemplate restTemplate = new TestRestTemplate();
@@ -46,6 +47,13 @@ public class ClientCredentialsTest {
     public void sad_client_w_wrong_credentials() {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(client_credentials, valid_clientId, valid_empty_secret);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse.getStatusCode());
+
+    }
+
+    @Test
+    public void sad_client_authorizationPoint_not_include_in_resource() {
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(client_credentials, valid_clientId_no_access_authPort, valid_empty_secret);
+        Assert.assertEquals(HttpStatus.OK, tokenResponse.getStatusCode());
 
     }
 

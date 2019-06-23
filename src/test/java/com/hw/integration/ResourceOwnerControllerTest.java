@@ -35,8 +35,7 @@ public class ResourceOwnerControllerTest {
     private String password = "password";
     private String client_credentials = "client_credentials";
     private String valid_clientId = "login-id";
-    private String invalid_clientId = "rightRoleWrongResourceId";
-    private String invalid_clientId2 = "rightRoleNoResourceId";
+    private String invalid_clientId = "rightRoleNotSufficientResourceId";
     private String valid_register_clientId = "register-id";
     private String valid_empty_secret = "";
     private String valid_username_root = "root";
@@ -83,13 +82,6 @@ public class ResourceOwnerControllerTest {
     public void sad_ceateUser_w_right_role_wrong_resourceId() throws JsonProcessingException {
         ResourceOwner user = getUser();
         ResponseEntity<DefaultOAuth2AccessToken> user1 = createUser(user, invalid_clientId);
-
-        Assert.assertEquals(HttpStatus.FORBIDDEN, user1.getStatusCode());
-    }
-    @Test
-    public void sad_ceateUser_w_right_role_no_resourceId() throws JsonProcessingException {
-        ResourceOwner user = getUser();
-        ResponseEntity<DefaultOAuth2AccessToken> user1 = createUser(user, invalid_clientId2);
 
         Assert.assertEquals(HttpStatus.FORBIDDEN, user1.getStatusCode());
     }

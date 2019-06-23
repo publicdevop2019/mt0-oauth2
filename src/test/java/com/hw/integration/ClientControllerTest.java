@@ -37,7 +37,6 @@ public class ClientControllerTest {
     private String valid_empty_secret = "";
     private String valid_username_root = "root";
     private String valid_username_admin = "admin";
-    private String valid_username_user = "user";
     private String valid_pwd = "root";
     public ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false);
     private TestRestTemplate restTemplate = new TestRestTemplate();
@@ -46,17 +45,11 @@ public class ClientControllerTest {
     int randomServerPort;
 
     @Test
-    public void happy_createClient() throws JsonProcessingException {
+    public void sad_createClient_no_resourceId() throws JsonProcessingException {
         Client client = getClient();
         ResponseEntity<String> exchange = createClient(client);
 
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        Assert.assertNotNull(exchange.getHeaders().getLocation());
-
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = getTokenResponse(password, valid_username_root, valid_pwd, client.getClientId(), client.getClientSecret());
-
-        Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
-        Assert.assertNotNull(tokenResponse1.getBody().getValue());
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
     @Test
@@ -75,7 +68,7 @@ public class ClientControllerTest {
 
     @Test
     public void sad_createClient_w_admin_account() throws JsonProcessingException {
-        Client client = getClient();
+        Client client = getClient(valid_resourceId);
         String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client";
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_admin, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
@@ -106,10 +99,10 @@ public class ClientControllerTest {
     public void happy_replaceClient_noUpdateSecret() throws JsonProcessingException {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = getClient();
+        Client oldClient = getClient(valid_resourceId);
         ResponseEntity<String> client1 = createClient(oldClient);
         String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
-        Client newClient = getClient();
+        Client newClient = getClient(valid_resourceId);
         newClient.setClientSecret(" ");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -130,10 +123,10 @@ public class ClientControllerTest {
     public void happy_replaceClient_updateSecret() throws JsonProcessingException {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = getClient();
+        Client oldClient = getClient(valid_resourceId);
         ResponseEntity<String> client1 = createClient(oldClient);
         String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
-        Client newClient = getClient();
+        Client newClient = getClient(valid_resourceId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
@@ -153,7 +146,7 @@ public class ClientControllerTest {
     public void happy_deleteClient() throws JsonProcessingException {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = getClient();
+        Client oldClient = getClient(valid_resourceId);
         ResponseEntity<String> client1 = createClient(oldClient);
         String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
         HttpHeaders headers = new HttpHeaders();
