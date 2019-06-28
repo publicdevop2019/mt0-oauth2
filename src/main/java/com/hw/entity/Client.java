@@ -96,7 +96,11 @@ public class Client extends Auditable implements ClientDetails {
     @NotNull
     private Boolean hasSecret;
 
+    /**
+     *  JsonIgnore make sure filed does not get print two times
+     */
     @Override
+    @JsonIgnore
     public boolean isSecretRequired() {
         return hasSecret;
     }
@@ -104,24 +108,24 @@ public class Client extends Auditable implements ClientDetails {
 
     @Override
     @JsonIgnore
-    //TODO remove
     public boolean isScoped() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public Set<String> getScope() {
         return scopeEnums.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
     }
 
     @Override
+    @JsonIgnore
     public Set<String> getAuthorizedGrantTypes() {
         return grantTypeEnums.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
     }
 
     @Override
     @JsonIgnore
-    //TODO remove
     public Collection<GrantedAuthority> getAuthorities() {
         return grantedAuthority.stream().map(e -> (GrantedAuthority) e).collect(Collectors.toList());
     }
