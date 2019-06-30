@@ -62,6 +62,7 @@ public class ClientController {
     @PutMapping("client/{id}")
     public ResponseEntity<?> replaceClient(@Valid @RequestBody Client client, @PathVariable Long id) {
         validateResourceId(client);
+        validateResourceIndicator(client);
         Optional<Client> oAuthClient1 = oAuthClientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

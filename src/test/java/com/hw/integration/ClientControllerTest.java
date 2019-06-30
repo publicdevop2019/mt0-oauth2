@@ -150,6 +150,25 @@ public class ClientControllerTest {
     }
 
     @Test
+    public void sad_replaceClient_noUpdateSecret_w_invalid_as_resource() throws JsonProcessingException {
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
+        String bearer = tokenResponse.getBody().getValue();
+        Client oldClient = getClientAsNonResource(valid_resourceId);
+        ResponseEntity<String> client1 = createClient(oldClient);
+        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
+        Client newClient = getInvalidClientAsResource(valid_resourceId);
+        newClient.setClientSecret(" ");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(bearer);
+        String s1 = mapper.writeValueAsString(newClient);
+        HttpEntity<String> request = new HttpEntity<>(s1, headers);
+        ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
+
+    }
+
+    @Test
     public void happy_replaceClient_updateSecret() throws JsonProcessingException {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
