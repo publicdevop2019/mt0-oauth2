@@ -35,8 +35,8 @@ public class ClientControllerTest {
     private String valid_clientId = "login-id";
     private String valid_resourceId = "test-id";
     private String valid_empty_secret = "";
-    private String valid_username_root = "root";
-    private String valid_username_admin = "admin";
+    private String valid_username_root = "root@gmail.com";
+    private String valid_username_admin = "admin@gmail.com";
     private String valid_pwd = "root";
     public ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false);
     private TestRestTemplate restTemplate = new TestRestTemplate();

@@ -35,7 +35,6 @@ public class CORSConfig {
         source.registerCorsConfiguration("/api/v1/clients", configuration);
         source.registerCorsConfiguration("/api/v1/resourceOwner/**", configuration);
         source.registerCorsConfiguration("/api/v1/resourceOwners", configuration);
-        source.registerCorsConfiguration("/api/v1/resourceOwner/**/pwd", configuration);
         source.registerCorsConfiguration("/api/v1/authorize", configuration);
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
         /**

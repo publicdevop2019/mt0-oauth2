@@ -23,7 +23,7 @@ public class CORSTest {
     private String apiVersion = "/api/v1/";
 
     private String[] corsUris = {"oauth/token", "oauth/token_key", "client", "client/0", "clients",
-            "authorize", "resourceOwner", "resourceOwner/0", "resourceOwner/0/pwd", "resourceOwners"};
+            "authorize", "resourceOwner", "resourceOwner/0", "resourceOwner/pwd", "resourceOwners"};
 
     @Test
     public void happy_oauthToken() {

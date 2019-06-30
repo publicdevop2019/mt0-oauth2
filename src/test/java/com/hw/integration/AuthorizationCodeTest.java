@@ -36,11 +36,11 @@ public class AuthorizationCodeTest {
     private String valid_third_party = "mgfb-id";
     private String valid_clientId_no_refersh = "test-id";
     private String valid_empty_secret = "";
-    private String valid_username_root = "root";
-    private String valid_username_admin = "admin";
-    private String valid_username_user = "user";
+    private String valid_username_root = "root@gmail.com";
+    private String valid_username_admin = "admin@gmail.com";
+    private String valid_username_user = "user@gmail.com";
     private String valid_pwd = "root";
-    private String invalid_username = "root2";
+    private String invalid_username = "root2@gmail.com";
     private String invalid_clientId = "root2";
     private String valid_redirect_uri = "http://localhost:4200";
     private String state = "login";

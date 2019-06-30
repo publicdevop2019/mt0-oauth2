@@ -33,9 +33,10 @@ public class ResourceOwnerController {
     BCryptPasswordEncoder encoder;
 
     /**
-     * update pwd
+     * update pwd, id is not required due to it may not be available,
+     * also in order to get id, extra call required
      */
-    @PatchMapping("resourceOwner/{id}/pwd")
+    @PatchMapping("resourceOwner/pwd")
     @PreAuthorize("hasRole('ROLE_USER') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> updateUserPwd(@RequestBody ResourceOwner resourceOwner) {
 

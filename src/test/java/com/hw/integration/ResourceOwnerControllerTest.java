@@ -38,9 +38,9 @@ public class ResourceOwnerControllerTest {
     private String invalid_clientId = "rightRoleNotSufficientResourceId";
     private String valid_register_clientId = "register-id";
     private String valid_empty_secret = "";
-    private String valid_username_root = "root";
-    private String valid_username_admin = "admin";
-    private String valid_username_user = "user";
+    private String valid_username_root = "root@gmail.com";
+    private String valid_username_admin = "admin@gmail.com";
+    private String valid_username_user = "user@gmail.com";
     private String valid_pwd = "root";
     public ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false).setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
@@ -99,9 +99,8 @@ public class ResourceOwnerControllerTest {
     public void happy_updateUserPwd() throws JsonProcessingException {
         ResourceOwner user = getUser();
         ResponseEntity<DefaultOAuth2AccessToken> createResp = createUser(user);
-        String s = createResp.getHeaders().getLocation().toString();
         /** Location is not used in this case, root/admin/user can only update their password */
-        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/resourceOwner/" + s + "/pwd";
+        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/resourceOwner/pwd";
         String newPassword = UUID.randomUUID().toString().replace("-", "");
         /** Login */
         String oldPassword = user.getPassword();
