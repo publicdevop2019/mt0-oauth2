@@ -33,8 +33,9 @@ public class ClientControllerTest {
 
     private String password = "password";
     private String valid_clientId = "login-id";
-    private String valid_resourceId = "test-id";
-    private String invalid_resourceId = "test-idasdf";
+    private String valid_resourceId = "resource-id";
+    private String invalid_resourceId = "test-id";
+    private String invalid_resourceId_not_found = "test-idasdf";
     private String valid_empty_secret = "";
     private String valid_username_root = "root@gmail.com";
     private String valid_username_admin = "admin@gmail.com";
@@ -90,8 +91,15 @@ public class ClientControllerTest {
     }
 
     @Test
+    public void sad_createClient_w_resourceId_as_resource() throws JsonProcessingException {
+        Client client = getClientAsResource(invalid_resourceId);
+        ResponseEntity<String> exchange = createClient(client);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
+    }
+
+    @Test
     public void sad_createClient_w_invalid_resourceId() throws JsonProcessingException {
-        Client client = getClientAsNonResource(invalid_resourceId);
+        Client client = getClientAsNonResource(invalid_resourceId_not_found);
         ResponseEntity<String> exchange = createClient(client);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }

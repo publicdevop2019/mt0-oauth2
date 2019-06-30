@@ -98,7 +98,9 @@ public class ClientController {
         /**
          * selected resource ids should be eligible resource
          */
-        if (client.getResourceIds() != null && client.getResourceIds().stream().anyMatch(resourceId -> oAuthClientRepo.findByClientId(resourceId) == null))
+        if (client.getResourceIds() == null || client.getResourceIds().size() == 0
+                || client.getResourceIds().stream().anyMatch(resourceId -> oAuthClientRepo.findByClientId(resourceId) == null
+                || !oAuthClientRepo.findByClientId(resourceId).getResourceIndicator()))
             throw new IllegalArgumentException("invalid resourceId found");
     }
 

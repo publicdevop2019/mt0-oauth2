@@ -281,12 +281,15 @@ components:
           type: array
           items:
             type: string
+        resourceIndicator:
+          type: boolean
     GrantedAuthorityImpl:
       type: object
       properties:
         authority:
           type: string
           enum: [ROLE_FRONTEND,ROLE_ADMIN,ROLE_USER,ROLE_TRUST,ROLE_FIRST_PARTY,ROLE_THIRD_PARTY,ROLE_BACKEND]
+          default: ROLE_BACKEND,ROLE_FIRST_PARTY
     ResourceOwner:
       type: object
       properties:
