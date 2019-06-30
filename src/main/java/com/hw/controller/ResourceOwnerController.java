@@ -74,7 +74,7 @@ public class ResourceOwnerController {
     }
 
     /**
-     * create user, authority is overwritten to ROLE_USER
+     * create user, grantedAuthority is overwritten to ROLE_USER
      */
     @PostMapping("resourceOwner")
     @PreAuthorize("hasRole('ROLE_FRONTEND') and #oauth2.hasScope('write') and #oauth2.isClient()")
@@ -107,7 +107,7 @@ public class ResourceOwnerController {
     }
 
     /**
-     * update authority, root user access can never be given, admin can only lock or unlock user
+     * update grantedAuthority, root user access can never be given, admin can only lock or unlock user
      */
     @PutMapping("resourceOwner/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') and #oauth2.hasScope('trust') and #oauth2.isUser()")
@@ -116,10 +116,10 @@ public class ResourceOwnerController {
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
 
         if (resourceOwner.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
-            throw new AccessDeniedException("assign root authority is prohibited");
+            throw new AccessDeniedException("assign root grantedAuthority is prohibited");
 
         if (authorities.stream().noneMatch(e -> "ROLE_ROOT".equals(e.getAuthority())) && resourceOwner.getAuthorities() != null)
-            throw new AccessDeniedException("only root user can change authority");
+            throw new AccessDeniedException("only root user can change grantedAuthority");
 
         Optional<ResourceOwner> byId = userRepo.findById(id);
 

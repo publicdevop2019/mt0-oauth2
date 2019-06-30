@@ -13,23 +13,23 @@ public class GrantedAuthorityImplTest {
     @Test
     public void getAuthority() {
         GrantedAuthorityImpl grantedAuthority = new GrantedAuthorityImpl(ClientAuthorityEnum.ROLE_BACKEND);
-        String authority = grantedAuthority.getAuthority();
+        String authority = grantedAuthority.getGrantedAuthority().toString();
         Assert.assertEquals(ClientAuthorityEnum.ROLE_BACKEND.toString(),authority);
     }
 
     @Test
     public void setAuthority() {
         GrantedAuthorityImpl grantedAuthority = new GrantedAuthorityImpl();
-        grantedAuthority.setAuthority(ClientAuthorityEnum.ROLE_BACKEND);
-        String authority = grantedAuthority.getAuthority();
+        grantedAuthority.setGrantedAuthority(ClientAuthorityEnum.ROLE_BACKEND);
+        String authority = grantedAuthority.getGrantedAuthority().toString();
         Assert.assertEquals(ClientAuthorityEnum.ROLE_BACKEND.toString(),authority);
 
     }
     @Test
     public void setAuthority_overwrite() {
         GrantedAuthorityImpl grantedAuthority = new GrantedAuthorityImpl(ClientAuthorityEnum.ROLE_FIRST_PARTY);
-        grantedAuthority.setAuthority(ClientAuthorityEnum.ROLE_BACKEND);
-        String authority = grantedAuthority.getAuthority();
+        grantedAuthority.setGrantedAuthority(ClientAuthorityEnum.ROLE_BACKEND);
+        String authority = grantedAuthority.getGrantedAuthority().toString();
         Assert.assertEquals(ClientAuthorityEnum.ROLE_BACKEND.toString(),authority);
 
     }

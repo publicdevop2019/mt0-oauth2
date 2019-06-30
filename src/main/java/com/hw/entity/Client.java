@@ -87,6 +87,13 @@ public class Client extends Auditable implements ClientDetails {
     private Set<String> resourceIds;
 
     /**
+     * indicates if a client is a resource, if true resource id will default to client id
+     */
+    @Column
+    @NotNull
+    private Boolean resourceIndicator;
+
+    /**
      * this field is not used in spring oauth2,
      * client with no secret requires empty secret (mostly encoded)
      * below is empty string "" encoded, use if needed
@@ -97,7 +104,7 @@ public class Client extends Auditable implements ClientDetails {
     private Boolean hasSecret;
 
     /**
-     *  JsonIgnore make sure filed does not get print two times
+     * JsonIgnore make sure filed does not get print two times
      */
     @Override
     @JsonIgnore

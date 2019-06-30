@@ -1,15 +1,23 @@
 package com.hw.clazz;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.validation.Valid;
 
+/**
+ * rename filed to avoid setter & getter type different
+ * @param <T>
+ */
 public class GrantedAuthorityImpl<T extends Enum<T>> implements GrantedAuthority {
     @Valid
-    private T authority;
+    @Setter
+    @Getter
+    private T grantedAuthority;
 
     public GrantedAuthorityImpl(T input) {
-        authority = input;
+        grantedAuthority = input;
     }
 
     public GrantedAuthorityImpl() {
@@ -19,12 +27,8 @@ public class GrantedAuthorityImpl<T extends Enum<T>> implements GrantedAuthority
         return new GrantedAuthorityImpl(T.valueOf(enumType, string));
     }
 
-    @Override
     public String getAuthority() {
-        return authority.toString();
+        return grantedAuthority.toString();
     }
 
-    public void setAuthority(T authority) {
-        this.authority = authority;
-    }
 }

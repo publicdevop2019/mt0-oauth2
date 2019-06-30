@@ -149,9 +149,9 @@ public class ResourceOwnerControllerTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority.setAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
+        resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority2.setAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
         user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
@@ -160,7 +160,7 @@ public class ResourceOwnerControllerTest {
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
         /**
-         * login to verify authority has been changed
+         * login to verify grantedAuthority has been changed
          */
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = getTokenResponse(password, user.getEmail(), user.getPassword(), valid_clientId, valid_empty_secret);
         OAuth2Authentication oAuth2Authentication = jwtTokenStore.readAuthentication(tokenResponse1.getBody());
@@ -183,9 +183,9 @@ public class ResourceOwnerControllerTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority.setAuthority(ResourceOwnerAuthorityEnum.ROLE_ROOT);
+        resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ROOT);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority2.setAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
         user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
@@ -208,9 +208,9 @@ public class ResourceOwnerControllerTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority.setAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
+        resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority2.setAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
         user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
@@ -233,7 +233,7 @@ public class ResourceOwnerControllerTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority2.setAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
         user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority2));
         user.setLocked(true);
         String s1 = mapper.writeValueAsString(user);
