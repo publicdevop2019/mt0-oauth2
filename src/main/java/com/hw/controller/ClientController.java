@@ -1,5 +1,6 @@
 package com.hw.controller;
 
+import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.entity.Client;
 import com.hw.repo.OAuthClientRepo;
 import org.springframework.beans.BeanUtils;
@@ -26,9 +27,16 @@ public class ClientController {
     @Autowired
     BCryptPasswordEncoder encoder;
 
+    /**
+     * if client is marked as resource then it must be a backend and first party application
+     *
+     * @param client
+     * @return
+     */
     @PostMapping("client")
     public ResponseEntity<?> createClient(@Valid @RequestBody Client client) {
         validateResourceId(client);
+        validateResourceIndicator(client);
         Client clientId = oAuthClientRepo.findByClientId(client.getClientId());
         if (clientId == null) {
             client.setClientSecret(encoder.encode(client.getClientSecret().trim()));
@@ -54,6 +62,7 @@ public class ClientController {
     @PutMapping("client/{id}")
     public ResponseEntity<?> replaceClient(@Valid @RequestBody Client client, @PathVariable Long id) {
         validateResourceId(client);
+        validateResourceIndicator(client);
         Optional<Client> oAuthClient1 = oAuthClientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -86,7 +95,22 @@ public class ClientController {
     }
 
     private void validateResourceId(Client client) throws IllegalArgumentException {
-        if (client.getResourceIds() != null && client.getResourceIds().stream().anyMatch(resourceId -> oAuthClientRepo.findByClientId(resourceId) == null))
+        /**
+         * selected resource ids should be eligible resource
+         */
+        if (client.getResourceIds() == null || client.getResourceIds().size() == 0
+                || client.getResourceIds().stream().anyMatch(resourceId -> oAuthClientRepo.findByClientId(resourceId) == null
+                || !oAuthClientRepo.findByClientId(resourceId).getResourceIndicator()))
             throw new IllegalArgumentException("invalid resourceId found");
+    }
+
+    private void validateResourceIndicator(Client client) throws IllegalArgumentException {
+        if (client.getResourceIndicator())
+            if (client.getGrantedAuthority().stream().anyMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_BACKEND))
+                    && client.getGrantedAuthority().stream().anyMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_FIRST_PARTY))) {
+            } else {
+                throw new IllegalArgumentException("invalid grantedAuthority to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
+            }
+
     }
 }

@@ -144,7 +144,7 @@ paths:
           $ref: "#/components/responses/BadRequest"
         200:
           $ref: "#/components/responses/OK"
-  /resourceOwner/{id}/pwd:
+  /resourceOwner/pwd:
     patch:
       tags:
       - resourceOwner
@@ -277,12 +277,19 @@ components:
           format: int64
         hasSecret:
           type: boolean
+        resourceIds:
+          type: array
+          items:
+            type: string
+        resourceIndicator:
+          type: boolean
     GrantedAuthorityImpl:
       type: object
       properties:
         authority:
           type: string
           enum: [ROLE_FRONTEND,ROLE_ADMIN,ROLE_USER,ROLE_TRUST,ROLE_FIRST_PARTY,ROLE_THIRD_PARTY,ROLE_BACKEND]
+          default: ROLE_BACKEND,ROLE_FIRST_PARTY
     ResourceOwner:
       type: object
       properties:
@@ -386,11 +393,11 @@ components:
       type: oauth2
       flows:
         clientCredentials:
-          tokenUrl: /oauth/token
+          tokenUrl: http:/localhost:8080/oauth/token
           scopes:
             write: Grant write access
         password:
-          tokenUrl: /oauth/token
+          tokenUrl: http://localhost:8080/oauth/token
           scopes:
             root: Grant access to root operation including client CRUD
             admin: Grant access to admin operation

@@ -33,10 +33,12 @@ public class ClientControllerTest {
 
     private String password = "password";
     private String valid_clientId = "login-id";
-    private String valid_resourceId = "test-id";
+    private String valid_resourceId = "resource-id";
+    private String invalid_resourceId = "test-id";
+    private String invalid_resourceId_not_found = "test-idasdf";
     private String valid_empty_secret = "";
-    private String valid_username_root = "root";
-    private String valid_username_admin = "admin";
+    private String valid_username_root = "root@gmail.com";
+    private String valid_username_admin = "admin@gmail.com";
     private String valid_pwd = "root";
     public ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false);
     private TestRestTemplate restTemplate = new TestRestTemplate();
@@ -46,15 +48,23 @@ public class ClientControllerTest {
 
     @Test
     public void sad_createClient_no_resourceId() throws JsonProcessingException {
-        Client client = getClient();
+        Client client = getClientAsNonResource();
         ResponseEntity<String> exchange = createClient(client);
 
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
     @Test
-    public void happy_createClient_w_resourceId() throws JsonProcessingException {
-        Client client = getClient(valid_resourceId);
+    public void sad_createInvalidClient_w_resourceId_as_resource() throws JsonProcessingException {
+        Client client = getInvalidClientAsResource();
+        ResponseEntity<String> exchange = createClient(client);
+
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
+    }
+
+    @Test
+    public void happy_createClient_w_resourceId_none_resource() throws JsonProcessingException {
+        Client client = getClientAsNonResource(valid_resourceId);
         ResponseEntity<String> exchange = createClient(client);
 
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
@@ -67,8 +77,36 @@ public class ClientControllerTest {
     }
 
     @Test
+    public void happy_createClient_w_resourceId_as_resource() throws JsonProcessingException {
+        Client client = getClientAsResource(valid_resourceId);
+        ResponseEntity<String> exchange = createClient(client);
+
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assert.assertNotNull(exchange.getHeaders().getLocation());
+
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = getTokenResponse(password, valid_username_root, valid_pwd, client.getClientId(), client.getClientSecret());
+
+        Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
+        Assert.assertNotNull(tokenResponse1.getBody().getValue());
+    }
+
+    @Test
+    public void sad_createClient_w_resourceId_as_resource() throws JsonProcessingException {
+        Client client = getClientAsResource(invalid_resourceId);
+        ResponseEntity<String> exchange = createClient(client);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
+    }
+
+    @Test
+    public void sad_createClient_w_invalid_resourceId() throws JsonProcessingException {
+        Client client = getClientAsNonResource(invalid_resourceId_not_found);
+        ResponseEntity<String> exchange = createClient(client);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
+    }
+
+    @Test
     public void sad_createClient_w_admin_account() throws JsonProcessingException {
-        Client client = getClient(valid_resourceId);
+        Client client = getClientAsNonResource(valid_resourceId);
         String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client";
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_admin, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
@@ -99,10 +137,10 @@ public class ClientControllerTest {
     public void happy_replaceClient_noUpdateSecret() throws JsonProcessingException {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = getClient(valid_resourceId);
+        Client oldClient = getClientAsNonResource(valid_resourceId);
         ResponseEntity<String> client1 = createClient(oldClient);
         String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
-        Client newClient = getClient(valid_resourceId);
+        Client newClient = getClientAsNonResource(valid_resourceId);
         newClient.setClientSecret(" ");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -120,13 +158,32 @@ public class ClientControllerTest {
     }
 
     @Test
+    public void sad_replaceClient_noUpdateSecret_w_invalid_as_resource() throws JsonProcessingException {
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
+        String bearer = tokenResponse.getBody().getValue();
+        Client oldClient = getClientAsNonResource(valid_resourceId);
+        ResponseEntity<String> client1 = createClient(oldClient);
+        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
+        Client newClient = getInvalidClientAsResource(valid_resourceId);
+        newClient.setClientSecret(" ");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(bearer);
+        String s1 = mapper.writeValueAsString(newClient);
+        HttpEntity<String> request = new HttpEntity<>(s1, headers);
+        ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
+
+    }
+
+    @Test
     public void happy_replaceClient_updateSecret() throws JsonProcessingException {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = getClient(valid_resourceId);
+        Client oldClient = getClientAsNonResource(valid_resourceId);
         ResponseEntity<String> client1 = createClient(oldClient);
         String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
-        Client newClient = getClient(valid_resourceId);
+        Client newClient = getClientAsNonResource(valid_resourceId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
@@ -146,7 +203,7 @@ public class ClientControllerTest {
     public void happy_deleteClient() throws JsonProcessingException {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = getClient(valid_resourceId);
+        Client oldClient = getClientAsNonResource(valid_resourceId);
         ResponseEntity<String> client1 = createClient(oldClient);
         String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
         HttpHeaders headers = new HttpHeaders();
@@ -177,14 +234,42 @@ public class ClientControllerTest {
     /**
      * @return different password client obj
      */
-    private Client getClient(String... resourceIds) {
+    private Client getClientAsNonResource(String... resourceIds) {
+        Client client = getClientRaw(resourceIds);
+        GrantedAuthorityImpl<ClientAuthorityEnum> clientAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
+        clientAuthorityEnumGrantedAuthority.setGrantedAuthority(ClientAuthorityEnum.ROLE_BACKEND);
+        client.setGrantedAuthority(Arrays.asList(clientAuthorityEnumGrantedAuthority));
+        client.setResourceIndicator(false);
+        return client;
+    }
+
+    private Client getClientAsResource(String... resourceIds) {
+        Client client = getClientRaw(resourceIds);
+        GrantedAuthorityImpl<ClientAuthorityEnum> clientAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
+        clientAuthorityEnumGrantedAuthority.setGrantedAuthority(ClientAuthorityEnum.ROLE_FIRST_PARTY);
+        GrantedAuthorityImpl<ClientAuthorityEnum> clientAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
+        clientAuthorityEnumGrantedAuthority2.setGrantedAuthority(ClientAuthorityEnum.ROLE_BACKEND);
+        client.setGrantedAuthority(Arrays.asList(clientAuthorityEnumGrantedAuthority, clientAuthorityEnumGrantedAuthority2));
+        client.setResourceIndicator(true);
+        return client;
+    }
+
+    private Client getInvalidClientAsResource(String... resourceIds) {
+        Client client = getClientRaw(resourceIds);
+        GrantedAuthorityImpl<ClientAuthorityEnum> clientAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
+        clientAuthorityEnumGrantedAuthority.setGrantedAuthority(ClientAuthorityEnum.ROLE_THIRD_PARTY);
+        GrantedAuthorityImpl<ClientAuthorityEnum> clientAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
+        clientAuthorityEnumGrantedAuthority2.setGrantedAuthority(ClientAuthorityEnum.ROLE_BACKEND);
+        client.setGrantedAuthority(Arrays.asList(clientAuthorityEnumGrantedAuthority));
+        client.setResourceIndicator(true);
+        return client;
+    }
+
+    private Client getClientRaw(String... resourceIds) {
         Client client = new Client();
         client.setClientId(UUID.randomUUID().toString().replace("-", ""));
         client.setClientSecret(UUID.randomUUID().toString().replace("-", ""));
         client.setGrantTypeEnums(new HashSet<>(Arrays.asList(GrantTypeEnum.password)));
-        GrantedAuthorityImpl<ClientAuthorityEnum> clientAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
-        clientAuthorityEnumGrantedAuthority.setAuthority(ClientAuthorityEnum.ROLE_BACKEND);
-        client.setGrantedAuthority(Arrays.asList(clientAuthorityEnumGrantedAuthority));
         client.setScopeEnums(new HashSet<>(Arrays.asList(ScopeEnum.read)));
         client.setAccessTokenValiditySeconds(1800);
         client.setRefreshTokenValiditySeconds(null);

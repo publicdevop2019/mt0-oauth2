@@ -38,9 +38,9 @@ public class ResourceOwnerControllerTest {
     private String invalid_clientId = "rightRoleNotSufficientResourceId";
     private String valid_register_clientId = "register-id";
     private String valid_empty_secret = "";
-    private String valid_username_root = "root";
-    private String valid_username_admin = "admin";
-    private String valid_username_user = "user";
+    private String valid_username_root = "root@gmail.com";
+    private String valid_username_admin = "admin@gmail.com";
+    private String valid_username_user = "user@gmail.com";
     private String valid_pwd = "root";
     public ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false).setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
@@ -99,9 +99,8 @@ public class ResourceOwnerControllerTest {
     public void happy_updateUserPwd() throws JsonProcessingException {
         ResourceOwner user = getUser();
         ResponseEntity<DefaultOAuth2AccessToken> createResp = createUser(user);
-        String s = createResp.getHeaders().getLocation().toString();
         /** Location is not used in this case, root/admin/user can only update their password */
-        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/resourceOwner/" + s + "/pwd";
+        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/resourceOwner/pwd";
         String newPassword = UUID.randomUUID().toString().replace("-", "");
         /** Login */
         String oldPassword = user.getPassword();
@@ -150,9 +149,9 @@ public class ResourceOwnerControllerTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority.setAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
+        resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority2.setAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
         user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
@@ -161,7 +160,7 @@ public class ResourceOwnerControllerTest {
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
         /**
-         * login to verify authority has been changed
+         * login to verify grantedAuthority has been changed
          */
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = getTokenResponse(password, user.getEmail(), user.getPassword(), valid_clientId, valid_empty_secret);
         OAuth2Authentication oAuth2Authentication = jwtTokenStore.readAuthentication(tokenResponse1.getBody());
@@ -184,9 +183,9 @@ public class ResourceOwnerControllerTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority.setAuthority(ResourceOwnerAuthorityEnum.ROLE_ROOT);
+        resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ROOT);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority2.setAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
         user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
@@ -209,9 +208,9 @@ public class ResourceOwnerControllerTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority.setAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
+        resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority2.setAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
         user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
@@ -234,7 +233,7 @@ public class ResourceOwnerControllerTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
-        resourceOwnerAuthorityEnumGrantedAuthority2.setAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
         user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority2));
         user.setLocked(true);
         String s1 = mapper.writeValueAsString(user);
