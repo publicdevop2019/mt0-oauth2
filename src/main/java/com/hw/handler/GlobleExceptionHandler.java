@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.oauth2.common.exceptions.RedirectMismatchException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,7 +23,11 @@ import java.util.UUID;
 @Slf4j
 public class GlobleExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = {TransactionSystemException.class, IllegalArgumentException.class, DataIntegrityViolationException.class})
+    @ExceptionHandler(value = {TransactionSystemException.class,
+            IllegalArgumentException.class,
+            DataIntegrityViolationException.class,
+            RedirectMismatchException.class,
+    })
     protected ResponseEntity<?> handleException(RuntimeException ex, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
@@ -32,7 +37,7 @@ public class GlobleExceptionHandler extends ResponseEntityExceptionHandler {
         String s = UUID.randomUUID().toString();
         body.put("errors", split);
         body.put("error_id", s);
-        log.error("Handled exception UUID - {} - class - [{}] - Exception : {}", s, ex.getClass(), ex);
+        log.error("Handled exception UUID - {} - class - [{}] - Exception :", s, ex.getClass(), ex);
         return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
@@ -50,7 +55,7 @@ public class GlobleExceptionHandler extends ResponseEntityExceptionHandler {
         String s = UUID.randomUUID().toString();
         body.put("errors", split);
         body.put("error_id", s);
-        log.error("Unhandled exception UUID - {} - class - [{}] - Exception : {}", s, ex.getClass(), ex);
+        log.error("Unhandled exception UUID - {} - class - [{}] - Exception :", s, ex.getClass(), ex);
         return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 }
