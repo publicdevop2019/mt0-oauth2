@@ -218,6 +218,34 @@ public class ClientControllerTest {
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse1.getStatusCode());
     }
 
+    @Test
+    public void sad_delete_root_client() throws JsonProcessingException {
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
+        String bearer = tokenResponse.getBody().getValue();
+        Client oldClient = getClientAsNonResource(valid_resourceId);
+        /**
+         * add ROLE_ROOT so it can not be deleted
+         */
+        GrantedAuthorityImpl<ClientAuthorityEnum> clientAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
+        clientAuthorityEnumGrantedAuthority.setGrantedAuthority(ClientAuthorityEnum.ROLE_BACKEND);
+        GrantedAuthorityImpl<ClientAuthorityEnum> clientAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
+        clientAuthorityEnumGrantedAuthority2.setGrantedAuthority(ClientAuthorityEnum.ROLE_ROOT);
+        oldClient.setGrantedAuthorities(Arrays.asList(clientAuthorityEnumGrantedAuthority, clientAuthorityEnumGrantedAuthority2));
+        ResponseEntity<String> client1 = createClient(oldClient);
+
+        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(bearer);
+        HttpEntity<String> request = new HttpEntity<>(null, headers);
+        ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.DELETE, request, String.class);
+
+        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
+
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = getTokenResponse(password, valid_username_root, valid_pwd, oldClient.getClientId(), oldClient.getClientSecret());
+
+        Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
+    }
+
 
     private ResponseEntity<DefaultOAuth2AccessToken> getTokenResponse(String grantType, String username, String userPwd, String clientId, String clientSecret) {
         String url = "http://localhost:" + randomServerPort + "/" + "oauth/token";

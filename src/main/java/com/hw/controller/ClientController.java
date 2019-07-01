@@ -7,6 +7,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
@@ -83,8 +84,14 @@ public class ClientController {
         }
     }
 
+    /**
+     * rule: root client can not be deleted
+     * @param id
+     * @return
+     */
     @DeleteMapping("client/{id}")
     public ResponseEntity<?> deleteClient(@PathVariable Long id) {
+        preventRootAccountChange(id);
         Optional<Client> oAuthClient1 = oAuthClientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -113,4 +120,11 @@ public class ClientController {
             }
 
     }
+
+    private void preventRootAccountChange(Long id) throws AccessDeniedException {
+        Optional<Client> byId = oAuthClientRepo.findById(id);
+        if (!byId.isEmpty() && byId.get().getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
+            throw new AccessDeniedException("root client can not be deleted");
+    }
+
 }

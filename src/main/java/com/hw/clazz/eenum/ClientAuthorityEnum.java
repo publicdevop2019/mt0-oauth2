@@ -7,7 +7,8 @@ public enum ClientAuthorityEnum {
     ROLE_BACKEND,
     ROLE_FIRST_PARTY,
     ROLE_THIRD_PARTY,
-    ROLE_TRUST;
+    ROLE_TRUST,
+    ROLE_ROOT;
 
     public static class ClientAuthorityConverter extends DefaultAuthorityConverter {
         public ClientAuthorityConverter() {
