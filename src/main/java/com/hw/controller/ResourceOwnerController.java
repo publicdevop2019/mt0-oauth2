@@ -77,7 +77,7 @@ public class ResourceOwnerController {
      * create user, grantedAuthority is overwritten to ROLE_USER
      */
     @PostMapping("resourceOwner")
-    @PreAuthorize("hasRole('ROLE_FRONTEND') and #oauth2.hasScope('write') and #oauth2.isClient()")
+    @PreAuthorize("hasRole('ROLE_FRONTEND') and hasRole('ROLE_FIRST_PARTY') and #oauth2.hasScope('write') and #oauth2.isClient()")
     public ResponseEntity<?> createUser(@RequestBody ResourceOwner newUser) {
 
         ResourceOwner existUser;
