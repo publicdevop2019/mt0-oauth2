@@ -74,7 +74,7 @@ public class ResourceOwnerController {
     }
 
     /**
-     * create user, grantedAuthority is overwritten to ROLE_USER
+     * create user, grantedAuthorities is overwritten to ROLE_USER
      */
     @PostMapping("resourceOwner")
     @PreAuthorize("hasRole('ROLE_FRONTEND') and hasRole('ROLE_FIRST_PARTY') and #oauth2.hasScope('write') and #oauth2.isClient()")
@@ -95,7 +95,7 @@ public class ResourceOwnerController {
 
         }
 
-        newUser.setGrantedAuthority(Collections.singletonList(new GrantedAuthorityImpl(ResourceOwnerAuthorityEnum.ROLE_USER)));
+        newUser.setGrantedAuthorities(Collections.singletonList(new GrantedAuthorityImpl(ResourceOwnerAuthorityEnum.ROLE_USER)));
 
         newUser.setLocked(false);
 
@@ -107,7 +107,7 @@ public class ResourceOwnerController {
     }
 
     /**
-     * update grantedAuthority, root user access can never be given, admin can only lock or unlock user
+     * update grantedAuthorities, root user access can never be given, admin can only lock or unlock user
      */
     @PutMapping("resourceOwner/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') and #oauth2.hasScope('trust') and #oauth2.isUser()")
@@ -116,10 +116,10 @@ public class ResourceOwnerController {
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
 
         if (resourceOwner.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
-            throw new AccessDeniedException("assign root grantedAuthority is prohibited");
+            throw new AccessDeniedException("assign root grantedAuthorities is prohibited");
 
         if (authorities.stream().noneMatch(e -> "ROLE_ROOT".equals(e.getAuthority())) && resourceOwner.getAuthorities() != null)
-            throw new AccessDeniedException("only root user can change grantedAuthority");
+            throw new AccessDeniedException("only root user can change grantedAuthorities");
 
         Optional<ResourceOwner> byId = userRepo.findById(id);
 
@@ -127,7 +127,7 @@ public class ResourceOwnerController {
             throw new IllegalArgumentException(("user not exist:" + resourceOwner.getEmail()));
 
         if (resourceOwner.getAuthorities() != null)
-            byId.get().setGrantedAuthority(new ArrayList<>((Collection<? extends GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>>) resourceOwner.getAuthorities()));
+            byId.get().setGrantedAuthorities(new ArrayList<>((Collection<? extends GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>>) resourceOwner.getAuthorities()));
 
         if (resourceOwner.getLocked() != null)
             byId.get().setLocked(resourceOwner.getLocked());

@@ -59,7 +59,7 @@ public class Client extends Auditable implements ClientDetails {
     @NotEmpty
     @Column(nullable = false)
     @Convert(converter = ClientAuthorityEnum.ClientAuthorityConverter.class)
-    private List<@Valid @NotNull GrantedAuthorityImpl<ClientAuthorityEnum>> grantedAuthority;
+    private List<@Valid @NotNull GrantedAuthorityImpl<ClientAuthorityEnum>> grantedAuthorities;
 
     @NotNull
     @NotEmpty
@@ -134,7 +134,7 @@ public class Client extends Auditable implements ClientDetails {
     @Override
     @JsonIgnore
     public Collection<GrantedAuthority> getAuthorities() {
-        return grantedAuthority.stream().map(e -> (GrantedAuthority) e).collect(Collectors.toList());
+        return grantedAuthorities.stream().map(e -> (GrantedAuthority) e).collect(Collectors.toList());
     }
 
     @Override

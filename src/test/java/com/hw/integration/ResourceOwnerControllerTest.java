@@ -152,7 +152,7 @@ public class ResourceOwnerControllerTest {
         resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
         resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
-        user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
+        user.setGrantedAuthorities(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
         ResponseEntity<DefaultOAuth2AccessToken> exchange = restTemplate.exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
@@ -160,7 +160,7 @@ public class ResourceOwnerControllerTest {
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
         /**
-         * login to verify grantedAuthority has been changed
+         * login to verify grantedAuthorities has been changed
          */
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = getTokenResponse(password, user.getEmail(), user.getPassword(), valid_clientId, valid_empty_secret);
         OAuth2Authentication oAuth2Authentication = jwtTokenStore.readAuthentication(tokenResponse1.getBody());
@@ -186,7 +186,7 @@ public class ResourceOwnerControllerTest {
         resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ROOT);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
         resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
-        user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
+        user.setGrantedAuthorities(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
         ResponseEntity<DefaultOAuth2AccessToken> exchange = restTemplate.exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
@@ -211,7 +211,7 @@ public class ResourceOwnerControllerTest {
         resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
         resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
-        user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
+        user.setGrantedAuthorities(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
         ResponseEntity<DefaultOAuth2AccessToken> exchange = restTemplate.exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
@@ -234,7 +234,7 @@ public class ResourceOwnerControllerTest {
         headers.setBearerAuth(bearer);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
         resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
-        user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority2));
+        user.setGrantedAuthorities(List.of(resourceOwnerAuthorityEnumGrantedAuthority2));
         user.setLocked(true);
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
