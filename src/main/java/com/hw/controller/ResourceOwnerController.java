@@ -16,11 +16,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- *  root has ROLE_ROOT, ROLE_ADMIN, ROLE_USER
- *  admin has ROLE_ADMIN, ROLE_USER
- *  user has ROLE_USER
+ * root has ROLE_ROOT, ROLE_ADMIN, ROLE_USER
+ * admin has ROLE_ADMIN, ROLE_USER
+ * user has ROLE_USER
  */
 @RestController
 @RequestMapping("api/v1")
@@ -69,15 +70,15 @@ public class ResourceOwnerController {
     @PreAuthorize("hasRole('ROLE_ADMIN') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public List<ResourceOwner> readUsers() {
 
-        return userRepo.findAll();
+        return userRepo.findAll().stream().filter(e -> e.getGrantedAuthorities().stream().noneMatch(e1 -> ResourceOwnerAuthorityEnum.ROLE_ROOT.equals(e1.getGrantedAuthority()))).collect(Collectors.toList());
 
     }
 
     /**
-     * create user, grantedAuthority is overwritten to ROLE_USER
+     * create user, grantedAuthorities is overwritten to ROLE_USER
      */
     @PostMapping("resourceOwner")
-    @PreAuthorize("hasRole('ROLE_FRONTEND') and #oauth2.hasScope('write') and #oauth2.isClient()")
+    @PreAuthorize("hasRole('ROLE_FRONTEND') and hasRole('ROLE_FIRST_PARTY') and #oauth2.hasScope('write') and #oauth2.isClient()")
     public ResponseEntity<?> createUser(@RequestBody ResourceOwner newUser) {
 
         ResourceOwner existUser;
@@ -95,7 +96,7 @@ public class ResourceOwnerController {
 
         }
 
-        newUser.setGrantedAuthority(Collections.singletonList(new GrantedAuthorityImpl(ResourceOwnerAuthorityEnum.ROLE_USER)));
+        newUser.setGrantedAuthorities(Collections.singletonList(new GrantedAuthorityImpl(ResourceOwnerAuthorityEnum.ROLE_USER)));
 
         newUser.setLocked(false);
 
@@ -107,19 +108,21 @@ public class ResourceOwnerController {
     }
 
     /**
-     * update grantedAuthority, root user access can never be given, admin can only lock or unlock user
+     * update grantedAuthorities, root user access can never be given, admin can only lock or unlock user
      */
     @PutMapping("resourceOwner/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> updateUser(@RequestBody ResourceOwner resourceOwner, @PathVariable Long id) {
 
+        preventRootAccountChange(id);
+
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
 
         if (resourceOwner.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
-            throw new AccessDeniedException("assign root grantedAuthority is prohibited");
+            throw new AccessDeniedException("assign root grantedAuthorities is prohibited");
 
         if (authorities.stream().noneMatch(e -> "ROLE_ROOT".equals(e.getAuthority())) && resourceOwner.getAuthorities() != null)
-            throw new AccessDeniedException("only root user can change grantedAuthority");
+            throw new AccessDeniedException("only root user can change grantedAuthorities");
 
         Optional<ResourceOwner> byId = userRepo.findById(id);
 
@@ -127,7 +130,7 @@ public class ResourceOwnerController {
             throw new IllegalArgumentException(("user not exist:" + resourceOwner.getEmail()));
 
         if (resourceOwner.getAuthorities() != null)
-            byId.get().setGrantedAuthority(new ArrayList<>((Collection<? extends GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>>) resourceOwner.getAuthorities()));
+            byId.get().setGrantedAuthorities(new ArrayList<>((Collection<? extends GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>>) resourceOwner.getAuthorities()));
 
         if (resourceOwner.getLocked() != null)
             byId.get().setLocked(resourceOwner.getLocked());
@@ -140,7 +143,7 @@ public class ResourceOwnerController {
     @DeleteMapping("resourceOwner/{id}")
     @PreAuthorize("hasRole('ROLE_ROOT') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-
+        preventRootAccountChange(id);
         Optional<ResourceOwner> byId = userRepo.findById(id);
 
         if (byId.isEmpty())
@@ -149,6 +152,12 @@ public class ResourceOwnerController {
         userRepo.delete(byId.get());
 
         return ResponseEntity.ok().build();
+    }
+
+    private void preventRootAccountChange(Long id) throws AccessDeniedException {
+        Optional<ResourceOwner> byId = userRepo.findById(id);
+        if (!byId.isEmpty() && byId.get().getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
+            throw new AccessDeniedException("root account can not be modified");
     }
 
 }

@@ -1,5 +1,6 @@
 package com.hw.clazz;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,7 +27,7 @@ public class GrantedAuthorityImpl<T extends Enum<T>> implements GrantedAuthority
     public static <T extends Enum> GrantedAuthorityImpl getGrantedAuthority(Class<T> enumType, String string) {
         return new GrantedAuthorityImpl(T.valueOf(enumType, string));
     }
-
+    @JsonIgnore
     public String getAuthority() {
         return grantedAuthority.toString();
     }

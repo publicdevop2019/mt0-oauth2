@@ -109,7 +109,7 @@ public class ClientControllerTest {
         GrantedAuthorityImpl<ClientAuthorityEnum> clientAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
         clientAuthorityEnumGrantedAuthority.setGrantedAuthority(ClientAuthorityEnum.ROLE_BACKEND);
         clientAuthorityEnumGrantedAuthority2.setGrantedAuthority(ClientAuthorityEnum.ROLE_FIRST_PARTY);
-        client.setGrantedAuthority(Arrays.asList(clientAuthorityEnumGrantedAuthority, clientAuthorityEnumGrantedAuthority2));
+        client.setGrantedAuthorities(Arrays.asList(clientAuthorityEnumGrantedAuthority, clientAuthorityEnumGrantedAuthority2));
         client.setResourceIndicator(true);
         return client;
     }
@@ -118,7 +118,7 @@ public class ClientControllerTest {
         Client client = getClientRaw(resourceIds);
         GrantedAuthorityImpl<ClientAuthorityEnum> clientAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
         clientAuthorityEnumGrantedAuthority2.setGrantedAuthority(ClientAuthorityEnum.ROLE_FIRST_PARTY);
-        client.setGrantedAuthority(Arrays.asList(clientAuthorityEnumGrantedAuthority2));
+        client.setGrantedAuthorities(Arrays.asList(clientAuthorityEnumGrantedAuthority2));
         client.setResourceIndicator(true);
         return client;
     }
@@ -127,7 +127,7 @@ public class ClientControllerTest {
         Client client = getClientRaw(resourceIds);
         GrantedAuthorityImpl<ClientAuthorityEnum> clientAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
         clientAuthorityEnumGrantedAuthority2.setGrantedAuthority(ClientAuthorityEnum.ROLE_FIRST_PARTY);
-        client.setGrantedAuthority(Arrays.asList(clientAuthorityEnumGrantedAuthority2));
+        client.setGrantedAuthorities(Arrays.asList(clientAuthorityEnumGrantedAuthority2));
         client.setResourceIndicator(false);
         return client;
     }

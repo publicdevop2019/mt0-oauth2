@@ -42,6 +42,7 @@ public class ResourceOwnerControllerTest {
     private String valid_username_admin = "admin@gmail.com";
     private String valid_username_user = "user@gmail.com";
     private String valid_pwd = "root";
+    private Long root_index = 0L;
     public ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false).setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     /**
@@ -152,7 +153,7 @@ public class ResourceOwnerControllerTest {
         resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
         resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
-        user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
+        user.setGrantedAuthorities(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
         ResponseEntity<DefaultOAuth2AccessToken> exchange = restTemplate.exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
@@ -160,7 +161,7 @@ public class ResourceOwnerControllerTest {
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
         /**
-         * login to verify grantedAuthority has been changed
+         * login to verify grantedAuthorities has been changed
          */
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = getTokenResponse(password, user.getEmail(), user.getPassword(), valid_clientId, valid_empty_secret);
         OAuth2Authentication oAuth2Authentication = jwtTokenStore.readAuthentication(tokenResponse1.getBody());
@@ -171,7 +172,31 @@ public class ResourceOwnerControllerTest {
     }
 
     @Test
-    public void sad_updateUser_authority_root() throws JsonProcessingException {
+    public void sad_update_root_user_authority() throws JsonProcessingException {
+        ResourceOwner user = getUser();
+        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/resourceOwner/" + root_index;
+
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_admin, valid_pwd, valid_clientId, valid_empty_secret);
+        String bearer = tokenResponse.getBody().getValue();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(bearer);
+
+        GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority = new GrantedAuthorityImpl<>();
+        resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
+        GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
+        resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        user.setGrantedAuthorities(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
+        String s1 = mapper.writeValueAsString(user);
+        HttpEntity<String> request = new HttpEntity<>(s1, headers);
+        ResponseEntity<DefaultOAuth2AccessToken> exchange = restTemplate.exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
+
+        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
+
+    }
+
+    @Test
+    public void sad_updateUser_authority_include_root_role() throws JsonProcessingException {
         ResourceOwner user = getUser();
         ResponseEntity<DefaultOAuth2AccessToken> createResp = createUser(user);
         String s = createResp.getHeaders().getLocation().toString();
@@ -186,7 +211,7 @@ public class ResourceOwnerControllerTest {
         resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ROOT);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
         resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
-        user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
+        user.setGrantedAuthorities(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
         ResponseEntity<DefaultOAuth2AccessToken> exchange = restTemplate.exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
@@ -211,7 +236,7 @@ public class ResourceOwnerControllerTest {
         resourceOwnerAuthorityEnumGrantedAuthority.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
         resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
-        user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
+        user.setGrantedAuthorities(List.of(resourceOwnerAuthorityEnumGrantedAuthority, resourceOwnerAuthorityEnumGrantedAuthority2));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
         ResponseEntity<DefaultOAuth2AccessToken> exchange = restTemplate.exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
@@ -234,7 +259,7 @@ public class ResourceOwnerControllerTest {
         headers.setBearerAuth(bearer);
         GrantedAuthorityImpl<ResourceOwnerAuthorityEnum> resourceOwnerAuthorityEnumGrantedAuthority2 = new GrantedAuthorityImpl<>();
         resourceOwnerAuthorityEnumGrantedAuthority2.setGrantedAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
-        user.setGrantedAuthority(List.of(resourceOwnerAuthorityEnumGrantedAuthority2));
+        user.setGrantedAuthorities(List.of(resourceOwnerAuthorityEnumGrantedAuthority2));
         user.setLocked(true);
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
@@ -286,6 +311,38 @@ public class ResourceOwnerControllerTest {
 
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse123.getStatusCode());
 
+
+    }
+
+    @Test
+    public void sad_delete_rootUser() {
+
+        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/resourceOwner/" + root_index;
+
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
+
+        Assert.assertEquals(HttpStatus.OK, tokenResponse12.getStatusCode());
+
+        /**
+         * try w root
+         */
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(tokenResponse.getBody().getValue());
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        ResponseEntity<Object> exchange = restTemplate.exchange(url, HttpMethod.DELETE, request, Object.class);
+
+        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
+        /**
+         * try w admin, admin can not delete user
+         */
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse2 = getTokenResponse(password, valid_username_admin, valid_pwd, valid_clientId, valid_empty_secret);
+        HttpHeaders headers2 = new HttpHeaders();
+        headers.setBearerAuth(tokenResponse2.getBody().getValue());
+        HttpEntity<Object> request2 = new HttpEntity<>(null, headers2);
+        ResponseEntity<Object> exchange2 = restTemplate.exchange(url, HttpMethod.DELETE, request2, Object.class);
+
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
 
     }
 

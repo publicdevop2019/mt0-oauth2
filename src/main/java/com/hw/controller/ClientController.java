@@ -106,10 +106,10 @@ public class ClientController {
 
     private void validateResourceIndicator(Client client) throws IllegalArgumentException {
         if (client.getResourceIndicator())
-            if (client.getGrantedAuthority().stream().anyMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_BACKEND))
-                    && client.getGrantedAuthority().stream().anyMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_FIRST_PARTY))) {
+            if (client.getGrantedAuthorities().stream().anyMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_BACKEND))
+                    && client.getGrantedAuthorities().stream().anyMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_FIRST_PARTY))) {
             } else {
-                throw new IllegalArgumentException("invalid grantedAuthority to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
+                throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
             }
 
     }

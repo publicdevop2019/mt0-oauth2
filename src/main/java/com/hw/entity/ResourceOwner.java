@@ -53,20 +53,20 @@ public class ResourceOwner extends Auditable implements UserDetails {
     @NotNull
     @NotEmpty
     @Convert(converter = ResourceOwnerAuthorityEnum.ResourceOwnerAuthorityConverter.class)
-    private List<@Valid @NotNull GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>> grantedAuthority;
+    private List<@Valid @NotNull GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>> grantedAuthorities;
 
     @Column
     @Convert(converter = StringListConverter.class)
     private Set<String> resourceId;
 
     /**
-     * make sure grantedAuthority only get serialized once
+     * make sure grantedAuthorities only get serialized once
      * @return
      */
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return grantedAuthority;
+        return grantedAuthorities;
     }
 
     @Override
