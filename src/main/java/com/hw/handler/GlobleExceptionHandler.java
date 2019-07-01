@@ -1,6 +1,7 @@
 package com.hw.handler;
 
 import org.springframework.core.NestedExceptionUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobleExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = {TransactionSystemException.class, IllegalArgumentException.class})
+    @ExceptionHandler(value = {TransactionSystemException.class, IllegalArgumentException.class, DataIntegrityViolationException.class})
     protected ResponseEntity<?> handleException(RuntimeException ex, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
