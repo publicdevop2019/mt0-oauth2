@@ -16,11 +16,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- *  root has ROLE_ROOT, ROLE_ADMIN, ROLE_USER
- *  admin has ROLE_ADMIN, ROLE_USER
- *  user has ROLE_USER
+ * root has ROLE_ROOT, ROLE_ADMIN, ROLE_USER
+ * admin has ROLE_ADMIN, ROLE_USER
+ * user has ROLE_USER
  */
 @RestController
 @RequestMapping("api/v1")
@@ -69,7 +70,7 @@ public class ResourceOwnerController {
     @PreAuthorize("hasRole('ROLE_ADMIN') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public List<ResourceOwner> readUsers() {
 
-        return userRepo.findAll();
+        return userRepo.findAll().stream().filter(e -> e.getGrantedAuthorities().stream().noneMatch(e1 -> ResourceOwnerAuthorityEnum.ROLE_ROOT.equals(e1.getGrantedAuthority()))).collect(Collectors.toList());
 
     }
 
@@ -113,6 +114,8 @@ public class ResourceOwnerController {
     @PreAuthorize("hasRole('ROLE_ADMIN') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> updateUser(@RequestBody ResourceOwner resourceOwner, @PathVariable Long id) {
 
+        preventRootAccountChange(id);
+
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
 
         if (resourceOwner.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
@@ -140,7 +143,7 @@ public class ResourceOwnerController {
     @DeleteMapping("resourceOwner/{id}")
     @PreAuthorize("hasRole('ROLE_ROOT') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-
+        preventRootAccountChange(id);
         Optional<ResourceOwner> byId = userRepo.findById(id);
 
         if (byId.isEmpty())
@@ -149,6 +152,12 @@ public class ResourceOwnerController {
         userRepo.delete(byId.get());
 
         return ResponseEntity.ok().build();
+    }
+
+    private void preventRootAccountChange(Long id) throws AccessDeniedException {
+        Optional<ResourceOwner> byId = userRepo.findById(id);
+        if (!byId.isEmpty() && byId.get().getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
+            throw new AccessDeniedException("root account can not be modified");
     }
 
 }
