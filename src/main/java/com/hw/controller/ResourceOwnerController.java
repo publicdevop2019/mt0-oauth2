@@ -3,6 +3,7 @@ package com.hw.controller;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.entity.ResourceOwner;
+import com.hw.interfaze.TokenRevocationService;
 import com.hw.repo.ResourceOwnerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +34,12 @@ public class ResourceOwnerController {
     @Autowired
     BCryptPasswordEncoder encoder;
 
+    @Autowired
+    TokenRevocationService<ResourceOwner> tokenRevocationService;
+
     /**
      * update pwd, id is not required due to it may not be available,
-     * also in order to get id, extra call required
+     * also in order to get id, extra call required for ui
      */
     @PatchMapping("resourceOwner/pwd")
     @PreAuthorize("hasRole('ROLE_USER') and #oauth2.hasScope('trust') and #oauth2.isUser()")
@@ -61,6 +65,9 @@ public class ResourceOwnerController {
         existUser.setPassword(encoder.encode(resourceOwner.getPassword()));
 
         userRepo.save(existUser);
+
+        /** must revoke issued token if pwd changed*/
+        tokenRevocationService.blacklist(existUser.getUsername(),true);
 
         return ResponseEntity.ok().build();
 
@@ -129,6 +136,8 @@ public class ResourceOwnerController {
         if (byId.isEmpty())
             throw new IllegalArgumentException(("user not exist:" + resourceOwner.getEmail()));
 
+        boolean b = tokenRevocationService.shouldRevoke(byId.get(), resourceOwner);
+
         if (resourceOwner.getAuthorities() != null)
             byId.get().setGrantedAuthorities(new ArrayList<>((Collection<? extends GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>>) resourceOwner.getAuthorities()));
 
@@ -136,6 +145,8 @@ public class ResourceOwnerController {
             byId.get().setLocked(resourceOwner.getLocked());
 
         userRepo.save(byId.get());
+
+        tokenRevocationService.blacklist(byId.get().getUsername(),b);
 
         return ResponseEntity.ok().build();
     }
@@ -150,6 +161,8 @@ public class ResourceOwnerController {
             throw new IllegalArgumentException("user not exist" + id);
 
         userRepo.delete(byId.get());
+
+        tokenRevocationService.blacklist(byId.get().getUsername(),true);
 
         return ResponseEntity.ok().build();
     }

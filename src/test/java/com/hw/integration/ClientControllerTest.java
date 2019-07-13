@@ -9,14 +9,18 @@ import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.clazz.eenum.GrantTypeEnum;
 import com.hw.clazz.eenum.ScopeEnum;
 import com.hw.entity.Client;
+import com.hw.service.ClientTokenRevocationService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
@@ -26,6 +30,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = OAuth2Service.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -42,6 +48,13 @@ public class ClientControllerTest {
     private String valid_pwd = "root";
     public ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false);
     private TestRestTemplate restTemplate = new TestRestTemplate();
+
+    @SpyBean
+    OAuth2RestTemplate oAuth2RestTemplate;
+
+    @SpyBean
+    ClientTokenRevocationService clientTokenRevocationService;
+
 
     @LocalServerPort
     int randomServerPort;
@@ -135,6 +148,8 @@ public class ClientControllerTest {
 
     @Test
     public void happy_replaceClient_noUpdateSecret() throws JsonProcessingException {
+        ResponseEntity<String> ok = ResponseEntity.ok("");
+        Mockito.doReturn(ok).when(oAuth2RestTemplate).exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(String.class));
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
         Client oldClient = getClientAsNonResource(valid_resourceId);
@@ -154,6 +169,36 @@ public class ClientControllerTest {
 
         Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
         Assert.assertNotNull(tokenResponse1.getBody().getValue());
+
+        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).shouldRevoke(any(), any());
+        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
+
+    }
+
+    @Test
+    public void happy_replaceClient_as_resource() throws JsonProcessingException {
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
+        String bearer = tokenResponse.getBody().getValue();
+        Client oldClient = getClientAsResource(valid_resourceId);
+        ResponseEntity<String> client1 = createClient(oldClient);
+        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
+        String clientSecret = oldClient.getClientSecret();
+        oldClient.setResourceIndicator(true);
+        oldClient.setClientSecret(" ");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(bearer);
+        String s1 = mapper.writeValueAsString(oldClient);
+        HttpEntity<String> request = new HttpEntity<>(s1, headers);
+        ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = getTokenResponse(password, valid_username_root, valid_pwd, oldClient.getClientId(), clientSecret);
+
+        Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
+        Assert.assertNotNull(tokenResponse1.getBody().getValue());
+
+        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(false));
 
     }
 
@@ -178,6 +223,8 @@ public class ClientControllerTest {
 
     @Test
     public void happy_replaceClient_updateSecret() throws JsonProcessingException {
+        ResponseEntity<String> ok = ResponseEntity.ok("");
+        Mockito.doReturn(ok).when(oAuth2RestTemplate).exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(String.class));
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
         Client oldClient = getClientAsNonResource(valid_resourceId);
@@ -196,11 +243,14 @@ public class ClientControllerTest {
 
         Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
         Assert.assertNotNull(tokenResponse1.getBody().getValue());
-
+        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).shouldRevoke(any(), any());
+        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
     }
 
     @Test
     public void happy_deleteClient() throws JsonProcessingException {
+        ResponseEntity<String> ok = ResponseEntity.ok("");
+        Mockito.doReturn(ok).when(oAuth2RestTemplate).exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(String.class));
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
         Client oldClient = getClientAsNonResource(valid_resourceId);
@@ -212,6 +262,7 @@ public class ClientControllerTest {
         ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.DELETE, request, String.class);
 
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = getTokenResponse(password, valid_username_root, valid_pwd, oldClient.getClientId(), oldClient.getClientSecret());
 
