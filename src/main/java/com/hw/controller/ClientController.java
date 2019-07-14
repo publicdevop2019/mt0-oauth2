@@ -2,6 +2,7 @@ package com.hw.controller;
 
 import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.entity.Client;
+import com.hw.interfaze.TokenRevocationService;
 import com.hw.repo.OAuthClientRepo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +29,9 @@ public class ClientController {
 
     @Autowired
     BCryptPasswordEncoder encoder;
+
+    @Autowired
+    TokenRevocationService<Client> tokenRevocationService;
 
     /**
      * if client is marked as resource then it must be a backend and first party application
@@ -68,18 +73,24 @@ public class ClientController {
         if (oAuthClient1.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } else {
+
+            Client client2 = oAuthClient1.get();
+            String oldClientId = client2.getClientId();
+            boolean b = tokenRevocationService.shouldRevoke(client2, client);
+
             if (StringUtils.hasText(client.getClientSecret())) {
                 client.setClientSecret(encoder.encode(client.getClientSecret()));
             } else {
                 client.setClientSecret(oAuthClient1.get().getClientSecret());
             }
-            Client client2 = oAuthClient1.get();
             /**
              * copy to prevent new id gen, below method rely on correct following java conventions
              * setter & getter should return same type
              */
             BeanUtils.copyProperties(client, client2);
             oAuthClientRepo.save(client2);
+            /** only revoke token after change has been persisted*/
+            tokenRevocationService.blacklist(oldClientId,b);
             return ResponseEntity.ok().build();
         }
     }
@@ -97,6 +108,8 @@ public class ClientController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } else {
             oAuthClientRepo.delete(oAuthClient1.get());
+            /** deleted client token must be revoked*/
+            tokenRevocationService.blacklist(oAuthClient1.get().getClientId(),true);
             return ResponseEntity.ok().build();
         }
     }

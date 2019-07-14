@@ -8,16 +8,22 @@ import com.hw.OAuth2Service;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.entity.ResourceOwner;
+import com.hw.service.ClientTokenRevocationService;
+import com.hw.service.ResourceOwnerTokenRevocationService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
@@ -28,6 +34,8 @@ import org.springframework.util.MultiValueMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = OAuth2Service.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -51,11 +59,20 @@ public class ResourceOwnerControllerTest {
     @Autowired
     JwtTokenStore jwtTokenStore;
 
+    @SpyBean
+    OAuth2RestTemplate oAuth2RestTemplate;
+
+    @SpyBean
+    ResourceOwnerTokenRevocationService resourceOwnerTokenRevocationService;
+
 
     private TestRestTemplate restTemplate = new TestRestTemplate();
 
     @LocalServerPort
     int randomServerPort;
+
+    @Value("${feature.token.revocation}")
+    private Boolean enabled;
 
     @Test
     public void happy_createUser() throws JsonProcessingException {
@@ -98,6 +115,8 @@ public class ResourceOwnerControllerTest {
 
     @Test
     public void happy_updateUserPwd() throws JsonProcessingException {
+        ResponseEntity<String> ok = ResponseEntity.ok("");
+        Mockito.doReturn(ok).when(oAuth2RestTemplate).exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(String.class));
         ResourceOwner user = getUser();
         ResponseEntity<DefaultOAuth2AccessToken> createResp = createUser(user);
         /** Location is not used in this case, root/admin/user can only update their password */
@@ -120,6 +139,8 @@ public class ResourceOwnerControllerTest {
         ResponseEntity<DefaultOAuth2AccessToken> tokenRespons33e = getTokenResponse(this.password, user.getEmail(), oldPassword, valid_clientId, valid_empty_secret);
 
         Assert.assertEquals(HttpStatus.BAD_REQUEST, tokenRespons33e.getStatusCode());
+
+        Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
     }
 
     @Test
@@ -139,6 +160,8 @@ public class ResourceOwnerControllerTest {
 
     @Test
     public void happy_updateUser_authority() throws JsonProcessingException {
+        ResponseEntity<String> ok = ResponseEntity.ok("");
+        Mockito.doReturn(ok).when(oAuth2RestTemplate).exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(String.class));
         ResourceOwner user = getUser();
         ResponseEntity<DefaultOAuth2AccessToken> createResp = createUser(user);
         String s = createResp.getHeaders().getLocation().toString();
@@ -169,6 +192,8 @@ public class ResourceOwnerControllerTest {
         Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_USER.toString())).count());
         Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count());
         Assert.assertEquals(0, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count());
+        if (enabled)
+            Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
     }
 
     @Test
@@ -247,6 +272,8 @@ public class ResourceOwnerControllerTest {
 
     @Test
     public void happy_updateUser_lock() throws JsonProcessingException {
+        ResponseEntity<String> ok = ResponseEntity.ok("");
+        Mockito.doReturn(ok).when(oAuth2RestTemplate).exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(String.class));
         ResourceOwner user = getUser();
         ResponseEntity<DefaultOAuth2AccessToken> createResp = createUser(user);
         String s = createResp.getHeaders().getLocation().toString();
@@ -289,6 +316,8 @@ public class ResourceOwnerControllerTest {
 
     @Test
     public void happy_deleteUser() throws JsonProcessingException {
+        ResponseEntity<String> ok = ResponseEntity.ok("");
+        Mockito.doReturn(ok).when(oAuth2RestTemplate).exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(String.class));
         ResourceOwner user = getUser();
         ResponseEntity<DefaultOAuth2AccessToken> user1 = createUser(user);
 
@@ -311,7 +340,7 @@ public class ResourceOwnerControllerTest {
 
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse123.getStatusCode());
 
-
+        Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
     }
 
     @Test
