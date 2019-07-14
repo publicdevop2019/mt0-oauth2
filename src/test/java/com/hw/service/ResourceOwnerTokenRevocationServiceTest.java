@@ -4,12 +4,19 @@ import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.entity.ResourceOwner;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 
 public class ResourceOwnerTokenRevocationServiceTest {
     private ResourceOwnerTokenRevocationService resourceOwnerTokenRevocationService = new ResourceOwnerTokenRevocationService();
+
+    @Before
+    public void init(){
+        ReflectionTestUtils.setField(resourceOwnerTokenRevocationService,"enabled",true);
+    }
 
     @Test
     public void happy_shouldRevoke_lock() {
@@ -47,6 +54,17 @@ public class ResourceOwnerTokenRevocationServiceTest {
         resourceOwner2.setGrantedAuthorities(Arrays.asList(grantedAuthority, grantedAuthority2));
         boolean b = resourceOwnerTokenRevocationService.shouldRevoke(resourceOwner, resourceOwner2);
         Assert.assertEquals(true, b);
+    }
+    @Test
+    public void sad_shouldRevoke_authority_diff_disabled() {
+        ReflectionTestUtils.setField(resourceOwnerTokenRevocationService,"enabled",false);
+        ResourceOwner resourceOwner = getResourceOwner();
+        ResourceOwner resourceOwner2 = getResourceOwner();
+        GrantedAuthorityImpl grantedAuthority = GrantedAuthorityImpl.getGrantedAuthority(ResourceOwnerAuthorityEnum.class, ResourceOwnerAuthorityEnum.ROLE_USER.toString());
+        GrantedAuthorityImpl grantedAuthority2 = GrantedAuthorityImpl.getGrantedAuthority(ResourceOwnerAuthorityEnum.class, ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString());
+        resourceOwner2.setGrantedAuthorities(Arrays.asList(grantedAuthority, grantedAuthority2));
+        boolean b = resourceOwnerTokenRevocationService.shouldRevoke(resourceOwner, resourceOwner2);
+        Assert.assertEquals(false, b);
     }
 
     private ResourceOwner getResourceOwner() {

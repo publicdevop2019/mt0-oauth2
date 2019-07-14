@@ -6,7 +6,9 @@ import com.hw.clazz.eenum.GrantTypeEnum;
 import com.hw.clazz.eenum.ScopeEnum;
 import com.hw.entity.Client;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +19,11 @@ public class ClientTokenRevocationServiceTest {
 
 
     ClientTokenRevocationService clientTokenRevocationService = new ClientTokenRevocationService();
+
+    @Before
+    public void init(){
+        ReflectionTestUtils.setField(clientTokenRevocationService,"enabled",true);
+    }
 
     @Test
     public void test_shouldRevoke_authority_same() {
@@ -88,6 +95,18 @@ public class ClientTokenRevocationServiceTest {
         Client client = getClient(s);
         Client client2 = getClient(s);
         client.setRegisteredRedirectUri(Collections.EMPTY_SET);
+        boolean b = clientTokenRevocationService.shouldRevoke(client, client2);
+        Assert.assertEquals(false, b);
+    }
+
+    @Test
+    public void test_shouldRevoke_disabled() {
+        ReflectionTestUtils.setField(clientTokenRevocationService,"enabled",false);
+        String s = UUID.randomUUID().toString();
+        Client client = getClient(s);
+        Client client2 = getClient(s);
+        client.setScopeEnums(new HashSet<>(Arrays.asList(ScopeEnum.read, ScopeEnum.write)));
+        client2.setScopeEnums(new HashSet<>(Arrays.asList(ScopeEnum.read, ScopeEnum.trust)));
         boolean b = clientTokenRevocationService.shouldRevoke(client, client2);
         Assert.assertEquals(false, b);
     }

@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -69,6 +70,9 @@ public class ResourceOwnerControllerTest {
 
     @LocalServerPort
     int randomServerPort;
+
+    @Value("${feature.token.revocation}")
+    private Boolean enabled;
 
     @Test
     public void happy_createUser() throws JsonProcessingException {
@@ -188,7 +192,8 @@ public class ResourceOwnerControllerTest {
         Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_USER.toString())).count());
         Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count());
         Assert.assertEquals(0, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count());
-        Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
+        if (enabled)
+            Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
     }
 
     @Test

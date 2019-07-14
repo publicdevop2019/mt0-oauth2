@@ -17,10 +17,13 @@ import org.springframework.util.MultiValueMap;
 public class ResourceOwnerTokenRevocationService implements TokenRevocationService<ResourceOwner> {
 
     @Autowired
-    OAuth2RestTemplate restTemplate;
+    private OAuth2RestTemplate restTemplate;
 
     @Value("${url.zuul.resourceOwner}")
-    String url;
+    private String url;
+
+    @Value("${feature.token.revocation}")
+    private Boolean enabled;
 
     /**
      * aspects: authority, lock
@@ -32,7 +35,9 @@ public class ResourceOwnerTokenRevocationService implements TokenRevocationServi
      */
     @Override
     public boolean shouldRevoke(ResourceOwner oldResourceOwner, ResourceOwner newResourceOwner) {
-        if (authorityChanged(oldResourceOwner, newResourceOwner)) {
+        if (!enabled) {
+            return false;
+        } else if (authorityChanged(oldResourceOwner, newResourceOwner)) {
             return true;
         } else if (lockUser(oldResourceOwner, newResourceOwner)) {
             return true;
@@ -55,7 +60,7 @@ public class ResourceOwnerTokenRevocationService implements TokenRevocationServi
 
     @Override
     public void blacklist(String name, boolean shouldRevoke) {
-        if (shouldRevoke) {
+        if (shouldRevoke && enabled) {
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
             map.add("", name);
             HttpHeaders headers = new HttpHeaders();

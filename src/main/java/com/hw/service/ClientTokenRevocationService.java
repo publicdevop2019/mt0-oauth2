@@ -18,10 +18,13 @@ import org.springframework.util.StringUtils;
 public class ClientTokenRevocationService implements TokenRevocationService<Client> {
 
     @Autowired
-    OAuth2RestTemplate restTemplate;
+    private OAuth2RestTemplate restTemplate;
 
     @Value("${url.zuul.client}")
-    String url;
+    private String url;
+
+    @Value("${feature.token.revocation}")
+    private Boolean enabled;
 
     /**
      * include : clientId, secret, authority, scope, access token validity sec, refresh token validity sec, grant type, resource ids,
@@ -34,7 +37,9 @@ public class ClientTokenRevocationService implements TokenRevocationService<Clie
      */
     @Override
     public boolean shouldRevoke(Client oldClient, Client newClient) {
-        if (!newClient.getClientId().equals(oldClient.getClientId())) {
+        if (!enabled) {
+            return false;
+        } else if (!newClient.getClientId().equals(oldClient.getClientId())) {
             return true;
         } else if (StringUtils.hasText(newClient.getClientSecret())) {
             return true;
@@ -59,7 +64,7 @@ public class ClientTokenRevocationService implements TokenRevocationService<Clie
 
     @Override
     public void blacklist(String name, boolean shouldRevoke) {
-        if (shouldRevoke) {
+        if (shouldRevoke && enabled) {
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
             map.add("", name);
             HttpHeaders headers = new HttpHeaders();

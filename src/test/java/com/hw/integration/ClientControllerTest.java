@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -55,6 +56,8 @@ public class ClientControllerTest {
     @SpyBean
     ClientTokenRevocationService clientTokenRevocationService;
 
+    @Value("${feature.token.revocation}")
+    private Boolean enabled;
 
     @LocalServerPort
     int randomServerPort;
@@ -171,7 +174,8 @@ public class ClientControllerTest {
         Assert.assertNotNull(tokenResponse1.getBody().getValue());
 
         Mockito.verify(clientTokenRevocationService, Mockito.times(1)).shouldRevoke(any(), any());
-        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
+        if (enabled)
+            Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
 
     }
 
@@ -244,7 +248,8 @@ public class ClientControllerTest {
         Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
         Assert.assertNotNull(tokenResponse1.getBody().getValue());
         Mockito.verify(clientTokenRevocationService, Mockito.times(1)).shouldRevoke(any(), any());
-        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
+        if (enabled)
+            Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
     }
 
     @Test
