@@ -1,5 +1,6 @@
 package com.hw.config;
 
+import com.hw.clazz.CustomTokenEnhancer;
 import com.hw.service.ClientDetailsServiceImpl;
 import com.hw.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +13,11 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.code.InMemoryAuthorizationCodeServices;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableAuthorizationServer
@@ -37,6 +41,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     InMemoryAuthorizationCodeServices authorizationCodeServices;
 
+    @Autowired
+    CustomTokenEnhancer customTokenEnhancer;
+
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.withClientDetails(clientDetailsService);
@@ -47,8 +54,11 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
      */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
+        TokenEnhancerChain enhancerChain = new TokenEnhancerChain();
+        enhancerChain.setTokenEnhancers(Arrays.asList(customTokenEnhancer, jwtAccessTokenConverter));
         endpoints
                 .tokenStore(tokenStore)
+                .tokenEnhancer(enhancerChain)
                 .accessTokenConverter(jwtAccessTokenConverter)
                 .authenticationManager(authenticationManager)
                 .authorizationCodeServices(authorizationCodeServices)
