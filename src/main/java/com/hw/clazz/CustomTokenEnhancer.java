@@ -10,6 +10,9 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * capture issued at time to enable token revocation feature
+ */
 @Component
 public class CustomTokenEnhancer implements TokenEnhancer {
     @Override
