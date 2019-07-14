@@ -8,6 +8,7 @@ public enum ClientAuthorityEnum {
     ROLE_FIRST_PARTY,
     ROLE_THIRD_PARTY,
     ROLE_TRUST,
+    /** root client can not be deleted    */
     ROLE_ROOT;
 
     public static class ClientAuthorityConverter extends DefaultAuthorityConverter {

@@ -62,7 +62,7 @@ public class ResourceOwnerTokenRevocationService implements TokenRevocationServi
     public void blacklist(String name, boolean shouldRevoke) {
         if (shouldRevoke && enabled) {
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-            map.add("", name);
+            map.add("name", name);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             HttpEntity<MultiValueMap<String, String>> hashMapHttpEntity = new HttpEntity<>(map, headers);
