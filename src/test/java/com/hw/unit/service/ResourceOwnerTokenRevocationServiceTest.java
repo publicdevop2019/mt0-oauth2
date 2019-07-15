@@ -1,8 +1,9 @@
-package com.hw.service;
+package com.hw.unit.service;
 
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.entity.ResourceOwner;
+import com.hw.service.ResourceOwnerTokenRevocationService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

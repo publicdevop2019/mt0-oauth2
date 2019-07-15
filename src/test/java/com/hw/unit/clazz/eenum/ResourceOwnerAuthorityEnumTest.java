@@ -1,6 +1,7 @@
-package com.hw.clazz.eenum;
+package com.hw.unit.clazz.eenum;
 
 import com.hw.clazz.GrantedAuthorityImpl;
+import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import org.junit.Assert;
 import org.junit.Test;
 

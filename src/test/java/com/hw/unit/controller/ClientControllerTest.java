@@ -1,9 +1,10 @@
-package com.hw.controller;
+package com.hw.unit.controller;
 
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.clazz.eenum.GrantTypeEnum;
 import com.hw.clazz.eenum.ScopeEnum;
+import com.hw.controller.ClientController;
 import com.hw.entity.Client;
 import com.hw.repo.OAuthClientRepo;
 import org.junit.Assert;

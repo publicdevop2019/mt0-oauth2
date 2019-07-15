@@ -1,5 +1,6 @@
-package com.hw.clazz;
+package com.hw.unit.clazz;
 
+import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ClientAuthorityEnum;
 import org.junit.Assert;
 import org.junit.Test;

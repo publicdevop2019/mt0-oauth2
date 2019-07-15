@@ -1,5 +1,6 @@
-package com.hw.clazz;
+package com.hw.unit.clazz;
 
+import com.hw.clazz.AuditorAwareImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
