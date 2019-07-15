@@ -40,6 +40,21 @@ public class ClientTokenRevocationServiceTest {
         Assert.assertEquals(false, b);
 
     }
+    @Test
+    public void test_shouldRevoke_authority_same_order_diff() {
+        String s = UUID.randomUUID().toString();
+        Client client = getClient(s);
+        Client client2 = getClient(s);
+        GrantedAuthorityImpl authority = getAuthority(ClientAuthorityEnum.ROLE_BACKEND);
+        GrantedAuthorityImpl authority2 = getAuthority(ClientAuthorityEnum.ROLE_FIRST_PARTY);
+        GrantedAuthorityImpl authority3 = getAuthority(ClientAuthorityEnum.ROLE_BACKEND);
+        GrantedAuthorityImpl authority4 = getAuthority(ClientAuthorityEnum.ROLE_FIRST_PARTY);
+        client.setGrantedAuthorities(Arrays.asList(authority, authority2));
+        client2.setGrantedAuthorities(Arrays.asList(authority4,authority3));
+        boolean b = clientTokenRevocationService.shouldRevoke(client, client2);
+        Assert.assertEquals(false, b);
+
+    }
 
     @Test
     public void test_shouldRevoke_authority_diff() {
