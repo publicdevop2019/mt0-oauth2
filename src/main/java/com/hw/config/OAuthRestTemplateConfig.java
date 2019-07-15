@@ -38,6 +38,7 @@ public class OAuthRestTemplateConfig {
         ClientCredentialsAccessTokenProvider clientCredentialsAccessTokenProvider = new ClientCredentialsAccessTokenProvider();
         clientCredentialsAccessTokenProvider.setRequestFactory(factory);
         oAuth2RestTemplate.setAccessTokenProvider(clientCredentialsAccessTokenProvider);
+        oAuth2RestTemplate.setRetryBadAccessTokens(true);
         return oAuth2RestTemplate;
     }
 

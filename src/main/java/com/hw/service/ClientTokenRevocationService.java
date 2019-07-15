@@ -1,5 +1,7 @@
 package com.hw.service;
 
+import com.hw.clazz.GrantedAuthorityImpl;
+import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.entity.Client;
 import com.hw.interfaze.TokenRevocationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+
+import java.util.HashSet;
 
 @Component
 public class ClientTokenRevocationService implements TokenRevocationService<Client> {
@@ -66,7 +70,7 @@ public class ClientTokenRevocationService implements TokenRevocationService<Clie
     public void blacklist(String name, boolean shouldRevoke) {
         if (shouldRevoke && enabled) {
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-            map.add("", name);
+            map.add("name", name);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             HttpEntity<MultiValueMap<String, String>> hashMapHttpEntity = new HttpEntity<>(map, headers);
@@ -75,7 +79,9 @@ public class ClientTokenRevocationService implements TokenRevocationService<Clie
     }
 
     private boolean authorityChanged(Client oldClient, Client newClient) {
-        return !oldClient.getGrantedAuthorities().equals(newClient.getGrantedAuthorities());
+        HashSet<GrantedAuthorityImpl<ClientAuthorityEnum>> grantedAuthorities = new HashSet<>(oldClient.getGrantedAuthorities());
+        HashSet<GrantedAuthorityImpl<ClientAuthorityEnum>> grantedAuthorities2 = new HashSet<>(newClient.getGrantedAuthorities());
+        return !grantedAuthorities.equals(grantedAuthorities2);
     }
 
     private boolean scopeChanged(Client oldClient, Client newClient) {

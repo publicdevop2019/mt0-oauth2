@@ -1,5 +1,7 @@
 package com.hw.service;
 
+import com.hw.clazz.GrantedAuthorityImpl;
+import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.entity.ResourceOwner;
 import com.hw.interfaze.TokenRevocationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+
+import java.util.HashSet;
 
 @Component
 public class ResourceOwnerTokenRevocationService implements TokenRevocationService<ResourceOwner> {
@@ -55,14 +59,16 @@ public class ResourceOwnerTokenRevocationService implements TokenRevocationServi
     }
 
     private boolean authorityChanged(ResourceOwner oldResourceOwner, ResourceOwner newResourceOwner) {
-        return !oldResourceOwner.getGrantedAuthorities().equals(newResourceOwner.getGrantedAuthorities());
+        HashSet<GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>> grantedAuthorities = new HashSet<>(oldResourceOwner.getGrantedAuthorities());
+        HashSet<GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>> grantedAuthorities1 = new HashSet<>(newResourceOwner.getGrantedAuthorities());
+        return !grantedAuthorities.equals(grantedAuthorities1);
     }
 
     @Override
     public void blacklist(String name, boolean shouldRevoke) {
         if (shouldRevoke && enabled) {
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-            map.add("", name);
+            map.add("name", name);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             HttpEntity<MultiValueMap<String, String>> hashMapHttpEntity = new HttpEntity<>(map, headers);
