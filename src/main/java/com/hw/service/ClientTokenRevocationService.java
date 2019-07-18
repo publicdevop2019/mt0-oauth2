@@ -1,5 +1,7 @@
 package com.hw.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.entity.Client;
@@ -12,10 +14,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 @Component
@@ -29,6 +30,9 @@ public class ClientTokenRevocationService implements TokenRevocationService<Clie
 
     @Value("${feature.token.revocation}")
     private Boolean enabled;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     /**
      * include : clientId, secret, authority, scope, access token validity sec, refresh token validity sec, grant type, resource ids,
@@ -69,11 +73,19 @@ public class ClientTokenRevocationService implements TokenRevocationService<Clie
     @Override
     public void blacklist(String name, boolean shouldRevoke) {
         if (shouldRevoke && enabled) {
-            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-            map.add("name", name);
+            HashMap<String, String> blockBody = new HashMap<>();
+            blockBody.put("name", name);
+            String body = null;
+            try {
+                body = mapper.writeValueAsString(blockBody);
+            } catch (JsonProcessingException e) {
+                /**
+                 * this block is purposely left blank
+                 */
+            }
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            HttpEntity<MultiValueMap<String, String>> hashMapHttpEntity = new HttpEntity<>(map, headers);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(body, headers);
             restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
         }
     }
