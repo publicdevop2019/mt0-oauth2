@@ -35,7 +35,7 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = OAuth2Service.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = OAuth2Service.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class ClientControllerTest {
 
     private String password = "password";
@@ -120,8 +120,12 @@ public class ClientControllerTest {
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
+    /**
+     * when security is disabled, no security rule check against endpoits
+     * @throws JsonProcessingException
+     */
     @Test
-    public void sad_createClient_w_admin_account() throws JsonProcessingException {
+    public void createClient_w_admin_account_direct_call() throws JsonProcessingException {
         Client client = getClientAsNonResource(valid_resourceId);
         String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client";
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_admin, valid_pwd, valid_clientId, valid_empty_secret);
@@ -132,7 +136,7 @@ public class ClientControllerTest {
         String s = mapper.writeValueAsString(client);
         HttpEntity<String> request = new HttpEntity<>(s, headers);
         ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
-        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
 
     @Test

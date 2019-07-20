@@ -106,11 +106,11 @@ public class ResourceOwnerControllerTest {
     }
 
     @Test
-    public void sad_ceateUser_w_right_role_wrong_resourceId() throws JsonProcessingException {
+    public void createUser_w_client_missing_right_role_direct_call() throws JsonProcessingException {
         ResourceOwner user = getUser();
         ResponseEntity<DefaultOAuth2AccessToken> user1 = createUser(user, invalid_clientId);
 
-        Assert.assertEquals(HttpStatus.FORBIDDEN, user1.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, user1.getStatusCode());
     }
 
     @Test
