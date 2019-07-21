@@ -1,7 +1,6 @@
 package com.hw.factory;
 
 import com.hw.service.ClientDetailsServiceImpl;
-import jdk.jfr.Description;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;

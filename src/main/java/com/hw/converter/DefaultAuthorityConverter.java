@@ -18,7 +18,7 @@ public class DefaultAuthorityConverter<T extends Enum<T>> implements AttributeCo
 
     @Override
     public String convertToDatabaseColumn(List<GrantedAuthorityImpl> grantedAuthorities) {
-        return grantedAuthorities.stream().filter(Objects::nonNull).map(e->e.getGrantedAuthority().toString()).collect(Collectors.joining(","));
+        return grantedAuthorities.stream().filter(Objects::nonNull).map(e -> e.getGrantedAuthority().toString()).collect(Collectors.joining(","));
     }
 
     @Override

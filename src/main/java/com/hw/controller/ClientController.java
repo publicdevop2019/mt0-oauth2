@@ -9,19 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1")
-@PreAuthorize("hasRole('ROLE_ROOT') and #oauth2.hasScope('trust') and #oauth2.isUser()")
 public class ClientController {
 
     @Autowired
@@ -90,13 +87,14 @@ public class ClientController {
             BeanUtils.copyProperties(client, client2);
             oAuthClientRepo.save(client2);
             /** only revoke token after change has been persisted*/
-            tokenRevocationService.blacklist(oldClientId,b);
+            tokenRevocationService.blacklist(oldClientId, b);
             return ResponseEntity.ok().build();
         }
     }
 
     /**
      * rule: root client can not be deleted
+     *
      * @param id
      * @return
      */
@@ -109,7 +107,7 @@ public class ClientController {
         } else {
             oAuthClientRepo.delete(oAuthClient1.get());
             /** deleted client token must be revoked*/
-            tokenRevocationService.blacklist(oAuthClient1.get().getClientId(),true);
+            tokenRevocationService.blacklist(oAuthClient1.get().getClientId(), true);
             return ResponseEntity.ok().build();
         }
     }

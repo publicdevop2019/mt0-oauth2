@@ -2,7 +2,6 @@ package com.hw.controller;
 
 import com.hw.service.ClientDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,7 +28,6 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("api/v1")
-@PreAuthorize("hasRole('ROLE_USER') and #oauth2.hasScope('trust') and #oauth2.isUser()")
 public class AuthorizeCodeController {
 
     @Autowired
