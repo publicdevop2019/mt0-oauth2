@@ -8,7 +8,6 @@ import com.hw.repo.ResourceOwnerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -66,7 +65,7 @@ public class ResourceOwnerController {
         userRepo.save(existUser);
 
         /** must revoke issued token if pwd changed*/
-        tokenRevocationService.blacklist(existUser.getUsername(),true);
+        tokenRevocationService.blacklist(existUser.getUsername(), true);
 
         return ResponseEntity.ok().build();
 
@@ -142,7 +141,7 @@ public class ResourceOwnerController {
 
         userRepo.save(byId.get());
 
-        tokenRevocationService.blacklist(byId.get().getUsername(),b);
+        tokenRevocationService.blacklist(byId.get().getUsername(), b);
 
         return ResponseEntity.ok().build();
     }
@@ -157,7 +156,7 @@ public class ResourceOwnerController {
 
         userRepo.delete(byId.get());
 
-        tokenRevocationService.blacklist(byId.get().getUsername(),true);
+        tokenRevocationService.blacklist(byId.get().getUsername(), true);
 
         return ResponseEntity.ok().build();
     }
