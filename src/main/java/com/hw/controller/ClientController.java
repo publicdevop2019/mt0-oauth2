@@ -21,7 +21,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1")
-@PreAuthorize("hasRole('ROLE_ROOT') and #oauth2.hasScope('trust') and #oauth2.isUser()")
 public class ClientController {
 
     @Autowired

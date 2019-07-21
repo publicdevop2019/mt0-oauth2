@@ -42,7 +42,6 @@ public class ResourceOwnerController {
      * also in order to get id, extra call required for ui
      */
     @PatchMapping("resourceOwner/pwd")
-    @PreAuthorize("hasRole('ROLE_USER') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> updateUserPwd(@RequestBody ResourceOwner resourceOwner) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -74,7 +73,6 @@ public class ResourceOwnerController {
     }
 
     @GetMapping("resourceOwners")
-    @PreAuthorize("hasRole('ROLE_ADMIN') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public List<ResourceOwner> readUsers() {
 
         return userRepo.findAll().stream().filter(e -> e.getGrantedAuthorities().stream().noneMatch(e1 -> ResourceOwnerAuthorityEnum.ROLE_ROOT.equals(e1.getGrantedAuthority()))).collect(Collectors.toList());
@@ -85,7 +83,6 @@ public class ResourceOwnerController {
      * create user, grantedAuthorities is overwritten to ROLE_USER
      */
     @PostMapping("resourceOwner")
-    @PreAuthorize("hasRole('ROLE_FRONTEND') and hasRole('ROLE_FIRST_PARTY') and #oauth2.hasScope('write') and #oauth2.isClient()")
     public ResponseEntity<?> createUser(@RequestBody ResourceOwner newUser) {
 
         ResourceOwner existUser;
@@ -118,7 +115,6 @@ public class ResourceOwnerController {
      * update grantedAuthorities, root user access can never be given, admin can only lock or unlock user
      */
     @PutMapping("resourceOwner/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> updateUser(@RequestBody ResourceOwner resourceOwner, @PathVariable Long id) {
 
         preventRootAccountChange(id);
@@ -152,7 +148,6 @@ public class ResourceOwnerController {
     }
 
     @DeleteMapping("resourceOwner/{id}")
-    @PreAuthorize("hasRole('ROLE_ROOT') and #oauth2.hasScope('trust') and #oauth2.isUser()")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         preventRootAccountChange(id);
         Optional<ResourceOwner> byId = userRepo.findById(id);

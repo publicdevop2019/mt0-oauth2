@@ -29,7 +29,6 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("api/v1")
-@PreAuthorize("hasRole('ROLE_USER') and #oauth2.hasScope('trust') and #oauth2.isUser()")
 public class AuthorizeCodeController {
 
     @Autowired
