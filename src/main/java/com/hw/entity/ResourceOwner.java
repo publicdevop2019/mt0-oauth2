@@ -44,8 +44,6 @@ public class ResourceOwner extends Auditable implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-//    @todo remove below
-    @JsonProperty //NOTE deserialization fix
     @NotNull
     private Boolean locked;
 
@@ -61,6 +59,7 @@ public class ResourceOwner extends Auditable implements UserDetails {
 
     /**
      * make sure grantedAuthorities only get serialized once
+     *
      * @return
      */
     @JsonIgnore
