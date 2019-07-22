@@ -31,4 +31,5 @@ COPY --from=jlink-package /opt/jdk-11-mini-runtime /opt/jdk-11-mini-runtime
 COPY --from=maven ./target/AuthService.jar ./
 
 EXPOSE 8443 8080
-ENTRYPOINT java -jar AuthService.jar
+
+ENTRYPOINT ["java","-jar","AuthService.jar"]
