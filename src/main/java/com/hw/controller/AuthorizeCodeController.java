@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("v1/api")
 public class AuthorizeCodeController {
 
     @Autowired

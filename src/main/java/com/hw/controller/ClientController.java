@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("v1/api")
 public class ClientController {
 
     @Autowired

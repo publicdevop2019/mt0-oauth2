@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * user has ROLE_USER
  */
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("v1/api")
 public class ResourceOwnerController {
 
     @Autowired
