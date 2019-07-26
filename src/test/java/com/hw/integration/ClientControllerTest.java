@@ -35,7 +35,7 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = OAuth2Service.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = OAuth2Service.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ClientControllerTest {
 
     private String password = "password";
