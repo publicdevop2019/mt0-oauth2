@@ -25,7 +25,7 @@ public class CORSTest {
 
     private String thirdPartyOrigin = "https://editor.swagger.io";
 
-    private String apiVersion = "/api/v1/";
+    private String apiVersion = "/v1/api/";
 
     private String[] corsUris = {"oauth/token", "oauth/token_key", "client", "client/0", "clients",
             "authorize", "resourceOwner", "resourceOwner/0", "resourceOwner/pwd", "resourceOwners"};

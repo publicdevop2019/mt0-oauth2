@@ -178,7 +178,7 @@ public class AuthorizationCodeTest {
 
 
     private ResponseEntity<String> getCodeResp(String clientId, String bearerToken) {
-        String url = "http://localhost:" + randomServerPort + "/" + "api/v1/" + "authorize";
+        String url = "http://localhost:" + randomServerPort + "/" + "v1/api/" + "authorize";
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("response_type", response_type);
         params.add("client_id", clientId);

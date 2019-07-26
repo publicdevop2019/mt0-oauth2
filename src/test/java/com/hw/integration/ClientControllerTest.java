@@ -127,7 +127,7 @@ public class ClientControllerTest {
     @Test
     public void createClient_w_admin_account_direct_call() throws JsonProcessingException {
         Client client = getClientAsNonResource(valid_resourceId);
-        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client";
+        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/client";
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_admin, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
         HttpHeaders headers = new HttpHeaders();
@@ -141,7 +141,7 @@ public class ClientControllerTest {
 
     @Test
     public void happy_readClients() {
-        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/clients";
+        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/clients";
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
         HttpHeaders headers = new HttpHeaders();
@@ -161,7 +161,7 @@ public class ClientControllerTest {
         String bearer = tokenResponse.getBody().getValue();
         Client oldClient = getClientAsNonResource(valid_resourceId);
         ResponseEntity<String> client1 = createClient(oldClient);
-        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
+        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/client/" + client1.getHeaders().getLocation().toString();
         Client newClient = getClientAsNonResource(valid_resourceId);
         newClient.setClientSecret(" ");
         HttpHeaders headers = new HttpHeaders();
@@ -189,7 +189,7 @@ public class ClientControllerTest {
         String bearer = tokenResponse.getBody().getValue();
         Client oldClient = getClientAsResource(valid_resourceId);
         ResponseEntity<String> client1 = createClient(oldClient);
-        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
+        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/client/" + client1.getHeaders().getLocation().toString();
         String clientSecret = oldClient.getClientSecret();
         oldClient.setResourceIndicator(true);
         oldClient.setClientSecret(" ");
@@ -216,7 +216,7 @@ public class ClientControllerTest {
         String bearer = tokenResponse.getBody().getValue();
         Client oldClient = getClientAsNonResource(valid_resourceId);
         ResponseEntity<String> client1 = createClient(oldClient);
-        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
+        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/client/" + client1.getHeaders().getLocation().toString();
         Client newClient = getInvalidClientAsResource(valid_resourceId);
         newClient.setClientSecret(" ");
         HttpHeaders headers = new HttpHeaders();
@@ -237,7 +237,7 @@ public class ClientControllerTest {
         String bearer = tokenResponse.getBody().getValue();
         Client oldClient = getClientAsNonResource(valid_resourceId);
         ResponseEntity<String> client1 = createClient(oldClient);
-        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
+        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/client/" + client1.getHeaders().getLocation().toString();
         Client newClient = getClientAsNonResource(valid_resourceId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -264,7 +264,7 @@ public class ClientControllerTest {
         String bearer = tokenResponse.getBody().getValue();
         Client oldClient = getClientAsNonResource(valid_resourceId);
         ResponseEntity<String> client1 = createClient(oldClient);
-        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
+        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/client/" + client1.getHeaders().getLocation().toString();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
@@ -293,7 +293,7 @@ public class ClientControllerTest {
         oldClient.setGrantedAuthorities(Arrays.asList(clientAuthorityEnumGrantedAuthority, clientAuthorityEnumGrantedAuthority2));
         ResponseEntity<String> client1 = createClient(oldClient);
 
-        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client/" + client1.getHeaders().getLocation().toString();
+        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/client/" + client1.getHeaders().getLocation().toString();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
@@ -367,7 +367,7 @@ public class ClientControllerTest {
     }
 
     public ResponseEntity<String> createClient(Client client) throws JsonProcessingException {
-        String url = "http://localhost:" + randomServerPort + "/api/v1" + "/client";
+        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/client";
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
         HttpHeaders headers = new HttpHeaders();
