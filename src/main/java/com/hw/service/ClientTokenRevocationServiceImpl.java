@@ -13,7 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -21,7 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.HashSet;
 
-@Component
+@Service
 public class ClientTokenRevocationServiceImpl implements TokenRevocationService<Client> {
 
     @Autowired

@@ -30,14 +30,7 @@ public class CORSConfig {
         configuration.addAllowedMethod("PUT");
         configuration.addAllowedMethod("OPTIONS");
         configuration.setMaxAge(3600L);
-        source.registerCorsConfiguration("/oauth/token", configuration);
-        source.registerCorsConfiguration("/oauth/token_key", configuration);
-        source.registerCorsConfiguration("/v1/api/client", configuration);
-        source.registerCorsConfiguration("/v1/api/client/**", configuration);
-        source.registerCorsConfiguration("/v1/api/clients", configuration);
-        source.registerCorsConfiguration("/v1/api/resourceOwner/**", configuration);
-        source.registerCorsConfiguration("/v1/api/resourceOwners", configuration);
-        source.registerCorsConfiguration("/v1/api/authorize", configuration);
+        source.registerCorsConfiguration("/**/**/**", configuration);
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
         /**
          * make sure oauth security check happen after cors filter

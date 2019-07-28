@@ -30,7 +30,6 @@ public class CustomTokenEnhancer implements TokenEnhancer {
         info.put("iat", Instant.now().getEpochSecond());
         if (!authentication.isClientOnly())
             try {
-                boolean clientOnly = authentication.isClientOnly();
                 Long l = Long.parseLong(authentication.getName());
                 info.put("user_name", l.toString());
             } catch (NumberFormatException ex) {
