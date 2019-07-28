@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 @Component
-public class ResourceOwnerTokenRevocationService implements TokenRevocationService<ResourceOwner> {
+public class ResourceOwnerTokenRevocationServiceImpl implements TokenRevocationService<ResourceOwner> {
 
     @Autowired
     private RestTemplate restTemplate;

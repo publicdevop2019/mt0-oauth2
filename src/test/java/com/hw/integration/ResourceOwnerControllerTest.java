@@ -8,7 +8,7 @@ import com.hw.OAuth2Service;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.entity.ResourceOwner;
-import com.hw.service.ResourceOwnerTokenRevocationService;
+import com.hw.service.ResourceOwnerTokenRevocationServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,7 +62,7 @@ public class ResourceOwnerControllerTest {
     RestTemplate oAuth2RestTemplate;
 
     @SpyBean
-    ResourceOwnerTokenRevocationService resourceOwnerTokenRevocationService;
+    ResourceOwnerTokenRevocationServiceImpl resourceOwnerTokenRevocationServiceImpl;
 
 
     private TestRestTemplate restTemplate = new TestRestTemplate();
@@ -139,7 +139,7 @@ public class ResourceOwnerControllerTest {
 
         Assert.assertEquals(HttpStatus.BAD_REQUEST, tokenRespons33e.getStatusCode());
 
-        Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
+        Mockito.verify(resourceOwnerTokenRevocationServiceImpl, Mockito.times(1)).blacklist(anyString(), eq(true));
     }
 
     @Test
@@ -192,7 +192,7 @@ public class ResourceOwnerControllerTest {
         Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count());
         Assert.assertEquals(0, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count());
         if (enabled)
-            Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
+            Mockito.verify(resourceOwnerTokenRevocationServiceImpl, Mockito.times(1)).blacklist(anyString(), eq(true));
     }
 
     @Test
@@ -339,7 +339,7 @@ public class ResourceOwnerControllerTest {
 
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse123.getStatusCode());
 
-        Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
+        Mockito.verify(resourceOwnerTokenRevocationServiceImpl, Mockito.times(1)).blacklist(anyString(), eq(true));
     }
 
     @Test

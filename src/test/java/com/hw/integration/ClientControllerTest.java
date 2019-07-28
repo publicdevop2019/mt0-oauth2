@@ -9,7 +9,7 @@ import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.clazz.eenum.GrantTypeEnum;
 import com.hw.clazz.eenum.ScopeEnum;
 import com.hw.entity.Client;
-import com.hw.service.ClientTokenRevocationService;
+import com.hw.service.ClientTokenRevocationServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +54,7 @@ public class ClientControllerTest {
     RestTemplate oAuth2RestTemplate;
 
     @SpyBean
-    ClientTokenRevocationService clientTokenRevocationService;
+    ClientTokenRevocationServiceImpl clientTokenRevocationServiceImpl;
 
     @Value("${feature.token.revocation}")
     private Boolean enabled;
@@ -178,9 +178,9 @@ public class ClientControllerTest {
         Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
         Assert.assertNotNull(tokenResponse1.getBody().getValue());
 
-        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).shouldRevoke(any(), any());
+        Mockito.verify(clientTokenRevocationServiceImpl, Mockito.times(1)).shouldRevoke(any(), any());
         if (enabled)
-            Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
+            Mockito.verify(clientTokenRevocationServiceImpl, Mockito.times(1)).blacklist(anyString(), eq(true));
 
     }
 
@@ -207,7 +207,7 @@ public class ClientControllerTest {
         Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
         Assert.assertNotNull(tokenResponse1.getBody().getValue());
 
-        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(false));
+        Mockito.verify(clientTokenRevocationServiceImpl, Mockito.times(1)).blacklist(anyString(), eq(false));
 
     }
 
@@ -252,9 +252,9 @@ public class ClientControllerTest {
 
         Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
         Assert.assertNotNull(tokenResponse1.getBody().getValue());
-        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).shouldRevoke(any(), any());
+        Mockito.verify(clientTokenRevocationServiceImpl, Mockito.times(1)).shouldRevoke(any(), any());
         if (enabled)
-            Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
+            Mockito.verify(clientTokenRevocationServiceImpl, Mockito.times(1)).blacklist(anyString(), eq(true));
     }
 
     @Test
@@ -272,7 +272,7 @@ public class ClientControllerTest {
         ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.DELETE, request, String.class);
 
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        Mockito.verify(clientTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
+        Mockito.verify(clientTokenRevocationServiceImpl, Mockito.times(1)).blacklist(anyString(), eq(true));
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = getTokenResponse(password, valid_username_root, valid_pwd, oldClient.getClientId(), oldClient.getClientSecret());
 

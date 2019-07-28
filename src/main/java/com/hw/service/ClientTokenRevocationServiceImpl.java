@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 @Component
-public class ClientTokenRevocationService implements TokenRevocationService<Client> {
+public class ClientTokenRevocationServiceImpl implements TokenRevocationService<Client> {
 
     @Autowired
     private RestTemplate restTemplate;

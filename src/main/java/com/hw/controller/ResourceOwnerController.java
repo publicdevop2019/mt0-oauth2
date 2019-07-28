@@ -53,11 +53,11 @@ public class ResourceOwnerController {
 
         } else {
 
-            existUser = userRepo.findOneByEmail(authentication.getName());
+            Optional<ResourceOwner> byId = userRepo.findById(Long.parseLong(authentication.getName()));
 
-            if (existUser == null)
+            if (byId.isEmpty())
                 throw new IllegalArgumentException("user not exist:" + resourceOwner.getEmail());
-
+            existUser = byId.get();
         }
 
         existUser.setPassword(encoder.encode(resourceOwner.getPassword()));
@@ -65,7 +65,7 @@ public class ResourceOwnerController {
         userRepo.save(existUser);
 
         /** must revoke issued token if pwd changed*/
-        tokenRevocationService.blacklist(existUser.getUsername(), true);
+        tokenRevocationService.blacklist(existUser.getId().toString(), true);
 
         return ResponseEntity.ok().build();
 
@@ -141,7 +141,7 @@ public class ResourceOwnerController {
 
         userRepo.save(byId.get());
 
-        tokenRevocationService.blacklist(byId.get().getUsername(), b);
+        tokenRevocationService.blacklist(byId.get().getId().toString(), b);
 
         return ResponseEntity.ok().build();
     }
@@ -156,7 +156,7 @@ public class ResourceOwnerController {
 
         userRepo.delete(byId.get());
 
-        tokenRevocationService.blacklist(byId.get().getUsername(), true);
+        tokenRevocationService.blacklist(byId.get().getId().toString(), true);
 
         return ResponseEntity.ok().build();
     }

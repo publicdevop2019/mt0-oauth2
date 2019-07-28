@@ -83,12 +83,10 @@ public class AuthorizationCodeTest {
         Assert.assertNotNull(authorizationToken.getBody());
 
         OAuth2Authentication oAuth2Authentication = jwtTokenStore.readAuthentication(authorizationToken.getBody());
-        String name = oAuth2Authentication.getUserAuthentication().getName();
         Collection<GrantedAuthority> authorities = oAuth2Authentication.getAuthorities();
 
 
         Assert.assertEquals(false, oAuth2Authentication.isClientOnly());
-        Assert.assertEquals(valid_username_admin, name);
         Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_USER.toString())).count());
         Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count());
         Assert.assertEquals(0, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count());
