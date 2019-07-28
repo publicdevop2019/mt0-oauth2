@@ -3,7 +3,7 @@ package com.hw.controller;
 import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.entity.Client;
 import com.hw.interfaze.TokenRevocationService;
-import com.hw.repo.OAuthClientRepo;
+import com.hw.repo.ClientRepo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class ClientController {
 
     @Autowired
-    OAuthClientRepo oAuthClientRepo;
+    ClientRepo clientRepo;
 
     @Autowired
     BCryptPasswordEncoder encoder;
@@ -40,10 +40,10 @@ public class ClientController {
     public ResponseEntity<?> createClient(@Valid @RequestBody Client client) {
         validateResourceId(client);
         validateResourceIndicator(client);
-        Client clientId = oAuthClientRepo.findByClientId(client.getClientId());
+        Client clientId = clientRepo.findByClientId(client.getClientId());
         if (clientId == null) {
             client.setClientSecret(encoder.encode(client.getClientSecret().trim()));
-            Client saved = oAuthClientRepo.save(client);
+            Client saved = clientRepo.save(client);
             return ResponseEntity.ok().header("Location", String.valueOf(saved.getId())).build();
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -52,7 +52,7 @@ public class ClientController {
 
     @GetMapping("clients")
     public List<Client> readClients() {
-        return oAuthClientRepo.findAll();
+        return clientRepo.findAll();
     }
 
     /**
@@ -66,7 +66,7 @@ public class ClientController {
     public ResponseEntity<?> replaceClient(@Valid @RequestBody Client client, @PathVariable Long id) {
         validateResourceId(client);
         validateResourceIndicator(client);
-        Optional<Client> oAuthClient1 = oAuthClientRepo.findById(id);
+        Optional<Client> oAuthClient1 = clientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } else {
@@ -85,7 +85,7 @@ public class ClientController {
              * setter & getter should return same type
              */
             BeanUtils.copyProperties(client, client2);
-            oAuthClientRepo.save(client2);
+            clientRepo.save(client2);
             /** only revoke token after change has been persisted*/
             tokenRevocationService.blacklist(oldClientId, b);
             return ResponseEntity.ok().build();
@@ -101,11 +101,11 @@ public class ClientController {
     @DeleteMapping("client/{id}")
     public ResponseEntity<?> deleteClient(@PathVariable Long id) {
         preventRootAccountChange(id);
-        Optional<Client> oAuthClient1 = oAuthClientRepo.findById(id);
+        Optional<Client> oAuthClient1 = clientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } else {
-            oAuthClientRepo.delete(oAuthClient1.get());
+            clientRepo.delete(oAuthClient1.get());
             /** deleted client token must be revoked*/
             tokenRevocationService.blacklist(oAuthClient1.get().getClientId(), true);
             return ResponseEntity.ok().build();
@@ -117,8 +117,8 @@ public class ClientController {
          * selected resource ids should be eligible resource
          */
         if (client.getResourceIds() == null || client.getResourceIds().size() == 0
-                || client.getResourceIds().stream().anyMatch(resourceId -> oAuthClientRepo.findByClientId(resourceId) == null
-                || !oAuthClientRepo.findByClientId(resourceId).getResourceIndicator()))
+                || client.getResourceIds().stream().anyMatch(resourceId -> clientRepo.findByClientId(resourceId) == null
+                || !clientRepo.findByClientId(resourceId).getResourceIndicator()))
             throw new IllegalArgumentException("invalid resourceId found");
     }
 
@@ -133,7 +133,7 @@ public class ClientController {
     }
 
     private void preventRootAccountChange(Long id) throws AccessDeniedException {
-        Optional<Client> byId = oAuthClientRepo.findById(id);
+        Optional<Client> byId = clientRepo.findById(id);
         if (!byId.isEmpty() && byId.get().getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new AccessDeniedException("root client can not be deleted");
     }

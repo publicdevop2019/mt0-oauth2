@@ -6,7 +6,7 @@ import com.hw.clazz.eenum.GrantTypeEnum;
 import com.hw.clazz.eenum.ScopeEnum;
 import com.hw.controller.ClientController;
 import com.hw.entity.Client;
-import com.hw.repo.OAuthClientRepo;
+import com.hw.repo.ClientRepo;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +32,7 @@ public class ClientControllerTest {
     ClientController clientController = new ClientController();
 
     @Mock
-    OAuthClientRepo oAuthClientRepo;
+    ClientRepo clientRepo;
 
     @Mock
     BCryptPasswordEncoder encoder;
@@ -41,9 +41,9 @@ public class ClientControllerTest {
     public void happy_validateResourceId_hasResourceId() {
         Client validateClient = getClientAsValidResource();
         Client createClient = getClientAsValidResource(validateClient.getClientId());
-        Mockito.when(oAuthClientRepo.findByClientId(createClient.getClientId())).thenReturn(null);
-        Mockito.when(oAuthClientRepo.findByClientId(validateClient.getClientId())).thenReturn(validateClient);
-        Mockito.when(oAuthClientRepo.save(any(Client.class))).thenReturn(createClient);
+        Mockito.when(clientRepo.findByClientId(createClient.getClientId())).thenReturn(null);
+        Mockito.when(clientRepo.findByClientId(validateClient.getClientId())).thenReturn(validateClient);
+        Mockito.when(clientRepo.save(any(Client.class))).thenReturn(createClient);
         Mockito.when(encoder.encode(anyString())).thenReturn(UUID.randomUUID().toString());
         ResponseEntity<?> client1 = clientController.createClient(createClient);
         Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
@@ -58,7 +58,7 @@ public class ClientControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void sad_validateResourceId_not_found_resourceId() {
         Client createClient = getClientAsValidResource(UUID.randomUUID().toString());
-        Mockito.when(oAuthClientRepo.findByClientId(anyString())).thenReturn(null);
+        Mockito.when(clientRepo.findByClientId(anyString())).thenReturn(null);
         clientController.createClient(createClient);
     }
 
@@ -66,7 +66,7 @@ public class ClientControllerTest {
     public void sad_validateResourceId_wrong_resourceId() {
         Client validateClient = getNoneResourceClient();
         Client createClient = getClientAsValidResource(validateClient.getClientId());
-        Mockito.when(oAuthClientRepo.findByClientId(validateClient.getClientId())).thenReturn(validateClient);
+        Mockito.when(clientRepo.findByClientId(validateClient.getClientId())).thenReturn(validateClient);
         clientController.createClient(createClient);
     }
 
@@ -75,9 +75,9 @@ public class ClientControllerTest {
     public void happy_validateAuthority_client_as_resource() {
         Client validateClient = getClientAsValidResource();
         Client createClient = getClientAsValidResource(validateClient.getClientId());
-        Mockito.when(oAuthClientRepo.findByClientId(createClient.getClientId())).thenReturn(null);
-        Mockito.when(oAuthClientRepo.findByClientId(validateClient .getClientId())).thenReturn(validateClient );
-        Mockito.when(oAuthClientRepo.save(any(Client.class))).thenReturn(createClient);
+        Mockito.when(clientRepo.findByClientId(createClient.getClientId())).thenReturn(null);
+        Mockito.when(clientRepo.findByClientId(validateClient .getClientId())).thenReturn(validateClient );
+        Mockito.when(clientRepo.save(any(Client.class))).thenReturn(createClient);
         Mockito.when(encoder.encode(anyString())).thenReturn(UUID.randomUUID().toString());
         ResponseEntity<?> client1 = clientController.createClient(createClient);
         Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
@@ -88,9 +88,9 @@ public class ClientControllerTest {
     public void happy_client_not_resource() {
         Client validateClient = getClientAsValidResource();
         Client createClient = getNoneResourceClient(validateClient.getClientId());
-        Mockito.when(oAuthClientRepo.findByClientId(createClient.getClientId())).thenReturn(null);
-        Mockito.when(oAuthClientRepo.findByClientId(validateClient.getClientId())).thenReturn(validateClient);
-        Mockito.when(oAuthClientRepo.save(any(Client.class))).thenReturn(createClient);
+        Mockito.when(clientRepo.findByClientId(createClient.getClientId())).thenReturn(null);
+        Mockito.when(clientRepo.findByClientId(validateClient.getClientId())).thenReturn(validateClient);
+        Mockito.when(clientRepo.save(any(Client.class))).thenReturn(createClient);
         Mockito.when(encoder.encode(anyString())).thenReturn(UUID.randomUUID().toString());
         ResponseEntity<?> client1 = clientController.createClient(createClient);
         Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());

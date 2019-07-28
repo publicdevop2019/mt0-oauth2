@@ -21,11 +21,11 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -51,7 +51,7 @@ public class ClientControllerTest {
     private TestRestTemplate restTemplate = new TestRestTemplate();
 
     @SpyBean
-    OAuth2RestTemplate oAuth2RestTemplate;
+    RestTemplate oAuth2RestTemplate;
 
     @SpyBean
     ClientTokenRevocationService clientTokenRevocationService;
@@ -122,6 +122,7 @@ public class ClientControllerTest {
 
     /**
      * when security is disabled, no security rule check against endpoits
+     *
      * @throws JsonProcessingException
      */
     @Test

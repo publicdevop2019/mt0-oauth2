@@ -1,5 +1,6 @@
 package com.hw.config;
 
+import com.hw.clazz.AuthTokenHelper;
 import com.hw.clazz.CustomTokenEnhancer;
 import com.hw.service.ClientDetailsServiceImpl;
 import com.hw.service.UserDetailsServiceImpl;
@@ -33,6 +34,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     UserDetailsServiceImpl userDetailsService;
 
     @Autowired
+    AuthTokenHelper authTokenHelper;
+
+    @Autowired
     ClientDetailsServiceImpl clientDetailsService;
 
     @Autowired
@@ -63,6 +67,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .authorizationCodeServices(authorizationCodeServices)
                 .reuseRefreshTokens(false)
         ;
+        authTokenHelper.setTokenGranter(endpoints.getTokenGranter());
     }
 
     @Override

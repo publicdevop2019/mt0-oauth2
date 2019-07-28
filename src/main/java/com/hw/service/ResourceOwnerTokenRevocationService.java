@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +23,7 @@ import java.util.HashSet;
 public class ResourceOwnerTokenRevocationService implements TokenRevocationService<ResourceOwner> {
 
     @Autowired
-    private OAuth2RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     @Value("${url.zuul.resourceOwner}")
     private String url;

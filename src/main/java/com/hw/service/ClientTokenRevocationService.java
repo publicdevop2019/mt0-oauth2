@@ -2,6 +2,7 @@ package com.hw.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hw.clazz.AuthTokenHelper;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.entity.Client;
@@ -12,9 +13,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,7 +25,7 @@ import java.util.HashSet;
 public class ClientTokenRevocationService implements TokenRevocationService<Client> {
 
     @Autowired
-    private OAuth2RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     @Value("${url.zuul.client}")
     private String url;
@@ -33,6 +35,9 @@ public class ClientTokenRevocationService implements TokenRevocationService<Clie
 
     @Autowired
     private ObjectMapper mapper;
+
+    @Autowired
+    private AuthTokenHelper authTokenHelper;
 
     /**
      * include : clientId, secret, authority, scope, access token validity sec, refresh token validity sec, grant type, resource ids,
@@ -85,8 +90,19 @@ public class ClientTokenRevocationService implements TokenRevocationService<Clie
             }
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
             HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(body, headers);
-            restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
+            try {
+                restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
+            } catch (HttpClientErrorException ex) {
+                /**
+                 * re-try
+                 */
+                headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
+                HttpEntity<String> hashMapHttpEntity2 = new HttpEntity<>(body, headers);
+                restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity2, String.class);
+
+            }
         }
     }
 

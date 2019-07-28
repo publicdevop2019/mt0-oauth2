@@ -8,7 +8,6 @@ import com.hw.OAuth2Service;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.entity.ResourceOwner;
-import com.hw.service.ClientTokenRevocationService;
 import com.hw.service.ResourceOwnerTokenRevocationService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,13 +22,13 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
 import java.util.List;
@@ -60,7 +59,7 @@ public class ResourceOwnerControllerTest {
     JwtTokenStore jwtTokenStore;
 
     @SpyBean
-    OAuth2RestTemplate oAuth2RestTemplate;
+    RestTemplate oAuth2RestTemplate;
 
     @SpyBean
     ResourceOwnerTokenRevocationService resourceOwnerTokenRevocationService;
@@ -140,7 +139,7 @@ public class ResourceOwnerControllerTest {
 
         Assert.assertEquals(HttpStatus.BAD_REQUEST, tokenRespons33e.getStatusCode());
 
-        Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
+        Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
     }
 
     @Test
@@ -193,7 +192,7 @@ public class ResourceOwnerControllerTest {
         Assert.assertEquals(1, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString())).count());
         Assert.assertEquals(0, authorities.stream().filter(e -> e.getAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ROOT.toString())).count());
         if (enabled)
-            Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
+            Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
     }
 
     @Test
@@ -340,7 +339,7 @@ public class ResourceOwnerControllerTest {
 
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse123.getStatusCode());
 
-        Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(),eq(true));
+        Mockito.verify(resourceOwnerTokenRevocationService, Mockito.times(1)).blacklist(anyString(), eq(true));
     }
 
     @Test
