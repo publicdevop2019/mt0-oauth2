@@ -62,6 +62,10 @@ public class ClientController {
         if (byClientId.isEmpty())
             return ResponseEntity.badRequest().build();
         HashMap<String, Boolean> stringBooleanHashMap = new HashMap<>();
+        /**
+         * if autoApprove is null, it won't be included in response
+         * due to Jackson configured to ignore null fields
+         */
         stringBooleanHashMap.put("autoApprove", byClientId.get().getAutoApprove());
         return ResponseEntity.ok(stringBooleanHashMap);
     }
