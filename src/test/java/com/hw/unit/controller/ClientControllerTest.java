@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -41,8 +42,8 @@ public class ClientControllerTest {
     public void happy_validateResourceId_hasResourceId() {
         Client validateClient = getClientAsValidResource();
         Client createClient = getClientAsValidResource(validateClient.getClientId());
-        Mockito.when(clientRepo.findByClientId(createClient.getClientId())).thenReturn(null);
-        Mockito.when(clientRepo.findByClientId(validateClient.getClientId())).thenReturn(validateClient);
+        Mockito.when(clientRepo.findByClientId(createClient.getClientId())).thenReturn(Optional.empty());
+        Mockito.when(clientRepo.findByClientId(validateClient.getClientId())).thenReturn(Optional.of(validateClient));
         Mockito.when(clientRepo.save(any(Client.class))).thenReturn(createClient);
         Mockito.when(encoder.encode(anyString())).thenReturn(UUID.randomUUID().toString());
         ResponseEntity<?> client1 = clientController.createClient(createClient);
@@ -58,7 +59,7 @@ public class ClientControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void sad_validateResourceId_not_found_resourceId() {
         Client createClient = getClientAsValidResource(UUID.randomUUID().toString());
-        Mockito.when(clientRepo.findByClientId(anyString())).thenReturn(null);
+        Mockito.when(clientRepo.findByClientId(anyString())).thenReturn(Optional.empty());
         clientController.createClient(createClient);
     }
 
@@ -66,7 +67,7 @@ public class ClientControllerTest {
     public void sad_validateResourceId_wrong_resourceId() {
         Client validateClient = getNoneResourceClient();
         Client createClient = getClientAsValidResource(validateClient.getClientId());
-        Mockito.when(clientRepo.findByClientId(validateClient.getClientId())).thenReturn(validateClient);
+        Mockito.when(clientRepo.findByClientId(validateClient.getClientId())).thenReturn(Optional.of(validateClient));
         clientController.createClient(createClient);
     }
 
@@ -75,8 +76,8 @@ public class ClientControllerTest {
     public void happy_validateAuthority_client_as_resource() {
         Client validateClient = getClientAsValidResource();
         Client createClient = getClientAsValidResource(validateClient.getClientId());
-        Mockito.when(clientRepo.findByClientId(createClient.getClientId())).thenReturn(null);
-        Mockito.when(clientRepo.findByClientId(validateClient .getClientId())).thenReturn(validateClient );
+        Mockito.when(clientRepo.findByClientId(createClient.getClientId())).thenReturn(Optional.empty());
+        Mockito.when(clientRepo.findByClientId(validateClient.getClientId())).thenReturn(Optional.of(validateClient));
         Mockito.when(clientRepo.save(any(Client.class))).thenReturn(createClient);
         Mockito.when(encoder.encode(anyString())).thenReturn(UUID.randomUUID().toString());
         ResponseEntity<?> client1 = clientController.createClient(createClient);
@@ -88,8 +89,8 @@ public class ClientControllerTest {
     public void happy_client_not_resource() {
         Client validateClient = getClientAsValidResource();
         Client createClient = getNoneResourceClient(validateClient.getClientId());
-        Mockito.when(clientRepo.findByClientId(createClient.getClientId())).thenReturn(null);
-        Mockito.when(clientRepo.findByClientId(validateClient.getClientId())).thenReturn(validateClient);
+        Mockito.when(clientRepo.findByClientId(createClient.getClientId())).thenReturn(Optional.empty());
+        Mockito.when(clientRepo.findByClientId(validateClient.getClientId())).thenReturn(Optional.of(validateClient));
         Mockito.when(clientRepo.save(any(Client.class))).thenReturn(createClient);
         Mockito.when(encoder.encode(anyString())).thenReturn(UUID.randomUUID().toString());
         ResponseEntity<?> client1 = clientController.createClient(createClient);

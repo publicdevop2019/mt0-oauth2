@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,8 +41,8 @@ public class ClientController {
     public ResponseEntity<?> createClient(@Valid @RequestBody Client client) {
         validateResourceId(client);
         validateResourceIndicator(client);
-        Client clientId = clientRepo.findByClientId(client.getClientId());
-        if (clientId == null) {
+        Optional<Client> clientId = clientRepo.findByClientId(client.getClientId());
+        if (clientId.isEmpty()) {
             client.setClientSecret(encoder.encode(client.getClientSecret().trim()));
             Client saved = clientRepo.save(client);
             return ResponseEntity.ok().header("Location", String.valueOf(saved.getId())).build();
@@ -53,6 +54,16 @@ public class ClientController {
     @GetMapping("clients")
     public List<Client> readClients() {
         return clientRepo.findAll();
+    }
+
+    @GetMapping("client/autoApprove")
+    public ResponseEntity<?> readClient(@RequestParam String clientId) {
+        Optional<Client> byClientId = clientRepo.findByClientId(clientId);
+        if (byClientId.isEmpty())
+            return ResponseEntity.badRequest().build();
+        HashMap<String, Boolean> stringBooleanHashMap = new HashMap<>();
+        stringBooleanHashMap.put("autoApprove", byClientId.get().getAutoApprove());
+        return ResponseEntity.ok(stringBooleanHashMap);
     }
 
     /**
@@ -117,8 +128,8 @@ public class ClientController {
          * selected resource ids should be eligible resource
          */
         if (client.getResourceIds() == null || client.getResourceIds().size() == 0
-                || client.getResourceIds().stream().anyMatch(resourceId -> clientRepo.findByClientId(resourceId) == null
-                || !clientRepo.findByClientId(resourceId).getResourceIndicator()))
+                || client.getResourceIds().stream().anyMatch(resourceId -> clientRepo.findByClientId(resourceId).isEmpty()
+                || !clientRepo.findByClientId(resourceId).get().getResourceIndicator()))
             throw new IllegalArgumentException("invalid resourceId found");
     }
 

@@ -94,6 +94,13 @@ public class Client extends Auditable implements ClientDetails {
     private Boolean resourceIndicator;
 
     /**
+     * indicates if a authorization_code client can be auto approved
+     */
+    @Column
+    @Nullable
+    private Boolean autoApprove;
+
+    /**
      * this field is not used in spring oauth2,
      * client with no secret requires empty secret (mostly encoded)
      * below is empty string "" encoded, use if needed
