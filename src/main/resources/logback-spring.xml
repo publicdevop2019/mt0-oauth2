@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="LOGS" value="${user.home}/logs/auth"/>
+    <property name="location" value="./logs"/>
+    <property name="name" value="oauth2service"/>
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -12,7 +13,7 @@
     </appender>
 
     <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOGS}/oauth2service.log</file>
+        <file>${location}/${name}.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
         </encoder>
@@ -21,7 +22,7 @@
         </layout>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>
-                ${LOGS}/archived/oauth2service-%d{yyyy-MM-dd}.%i.log
+                ${location}/archived/${name}-%d{yyyy-MM-dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
