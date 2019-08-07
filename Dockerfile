@@ -32,4 +32,4 @@ COPY --from=maven ./target/AuthService.jar ./
 
 EXPOSE 8443 8080
 
-ENTRYPOINT ["java","-jar","AuthService.jar"]
+ENTRYPOINT ["java"]
