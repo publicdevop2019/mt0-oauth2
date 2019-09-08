@@ -1,5 +1,4 @@
 target/
-!.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
 .apt_generated
@@ -26,3 +25,7 @@ nbdist/
 ### Removed from public ###
 *.db
 logs/
+HELP.md
+mvnw
+mvnw.cmd
+.mvn

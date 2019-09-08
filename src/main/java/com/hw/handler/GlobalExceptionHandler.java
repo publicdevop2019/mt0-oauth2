@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @ControllerAdvice
 @Slf4j
-public class GlobleExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {TransactionSystemException.class,
             IllegalArgumentException.class,
