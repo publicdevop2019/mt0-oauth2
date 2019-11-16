@@ -9,9 +9,6 @@ import com.hw.utility.ServiceUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -115,16 +112,16 @@ public class ResourceOwnerController {
      * update grantedAuthorities, root user access can never be given, admin can only lock or unlock user
      */
     @PutMapping("resourceOwners/{id}")
-    public ResponseEntity<?> updateUser(@RequestBody ResourceOwner resourceOwner, @PathVariable Long id) {
+    public ResponseEntity<?> updateUser(@RequestBody ResourceOwner resourceOwner, @PathVariable Long id ,@RequestHeader("authorization") String authorization) {
 
         preventRootAccountChange(id);
 
-        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        List<String> authorities = ServiceUtility.getAuthority(authorization);
 
         if (resourceOwner.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new AccessDeniedException("assign root grantedAuthorities is prohibited");
 
-        if (authorities.stream().noneMatch(e -> "ROLE_ROOT".equals(e.getAuthority())) && resourceOwner.getAuthorities() != null)
+        if (authorities.stream().noneMatch(e -> "ROLE_ROOT".equals(e)) && resourceOwner.getAuthorities() != null)
             throw new AccessDeniedException("only root user can change grantedAuthorities");
 
         Optional<ResourceOwner> byId = userRepo.findById(id);
