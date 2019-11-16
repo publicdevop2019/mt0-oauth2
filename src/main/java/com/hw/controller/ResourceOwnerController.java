@@ -81,7 +81,7 @@ public class ResourceOwnerController {
     /**
      * create user, grantedAuthorities is overwritten to ROLE_USER
      */
-    @PostMapping("resourceOwner")
+    @PostMapping("resourceOwners")
     public ResponseEntity<?> createUser(@RequestBody ResourceOwner newUser) {
 
         ResourceOwner existUser;
@@ -113,7 +113,7 @@ public class ResourceOwnerController {
     /**
      * update grantedAuthorities, root user access can never be given, admin can only lock or unlock user
      */
-    @PutMapping("resourceOwner/{id}")
+    @PutMapping("resourceOwners/{id}")
     public ResponseEntity<?> updateUser(@RequestBody ResourceOwner resourceOwner, @PathVariable Long id) {
 
         preventRootAccountChange(id);
@@ -146,7 +146,7 @@ public class ResourceOwnerController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("resourceOwner/{id}")
+    @DeleteMapping("resourceOwners/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         preventRootAccountChange(id);
         Optional<ResourceOwner> byId = userRepo.findById(id);

@@ -128,7 +128,7 @@ public class ClientControllerTest {
     @Test
     public void createClient_w_admin_account_direct_call() throws JsonProcessingException {
         Client client = getClientAsNonResource(valid_resourceId);
-        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/client";
+        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/clients";
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_admin, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
         HttpHeaders headers = new HttpHeaders();
@@ -368,7 +368,7 @@ public class ClientControllerTest {
     }
 
     public ResponseEntity<String> createClient(Client client) throws JsonProcessingException {
-        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/client";
+        String url = "http://localhost:" + randomServerPort + "/v1/api" + "/clients";
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
         String bearer = tokenResponse.getBody().getValue();
         HttpHeaders headers = new HttpHeaders();

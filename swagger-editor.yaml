@@ -27,25 +27,6 @@ tags:
     description: Find out more
     url: https://jwt.io
 paths:
-  /client:
-    post:
-      tags:
-      - client
-      summary: Create oauth2 client
-      security:
-        - oauth2: [root]
-      requestBody:
-        $ref: "#/components/requestBodies/clientBody"
-      responses:
-        400:
-          $ref: "#/components/responses/BadRequest"
-        200:
-          description: OK
-          headers:
-            Location:
-              description: Location of created client
-              schema:
-                type: string
   /client/{id}:
     put:
       tags:
@@ -93,6 +74,24 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Client"
+    post:
+      tags:
+      - client
+      summary: Create oauth2 client
+      security:
+        - oauth2: [root]
+      requestBody:
+        $ref: "#/components/requestBodies/clientBody"
+      responses:
+        400:
+          $ref: "#/components/responses/BadRequest"
+        200:
+          description: OK
+          headers:
+            Location:
+              description: Location of created client
+              schema:
+                type: string
   /resourceOwner:
     post:
       tags:

@@ -37,7 +37,7 @@ public class ClientController {
      * @param client
      * @return
      */
-    @PostMapping("client")
+    @PostMapping("clients")
     public ResponseEntity<?> createClient(@Valid @RequestBody Client client) {
         validateResourceId(client);
         validateResourceIndicator(client);
