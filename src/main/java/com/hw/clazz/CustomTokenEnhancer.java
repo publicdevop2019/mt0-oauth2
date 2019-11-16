@@ -31,13 +31,13 @@ public class CustomTokenEnhancer implements TokenEnhancer {
         if (!authentication.isClientOnly())
             try {
                 Long l = Long.parseLong(authentication.getName());
-                info.put("user_name", l.toString());
+                info.put("uid", l.toString());
             } catch (NumberFormatException ex) {
                 /**
                  * is email
                  */
                 ResourceOwner oneByEmail = resourceOwnerRepo.findOneByEmail(authentication.getName());
-                info.put("user_name", oneByEmail.getId().toString());
+                info.put("uid", oneByEmail.getId().toString());
             }
         ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(info);
         return accessToken;

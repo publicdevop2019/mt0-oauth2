@@ -117,7 +117,7 @@ public class ResourceOwnerControllerTest {
         ResponseEntity<String> ok = ResponseEntity.ok("");
         Mockito.doReturn(ok).when(oAuth2RestTemplate).exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(String.class));
         ResourceOwner user = getUser();
-        ResponseEntity<DefaultOAuth2AccessToken> createResp = createUser(user);
+        createUser(user);
         /** Location is not used in this case, root/admin/user can only update their password */
         String url = "http://localhost:" + randomServerPort + "/v1/api" + "/resourceOwner/pwd";
         String newPassword = UUID.randomUUID().toString().replace("-", "");
@@ -370,7 +370,7 @@ public class ResourceOwnerControllerTest {
         HttpEntity<Object> request2 = new HttpEntity<>(null, headers2);
         ResponseEntity<Object> exchange2 = restTemplate.exchange(url, HttpMethod.DELETE, request2, Object.class);
 
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
+        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange2.getStatusCode());
 
     }
 

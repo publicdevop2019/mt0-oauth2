@@ -1,6 +1,7 @@
 package com.hw.controller;
 
 import com.hw.service.ClientDetailsServiceImpl;
+import com.hw.utility.ServiceUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -17,10 +18,7 @@ import org.springframework.security.oauth2.provider.endpoint.RedirectResolver;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestValidator;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,9 +42,9 @@ public class AuthorizeCodeController {
     private InMemoryAuthorizationCodeServices authorizationCodeServices;
 
     @PostMapping("/authorize")
-    public Map<String, String> authorize(@RequestParam Map<String, String> parameters) {
+    public Map<String, String> authorize(@RequestParam Map<String, String> parameters,@RequestHeader("authorization") String authorization) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = ServiceUtility.getAuthentication(authorization);
 
         AuthorizationRequest authorizationRequest = defaultOAuth2RequestFactory.createAuthorizationRequest(parameters);
 
