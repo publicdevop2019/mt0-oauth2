@@ -36,10 +36,8 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                 /**
                  * is email
                  */
-                if(!"anonymousUser".equals(authentication.getName())){
-                    ResourceOwner oneByEmail = resourceOwnerRepo.findOneByEmail(authentication.getName());
-                    info.put("uid", oneByEmail.getId().toString());
-                }
+                ResourceOwner oneByEmail = resourceOwnerRepo.findOneByEmail(authentication.getName());
+                info.put("uid", oneByEmail.getId().toString());
             }
         ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(info);
         return accessToken;

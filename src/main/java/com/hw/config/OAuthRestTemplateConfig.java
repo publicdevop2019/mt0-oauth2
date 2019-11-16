@@ -21,7 +21,6 @@ public class OAuthRestTemplateConfig {
     }
 
     @Bean
-    @Profile("!https")
     public HttpComponentsClientHttpRequestFactory getHttpComponentsClientHttpRequestFactory() {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         return new HttpComponentsClientHttpRequestFactory(httpClient);
