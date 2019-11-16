@@ -113,12 +113,6 @@ public class AuthorizationCodeTest {
 
     }
 
-    @Test
-    public void sad_invalid_bearerToken() {
-        ResponseEntity<String> code = getCodeResp(valid_third_party, invalid_accessToken);
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, code.getStatusCode());
-
-    }
 
     @Test
     public void sad_invalid_code() {

@@ -7,18 +7,18 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 
-/**
- * token endpoints are not protected by resource service, only custom controllers are protected
- */
-@Configuration
-@EnableResourceServer
-public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
-
-    @Autowired
-    ClientRepo clientRepo;
-
-    @Override
-    public void configure(ResourceServerSecurityConfigurer resources) {
-        resources.resourceId(clientRepo.findById(1L).get().getClientId());
-    }
-}
+///**
+// * token endpoints are not protected by resource service, only custom controllers are protected
+// */
+//@Configuration
+////@EnableResourceServer
+//public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
+//
+//    @Autowired
+//    ClientRepo clientRepo;
+//
+//    @Override
+//    public void configure(ResourceServerSecurityConfigurer resources) {
+//        resources.resourceId(clientRepo.findById(1L).get().getClientId());
+//    }
+//}

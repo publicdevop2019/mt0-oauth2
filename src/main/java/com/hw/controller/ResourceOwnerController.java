@@ -5,6 +5,7 @@ import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.entity.ResourceOwner;
 import com.hw.interfaze.TokenRevocationService;
 import com.hw.repo.ResourceOwnerRepo;
+import com.hw.utility.ServiceUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -41,9 +42,9 @@ public class ResourceOwnerController {
      * also in order to get id, extra call required for ui
      */
     @PatchMapping("resourceOwner/pwd")
-    public ResponseEntity<?> updateUserPwd(@RequestBody ResourceOwner resourceOwner) {
+    public ResponseEntity<?> updateUserPwd(@RequestBody ResourceOwner resourceOwner, @RequestHeader("authorization") String authorization) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String ownerName = ServiceUtility.getUsername(authorization);
 
         ResourceOwner existUser;
 
@@ -53,7 +54,7 @@ public class ResourceOwnerController {
 
         } else {
 
-            Optional<ResourceOwner> byId = userRepo.findById(Long.parseLong(authentication.getName()));
+            Optional<ResourceOwner> byId = userRepo.findById(Long.parseLong(ownerName));
 
             if (byId.isEmpty())
                 throw new IllegalArgumentException("user not exist:" + resourceOwner.getEmail());

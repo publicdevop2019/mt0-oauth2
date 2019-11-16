@@ -56,8 +56,12 @@ public class ClientController {
         return clientRepo.findAll();
     }
 
-    @GetMapping("client/autoApprove")
-    public ResponseEntity<?> readClient(@RequestParam String clientId) {
+    /**
+     * only clientId is available
+     */
+    @Deprecated
+    @GetMapping("clients/autoApprove")
+    public ResponseEntity<?> readClient(@RequestParam(name = "clientId") String clientId) {
         Optional<Client> byClientId = clientRepo.findByClientId(clientId);
         if (byClientId.isEmpty())
             return ResponseEntity.badRequest().build();
@@ -70,6 +74,39 @@ public class ClientController {
         return ResponseEntity.ok(stringBooleanHashMap);
     }
 
+    @GetMapping("clients/{id}")
+    public ResponseEntity<?> readPartialClientById(@PathVariable Long id, @RequestParam(name = "field") String field) {
+        Optional<Client> byId = clientRepo.findById(id);
+        if (byId.isEmpty())
+            return ResponseEntity.notFound().build();
+        if (field == null) {
+            return ResponseEntity.ok(byId.get());
+        } else {
+            if ("autoApprove".equals(field)) {
+                HashMap<String, Boolean> stringBooleanHashMap = new HashMap<>();
+                /**
+                 * if autoApprove is null, it won't be included in response
+                 * due to Jackson configured to ignore null fields
+                 */
+                stringBooleanHashMap.put("autoApprove", byId.get().getAutoApprove());
+                return ResponseEntity.ok(stringBooleanHashMap);
+            } else {
+                /**
+                 * unsupported fields
+                 */
+                return ResponseEntity.badRequest().build();
+            }
+        }
+    }
+
+    @GetMapping("clients/search")
+    public ResponseEntity<?> searchClient(@RequestParam(name = "clientId") String clientId) {
+        Optional<Client> byClientId = clientRepo.findByClientId(clientId);
+        if (byClientId.isEmpty())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().header("Location", String.valueOf(byClientId.get().getId())).build();
+    }
+
     /**
      * replace an existing client, if no change to pwd then send empty
      *
@@ -77,7 +114,7 @@ public class ClientController {
      * @param id
      * @return
      */
-    @PutMapping("client/{id}")
+    @PutMapping("clients/{id}")
     public ResponseEntity<?> replaceClient(@Valid @RequestBody Client client, @PathVariable Long id) {
         validateResourceId(client);
         validateResourceIndicator(client);
@@ -113,7 +150,7 @@ public class ClientController {
      * @param id
      * @return
      */
-    @DeleteMapping("client/{id}")
+    @DeleteMapping("clients/{id}")
     public ResponseEntity<?> deleteClient(@PathVariable Long id) {
         preventRootAccountChange(id);
         Optional<Client> oAuthClient1 = clientRepo.findById(id);

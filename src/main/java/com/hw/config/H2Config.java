@@ -9,20 +9,20 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
  * H2Config is called after ResourceServerConfig,
  * invoke order is from bottom to top
  */
-@Configuration
-@Profile("h2")
-public class H2Config extends ResourceServerConfigurerAdapter {
-
-    private String[] ignoredPaths = {"/h2-console/**"};
-
-    @Override
-    public void configure(HttpSecurity http) throws Exception {
-
-        http.authorizeRequests()
-                .antMatchers(ignoredPaths).permitAll()
-                .and()
-                .headers().frameOptions().disable();
-
-    }
-
-}
+//@Configuration
+//@Profile("h2")
+//public class H2Config extends ResourceServerConfigurerAdapter {
+//
+//    private String[] ignoredPaths = {"/h2-console/**"};
+//
+//    @Override
+//    public void configure(HttpSecurity http) throws Exception {
+//
+//        http.authorizeRequests()
+//                .antMatchers(ignoredPaths).permitAll()
+//                .and()
+//                .headers().frameOptions().disable();
+//
+//    }
+//
+//}
