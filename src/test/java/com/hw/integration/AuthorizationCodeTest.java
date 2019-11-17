@@ -34,6 +34,7 @@ public class AuthorizationCodeTest {
     private String client_credentials = "client_credentials";
     private String valid_clientId = "login-id";
     private String valid_third_party = "mgfb-id";
+    private String invalid_third_party = UUID.randomUUID().toString();
     private String valid_clientId_no_refersh = "test-id";
     private String valid_empty_secret = "";
     private String valid_username_root = "root@gmail.com";
@@ -166,6 +167,13 @@ public class AuthorizationCodeTest {
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken = getAuthorizationTokenSecret(authorization_code, code, valid_redirect_uri, valid_clientId, UUID.randomUUID().toString());
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, authorizationToken.getStatusCode());
 
+    }
+    @Test
+    public void sad_invalid_authorize_clientId() {
+        ResponseEntity<DefaultOAuth2AccessToken> defaultOAuth2AccessTokenResponseEntity = pwdFlowLogin(password, valid_username_root, valid_pwd, valid_clientId, valid_empty_secret);
+        String accessToken = defaultOAuth2AccessTokenResponseEntity.getBody().getValue();
+        ResponseEntity<String> codeResp = getCodeResp(invalid_third_party, accessToken);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST,codeResp.getStatusCode());
     }
 
 

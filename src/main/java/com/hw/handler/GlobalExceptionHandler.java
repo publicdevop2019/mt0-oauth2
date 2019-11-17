@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @ControllerAdvice
 @Slf4j
@@ -50,8 +48,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         if (ex instanceof AccessDeniedException)
             throw ex;
         Map<String, Object> body = new LinkedHashMap<>();
-
-        String[] split = NestedExceptionUtils.getMostSpecificCause(ex).getMessage().replace("\t", "").split("\n");
+        List<String> split;
+        if(NestedExceptionUtils.getMostSpecificCause(ex).getMessage() != null){
+            split = List.of(NestedExceptionUtils.getMostSpecificCause(ex).getMessage().replace("\t", "").split("\n"));
+        }else{
+            split = List.of("Unable to get most specific cause, see log");
+        }
         String s = UUID.randomUUID().toString();
         body.put("errors", split);
         body.put("error_id", s);

@@ -5,7 +5,6 @@ import com.hw.utility.ServiceUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.common.exceptions.RedirectMismatchException;
@@ -42,7 +41,12 @@ public class AuthorizeCodeController {
     private InMemoryAuthorizationCodeServices authorizationCodeServices;
 
     @PostMapping("/authorize")
-    public Map<String, String> authorize(@RequestParam Map<String, String> parameters,@RequestHeader("authorization") String authorization) {
+    public Map<String, String> authorize(@RequestParam Map<String, String> parameters, @RequestHeader("authorization") String authorization) {
+
+        /**make sure authorize client exist*/
+
+        if (clientDetailsService.loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null)
+            throw new IllegalArgumentException("unable to find authorize client");
 
         Authentication authentication = ServiceUtility.getAuthentication(authorization);
 
