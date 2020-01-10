@@ -13,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,8 +37,7 @@ public class ResourceOwnerController {
     TokenRevocationService<ResourceOwner> tokenRevocationService;
 
     /**
-     * update pwd, id is not required due to it may not be available,
-     * also in order to get id, extra call required for ui
+     * update pwd, id is part of bearer token,
      */
     @PatchMapping("resourceOwner/pwd")
     public ResponseEntity<?> updateUserPwd(@RequestBody ResourceOwner resourceOwner, @RequestHeader("authorization") String authorization) {
@@ -112,7 +113,7 @@ public class ResourceOwnerController {
      * update grantedAuthorities, root user access can never be given, admin can only lock or unlock user
      */
     @PutMapping("resourceOwners/{id}")
-    public ResponseEntity<?> updateUser(@RequestBody ResourceOwner resourceOwner, @PathVariable Long id ,@RequestHeader("authorization") String authorization) {
+    public ResponseEntity<?> updateUser(@RequestBody ResourceOwner resourceOwner, @PathVariable Long id, @RequestHeader("authorization") String authorization) {
 
         preventRootAccountChange(id);
 
@@ -163,6 +164,13 @@ public class ResourceOwnerController {
         Optional<ResourceOwner> byId = userRepo.findById(id);
         if (!byId.isEmpty() && byId.get().getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new AccessDeniedException("root account can not be modified");
+    }
+
+    @GetMapping("email/subscriber")
+    public ResponseEntity<?> getEmailSubscriber(@RequestHeader("authorization") String authorization) {
+        List<ResourceOwner> collect = userRepo.findAll().stream().filter(e -> e.getGrantedAuthorities().stream().anyMatch(el -> el.getGrantedAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN))).collect(Collectors.toList());
+        List<@NotBlank @Email String> collect1 = collect.stream().map(e -> e.getEmail()).collect(Collectors.toList());
+        return ResponseEntity.ok(String.join(",", collect1));
     }
 
 }
