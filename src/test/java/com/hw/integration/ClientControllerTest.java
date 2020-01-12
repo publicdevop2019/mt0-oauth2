@@ -44,8 +44,8 @@ public class ClientControllerTest {
     private String invalid_resourceId = "test-id";
     private String invalid_resourceId_not_found = "test-idasdf";
     private String valid_empty_secret = "";
-    private String valid_username_root = "root@gmail.com";
-    private String valid_username_admin = "admin@gmail.com";
+    private String valid_username_root = "haolinwei2015@gmail.com";
+    private String valid_username_admin = "haolinwei2017@gmail.com";
     private String valid_pwd = "root";
     public ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false);
     private TestRestTemplate restTemplate = new TestRestTemplate();

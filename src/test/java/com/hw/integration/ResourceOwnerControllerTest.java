@@ -45,9 +45,9 @@ public class ResourceOwnerControllerTest {
     private String invalid_clientId = "rightRoleNotSufficientResourceId";
     private String valid_register_clientId = "register-id";
     private String valid_empty_secret = "";
-    private String valid_username_root = "root@gmail.com";
-    private String valid_username_admin = "admin@gmail.com";
-    private String valid_username_user = "user@gmail.com";
+    private String valid_username_root = "haolinwei2015@gmail.com";
+    private String valid_username_admin = "haolinwei2017@gmail.com";
+    private String valid_username_user = "haolinwei2018@gmail.com";
     private String valid_pwd = "root";
     private Long root_index = 0L;
     public ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false).setSerializationInclusion(JsonInclude.Include.NON_NULL);

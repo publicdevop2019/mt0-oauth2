@@ -37,9 +37,9 @@ public class AuthorizationCodeTest {
     private String invalid_third_party = UUID.randomUUID().toString();
     private String valid_clientId_no_refersh = "test-id";
     private String valid_empty_secret = "";
-    private String valid_username_root = "root@gmail.com";
-    private String valid_username_admin = "admin@gmail.com";
-    private String valid_username_user = "user@gmail.com";
+    private String valid_username_root = "haolinwei2015@gmail.com";
+    private String valid_username_admin = "haolinwei2017@gmail.com";
+    private String valid_username_user = "haolinwei2018@gmail.com";
     private String valid_pwd = "root";
     private String invalid_username = "root2@gmail.com";
     private String invalid_clientId = "root2";
