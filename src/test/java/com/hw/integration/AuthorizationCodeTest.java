@@ -1,6 +1,6 @@
 package com.hw.integration;
 
-import com.hw.OAuth2Service;
+import com.hw.Application;
 import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.jayway.jsonpath.JsonPath;
@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = OAuth2Service.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
 public class AuthorizationCodeTest {
 

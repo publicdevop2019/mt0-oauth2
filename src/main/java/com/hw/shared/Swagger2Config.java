@@ -1,4 +1,4 @@
-package com.hw.config;
+package com.hw.shared;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,7 @@ public class Swagger2Config {
     }
     private ApiInfo apiEndPointsInfo() {
         return new ApiInfoBuilder().title("Spring Boot REST API")
-                .description("Product REST API")
+                .description("Application REST API")
                 .contact(new Contact("Haolin Wei", "www.tbd.com", "haolinwei2015@gmail.com"))
                 .license("Apache 2.0")
                 .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")

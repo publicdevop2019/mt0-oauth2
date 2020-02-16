@@ -1,7 +1,7 @@
 package com.hw.controller;
 
 import com.hw.service.ClientDetailsServiceImpl;
-import com.hw.utility.ServiceUtility;
+import com.hw.utility.ServiceUtilityExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -48,7 +48,7 @@ public class AuthorizeCodeController {
         if (clientDetailsService.loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null)
             throw new IllegalArgumentException("unable to find authorize client");
 
-        Authentication authentication = ServiceUtility.getAuthentication(authorization);
+        Authentication authentication = ServiceUtilityExt.getAuthentication(authorization);
 
         AuthorizationRequest authorizationRequest = defaultOAuth2RequestFactory.createAuthorizationRequest(parameters);
 

@@ -1,5 +1,6 @@
-package com.hw.entity;
+package com.hw.shared;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -18,16 +19,20 @@ import java.util.Date;
 @Data
 public class Auditable {
 
+    @JsonIgnore
     @CreatedBy
     private String createdBy;
 
+    @JsonIgnore
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
+    @JsonIgnore
     @LastModifiedBy
     private String modifiedBy;
 
+    @JsonIgnore
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedAt;

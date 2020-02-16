@@ -1,6 +1,6 @@
 package com.hw.integration;
 
-import com.hw.OAuth2Service;
+import com.hw.Application;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +16,7 @@ import org.springframework.util.MultiValueMap;
 import java.util.UUID;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = OAuth2Service.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ClientCredentialsTest {
     private String password = "password";
     private String client_credentials = "client_credentials";

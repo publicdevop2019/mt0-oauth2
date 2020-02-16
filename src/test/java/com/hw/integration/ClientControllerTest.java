@@ -3,7 +3,7 @@ package com.hw.integration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hw.OAuth2Service;
+import com.hw.Application;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.clazz.eenum.GrantTypeEnum;
@@ -35,7 +35,7 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = OAuth2Service.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ClientControllerTest {
 
     private String password = "password";

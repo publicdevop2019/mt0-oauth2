@@ -1,12 +1,11 @@
 package com.hw.unit.clazz;
 
-import com.hw.clazz.AuditorAwareImpl;
+import com.hw.shared.AuditorAwareImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

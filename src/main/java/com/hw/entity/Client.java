@@ -7,6 +7,7 @@ import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.clazz.eenum.GrantTypeEnum;
 import com.hw.clazz.eenum.ScopeEnum;
 import com.hw.converter.StringListConverter;
+import com.hw.shared.Auditable;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;

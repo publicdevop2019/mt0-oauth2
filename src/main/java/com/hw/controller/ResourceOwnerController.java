@@ -5,7 +5,7 @@ import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.entity.ResourceOwner;
 import com.hw.interfaze.TokenRevocationService;
 import com.hw.repo.ResourceOwnerRepo;
-import com.hw.utility.ServiceUtility;
+import com.hw.utility.ServiceUtilityExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -42,7 +42,7 @@ public class ResourceOwnerController {
     @PatchMapping("resourceOwner/pwd")
     public ResponseEntity<?> updateUserPwd(@RequestBody ResourceOwner resourceOwner, @RequestHeader("authorization") String authorization) {
 
-        String ownerName = ServiceUtility.getUsername(authorization);
+        String ownerName = ServiceUtilityExt.getUsername(authorization);
 
         ResourceOwner existUser;
 
@@ -117,7 +117,7 @@ public class ResourceOwnerController {
 
         preventRootAccountChange(id);
 
-        List<String> authorities = ServiceUtility.getAuthority(authorization);
+        List<String> authorities = ServiceUtilityExt.getAuthority(authorization);
 
         if (resourceOwner.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new AccessDeniedException("assign root grantedAuthorities is prohibited");

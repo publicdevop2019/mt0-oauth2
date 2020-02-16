@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.converter.StringListConverter;
+import com.hw.shared.Auditable;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
