@@ -4,6 +4,8 @@ COPY ./src ./src
 
 COPY ./pom.xml ./pom.xml
 
+COPY ./shared/parent-pom.xml ./shared/parent-pom.xml
+
 # build all dependencies for offline use
 RUN mvn dependency:go-offline -B
 
