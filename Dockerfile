@@ -28,8 +28,8 @@ ENV PATH="$PATH:$JAVA_HOME/bin"
 
 COPY --from=jlink-package /opt/jdk-11-mini-runtime /opt/jdk-11-mini-runtime
 
-COPY --from=maven ./target/AuthService.jar ./
+COPY --from=maven ./target/Product.jar ./
 
-EXPOSE 8443 8080
+EXPOSE 8083
 
 ENTRYPOINT ["java"]
