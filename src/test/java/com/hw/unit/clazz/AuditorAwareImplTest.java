@@ -22,28 +22,9 @@ public class AuditorAwareImplTest {
     AuditorAwareImpl auditorAware = new AuditorAwareImpl();
 
     @Test
-    public void getCurrentAuditor() {
-        String mockedName = UUID.randomUUID().toString();
-        Authentication authentication = mock(Authentication.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        Mockito.when(authentication.getName()).thenReturn(mockedName);
-        SecurityContextHolder.setContext(securityContext);
+    public void getCurrentAuditor_noAuth() {
         Optional<String> currentAuditor = auditorAware.getCurrentAuditor();
         Assert.assertEquals(false, currentAuditor.isEmpty());
-        Assert.assertEquals(mockedName, currentAuditor.get());
-    }
-
-    @Test(expected = NoSuchElementException.class)
-    public void getCurrentAuditor_noAuth() {
-        String mockedName = UUID.randomUUID().toString();
-        Authentication authentication = mock(Authentication.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        Mockito.when(authentication.getName()).thenReturn(null);
-        SecurityContextHolder.setContext(securityContext);
-        Optional<String> currentAuditor = auditorAware.getCurrentAuditor();
-        Assert.assertEquals(true, currentAuditor.isEmpty());
-        currentAuditor.get();
+        Assert.assertEquals("HttpServletRequest_Empty", currentAuditor.get());
     }
 }
