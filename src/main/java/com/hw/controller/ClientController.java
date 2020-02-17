@@ -57,7 +57,7 @@ public class ClientController {
     }
 
     /**
-     * only clientId is available
+     * only clientId is available, value can be read with client/{id}
      */
     @Deprecated
     @GetMapping("clients/autoApprove")

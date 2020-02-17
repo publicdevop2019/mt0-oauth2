@@ -7,9 +7,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
-/**
- * @todo update auditorAwareImpl globally
- */
 public class AuditorAwareImpl implements AuditorAware<String> {
     @Override
     public Optional<String> getCurrentAuditor() {
@@ -18,8 +15,8 @@ public class AuditorAwareImpl implements AuditorAware<String> {
                 .map(requestAttributes -> ((ServletRequestAttributes) requestAttributes))
                 .map(ServletRequestAttributes::getRequest);
         if (httpServletRequest.isEmpty())
-            return Optional.of("HttpServletRequest_Empty");
+            return Optional.of("NOT_HTTP");
         String authorization = httpServletRequest.get().getHeader("authorization");
-        return Optional.ofNullable(authorization == null ? "AuthorizationHeader_Empty" : ServiceUtility.getUsername(authorization));
+        return Optional.ofNullable(authorization == null ? "EMPTY_AUTH_HEADER" : ServiceUtility.getUserId(authorization) == null ? ServiceUtility.getClientId(authorization) : ServiceUtility.getUserId(authorization));
     }
 }

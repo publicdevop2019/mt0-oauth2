@@ -42,7 +42,7 @@ public class ResourceOwnerController {
     @PatchMapping("resourceOwner/pwd")
     public ResponseEntity<?> updateUserPwd(@RequestBody ResourceOwner resourceOwner, @RequestHeader("authorization") String authorization) {
 
-        String ownerName = ServiceUtilityExt.getUsername(authorization);
+        String userId = ServiceUtilityExt.getUserId(authorization);
 
         ResourceOwner existUser;
 
@@ -52,7 +52,7 @@ public class ResourceOwnerController {
 
         } else {
 
-            Optional<ResourceOwner> byId = userRepo.findById(Long.parseLong(ownerName));
+            Optional<ResourceOwner> byId = userRepo.findById(Long.parseLong(userId));
 
             if (byId.isEmpty())
                 throw new IllegalArgumentException("user not exist:" + resourceOwner.getEmail());

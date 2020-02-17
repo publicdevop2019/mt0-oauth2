@@ -17,7 +17,7 @@ public class ServiceUtilityExt extends ServiceUtility {
                     return e;
                 }
             }).collect(Collectors.toList());
-            String username = getUsername(bearerHeader);
+            String userId = getUserId(bearerHeader);
             Authentication authentication = new Authentication() {
                 @Override
                 public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -37,7 +37,7 @@ public class ServiceUtilityExt extends ServiceUtility {
                 @Override
                 public Object getPrincipal() {
                     /**required for authorization code flow*/
-                    return username;
+                    return userId;
                 }
 
                 @Override
