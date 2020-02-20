@@ -25,4 +25,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<?> defaultHandleException(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
+
+    @ExceptionHandler(value = {BadRequestException.class})
+    protected ResponseEntity<?> handle400Exception(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = {InternalServerException.class})
+    protected ResponseEntity<?> handle500Exception(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
 }
