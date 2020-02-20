@@ -29,7 +29,7 @@ public class AuthTokenHelper {
     private String CLIENT_CREDENTIALS = "client_credentials";
 
     public OAuth2AccessToken getSelfSignedAccessToken() {
-        Optional<Client> byId = clientRepo.findById(1L);
+        Optional<Client> byId = clientRepo.findByClientId("oauth2-id");
         if (byId.isEmpty())
             throw new IllegalArgumentException("root authorization client not found!,this should never happen");
         Client client = byId.get();

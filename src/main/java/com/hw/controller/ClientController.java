@@ -99,14 +99,6 @@ public class ClientController {
         }
     }
 
-    @GetMapping("clients/search")
-    public ResponseEntity<?> searchClient(@RequestParam(name = "clientId") String clientId) {
-        Optional<Client> byClientId = clientRepo.findByClientId(clientId);
-        if (byClientId.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok().header("Location", String.valueOf(byClientId.get().getId())).build();
-    }
-
     /**
      * replace an existing client, if no change to pwd then send empty
      *

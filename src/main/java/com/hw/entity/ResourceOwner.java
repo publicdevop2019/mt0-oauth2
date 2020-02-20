@@ -25,14 +25,14 @@ import java.util.Set;
 @Entity
 @Table(name = "resource_owner")
 @Data
+@SequenceGenerator(name = "entityId_gen", sequenceName = "entityId_seq", initialValue = 100)
 public class ResourceOwner extends Auditable implements UserDetails {
     /**
      * use same sequence generator for resourceOwner & client to avoid blacklist conflict
      * e.g client has same id as resource owner
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "clientId_gen")
-    @Column(nullable = false)
+    @GeneratedValue(generator = "entityId_gen")
     @Setter(AccessLevel.NONE)
     protected Long id;
 

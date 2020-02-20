@@ -82,7 +82,9 @@ public class ResourceOwnerController {
      */
     @PostMapping("resourceOwners")
     public ResponseEntity<?> createUser(@RequestBody ResourceOwner newUser) {
-
+        /**
+         * if id present it will used instead generated
+         */
         ResourceOwner existUser;
 
         if (!StringUtils.hasText(newUser.getPassword()) || !StringUtils.hasText(newUser.getEmail())) {

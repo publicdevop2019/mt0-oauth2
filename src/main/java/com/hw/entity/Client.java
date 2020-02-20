@@ -32,12 +32,12 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name = "client")
-@SequenceGenerator(name = "clientId_gen", sequenceName = "clientId_gen", initialValue = 100)
+@SequenceGenerator(name = "entityId_gen", sequenceName = "entityId_seq", initialValue = 100)
 @Data
 public class Client extends Auditable implements ClientDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "clientId_gen")
+    @GeneratedValue(generator = "entityId_gen")
     @Setter(AccessLevel.NONE)
     private Long id;
 
