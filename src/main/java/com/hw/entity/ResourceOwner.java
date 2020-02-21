@@ -62,8 +62,6 @@ public class ResourceOwner extends Auditable implements UserDetails {
 
     /**
      * make sure grantedAuthorities only get serialized once
-     *
-     * @return
      */
     @JsonIgnore
     @Override

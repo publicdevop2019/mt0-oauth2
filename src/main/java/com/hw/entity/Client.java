@@ -151,6 +151,7 @@ public class Client extends Auditable implements ClientDetails {
     }
 
     @Override
+    @JsonIgnore
     public Map<String, Object> getAdditionalInformation() {
         return null;
     }

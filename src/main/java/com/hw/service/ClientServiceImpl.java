@@ -5,7 +5,6 @@ import com.hw.entity.Client;
 import com.hw.interfaze.TokenRevocationService;
 import com.hw.repo.ClientRepo;
 import com.hw.shared.BadRequestException;
-import com.hw.shared.InternalServerException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,21 +33,20 @@ public class ClientServiceImpl {
 
     /**
      * if client is marked as resource then it must be a backend and first party application
-     *
-     * @param client
-     * @return
      */
-    @PostMapping("clients")
     public Client createClient(Client client) {
         validateResourceId(client);
         validateResourceIndicator(client);
         Optional<Client> clientId = clientRepo.findByClientId(client.getClientId());
         if (clientId.isEmpty()) {
-            client.setClientSecret(encoder.encode(client.getClientSecret().trim()));
-            Client saved = clientRepo.save(client);
-            return saved;
+            if (null == client.getClientSecret()) {
+                client.setClientSecret(encoder.encode(""));
+            } else {
+                client.setClientSecret(encoder.encode(client.getClientSecret().trim()));
+            }
+            return clientRepo.save(client);
         } else {
-            throw new InternalServerException("unable to create client");
+            throw new BadRequestException("client already exist");
         }
     }
 
@@ -65,14 +58,14 @@ public class ClientServiceImpl {
      * only clientId is available, value can be read with client/{id}
      */
     @Deprecated
-    public Client readClient(@RequestParam(name = "clientId") String clientId) {
+    public Client readClient(String clientId) {
         Optional<Client> byClientId = clientRepo.findByClientId(clientId);
         if (byClientId.isEmpty())
             throw new BadRequestException("unable to find client");
         return byClientId.get();
     }
 
-    public Map<String, String> readPartialClientById(@PathVariable Long id, @RequestParam(name = "field") String field) {
+    public Map<String, String> readPartialClientById(Long id, String field) {
         Optional<Client> byId = clientRepo.findById(id);
         if (byId.isEmpty())
             throw new BadRequestException("unable to find client");
@@ -85,7 +78,11 @@ public class ClientServiceImpl {
                  * if autoApprove is null, it won't be included in response
                  * due to Jackson configured to ignore null fields
                  */
-                stringStringHashMap.put("autoApprove", byId.get().getAutoApprove().toString());
+                if (null == byId.get().getAutoApprove()) {
+                    stringStringHashMap.put("autoApprove", Boolean.FALSE.toString());
+                } else {
+                    stringStringHashMap.put("autoApprove", byId.get().getAutoApprove().toString());
+                }
                 return stringStringHashMap;
             } else {
                 throw new BadRequestException("unsupported fields");
@@ -100,9 +97,9 @@ public class ClientServiceImpl {
      * @param id
      * @return
      */
-    public void replaceClient(@Valid @RequestBody Client client, @PathVariable Long id) {
-        validateResourceId(client);
+    public void replaceClient(Client client, Long id) {
         validateResourceIndicator(client);
+        validateResourceId(client);
         Optional<Client> oAuthClient1 = clientRepo.findById(id);
         if (oAuthClient1.isEmpty()) {
             throw new BadRequestException("unable to find client");
@@ -128,21 +125,15 @@ public class ClientServiceImpl {
     }
 
     /**
-     * rule: root client can not be deleted
-     *
-     * @param id
-     * @return
+     * root client can not be deleted
      */
-    public void deleteClient(@PathVariable Long id) {
+    public void deleteClient(Long id) {
         preventRootAccountChange(id);
         Optional<Client> oAuthClient1 = clientRepo.findById(id);
-        if (oAuthClient1.isEmpty()) {
+        if (oAuthClient1.isEmpty())
             throw new BadRequestException("unable to find client");
-        } else {
-            clientRepo.delete(oAuthClient1.get());
-            /** deleted client token must be revoked*/
-            tokenRevocationService.blacklist(oAuthClient1.get().getClientId(), true);
-        }
+        clientRepo.delete(oAuthClient1.get());
+        tokenRevocationService.blacklist(oAuthClient1.get().getClientId(), true);
     }
 
     private void validateResourceId(Client client) throws IllegalArgumentException {
@@ -152,7 +143,7 @@ public class ClientServiceImpl {
         if (client.getResourceIds() == null || client.getResourceIds().size() == 0
                 || client.getResourceIds().stream().anyMatch(resourceId -> clientRepo.findByClientId(resourceId).isEmpty()
                 || !clientRepo.findByClientId(resourceId).get().getResourceIndicator()))
-            throw new IllegalArgumentException("invalid resourceId found");
+            throw new BadRequestException("invalid resourceId found");
     }
 
     private void validateResourceIndicator(Client client) throws IllegalArgumentException {
@@ -160,7 +151,7 @@ public class ClientServiceImpl {
             if (client.getGrantedAuthorities().stream().anyMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_BACKEND))
                     && client.getGrantedAuthorities().stream().anyMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_FIRST_PARTY))) {
             } else {
-                throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
+                throw new BadRequestException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
             }
 
     }
@@ -168,6 +159,6 @@ public class ClientServiceImpl {
     private void preventRootAccountChange(Long id) throws AccessDeniedException {
         Optional<Client> byId = clientRepo.findById(id);
         if (!byId.isEmpty() && byId.get().getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
-            throw new AccessDeniedException("root client can not be deleted");
+            throw new BadRequestException("root client can not be deleted");
     }
 }
