@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@SuppressWarnings("unused")
 @Service
 @Slf4j
 public class ClientServiceImpl {
@@ -31,9 +32,6 @@ public class ClientServiceImpl {
     @Autowired
     TokenRevocationService<Client> tokenRevocationService;
 
-    /**
-     * if client is marked as resource then it must be a backend and first party application
-     */
     public Client createClient(Client client) {
         validateResourceId(client);
         validateResourceIndicator(client);
@@ -65,100 +63,85 @@ public class ClientServiceImpl {
         return byClientId.get();
     }
 
+    /**
+     * if autoApprove is null, it won't be included in response
+     * due to Jackson configured to ignore null fields
+     */
     public Map<String, String> readPartialClientById(Long id, String field) {
-        Optional<Client> byId = clientRepo.findById(id);
-        if (byId.isEmpty())
-            throw new BadRequestException("unable to find client");
-        if (field == null) {
-            throw new BadRequestException("field should not be empty");
+        if (!"autoApprove".equals(field))
+            throw new BadRequestException("field not supported");
+        Client clientById = getClientById(id);
+        HashMap<String, String> stringStringHashMap = new HashMap<>();
+        if (null == clientById.getAutoApprove()) {
+            stringStringHashMap.put("autoApprove", Boolean.FALSE.toString());
         } else {
-            if ("autoApprove".equals(field)) {
-                HashMap<String, String> stringStringHashMap = new HashMap<>();
-                /**
-                 * if autoApprove is null, it won't be included in response
-                 * due to Jackson configured to ignore null fields
-                 */
-                if (null == byId.get().getAutoApprove()) {
-                    stringStringHashMap.put("autoApprove", Boolean.FALSE.toString());
-                } else {
-                    stringStringHashMap.put("autoApprove", byId.get().getAutoApprove().toString());
-                }
-                return stringStringHashMap;
-            } else {
-                throw new BadRequestException("unsupported fields");
-            }
+            stringStringHashMap.put("autoApprove", clientById.getAutoApprove().toString());
         }
+        return stringStringHashMap;
     }
 
     /**
      * replace an existing client, if no change to pwd then send empty
-     *
-     * @param client
-     * @param id
-     * @return
+     * note : copy to prevent new id gen, below method rely on correct following java conventions
+     * setter & getter should return same type
+     * only revoke token after change has been persisted
      */
     public void replaceClient(Client client, Long id) {
         validateResourceIndicator(client);
         validateResourceId(client);
-        Optional<Client> oAuthClient1 = clientRepo.findById(id);
-        if (oAuthClient1.isEmpty()) {
-            throw new BadRequestException("unable to find client");
+        Client clientById = getClientById(id);
+        String oldClientId = clientById.getClientId();
+        boolean b = tokenRevocationService.shouldRevoke(clientById, client);
+        if (StringUtils.hasText(client.getClientSecret())) {
+            client.setClientSecret(encoder.encode(client.getClientSecret()));
         } else {
-            Client client2 = oAuthClient1.get();
-            String oldClientId = client2.getClientId();
-            boolean b = tokenRevocationService.shouldRevoke(client2, client);
-
-            if (StringUtils.hasText(client.getClientSecret())) {
-                client.setClientSecret(encoder.encode(client.getClientSecret()));
-            } else {
-                client.setClientSecret(oAuthClient1.get().getClientSecret());
-            }
-            /**
-             * copy to prevent new id gen, below method rely on correct following java conventions
-             * setter & getter should return same type
-             */
-            BeanUtils.copyProperties(client, client2);
-            clientRepo.save(client2);
-            /** only revoke token after change has been persisted*/
-            tokenRevocationService.blacklist(oldClientId, b);
+            client.setClientSecret(clientById.getClientSecret());
         }
+        BeanUtils.copyProperties(client, clientById);
+        clientRepo.save(clientById);
+        tokenRevocationService.blacklist(oldClientId, b);
+    }
+
+    public void deleteClient(Long id) {
+        preventRootAccountChange(id);
+        Client clientById = getClientById(id);
+        clientRepo.delete(clientById);
+        tokenRevocationService.blacklist(clientById.getClientId(), true);
+    }
+
+    private Client getClientById(Long id) {
+        Optional<Client> optionalClient = clientRepo.findById(id);
+        if (optionalClient.isEmpty())
+            throw new BadRequestException("unable to find client");
+        return optionalClient.get();
     }
 
     /**
-     * root client can not be deleted
+     * selected resource ids should be eligible resource
      */
-    public void deleteClient(Long id) {
-        preventRootAccountChange(id);
-        Optional<Client> oAuthClient1 = clientRepo.findById(id);
-        if (oAuthClient1.isEmpty())
-            throw new BadRequestException("unable to find client");
-        clientRepo.delete(oAuthClient1.get());
-        tokenRevocationService.blacklist(oAuthClient1.get().getClientId(), true);
-    }
-
     private void validateResourceId(Client client) throws IllegalArgumentException {
-        /**
-         * selected resource ids should be eligible resource
-         */
         if (client.getResourceIds() == null || client.getResourceIds().size() == 0
                 || client.getResourceIds().stream().anyMatch(resourceId -> clientRepo.findByClientId(resourceId).isEmpty()
                 || !clientRepo.findByClientId(resourceId).get().getResourceIndicator()))
             throw new BadRequestException("invalid resourceId found");
     }
 
+    /**
+     * if client is marked as resource then it must be a backend and first party application
+     */
     private void validateResourceIndicator(Client client) throws IllegalArgumentException {
         if (client.getResourceIndicator())
-            if (client.getGrantedAuthorities().stream().anyMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_BACKEND))
-                    && client.getGrantedAuthorities().stream().anyMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_FIRST_PARTY))) {
-            } else {
+            if (client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_BACKEND))
+                    || client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(ClientAuthorityEnum.ROLE_FIRST_PARTY)))
                 throw new BadRequestException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
-            }
-
     }
 
+    /**
+     * root client can not be deleted
+     */
     private void preventRootAccountChange(Long id) throws AccessDeniedException {
         Optional<Client> byId = clientRepo.findById(id);
-        if (!byId.isEmpty() && byId.get().getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
+        if (byId.isPresent() && byId.get().getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new BadRequestException("root client can not be deleted");
     }
 }

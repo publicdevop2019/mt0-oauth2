@@ -123,15 +123,11 @@ public class ClientServiceImplTest {
 
     @Test(expected = BadRequestException.class)
     public void read_partial_client_by_id_with_null_field() {
-        Client mockClient = getClient(UUID.randomUUID().toString());
-        Mockito.doReturn(Optional.of(mockClient)).when(clientRepo).findById(any(Long.class));
         clientService.readPartialClientById(new Random().nextLong(), null);
     }
 
     @Test(expected = BadRequestException.class)
     public void read_partial_client_by_id_with_not_supported_field() {
-        Client mockClient = getClient(UUID.randomUUID().toString());
-        Mockito.doReturn(Optional.of(mockClient)).when(clientRepo).findById(any(Long.class));
         clientService.readPartialClientById(new Random().nextLong(), UUID.randomUUID().toString());
     }
 
