@@ -11,7 +11,7 @@ RUN mvn dependency:go-offline -B
 
 ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 
-RUN mvn package -DskipTests
+RUN mvn package
 
 FROM hirokimatsumoto/alpine-openjdk-11:latest as jlink-package
 

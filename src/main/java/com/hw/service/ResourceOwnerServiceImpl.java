@@ -8,7 +8,6 @@ import com.hw.repo.ResourceOwnerRepo;
 import com.hw.shared.BadRequestException;
 import com.hw.utility.ServiceUtilityExt;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -34,6 +33,7 @@ public class ResourceOwnerServiceImpl {
 
     /**
      * update pwd, id is part of bearer token,
+     * must revoke issued token if pwd changed
      */
     public void updateUserPwd(ResourceOwner resourceOwner, String authorization) {
         String userId = ServiceUtilityExt.getUserId(authorization);
@@ -48,7 +48,6 @@ public class ResourceOwnerServiceImpl {
         }
         existUser.setPassword(encoder.encode(resourceOwner.getPassword()));
         userRepo.save(existUser);
-        /** must revoke issued token if pwd changed*/
         tokenRevocationService.blacklist(existUser.getId().toString(), true);
     }
 
@@ -58,11 +57,9 @@ public class ResourceOwnerServiceImpl {
 
     /**
      * create user, grantedAuthorities is overwritten to ROLE_USER
+     * if id present it will used instead generated
      */
     public ResourceOwner createUser(ResourceOwner newUser) {
-        /**
-         * if id present it will used instead generated
-         */
         ResourceOwner existUser;
         if (!StringUtils.hasText(newUser.getPassword()) || !StringUtils.hasText(newUser.getEmail())) {
             throw new BadRequestException("password or email is empty");
@@ -110,15 +107,17 @@ public class ResourceOwnerServiceImpl {
 
 
     public String getEmailSubscriber() {
-        List<ResourceOwner> collect = userRepo.findAll().stream().filter(e -> e.getGrantedAuthorities().stream().anyMatch(el -> el.getGrantedAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN))).collect(Collectors.toList());
-        List<String> collect1 = collect.stream().map(ResourceOwner::getEmail).collect(Collectors.toList());
+        List<String> collect1 = userRepo.findAll().stream()
+                .filter(e -> e.getGrantedAuthorities().stream()
+                        .anyMatch(el -> el.getGrantedAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN)))
+                .map(ResourceOwner::getEmail).collect(Collectors.toList());
         return String.join(",", collect1);
     }
 
-    private void preventRootAccountChange(Long id) throws AccessDeniedException {
+    private void preventRootAccountChange(Long id) {
         Optional<ResourceOwner> byId = userRepo.findById(id);
-        if (!byId.isEmpty() && byId.get().getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
-            throw new AccessDeniedException("root account can not be modified");
+        if (byId.isPresent() && byId.get().getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
+            throw new BadRequestException("root account can not be modified");
     }
 
 }
