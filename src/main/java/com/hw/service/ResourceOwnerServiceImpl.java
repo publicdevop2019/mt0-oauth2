@@ -1,6 +1,7 @@
 package com.hw.service;
 
 import com.hw.clazz.GrantedAuthorityImpl;
+import com.hw.clazz.ResourceOwnerUpdatePwd;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.entity.ResourceOwner;
 import com.hw.interfaze.TokenRevocationService;
@@ -35,23 +36,23 @@ public class ResourceOwnerServiceImpl {
      * update pwd, id is part of bearer token,
      * must revoke issued token if pwd changed
      */
-    public void updateUserPwd(ResourceOwner resourceOwner, String authorization) {
+    public void updateResourceOwnerPwd(ResourceOwnerUpdatePwd resourceOwner, String authorization) {
         String userId = ServiceUtilityExt.getUserId(authorization);
         ResourceOwner existUser;
-        if (!StringUtils.hasText(resourceOwner.getPassword()) || !StringUtils.hasText(resourceOwner.getEmail())) {
-            throw new BadRequestException("password or email is empty");
-        } else {
-            Optional<ResourceOwner> byId = userRepo.findById(Long.parseLong(userId));
-            if (byId.isEmpty())
-                throw new BadRequestException("user not exist : " + resourceOwner.getEmail());
-            existUser = byId.get();
-        }
+        if (!StringUtils.hasText(resourceOwner.getPassword()) || !StringUtils.hasText(resourceOwner.getEmail()) || !StringUtils.hasText(resourceOwner.getCurrentPwd()))
+            throw new BadRequestException("password(s) or email empty");
+        Optional<ResourceOwner> byId = userRepo.findById(Long.parseLong(userId));
+        if (byId.isEmpty())
+            throw new BadRequestException("user not exist : " + resourceOwner.getEmail());
+        existUser = byId.get();
+        if (!encoder.matches(resourceOwner.getCurrentPwd(), existUser.getPassword()))
+            throw new BadRequestException("wrong password");
         existUser.setPassword(encoder.encode(resourceOwner.getPassword()));
         userRepo.save(existUser);
         tokenRevocationService.blacklist(existUser.getId().toString(), true);
     }
 
-    public List<ResourceOwner> readUsers() {
+    public List<ResourceOwner> readAllResourceOwners() {
         return userRepo.findAll().stream().filter(e -> e.getGrantedAuthorities().stream().noneMatch(e1 -> ResourceOwnerAuthorityEnum.ROLE_ROOT.equals(e1.getGrantedAuthority()))).collect(Collectors.toList());
     }
 
@@ -59,7 +60,7 @@ public class ResourceOwnerServiceImpl {
      * create user, grantedAuthorities is overwritten to ROLE_USER
      * if id present it will used instead generated
      */
-    public ResourceOwner createUser(ResourceOwner newUser) {
+    public ResourceOwner createResourceOwner(ResourceOwner newUser) {
         ResourceOwner existUser;
         if (!StringUtils.hasText(newUser.getPassword()) || !StringUtils.hasText(newUser.getEmail())) {
             throw new BadRequestException("password or email is empty");
@@ -77,7 +78,7 @@ public class ResourceOwnerServiceImpl {
     /**
      * update grantedAuthorities, root user access can never be given, admin can only lock or unlock user
      */
-    public void updateUser(ResourceOwner resourceOwner, Long id, String authorization) {
+    public void updateResourceOwner(ResourceOwner resourceOwner, Long id, String authorization) {
         preventRootAccountChange(id);
         List<String> authorities = ServiceUtilityExt.getAuthority(authorization);
         if (resourceOwner.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
@@ -96,7 +97,7 @@ public class ResourceOwnerServiceImpl {
         tokenRevocationService.blacklist(byId.get().getId().toString(), b);
     }
 
-    public void deleteUser(Long id) {
+    public void deleteResourceOwner(Long id) {
         preventRootAccountChange(id);
         Optional<ResourceOwner> byId = userRepo.findById(id);
         if (byId.isEmpty())

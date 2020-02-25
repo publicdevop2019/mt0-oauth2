@@ -25,7 +25,7 @@ import java.security.KeyPair;
 
 @Component
 public class BeanFactory {
-
+    private final Integer STRENGTH = 12;
     @Autowired
     ClientDetailsService clientDetailsService;
 
@@ -37,7 +37,7 @@ public class BeanFactory {
 
     @Bean
     public BCryptPasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(STRENGTH);
     }
 
     @Bean

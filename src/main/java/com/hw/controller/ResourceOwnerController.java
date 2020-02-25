@@ -1,5 +1,6 @@
 package com.hw.controller;
 
+import com.hw.clazz.ResourceOwnerUpdatePwd;
 import com.hw.entity.ResourceOwner;
 import com.hw.service.ResourceOwnerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,31 +15,31 @@ public class ResourceOwnerController {
     ResourceOwnerServiceImpl resourceOwnerService;
 
     @PatchMapping("resourceOwner/pwd")
-    public ResponseEntity<?> updateUserPwd(@RequestBody ResourceOwner resourceOwner, @RequestHeader("authorization") String authorization) {
-        resourceOwnerService.updateUserPwd(resourceOwner, authorization);
+    public ResponseEntity<?> updateROPwd(@RequestBody ResourceOwnerUpdatePwd resourceOwner, @RequestHeader("authorization") String authorization) {
+        resourceOwnerService.updateResourceOwnerPwd(resourceOwner, authorization);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("resourceOwners")
-    public ResponseEntity<?> readUsers() {
-        return ResponseEntity.ok(resourceOwnerService.readUsers());
+    public ResponseEntity<?> readROs() {
+        return ResponseEntity.ok(resourceOwnerService.readAllResourceOwners());
     }
 
     @PostMapping("resourceOwners")
-    public ResponseEntity<?> createUser(@RequestBody ResourceOwner newUser) {
-        ResourceOwner user = resourceOwnerService.createUser(newUser);
+    public ResponseEntity<?> createRO(@RequestBody ResourceOwner newUser) {
+        ResourceOwner user = resourceOwnerService.createResourceOwner(newUser);
         return ResponseEntity.ok().header("Location", String.valueOf(user.getId())).build();
     }
 
     @PutMapping("resourceOwners/{id}")
-    public ResponseEntity<?> updateUser(@RequestBody ResourceOwner resourceOwner, @PathVariable Long id, @RequestHeader("authorization") String authorization) {
-        resourceOwnerService.updateUser(resourceOwner, id, authorization);
+    public ResponseEntity<?> updateRO(@RequestBody ResourceOwner resourceOwner, @PathVariable Long id, @RequestHeader("authorization") String authorization) {
+        resourceOwnerService.updateResourceOwner(resourceOwner, id, authorization);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("resourceOwners/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        resourceOwnerService.deleteUser(id);
+    public ResponseEntity<?> deleteRO(@PathVariable Long id) {
+        resourceOwnerService.deleteResourceOwner(id);
         return ResponseEntity.ok().build();
     }
 

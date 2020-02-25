@@ -42,28 +42,28 @@ public class ResourceOwnerServiceImplTest {
     public void get_all_ro() {
         ArrayList<ResourceOwner> resourceOwners1 = new ArrayList<>();
         Mockito.doReturn(resourceOwners1).when(userRepo).findAll();
-        List<ResourceOwner> resourceOwners = resourceOwnerService.readUsers();
+        List<ResourceOwner> resourceOwners = resourceOwnerService.readAllResourceOwners();
         Assert.assertEquals(0, resourceOwners.size());
     }
 
     @Test(expected = BadRequestException.class)
     public void delete_not_exist_ro() {
         Mockito.doReturn(Optional.empty()).when(userRepo).findById(any(Long.class));
-        resourceOwnerService.deleteUser(new Random().nextLong());
+        resourceOwnerService.deleteResourceOwner(new Random().nextLong());
     }
 
     @Test(expected = BadRequestException.class)
     public void delete_root_ro() {
         ResourceOwner resourceOwner = getResourceOwner();
         Mockito.doReturn(Optional.of(resourceOwner)).when(userRepo).findById(any(Long.class));
-        resourceOwnerService.deleteUser(new Random().nextLong());
+        resourceOwnerService.deleteResourceOwner(new Random().nextLong());
     }
 
     @Test(expected = BadRequestException.class)
     public void root_ro_should_not_get_update() {
         ResourceOwner resourceOwner = getResourceOwner();
         Mockito.doReturn(Optional.of(resourceOwner)).when(userRepo).findById(any(Long.class));
-        resourceOwnerService.updateUser(resourceOwner, new Random().nextLong(), UUID.randomUUID().toString());
+        resourceOwnerService.updateResourceOwner(resourceOwner, new Random().nextLong(), UUID.randomUUID().toString());
     }
 
     @Test(expected = BadRequestException.class)
@@ -75,7 +75,7 @@ public class ResourceOwnerServiceImplTest {
         GrantedAuthorityImpl authority2 = getAuthority(ResourceOwnerAuthorityEnum.ROLE_ROOT);
         update.setGrantedAuthorities(Collections.singletonList(authority2));
         Mockito.doReturn(Optional.of(stored)).when(userRepo).findById(any(Long.class));
-        resourceOwnerService.updateUser(update, new Random().nextLong(), AUTHORIZATION_HEADER_ROOT);
+        resourceOwnerService.updateResourceOwner(update, new Random().nextLong(), AUTHORIZATION_HEADER_ROOT);
     }
 
     @Test(expected = BadRequestException.class)
@@ -84,7 +84,7 @@ public class ResourceOwnerServiceImplTest {
         GrantedAuthorityImpl authority = getAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         resourceOwner.setGrantedAuthorities(Collections.singletonList(authority));
         Mockito.doReturn(Optional.of(resourceOwner)).when(userRepo).findById(any(Long.class));
-        resourceOwnerService.updateUser(resourceOwner, new Random().nextLong(), AUTHORIZATION_HEADER_ADMIN);
+        resourceOwnerService.updateResourceOwner(resourceOwner, new Random().nextLong(), AUTHORIZATION_HEADER_ADMIN);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ResourceOwnerServiceImplTest {
         Mockito.doReturn(Optional.of(stored)).when(userRepo).findById(any(Long.class));
         Mockito.doNothing().when(tokenRevocationService).blacklist(any(String.class), any(Boolean.class));
         Mockito.doReturn(false).when(tokenRevocationService).shouldRevoke(any(ResourceOwner.class), any(ResourceOwner.class));
-        resourceOwnerService.updateUser(update, new Random().nextLong(), AUTHORIZATION_HEADER_ROOT);
+        resourceOwnerService.updateResourceOwner(update, new Random().nextLong(), AUTHORIZATION_HEADER_ROOT);
     }
 
     @Test
@@ -108,20 +108,20 @@ public class ResourceOwnerServiceImplTest {
         Mockito.doReturn(null).when(userRepo).findOneByEmail(any(String.class));
         Mockito.doReturn(create).when(userRepo).save(any(ResourceOwner.class));
         Mockito.doReturn(UUID.randomUUID().toString()).when(encoder).encode(any(String.class));
-        ResourceOwner user = resourceOwnerService.createUser(create);
+        ResourceOwner user = resourceOwnerService.createResourceOwner(create);
         Assert.assertEquals(create.getEmail(), user.getEmail());
     }
 
     @Test(expected = BadRequestException.class)
     public void create_ro_with_invalid_payload() {
         ResourceOwner create = getResourceOwner();
-        resourceOwnerService.createUser(create);
+        resourceOwnerService.createResourceOwner(create);
     }
 
     @Test(expected = BadRequestException.class)
     public void create_ro_which_email_already_exist() {
         ResourceOwner create = getResourceOwner();
-        resourceOwnerService.createUser(create);
+        resourceOwnerService.createResourceOwner(create);
     }
 
     private ResourceOwner getResourceOwner() {
