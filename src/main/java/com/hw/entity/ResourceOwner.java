@@ -77,7 +77,7 @@ public class ResourceOwner extends Auditable implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return id.toString();
     }
 
     @Override

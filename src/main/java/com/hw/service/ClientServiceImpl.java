@@ -55,8 +55,7 @@ public class ClientServiceImpl {
     /**
      * only clientId is available, value can be read with client/{id}
      */
-    @Deprecated
-    public Client readClient(String clientId) {
+    public Client readClientByClientId(String clientId) {
         Optional<Client> byClientId = clientRepo.findByClientId(clientId);
         if (byClientId.isEmpty())
             throw new BadRequestException("unable to find client");

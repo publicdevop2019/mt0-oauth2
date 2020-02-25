@@ -14,14 +14,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     ResourceOwnerRepo resourceOwnerRepo;
 
     @Override
-    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
-        try {
-            return resourceOwnerRepo.findById(Long.parseLong(id)).get();
-        } catch (NumberFormatException ex) {
-            /**
-             * is email
-             */
-            return resourceOwnerRepo.findOneByEmail(id);
-        }
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return resourceOwnerRepo.findOneByEmail(username);
     }
 }

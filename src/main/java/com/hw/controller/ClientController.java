@@ -27,19 +27,21 @@ public class ClientController {
         return clientService.readClients();
     }
 
-    @Deprecated
+
+    /**
+     * used when only clientId is available
+     */
     @GetMapping("clients/autoApprove")
-    public ResponseEntity<?> readClient(@RequestParam(name = "clientId") String clientId) {
-        Client client = clientService.readClient(clientId);
+    public ResponseEntity<?> autoApprove(@RequestParam(name = "clientId") String clientId) {
+        Client client = clientService.readClientByClientId(clientId);
         HashMap<String, Boolean> stringBooleanHashMap = new HashMap<>();
-        /**
-         * if autoApprove is null, it won't be included in response
-         * due to Jackson configured to ignore null fields
-         */
         stringBooleanHashMap.put("autoApprove", client.getAutoApprove());
         return ResponseEntity.ok(stringBooleanHashMap);
     }
 
+    /**
+     * used when only id is available
+     */
     @GetMapping("clients/{id}")
     public ResponseEntity<?> readPartialClientById(@PathVariable Long id, @RequestParam(name = "field") String field) {
         return ResponseEntity.ok(clientService.readPartialClientById(id, field));

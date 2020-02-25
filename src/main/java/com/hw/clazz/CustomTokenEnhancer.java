@@ -1,6 +1,5 @@
 package com.hw.clazz;
 
-import com.hw.entity.ResourceOwner;
 import com.hw.repo.ResourceOwnerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
@@ -28,17 +27,10 @@ public class CustomTokenEnhancer implements TokenEnhancer {
 
         Map<String, Object> info = new HashMap<>();
         info.put("iat", Instant.now().getEpochSecond());
-        if (!authentication.isClientOnly())
-            try {
-                Long l = Long.parseLong(authentication.getName());
-                info.put("uid", l.toString());
-            } catch (NumberFormatException ex) {
-                /**
-                 * is email
-                 */
-                ResourceOwner oneByEmail = resourceOwnerRepo.findOneByEmail(authentication.getName());
-                info.put("uid", oneByEmail.getId().toString());
-            }
+        if (!authentication.isClientOnly()) {
+            long l = Long.parseLong(authentication.getName());
+            info.put("uid", Long.toString(l));
+        }
         ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(info);
         return accessToken;
     }
