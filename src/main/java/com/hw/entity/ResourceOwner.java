@@ -22,15 +22,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * use same sequence generator for resourceOwner & client, can use
+ * different sequence since as long as blacklist use to table for client and resource owner
+ */
 @Entity
 @Table(name = "resource_owner")
 @Data
 @SequenceGenerator(name = "entityId_gen", sequenceName = "entityId_seq", initialValue = 100)
 public class ResourceOwner extends Auditable implements UserDetails {
-    /**
-     * use same sequence generator for resourceOwner & client to avoid blacklist conflict
-     * e.g client has same id as resource owner
-     */
     @Id
     @GeneratedValue(generator = "entityId_gen")
     @Setter(AccessLevel.NONE)
