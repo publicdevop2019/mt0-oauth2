@@ -57,8 +57,7 @@ public class ResourceOwner extends Auditable implements UserDetails {
     private List<@Valid @NotNull GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>> grantedAuthorities;
 
     @Column
-    @Convert(converter = StringListConverter.class)
-    private Set<String> resourceId;
+    private boolean subscription;
 
     /**
      * make sure grantedAuthorities only get serialized once

@@ -38,22 +38,18 @@ public class ResourceOwnerServiceImpl {
      */
     public void updateResourceOwnerPwd(ResourceOwnerUpdatePwd resourceOwner, String authorization) {
         String userId = ServiceUtilityExt.getUserId(authorization);
-        ResourceOwner existUser;
         if (!StringUtils.hasText(resourceOwner.getPassword()) || !StringUtils.hasText(resourceOwner.getEmail()) || !StringUtils.hasText(resourceOwner.getCurrentPwd()))
             throw new BadRequestException("password(s) or email empty");
-        Optional<ResourceOwner> byId = userRepo.findById(Long.parseLong(userId));
-        if (byId.isEmpty())
-            throw new BadRequestException("user not exist : " + resourceOwner.getEmail());
-        existUser = byId.get();
-        if (!encoder.matches(resourceOwner.getCurrentPwd(), existUser.getPassword()))
+        ResourceOwner resourceOwnerById = getResourceOwnerById(Long.parseLong(userId));
+        if (!encoder.matches(resourceOwner.getCurrentPwd(), resourceOwnerById.getPassword()))
             throw new BadRequestException("wrong password");
-        existUser.setPassword(encoder.encode(resourceOwner.getPassword()));
-        userRepo.save(existUser);
-        tokenRevocationService.blacklist(existUser.getId().toString(), true);
+        resourceOwnerById.setPassword(encoder.encode(resourceOwner.getPassword()));
+        userRepo.save(resourceOwnerById);
+        tokenRevocationService.blacklist(resourceOwnerById.getId().toString(), true);
     }
 
     public List<ResourceOwner> readAllResourceOwners() {
-        return userRepo.findAll().stream().filter(e -> e.getGrantedAuthorities().stream().noneMatch(e1 -> ResourceOwnerAuthorityEnum.ROLE_ROOT.equals(e1.getGrantedAuthority()))).collect(Collectors.toList());
+        return userRepo.findAll();
     }
 
     /**
@@ -78,39 +74,43 @@ public class ResourceOwnerServiceImpl {
     /**
      * update grantedAuthorities, root user access can never be given, admin can only lock or unlock user
      */
-    public void updateResourceOwner(ResourceOwner resourceOwner, Long id, String authorization) {
+    public void updateResourceOwner(ResourceOwner updatedRO, Long id, String authorization) {
         preventRootAccountChange(id);
-        List<String> authorities = ServiceUtilityExt.getAuthority(authorization);
-        if (resourceOwner.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
+        List<String> currentAuthorities = ServiceUtilityExt.getAuthority(authorization);
+        if (updatedRO.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new BadRequestException("assign root grantedAuthorities is prohibited");
-        if (authorities.stream().noneMatch("ROLE_ROOT"::equals) && resourceOwner.getAuthorities() != null)
+        if (currentAuthorities.stream().noneMatch("ROLE_ROOT"::equals) && updatedRO.getAuthorities() != null)
             throw new BadRequestException("only root user can change grantedAuthorities");
-        Optional<ResourceOwner> byId = userRepo.findById(id);
-        if (byId.isEmpty())
-            throw new BadRequestException("user not exist : " + resourceOwner.getEmail());
-        boolean b = tokenRevocationService.shouldRevoke(byId.get(), resourceOwner);
-        if (resourceOwner.getAuthorities() != null)
-            byId.get().setGrantedAuthorities(new ArrayList<>((Collection<? extends GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>>) resourceOwner.getAuthorities()));
-        if (resourceOwner.getLocked() != null)
-            byId.get().setLocked(resourceOwner.getLocked());
-        userRepo.save(byId.get());
-        tokenRevocationService.blacklist(byId.get().getId().toString(), b);
+        if (currentAuthorities.stream().noneMatch("ROLE_ROOT"::equals) && updatedRO.isSubscription())
+            throw new BadRequestException("only root user can change subscription");
+        ResourceOwner storedRO = getResourceOwnerById(id);
+        boolean b = tokenRevocationService.shouldRevoke(storedRO, updatedRO);
+        if (updatedRO.getAuthorities() != null)
+            storedRO.setGrantedAuthorities(new ArrayList<>((Collection<? extends GrantedAuthorityImpl<ResourceOwnerAuthorityEnum>>) updatedRO.getAuthorities()));
+        if (updatedRO.getLocked() != null)
+            storedRO.setLocked(updatedRO.getLocked());
+        if (updatedRO.isSubscription()) {
+            if (storedRO.getAuthorities().stream().anyMatch(e -> "ROLE_ADMIN".equals(e.getAuthority()))) {
+                storedRO.setSubscription(Boolean.TRUE);
+            } else {
+                throw new BadRequestException("only admin or root can subscribe to new order");
+            }
+        }
+        userRepo.save(storedRO);
+        tokenRevocationService.blacklist(storedRO.getId().toString(), b);
     }
 
     public void deleteResourceOwner(Long id) {
         preventRootAccountChange(id);
-        Optional<ResourceOwner> byId = userRepo.findById(id);
-        if (byId.isEmpty())
-            throw new BadRequestException("user not exist : " + id);
-        userRepo.delete(byId.get());
-        tokenRevocationService.blacklist(byId.get().getId().toString(), true);
+        ResourceOwner resourceOwnerById = getResourceOwnerById(id);
+        userRepo.delete(resourceOwnerById);
+        tokenRevocationService.blacklist(resourceOwnerById.getId().toString(), true);
     }
 
 
     public String getEmailSubscriber() {
         List<String> collect1 = userRepo.findAll().stream()
-                .filter(e -> e.getGrantedAuthorities().stream()
-                        .anyMatch(el -> el.getGrantedAuthority().equals(ResourceOwnerAuthorityEnum.ROLE_ADMIN)))
+                .filter(ResourceOwner::isSubscription)
                 .map(ResourceOwner::getEmail).collect(Collectors.toList());
         return String.join(",", collect1);
     }
@@ -121,4 +121,10 @@ public class ResourceOwnerServiceImpl {
             throw new BadRequestException("root account can not be modified");
     }
 
+    private ResourceOwner getResourceOwnerById(Long id) {
+        Optional<ResourceOwner> byId = userRepo.findById(id);
+        if (byId.isEmpty())
+            throw new BadRequestException("user not exist : " + id);
+        return byId.get();
+    }
 }

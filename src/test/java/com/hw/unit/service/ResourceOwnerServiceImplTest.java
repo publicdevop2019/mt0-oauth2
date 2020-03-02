@@ -54,24 +54,24 @@ public class ResourceOwnerServiceImplTest {
 
     @Test(expected = BadRequestException.class)
     public void delete_root_ro() {
-        ResourceOwner resourceOwner = getResourceOwner();
+        ResourceOwner resourceOwner = getRootResourceOwner();
         Mockito.doReturn(Optional.of(resourceOwner)).when(userRepo).findById(any(Long.class));
         resourceOwnerService.deleteResourceOwner(new Random().nextLong());
     }
 
     @Test(expected = BadRequestException.class)
     public void root_ro_should_not_get_update() {
-        ResourceOwner resourceOwner = getResourceOwner();
+        ResourceOwner resourceOwner = getRootResourceOwner();
         Mockito.doReturn(Optional.of(resourceOwner)).when(userRepo).findById(any(Long.class));
         resourceOwnerService.updateResourceOwner(resourceOwner, new Random().nextLong(), UUID.randomUUID().toString());
     }
 
     @Test(expected = BadRequestException.class)
     public void no_ro_can_be_update_to_root() {
-        ResourceOwner stored = getResourceOwner();
+        ResourceOwner stored = getRootResourceOwner();
         GrantedAuthorityImpl authority = getAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         stored.setGrantedAuthorities(Collections.singletonList(authority));
-        ResourceOwner update = getResourceOwner();
+        ResourceOwner update = getRootResourceOwner();
         GrantedAuthorityImpl authority2 = getAuthority(ResourceOwnerAuthorityEnum.ROLE_ROOT);
         update.setGrantedAuthorities(Collections.singletonList(authority2));
         Mockito.doReturn(Optional.of(stored)).when(userRepo).findById(any(Long.class));
@@ -80,19 +80,50 @@ public class ResourceOwnerServiceImplTest {
 
     @Test(expected = BadRequestException.class)
     public void admin_ro_trying_to_set_ro_to_admin() {
-        ResourceOwner resourceOwner = getResourceOwner();
+        ResourceOwner resourceOwner = getRootResourceOwner();
         GrantedAuthorityImpl authority = getAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         resourceOwner.setGrantedAuthorities(Collections.singletonList(authority));
         Mockito.doReturn(Optional.of(resourceOwner)).when(userRepo).findById(any(Long.class));
         resourceOwnerService.updateResourceOwner(resourceOwner, new Random().nextLong(), AUTHORIZATION_HEADER_ADMIN);
     }
 
+    @Test(expected = BadRequestException.class)
+    public void admin_ro_trying_to_set_ro_subscribe_new_order() {
+        ResourceOwner updateRO = getNonRootResourceOwner();
+        GrantedAuthorityImpl authority = getAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
+        GrantedAuthorityImpl authority2 = getAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        updateRO.setGrantedAuthorities(List.of(authority,authority2));
+        updateRO.setSubscription(Boolean.TRUE);
+        Mockito.doReturn(Optional.of(updateRO)).when(userRepo).findById(any(Long.class));
+        resourceOwnerService.updateResourceOwner(updateRO, new Random().nextLong(), AUTHORIZATION_HEADER_ADMIN);
+    }
+    @Test
+    public void root_ro_trying_to_set_ro_subscribe_new_order_for_admin() {
+        ResourceOwner updateRO = getNonRootResourceOwner();
+        GrantedAuthorityImpl authority = getAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
+        GrantedAuthorityImpl authority2 = getAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        updateRO.setGrantedAuthorities(List.of(authority,authority2));
+        updateRO.setSubscription(Boolean.TRUE);
+        Mockito.doReturn(Optional.of(updateRO)).when(userRepo).findById(any(Long.class));
+        resourceOwnerService.updateResourceOwner(updateRO, new Random().nextLong(), AUTHORIZATION_HEADER_ROOT);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void root_ro_trying_to_set_ro_subscribe_new_order_for_user() {
+        ResourceOwner updateRO = getNonRootResourceOwner();
+        GrantedAuthorityImpl authority2 = getAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
+        updateRO.setGrantedAuthorities(List.of(authority2));
+        updateRO.setSubscription(Boolean.TRUE);
+        Mockito.doReturn(Optional.of(updateRO)).when(userRepo).findById(any(Long.class));
+        resourceOwnerService.updateResourceOwner(updateRO, new Random().nextLong(), AUTHORIZATION_HEADER_ROOT);
+    }
+
     @Test
     public void root_ro_trying_to_set_ro_to_admin() {
-        ResourceOwner stored = getResourceOwner();
+        ResourceOwner stored = getRootResourceOwner();
         GrantedAuthorityImpl authority = getAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
         stored.setGrantedAuthorities(Collections.singletonList(authority));
-        ResourceOwner update = getResourceOwner();
+        ResourceOwner update = getRootResourceOwner();
         GrantedAuthorityImpl authority2 = getAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         update.setGrantedAuthorities(Collections.singletonList(authority2));
         Mockito.doReturn(Optional.of(stored)).when(userRepo).findById(any(Long.class));
@@ -103,7 +134,7 @@ public class ResourceOwnerServiceImplTest {
 
     @Test
     public void create_ro() {
-        ResourceOwner create = getResourceOwner();
+        ResourceOwner create = getRootResourceOwner();
         create.setPassword(UUID.randomUUID().toString());
         Mockito.doReturn(null).when(userRepo).findOneByEmail(any(String.class));
         Mockito.doReturn(create).when(userRepo).save(any(ResourceOwner.class));
@@ -114,17 +145,17 @@ public class ResourceOwnerServiceImplTest {
 
     @Test(expected = BadRequestException.class)
     public void create_ro_with_invalid_payload() {
-        ResourceOwner create = getResourceOwner();
+        ResourceOwner create = getRootResourceOwner();
         resourceOwnerService.createResourceOwner(create);
     }
 
     @Test(expected = BadRequestException.class)
     public void create_ro_which_email_already_exist() {
-        ResourceOwner create = getResourceOwner();
+        ResourceOwner create = getRootResourceOwner();
         resourceOwnerService.createResourceOwner(create);
     }
 
-    private ResourceOwner getResourceOwner() {
+    private ResourceOwner getRootResourceOwner() {
         ResourceOwner resourceOwner = new ResourceOwner();
         try {
             Field id = ResourceOwner.class.getDeclaredField("id");
@@ -135,6 +166,21 @@ public class ResourceOwnerServiceImplTest {
         }
         resourceOwner.setEmail(UUID.randomUUID().toString() + "@gmail.com");
         GrantedAuthorityImpl authority = getAuthority(ResourceOwnerAuthorityEnum.ROLE_ROOT);
+        resourceOwner.setGrantedAuthorities(Collections.singletonList(authority));
+        return resourceOwner;
+    }
+
+    private ResourceOwner getNonRootResourceOwner() {
+        ResourceOwner resourceOwner = new ResourceOwner();
+        try {
+            Field id = ResourceOwner.class.getDeclaredField("id");
+            id.setAccessible(true);
+            id.set(resourceOwner, new Random().nextLong());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        resourceOwner.setEmail(UUID.randomUUID().toString() + "@gmail.com");
+        GrantedAuthorityImpl authority = getAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
         resourceOwner.setGrantedAuthorities(Collections.singletonList(authority));
         return resourceOwner;
     }
