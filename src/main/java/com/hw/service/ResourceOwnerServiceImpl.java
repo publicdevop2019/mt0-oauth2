@@ -8,6 +8,7 @@ import com.hw.interfaze.TokenRevocationService;
 import com.hw.repo.ResourceOwnerRepo;
 import com.hw.shared.BadRequestException;
 import com.hw.utility.ServiceUtilityExt;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  * user has ROLE_USER
  */
 @Service
+@Slf4j
 public class ResourceOwnerServiceImpl {
     @Autowired
     ResourceOwnerRepo userRepo;
@@ -57,18 +59,24 @@ public class ResourceOwnerServiceImpl {
      * if id present it will used instead generated
      */
     public ResourceOwner createResourceOwner(ResourceOwner newUser) {
+        log.info("create new resource owner for email {}", newUser.getEmail());
         ResourceOwner existUser;
         if (!StringUtils.hasText(newUser.getPassword()) || !StringUtils.hasText(newUser.getEmail())) {
+            log.info("password or email is empty");
             throw new BadRequestException("password or email is empty");
         } else {
             existUser = userRepo.findOneByEmail(newUser.getEmail());
-            if (existUser != null)
+            if (existUser != null) {
+                log.info("user already exist");
                 throw new BadRequestException("user already exist : " + newUser.getEmail());
+            }
         }
         newUser.setGrantedAuthorities(Collections.singletonList(new GrantedAuthorityImpl(ResourceOwnerAuthorityEnum.ROLE_USER)));
         newUser.setLocked(false);
         newUser.setPassword(encoder.encode(newUser.getPassword()));
-        return userRepo.save(newUser);
+        ResourceOwner save = userRepo.save(newUser);
+        log.info("user successfully created with id {}", save.getId());
+        return save;
     }
 
     /**

@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 @Component
 @Slf4j
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class ExceptionFilter extends GenericFilterBean {
 
     @Override
@@ -28,7 +28,6 @@ public class ExceptionFilter extends GenericFilterBean {
         try {
             chain.doFilter(req, res);
         } catch (RequestRejectedException ex) {
-            HttpServletRequest request = (HttpServletRequest) req;
             HttpServletResponse response = (HttpServletResponse) res;
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
