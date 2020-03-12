@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -26,9 +28,9 @@ public class ResourceServiceTokenHelper {
     @Autowired
     private RestTemplate restTemplate;
 
-    public String storedJwtToken = null;
+    private String storedJwtToken = null;
 
-    public String getJwtToken() {
+    private String getJwtToken() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.setBasicAuth(clientId, clientSecret);
@@ -57,4 +59,40 @@ public class ResourceServiceTokenHelper {
             return null;
         }
     }
+
+    /**
+     * wrap request with jwt token, re try if jwt expired for first time
+     */
+    public <T> ResponseEntity<T> exchange(String url, HttpMethod httpMethod, HttpEntity<?> httpEntity, Class<T> clazz) {
+        if (storedJwtToken == null)
+            storedJwtToken = getJwtToken();
+        HttpHeaders httpHeaders = HttpHeaders.writableHttpHeaders(httpEntity.getHeaders());
+        httpHeaders.setBearerAuth(storedJwtToken);
+        HttpEntity<?> httpEntity1 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
+        try {
+            return restTemplate.exchange(url, httpMethod, httpEntity1, clazz);
+        } catch (HttpClientErrorException ex) {
+            storedJwtToken = getJwtToken();
+            httpHeaders.setBearerAuth(storedJwtToken);
+            HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
+            return restTemplate.exchange(url, httpMethod, httpEntity2, clazz);
+        }
+    }
+
+    public <T> ResponseEntity<T> exchange(String url, HttpMethod httpMethod, HttpEntity<?> httpEntity, ParameterizedTypeReference<T> responseType) {
+        if (storedJwtToken == null)
+            storedJwtToken = getJwtToken();
+        HttpHeaders httpHeaders = HttpHeaders.writableHttpHeaders(httpEntity.getHeaders());
+        httpHeaders.setBearerAuth(storedJwtToken);
+        HttpEntity<?> httpEntity1 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
+        try {
+            return restTemplate.exchange(url, httpMethod, httpEntity1, responseType);
+        } catch (HttpClientErrorException ex) {
+            storedJwtToken = getJwtToken();
+            httpHeaders.setBearerAuth(storedJwtToken);
+            HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
+            return restTemplate.exchange(url, httpMethod, httpEntity2, responseType);
+        }
+    }
+
 }
