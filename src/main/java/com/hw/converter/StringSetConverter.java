@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class StringListConverter implements AttributeConverter<Set<String>, String> {
+public class StringSetConverter implements AttributeConverter<Set<String>, String> {
 
     @Override
     public String convertToDatabaseColumn(Set<String> strings) {

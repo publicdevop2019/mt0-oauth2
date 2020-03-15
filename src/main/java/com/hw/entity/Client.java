@@ -6,7 +6,7 @@ import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.clazz.eenum.GrantTypeEnum;
 import com.hw.clazz.eenum.ScopeEnum;
-import com.hw.converter.StringListConverter;
+import com.hw.converter.StringSetConverter;
 import com.hw.shared.Auditable;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -74,7 +74,7 @@ public class Client extends Auditable implements ClientDetails {
 
     @Column
     @Nullable
-    @Convert(converter = StringListConverter.class)
+    @Convert(converter = StringSetConverter.class)
     private Set<String> registeredRedirectUri;
 
     @Column
@@ -84,7 +84,7 @@ public class Client extends Auditable implements ClientDetails {
     @Column
     @NotNull
     @NotEmpty
-    @Convert(converter = StringListConverter.class)
+    @Convert(converter = StringSetConverter.class)
     private Set<String> resourceIds;
 
     /**

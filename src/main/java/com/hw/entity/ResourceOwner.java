@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
-import com.hw.converter.StringListConverter;
 import com.hw.shared.Auditable;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -20,7 +19,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * use same sequence generator for resourceOwner & client, can use
