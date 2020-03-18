@@ -1,6 +1,7 @@
 package com.hw.controller;
 
 import com.hw.clazz.ResourceOwnerUpdatePwd;
+import com.hw.entity.PendingResourceOwner;
 import com.hw.entity.ResourceOwner;
 import com.hw.service.ResourceOwnerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,15 @@ public class ResourceOwnerController {
     }
 
     @PostMapping("resourceOwners")
-    public ResponseEntity<?> createRO(@RequestBody ResourceOwner newUser) {
-        ResourceOwner user = resourceOwnerService.createResourceOwner(newUser);
+    public ResponseEntity<?> createRO(@RequestBody PendingResourceOwner pendingResourceOwner) {
+        ResourceOwner user = resourceOwnerService.createResourceOwner(pendingResourceOwner);
         return ResponseEntity.ok().header("Location", String.valueOf(user.getId())).build();
+    }
+
+    @PostMapping("resourceOwners/register")
+    public ResponseEntity<?> registerRO(@RequestBody PendingResourceOwner pendingResourceOwner) {
+        resourceOwnerService.createPendingResourceOwner(pendingResourceOwner);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("resourceOwners/{id}")

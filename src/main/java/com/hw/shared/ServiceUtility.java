@@ -45,7 +45,6 @@ public class ServiceUtility {
         Base64.Decoder decoder = Base64.getDecoder();
         byte[] decode = decoder.decode(jwtBody);
         String s = new String(decode);
-        System.out.println(s);
         try {
             Map<String, Object> var0 = mapper.readValue(s, new TypeReference<Map<String, Object>>() {
             });
