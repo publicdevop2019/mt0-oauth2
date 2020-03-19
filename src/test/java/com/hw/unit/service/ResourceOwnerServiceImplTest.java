@@ -2,8 +2,10 @@ package com.hw.unit.service;
 
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
+import com.hw.entity.PendingResourceOwner;
 import com.hw.entity.ResourceOwner;
 import com.hw.interfaze.TokenRevocationService;
+import com.hw.repo.PendingResourceOwnerRepo;
 import com.hw.repo.ResourceOwnerRepo;
 import com.hw.service.ResourceOwnerServiceImpl;
 import com.hw.shared.BadRequestException;
@@ -32,6 +34,9 @@ public class ResourceOwnerServiceImplTest {
 
     @Mock
     ResourceOwnerRepo userRepo;
+
+    @Mock
+    PendingResourceOwnerRepo pendingResourceOwnerRepo;
 
     @Mock
     BCryptPasswordEncoder encoder;
@@ -93,17 +98,18 @@ public class ResourceOwnerServiceImplTest {
         ResourceOwner updateRO = getNonRootResourceOwner();
         GrantedAuthorityImpl authority = getAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         GrantedAuthorityImpl authority2 = getAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
-        updateRO.setGrantedAuthorities(List.of(authority,authority2));
+        updateRO.setGrantedAuthorities(List.of(authority, authority2));
         updateRO.setSubscription(Boolean.TRUE);
         Mockito.doReturn(Optional.of(updateRO)).when(userRepo).findById(any(Long.class));
         resourceOwnerService.updateResourceOwner(updateRO, new Random().nextLong(), AUTHORIZATION_HEADER_ADMIN);
     }
+
     @Test
     public void root_ro_trying_to_set_ro_subscribe_new_order_for_admin() {
         ResourceOwner updateRO = getNonRootResourceOwner();
         GrantedAuthorityImpl authority = getAuthority(ResourceOwnerAuthorityEnum.ROLE_ADMIN);
         GrantedAuthorityImpl authority2 = getAuthority(ResourceOwnerAuthorityEnum.ROLE_USER);
-        updateRO.setGrantedAuthorities(List.of(authority,authority2));
+        updateRO.setGrantedAuthorities(List.of(authority, authority2));
         updateRO.setSubscription(Boolean.TRUE);
         Mockito.doReturn(Optional.of(updateRO)).when(userRepo).findById(any(Long.class));
         resourceOwnerService.updateResourceOwner(updateRO, new Random().nextLong(), AUTHORIZATION_HEADER_ROOT);
@@ -134,29 +140,48 @@ public class ResourceOwnerServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void create_ro() {
-//        ResourceOwner create = getRootResourceOwner();
-//        create.setPassword(UUID.randomUUID().toString());
-//        Mockito.doReturn(null).when(userRepo).findOneByEmail(any(String.class));
-//        Mockito.doReturn(create).when(userRepo).save(any(ResourceOwner.class));
-//        Mockito.doReturn(UUID.randomUUID().toString()).when(encoder).encode(any(String.class));
-//        ResourceOwner user = resourceOwnerService.createResourceOwner(create);
-//        Assert.assertEquals(create.getEmail(), user.getEmail());
+        ResourceOwner create = getRootResourceOwner();
+        create.setPassword(UUID.randomUUID().toString());
+        PendingResourceOwner pendingResourceOwner = new PendingResourceOwner();
+        pendingResourceOwner.setEmail(create.getEmail());
+        pendingResourceOwner.setPassword(create.getPassword());
+        pendingResourceOwner.setActivationCode(UUID.randomUUID().toString());
+
+        Mockito.doReturn(null).when(userRepo).findOneByEmail(any(String.class));
+        Mockito.doReturn(pendingResourceOwner).when(pendingResourceOwnerRepo).findOneByEmail(any(String.class));
+        Mockito.doReturn(create).when(userRepo).save(any(ResourceOwner.class));
+        Mockito.doReturn(UUID.randomUUID().toString()).when(encoder).encode(any(String.class));
+
+        ResourceOwner user = resourceOwnerService.createResourceOwner(pendingResourceOwner);
+        Assert.assertEquals(create.getEmail(), user.getEmail());
     }
 
     @Test(expected = BadRequestException.class)
-    @Ignore
     public void create_ro_with_invalid_payload() {
-//        ResourceOwner create = getRootResourceOwner();
-//        resourceOwnerService.createResourceOwner(create);
+        ResourceOwner create = getRootResourceOwner();
+        create.setPassword(UUID.randomUUID().toString());
+        PendingResourceOwner pendingResourceOwner = new PendingResourceOwner();
+        pendingResourceOwner.setEmail(create.getEmail());
+
+        pendingResourceOwner.setActivationCode(UUID.randomUUID().toString());
+
+        ResourceOwner user = resourceOwnerService.createResourceOwner(pendingResourceOwner);
+        Assert.assertEquals(create.getEmail(), user.getEmail());
     }
 
     @Test(expected = BadRequestException.class)
-    @Ignore
     public void create_ro_which_email_already_exist() {
-//        ResourceOwner create = getRootResourceOwner();
-//        resourceOwnerService.createResourceOwner(create);
+        ResourceOwner create = getRootResourceOwner();
+        create.setPassword(UUID.randomUUID().toString());
+        PendingResourceOwner pendingResourceOwner = new PendingResourceOwner();
+        pendingResourceOwner.setEmail(create.getEmail());
+        pendingResourceOwner.setPassword(create.getPassword());
+        pendingResourceOwner.setActivationCode(UUID.randomUUID().toString());
+
+        Mockito.doReturn(create).when(userRepo).findOneByEmail(any(String.class));
+
+        ResourceOwner user = resourceOwnerService.createResourceOwner(pendingResourceOwner);
     }
 
     private ResourceOwner getRootResourceOwner() {
