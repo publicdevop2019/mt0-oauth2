@@ -75,7 +75,7 @@ public class ResourceOwnerServiceImpl {
 
     public void createPendingResourceOwner(PendingResourceOwner pendingResourceOwner) {
         PendingResourceOwner pendingResourceOwner1 = PendingResourceOwner.create(pendingResourceOwner.getEmail(), pendingResourceOwnerRepo, userRepo);
-        emailService.sendActivationCode(pendingResourceOwner1.getActivationCode());
+        emailService.sendActivationCode(pendingResourceOwner1.getActivationCode(),pendingResourceOwner1.getEmail());
     }
 
     /**

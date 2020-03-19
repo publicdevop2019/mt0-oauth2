@@ -10,11 +10,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 
+@Service
 public class EmailServiceImpl {
 
     @Value("${url.notify}")
@@ -30,9 +32,10 @@ public class EmailServiceImpl {
     private RestTemplate restTemplate;
 
     @Async
-    public void sendActivationCode(String activationCode) {
+    public void sendActivationCode(String activationCode,String email) {
         HashMap<String, String> blockBody = new HashMap<>();
-        blockBody.put("code", activationCode);
+        blockBody.put("activationCode", activationCode);
+        blockBody.put("email", email);
         String body = null;
         try {
             body = mapper.writeValueAsString(blockBody);

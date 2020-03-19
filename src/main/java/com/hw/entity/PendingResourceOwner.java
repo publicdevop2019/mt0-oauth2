@@ -12,7 +12,6 @@ import org.springframework.util.StringUtils;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.util.Collections;
-import java.util.Random;
 
 @Entity
 @Table
@@ -35,24 +34,26 @@ public class PendingResourceOwner {
 
     public static PendingResourceOwner create(String email, PendingResourceOwnerRepo pendingRORepo, ResourceOwnerRepo resourceOwnerRepo) {
         validateOnCreate(email, pendingRORepo, resourceOwnerRepo);
-        PendingResourceOwner pendingResourceOwner = new PendingResourceOwner();
-        pendingResourceOwner.setEmail(email);
-        pendingResourceOwner.setActivationCode(PendingResourceOwner.generateCode());
-        pendingRORepo.save(pendingResourceOwner);
+        PendingResourceOwner pendingResourceOwner = pendingRORepo.findOneByEmail(email);
+        if (pendingResourceOwner == null) {
+            pendingResourceOwner = new PendingResourceOwner();
+            pendingResourceOwner.setEmail(email);
+            pendingResourceOwner.setActivationCode(PendingResourceOwner.generateCode());
+            pendingRORepo.save(pendingResourceOwner);
+        }
         return pendingResourceOwner;
     }
 
+    // for testing
     private static String generateCode() {
-        int m = (int) Math.pow(10, 6 - 1);
-        return String.valueOf(m + new Random().nextInt(9 * m));
+        return "123456";
+//        int m = (int) Math.pow(10, 6 - 1);
+//        return String.valueOf(m + new Random().nextInt(9 * m));
     }
 
     private static void validateOnCreate(String email, PendingResourceOwnerRepo pendingRORepo, ResourceOwnerRepo resourceOwnerRepo) {
         if (!StringUtils.hasText(email))
             throw new BadRequestException("email is empty");
-        PendingResourceOwner var1 = pendingRORepo.findOneByEmail(email);
-        if (var1 != null)
-            throw new BadRequestException("already pending activation " + email);
         ResourceOwner var2 = resourceOwnerRepo.findOneByEmail(email);
         if (var2 != null)
             throw new BadRequestException("already an user " + email);
