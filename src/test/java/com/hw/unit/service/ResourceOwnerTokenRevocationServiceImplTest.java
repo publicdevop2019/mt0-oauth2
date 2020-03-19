@@ -14,11 +14,6 @@ import java.util.Arrays;
 public class ResourceOwnerTokenRevocationServiceImplTest {
     private ResourceOwnerTokenRevocationServiceImpl resourceOwnerTokenRevocationServiceImpl = new ResourceOwnerTokenRevocationServiceImpl();
 
-    @Before
-    public void init(){
-        ReflectionTestUtils.setField(resourceOwnerTokenRevocationServiceImpl,"enabled",true);
-    }
-
     @Test
     public void happy_shouldRevoke_lock() {
         ResourceOwner resourceOwner = getResourceOwner();
@@ -55,17 +50,6 @@ public class ResourceOwnerTokenRevocationServiceImplTest {
         resourceOwner2.setGrantedAuthorities(Arrays.asList(grantedAuthority, grantedAuthority2));
         boolean b = resourceOwnerTokenRevocationServiceImpl.shouldRevoke(resourceOwner, resourceOwner2);
         Assert.assertEquals(true, b);
-    }
-    @Test
-    public void sad_shouldRevoke_authority_diff_disabled() {
-        ReflectionTestUtils.setField(resourceOwnerTokenRevocationServiceImpl,"enabled",false);
-        ResourceOwner resourceOwner = getResourceOwner();
-        ResourceOwner resourceOwner2 = getResourceOwner();
-        GrantedAuthorityImpl grantedAuthority = GrantedAuthorityImpl.getGrantedAuthority(ResourceOwnerAuthorityEnum.class, ResourceOwnerAuthorityEnum.ROLE_USER.toString());
-        GrantedAuthorityImpl grantedAuthority2 = GrantedAuthorityImpl.getGrantedAuthority(ResourceOwnerAuthorityEnum.class, ResourceOwnerAuthorityEnum.ROLE_ADMIN.toString());
-        resourceOwner2.setGrantedAuthorities(Arrays.asList(grantedAuthority, grantedAuthority2));
-        boolean b = resourceOwnerTokenRevocationServiceImpl.shouldRevoke(resourceOwner, resourceOwner2);
-        Assert.assertEquals(false, b);
     }
 
     private ResourceOwner getResourceOwner() {

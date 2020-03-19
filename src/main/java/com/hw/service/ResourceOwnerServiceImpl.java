@@ -3,8 +3,10 @@ package com.hw.service;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.ResourceOwnerUpdatePwd;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
+import com.hw.entity.PendingResourceOwner;
 import com.hw.entity.ResourceOwner;
 import com.hw.interfaze.TokenRevocationService;
+import com.hw.repo.PendingResourceOwnerRepo;
 import com.hw.repo.ResourceOwnerRepo;
 import com.hw.shared.BadRequestException;
 import com.hw.utility.ServiceUtilityExt;
@@ -14,7 +16,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -29,16 +34,22 @@ public class ResourceOwnerServiceImpl {
     ResourceOwnerRepo userRepo;
 
     @Autowired
+    PendingResourceOwnerRepo pendingResourceOwnerRepo;
+
+    @Autowired
     BCryptPasswordEncoder encoder;
 
     @Autowired
     TokenRevocationService<ResourceOwner> tokenRevocationService;
 
+    @Autowired
+    EmailServiceImpl emailService;
+
     /**
      * update pwd, id is part of bearer token,
      * must revoke issued token if pwd changed
      */
-    public void updateResourceOwnerPwd(ResourceOwnerUpdatePwd resourceOwner, String authorization) {
+    public void updateResourceOwnerPwd(ResourceOwnerUpdatePwd resourceOwner, String authorization) throws BadRequestException {
         String userId = ServiceUtilityExt.getUserId(authorization);
         if (!StringUtils.hasText(resourceOwner.getPassword()) || !StringUtils.hasText(resourceOwner.getEmail()) || !StringUtils.hasText(resourceOwner.getCurrentPwd()))
             throw new BadRequestException("password(s) or email empty");
@@ -58,25 +69,13 @@ public class ResourceOwnerServiceImpl {
      * create user, grantedAuthorities is overwritten to ROLE_USER
      * if id present it will used instead generated
      */
-    public ResourceOwner createResourceOwner(ResourceOwner newUser) {
-        log.info("create new resource owner for email {}", newUser.getEmail());
-        ResourceOwner existUser;
-        if (!StringUtils.hasText(newUser.getPassword()) || !StringUtils.hasText(newUser.getEmail())) {
-            log.info("password or email is empty");
-            throw new BadRequestException("password or email is empty");
-        } else {
-            existUser = userRepo.findOneByEmail(newUser.getEmail());
-            if (existUser != null) {
-                log.info("user already exist");
-                throw new BadRequestException("user already exist : " + newUser.getEmail());
-            }
-        }
-        newUser.setGrantedAuthorities(Collections.singletonList(new GrantedAuthorityImpl(ResourceOwnerAuthorityEnum.ROLE_USER)));
-        newUser.setLocked(false);
-        newUser.setPassword(encoder.encode(newUser.getPassword()));
-        ResourceOwner save = userRepo.save(newUser);
-        log.info("user successfully created with id {}", save.getId());
-        return save;
+    public ResourceOwner createResourceOwner(PendingResourceOwner pendingResourceOwner) {
+        return pendingResourceOwner.convert(encoder, pendingResourceOwnerRepo, userRepo);
+    }
+
+    public void createPendingResourceOwner(PendingResourceOwner pendingResourceOwner) {
+        PendingResourceOwner pendingResourceOwner1 = PendingResourceOwner.create(pendingResourceOwner.getEmail(), pendingResourceOwnerRepo, userRepo);
+        emailService.sendActivationCode(pendingResourceOwner1.getActivationCode(),pendingResourceOwner1.getEmail());
     }
 
     /**

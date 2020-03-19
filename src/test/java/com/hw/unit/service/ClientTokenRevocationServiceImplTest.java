@@ -7,9 +7,7 @@ import com.hw.clazz.eenum.ScopeEnum;
 import com.hw.entity.Client;
 import com.hw.service.ClientTokenRevocationServiceImpl;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,11 +18,6 @@ public class ClientTokenRevocationServiceImplTest {
 
 
     ClientTokenRevocationServiceImpl clientTokenRevocationServiceImpl = new ClientTokenRevocationServiceImpl();
-
-    @Before
-    public void init(){
-        ReflectionTestUtils.setField(clientTokenRevocationServiceImpl,"enabled",true);
-    }
 
     @Test
     public void test_shouldRevoke_authority_same() {
@@ -41,6 +34,7 @@ public class ClientTokenRevocationServiceImplTest {
         Assert.assertEquals(false, b);
 
     }
+
     @Test
     public void test_shouldRevoke_authority_same_order_diff() {
         String s = UUID.randomUUID().toString();
@@ -51,7 +45,7 @@ public class ClientTokenRevocationServiceImplTest {
         GrantedAuthorityImpl authority3 = getAuthority(ClientAuthorityEnum.ROLE_BACKEND);
         GrantedAuthorityImpl authority4 = getAuthority(ClientAuthorityEnum.ROLE_FIRST_PARTY);
         client.setGrantedAuthorities(Arrays.asList(authority, authority2));
-        client2.setGrantedAuthorities(Arrays.asList(authority4,authority3));
+        client2.setGrantedAuthorities(Arrays.asList(authority4, authority3));
         boolean b = clientTokenRevocationServiceImpl.shouldRevoke(client, client2);
         Assert.assertEquals(false, b);
 
@@ -111,18 +105,6 @@ public class ClientTokenRevocationServiceImplTest {
         Client client = getClient(s);
         Client client2 = getClient(s);
         client.setRegisteredRedirectUri(Collections.EMPTY_SET);
-        boolean b = clientTokenRevocationServiceImpl.shouldRevoke(client, client2);
-        Assert.assertEquals(false, b);
-    }
-
-    @Test
-    public void test_shouldRevoke_disabled() {
-        ReflectionTestUtils.setField(clientTokenRevocationServiceImpl,"enabled",false);
-        String s = UUID.randomUUID().toString();
-        Client client = getClient(s);
-        Client client2 = getClient(s);
-        client.setScopeEnums(new HashSet<>(Arrays.asList(ScopeEnum.read, ScopeEnum.write)));
-        client2.setScopeEnums(new HashSet<>(Arrays.asList(ScopeEnum.read, ScopeEnum.trust)));
         boolean b = clientTokenRevocationServiceImpl.shouldRevoke(client, client2);
         Assert.assertEquals(false, b);
     }
