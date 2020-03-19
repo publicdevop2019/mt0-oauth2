@@ -38,9 +38,9 @@ public class PendingResourceOwner {
         if (pendingResourceOwner == null) {
             pendingResourceOwner = new PendingResourceOwner();
             pendingResourceOwner.setEmail(email);
-            pendingResourceOwner.setActivationCode(PendingResourceOwner.generateCode());
-            pendingRORepo.save(pendingResourceOwner);
         }
+        pendingResourceOwner.setActivationCode(PendingResourceOwner.generateCode());
+        pendingRORepo.save(pendingResourceOwner);
         return pendingResourceOwner;
     }
 
