@@ -1,6 +1,7 @@
 package com.hw.controller;
 
 import com.hw.clazz.ResourceOwnerUpdatePwd;
+import com.hw.entity.ForgetPasswordRequest;
 import com.hw.entity.PendingResourceOwner;
 import com.hw.entity.ResourceOwner;
 import com.hw.service.ResourceOwnerServiceImpl;
@@ -35,6 +36,18 @@ public class ResourceOwnerController {
     @PostMapping("resourceOwners/register")
     public ResponseEntity<?> registerRO(@RequestBody PendingResourceOwner pendingResourceOwner) {
         resourceOwnerService.createPendingResourceOwner(pendingResourceOwner);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("resourceOwners/forgetPwd")
+    public ResponseEntity<?> forgetPwd(@RequestBody ForgetPasswordRequest forgetPasswordRequest) {
+        resourceOwnerService.sendForgetPassword(forgetPasswordRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("resourceOwners/resetPwd")
+    public ResponseEntity<?> resetPwd(@RequestBody ForgetPasswordRequest forgetPasswordRequest) {
+        resourceOwnerService.resetPassword(forgetPasswordRequest);
         return ResponseEntity.ok().build();
     }
 

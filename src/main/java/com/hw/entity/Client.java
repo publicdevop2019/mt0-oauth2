@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * e.g getting return string instead of enum
  */
 @Entity
-@Table(name = "client")
+@Table
 @SequenceGenerator(name = "entityId_gen", sequenceName = "entityId_seq", initialValue = 100)
 @Data
 public class Client extends Auditable implements ClientDetails {

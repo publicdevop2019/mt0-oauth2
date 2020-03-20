@@ -19,8 +19,11 @@ import java.util.HashMap;
 @Service
 public class EmailServiceImpl {
 
-    @Value("${url.notify}")
-    private String url;
+    @Value("${url.notify.register}")
+    private String register;
+
+    @Value("${url.notify.pwdReset}")
+    private String pwdReset;
 
     @Autowired
     private ObjectMapper mapper;
@@ -32,7 +35,7 @@ public class EmailServiceImpl {
     private RestTemplate restTemplate;
 
     @Async
-    public void sendActivationCode(String activationCode,String email) {
+    public void sendActivationCode(String activationCode, String email) {
         HashMap<String, String> blockBody = new HashMap<>();
         blockBody.put("activationCode", activationCode);
         blockBody.put("email", email);
@@ -44,6 +47,27 @@ public class EmailServiceImpl {
              * this block is purposely left blank
              */
         }
+        send(body, register);
+
+    }
+
+    @Async
+    public void sendPasswordResetLink(String token, String email) {
+        HashMap<String, String> blockBody = new HashMap<>();
+        blockBody.put("token", token);
+        blockBody.put("email", email);
+        String body = null;
+        try {
+            body = mapper.writeValueAsString(blockBody);
+        } catch (JsonProcessingException e) {
+            /**
+             * this block is purposely left blank
+             */
+        }
+        send(body, pwdReset);
+    }
+
+    private void send(String body, String url) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
@@ -59,6 +83,5 @@ public class EmailServiceImpl {
             restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity2, String.class);
 
         }
-
     }
 }

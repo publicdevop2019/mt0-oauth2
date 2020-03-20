@@ -3,9 +3,11 @@ package com.hw.service;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.ResourceOwnerUpdatePwd;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
+import com.hw.entity.ForgetPasswordRequest;
 import com.hw.entity.PendingResourceOwner;
 import com.hw.entity.ResourceOwner;
 import com.hw.interfaze.TokenRevocationService;
+import com.hw.repo.ForgetPasswordRequestRepo;
 import com.hw.repo.PendingResourceOwnerRepo;
 import com.hw.repo.ResourceOwnerRepo;
 import com.hw.shared.BadRequestException;
@@ -31,10 +33,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ResourceOwnerServiceImpl {
     @Autowired
-    ResourceOwnerRepo userRepo;
+    ResourceOwnerRepo resourceOwnerRepo;
 
     @Autowired
     PendingResourceOwnerRepo pendingResourceOwnerRepo;
+
+    @Autowired
+    ForgetPasswordRequestRepo forgetPasswordRequestRepo;
 
     @Autowired
     BCryptPasswordEncoder encoder;
@@ -57,12 +62,12 @@ public class ResourceOwnerServiceImpl {
         if (!encoder.matches(resourceOwner.getCurrentPwd(), resourceOwnerById.getPassword()))
             throw new BadRequestException("wrong password");
         resourceOwnerById.setPassword(encoder.encode(resourceOwner.getPassword()));
-        userRepo.save(resourceOwnerById);
+        resourceOwnerRepo.save(resourceOwnerById);
         tokenRevocationService.blacklist(resourceOwnerById.getId().toString(), true);
     }
 
     public List<ResourceOwner> readAllResourceOwners() {
-        return userRepo.findAll();
+        return resourceOwnerRepo.findAll();
     }
 
     /**
@@ -70,12 +75,26 @@ public class ResourceOwnerServiceImpl {
      * if id present it will used instead generated
      */
     public ResourceOwner createResourceOwner(PendingResourceOwner pendingResourceOwner) {
-        return pendingResourceOwner.convert(encoder, pendingResourceOwnerRepo, userRepo);
+        return pendingResourceOwner.convert(encoder, pendingResourceOwnerRepo, resourceOwnerRepo);
     }
 
     public void createPendingResourceOwner(PendingResourceOwner pendingResourceOwner) {
-        PendingResourceOwner pendingResourceOwner1 = PendingResourceOwner.create(pendingResourceOwner.getEmail(), pendingResourceOwnerRepo, userRepo);
-        emailService.sendActivationCode(pendingResourceOwner1.getActivationCode(),pendingResourceOwner1.getEmail());
+        PendingResourceOwner pendingResourceOwner1 = PendingResourceOwner.create(pendingResourceOwner.getEmail(), pendingResourceOwnerRepo, resourceOwnerRepo);
+        emailService.sendActivationCode(pendingResourceOwner1.getActivationCode(), pendingResourceOwner1.getEmail());
+    }
+
+    public void sendForgetPassword(ForgetPasswordRequest forgetPasswordRequest) {
+        ForgetPasswordRequest forgetPasswordRequest1 = ForgetPasswordRequest.create(forgetPasswordRequest.getEmail(), forgetPasswordRequestRepo, resourceOwnerRepo);
+        emailService.sendPasswordResetLink(forgetPasswordRequest1.getToken(), forgetPasswordRequest.getEmail());
+    }
+
+    public void resetPassword(ForgetPasswordRequest forgetPasswordRequest) {
+        forgetPasswordRequest.verifyToken(forgetPasswordRequestRepo, resourceOwnerRepo);
+        // reset password
+        ResourceOwner oneByEmail = resourceOwnerRepo.findOneByEmail(forgetPasswordRequest.getEmail());
+        oneByEmail.setPassword(encoder.encode(forgetPasswordRequest.getNewPassword()));
+        resourceOwnerRepo.save(oneByEmail);
+        tokenRevocationService.blacklist(oneByEmail.getId().toString(), true);
     }
 
     /**
@@ -103,33 +122,33 @@ public class ResourceOwnerServiceImpl {
                 throw new BadRequestException("only admin or root can subscribe to new order");
             }
         }
-        userRepo.save(storedRO);
+        resourceOwnerRepo.save(storedRO);
         tokenRevocationService.blacklist(storedRO.getId().toString(), b);
     }
 
     public void deleteResourceOwner(Long id) {
         preventRootAccountChange(id);
         ResourceOwner resourceOwnerById = getResourceOwnerById(id);
-        userRepo.delete(resourceOwnerById);
+        resourceOwnerRepo.delete(resourceOwnerById);
         tokenRevocationService.blacklist(resourceOwnerById.getId().toString(), true);
     }
 
 
     public String getEmailSubscriber() {
-        List<String> collect1 = userRepo.findAll().stream()
+        List<String> collect1 = resourceOwnerRepo.findAll().stream()
                 .filter(ResourceOwner::isSubscription)
                 .map(ResourceOwner::getEmail).collect(Collectors.toList());
         return String.join(",", collect1);
     }
 
     private void preventRootAccountChange(Long id) {
-        Optional<ResourceOwner> byId = userRepo.findById(id);
+        Optional<ResourceOwner> byId = resourceOwnerRepo.findById(id);
         if (byId.isPresent() && byId.get().getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new BadRequestException("root account can not be modified");
     }
 
     private ResourceOwner getResourceOwnerById(Long id) {
-        Optional<ResourceOwner> byId = userRepo.findById(id);
+        Optional<ResourceOwner> byId = resourceOwnerRepo.findById(id);
         if (byId.isEmpty())
             throw new BadRequestException("user not exist : " + id);
         return byId.get();

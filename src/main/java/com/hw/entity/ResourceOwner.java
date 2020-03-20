@@ -25,7 +25,7 @@ import java.util.List;
  * different sequence since as long as blacklist use to table for client and resource owner
  */
 @Entity
-@Table(name = "resource_owner")
+@Table
 @Data
 @SequenceGenerator(name = "entityId_gen", sequenceName = "entityId_seq", initialValue = 100)
 public class ResourceOwner extends Auditable implements UserDetails {
