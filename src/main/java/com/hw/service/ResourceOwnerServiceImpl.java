@@ -56,8 +56,8 @@ public class ResourceOwnerServiceImpl {
      */
     public void updateResourceOwnerPwd(ResourceOwnerUpdatePwd resourceOwner, String authorization) throws BadRequestException {
         String userId = ServiceUtilityExt.getUserId(authorization);
-        if (!StringUtils.hasText(resourceOwner.getPassword()) || !StringUtils.hasText(resourceOwner.getEmail()) || !StringUtils.hasText(resourceOwner.getCurrentPwd()))
-            throw new BadRequestException("password(s) or email empty");
+        if (!StringUtils.hasText(resourceOwner.getPassword()) || !StringUtils.hasText(resourceOwner.getCurrentPwd()))
+            throw new BadRequestException("password(s)");
         ResourceOwner resourceOwnerById = getResourceOwnerById(Long.parseLong(userId));
         if (!encoder.matches(resourceOwner.getCurrentPwd(), resourceOwnerById.getPassword()))
             throw new BadRequestException("wrong password");
