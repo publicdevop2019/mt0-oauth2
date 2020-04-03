@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 
 @RestController
-@RequestMapping("v1/api")
 public class ClientController {
 
     @Autowired
