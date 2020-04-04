@@ -3,6 +3,7 @@ package com.hw.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.clazz.AuthTokenHelper;
+import com.hw.shared.EurekaRegistryHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -33,6 +34,9 @@ public class EmailServiceImpl {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    EurekaRegistryHelper eurekaRegistryHelper;
 
     @Async
     public void sendActivationCode(String activationCode, String email) {
@@ -68,20 +72,20 @@ public class EmailServiceImpl {
     }
 
     private void send(String body, String url) {
+        String resolvedUrl = eurekaRegistryHelper.getProxyHomePageUrl() + url;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
         HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(body, headers);
         try {
-            restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
+            restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity, String.class);
         } catch (HttpClientErrorException ex) {
             /**
              * re-try
              */
             headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
             HttpEntity<String> hashMapHttpEntity2 = new HttpEntity<>(body, headers);
-            restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity2, String.class);
-
+            restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity2, String.class);
         }
     }
 }

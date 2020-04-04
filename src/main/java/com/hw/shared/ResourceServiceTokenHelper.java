@@ -22,8 +22,12 @@ public class ResourceServiceTokenHelper {
 
     @Value("${security.oauth2.client.clientId:#{null}}")
     private String clientId;
+
     @Value("${security.oauth2.client.clientSecret:#{null}}")
     private String clientSecret;
+
+    @Autowired
+    private EurekaRegistryHelper eurekaRegistryHelper;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -38,9 +42,8 @@ public class ResourceServiceTokenHelper {
         map.add("grant_type", "client_credentials");
         String token = null;
         try {
-
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-            ResponseEntity<String> resp = restTemplate.exchange(tokenUrl, HttpMethod.POST, request, String.class);
+            ResponseEntity<String> resp = restTemplate.exchange(eurekaRegistryHelper.getProxyHomePageUrl() + tokenUrl, HttpMethod.POST, request, String.class);
             token = this.extractToken(resp);
         } catch (Exception e) {
             e.printStackTrace();
