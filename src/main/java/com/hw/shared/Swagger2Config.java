@@ -18,8 +18,8 @@ public class Swagger2Config {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2).select()
                 .apis(RequestHandlerSelectors
-                        .basePackage("com.hw.controller"))
-                .paths(PathSelectors.regex("/.*"))
+                        .basePackage("com.hw"))
+                .paths(PathSelectors.any())
                 .build().apiInfo(apiEndPointsInfo());
     }
     private ApiInfo apiEndPointsInfo() {
