@@ -64,7 +64,7 @@ public class ResourceServiceTokenHelper {
     }
 
     /**
-     * wrap request with jwt token, re try if jwt expired for first time
+     * wrap request with jwt token, re try if jwt expired for first time, only re-try with 401 error code
      */
     public <T> ResponseEntity<T> exchange(String url, HttpMethod httpMethod, HttpEntity<?> httpEntity, Class<T> clazz) {
         if (storedJwtToken == null)
@@ -75,10 +75,13 @@ public class ResourceServiceTokenHelper {
         try {
             return restTemplate.exchange(url, httpMethod, httpEntity1, clazz);
         } catch (HttpClientErrorException ex) {
-            storedJwtToken = getJwtToken();
-            httpHeaders.setBearerAuth(storedJwtToken);
-            HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
-            return restTemplate.exchange(url, httpMethod, httpEntity2, clazz);
+            if (ex.getRawStatusCode() == 401) {
+                storedJwtToken = getJwtToken();
+                httpHeaders.setBearerAuth(storedJwtToken);
+                HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
+                return restTemplate.exchange(url, httpMethod, httpEntity2, clazz);
+            }
+            throw ex;
         }
     }
 
@@ -91,10 +94,13 @@ public class ResourceServiceTokenHelper {
         try {
             return restTemplate.exchange(url, httpMethod, httpEntity1, responseType);
         } catch (HttpClientErrorException ex) {
-            storedJwtToken = getJwtToken();
-            httpHeaders.setBearerAuth(storedJwtToken);
-            HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
-            return restTemplate.exchange(url, httpMethod, httpEntity2, responseType);
+            if (ex.getRawStatusCode() == 401) {
+                storedJwtToken = getJwtToken();
+                httpHeaders.setBearerAuth(storedJwtToken);
+                HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
+                return restTemplate.exchange(url, httpMethod, httpEntity2, responseType);
+            }
+            throw ex;
         }
     }
 
