@@ -20,21 +20,33 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ObjectOptimisticLockingFailureException.class
     })
     protected ResponseEntity<?> handleException(RuntimeException ex, WebRequest request) {
-        return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        ErrorMessage errorMessage = new ErrorMessage(ex);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Error-Id", errorMessage.errorId);
+        return handleExceptionInternal(ex, errorMessage, httpHeaders, HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(value = {RuntimeException.class})
     protected ResponseEntity<?> defaultHandleException(RuntimeException ex, WebRequest request) {
-        return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+        ErrorMessage errorMessage = new ErrorMessage(ex);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Error-Id", errorMessage.errorId);
+        return handleExceptionInternal(ex, errorMessage, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     @ExceptionHandler(value = {BadRequestException.class})
     protected ResponseEntity<?> handle400Exception(RuntimeException ex, WebRequest request) {
-        return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        ErrorMessage errorMessage = new ErrorMessage(ex);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Error-Id", errorMessage.errorId);
+        return handleExceptionInternal(ex, errorMessage, httpHeaders, HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(value = {InternalServerException.class})
     protected ResponseEntity<?> handle500Exception(RuntimeException ex, WebRequest request) {
-        return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+        ErrorMessage errorMessage = new ErrorMessage(ex);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Error-Id", errorMessage.errorId);
+        return handleExceptionInternal(ex, errorMessage, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 }

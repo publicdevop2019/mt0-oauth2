@@ -12,8 +12,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 public class ErrorMessage {
-    List<String> errors;
-    String errorId;
+    private List<String> errors;
+    public String errorId;
 
     public ErrorMessage(RuntimeException ex) {
         errorId = UUID.randomUUID().toString();
