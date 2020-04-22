@@ -33,7 +33,7 @@ public class ResourceOwnerController {
     }
 
     @PostMapping("resourceOwners/register")
-    public ResponseEntity<?> registerRO(@RequestBody PendingResourceOwner pendingResourceOwner) {
+    public ResponseEntity<?> createPendingRO(@RequestBody PendingResourceOwner pendingResourceOwner) {
         resourceOwnerService.createPendingResourceOwner(pendingResourceOwner);
         return ResponseEntity.ok().build();
     }

@@ -3,6 +3,7 @@ package com.hw.shared;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 public class ResourceServiceTokenHelper {
     @Value("${security.oauth2.client.accessTokenUri:#{null}}")
@@ -46,7 +48,7 @@ public class ResourceServiceTokenHelper {
             ResponseEntity<String> resp = restTemplate.exchange(eurekaRegistryHelper.getProxyHomePageUrl() + tokenUrl, HttpMethod.POST, request, String.class);
             token = this.extractToken(resp);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("unable to get jwt token", e);
         }
         return token;
     }
@@ -58,7 +60,7 @@ public class ResourceServiceTokenHelper {
             JsonNode nodes = om.readTree(resp.getBody());
             return nodes.get("access_token").asText();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("unable to extract jwt token", e);
             return null;
         }
     }
