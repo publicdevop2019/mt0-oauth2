@@ -8,9 +8,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @Configuration
-@Profile("!shared-hw")
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
+@Profile("shared-hw")
+public class SecurityH2Config extends WebSecurityConfigurerAdapter {
     /**
      * used for password flow, explicitly set to enable password flow
      */
@@ -20,10 +19,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
+    public void configure(HttpSecurity http) throws Exception {
+
+        http.authorizeRequests()
+                .anyRequest().permitAll()
+                .and()
+                .headers().frameOptions().disable()
+                .and()
                 .csrf().disable()
-                .authorizeRequests()
-                .anyRequest().permitAll();
+        ;
+
     }
+
 }
