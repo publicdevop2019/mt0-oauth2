@@ -3,6 +3,7 @@ package com.hw.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.clazz.AuthTokenHelper;
+import com.hw.shared.BadRequestException;
 import com.hw.shared.EurekaRegistryHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,7 +56,7 @@ public class EmailServiceImpl {
 
     }
 
-    @Async
+    //    @Async
     public void sendPasswordResetLink(String token, String email) {
         HashMap<String, String> blockBody = new HashMap<>();
         blockBody.put("token", token);
@@ -83,9 +84,14 @@ public class EmailServiceImpl {
             /**
              * re-try
              */
-            headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
-            HttpEntity<String> hashMapHttpEntity2 = new HttpEntity<>(body, headers);
-            restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity2, String.class);
+            if (ex.getRawStatusCode() == 401) {
+                headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
+                HttpEntity<String> hashMapHttpEntity2 = new HttpEntity<>(body, headers);
+                restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity2, String.class);
+            } else {
+                throw new BadRequestException("please wait for cool down");
+            }
+
         }
     }
 }
