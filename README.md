@@ -10,10 +10,14 @@
 - Forget password support, two-step user registration
 - JWT token blacklist (together with mt1-proxy)
 - Async logging with graceful shutdown
-# Hello world
-1. open application-shared.properties
-2. config data src desired
-3. enjoy
 # Misc
 - Swagger Document (Generated): http://localhost:8080/swagger-ui.html
 - DockerHub: https://hub.docker.com/r/publicdevop2019/oauth2service
+# 中文
+- 基于 spring-security-oauth2-autoconfigure
+- JWT不对称钥匙验证, mt1-proxy启动自动获取公匙
+- 开放第三方 authorize code API
+- 支持 client credential, password, authorization, refresh token 流程
+- 忘记密码重置, 注册码注册用户
+- JWT (与 mt1-proxy一起使用) 主动以及被动回收
+- 异步日志以及优雅关机（覆盖全部服务）
