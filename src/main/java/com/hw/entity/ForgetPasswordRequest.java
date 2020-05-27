@@ -8,14 +8,11 @@ import com.hw.shared.IdGenerator;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 
 @Entity
-@Table
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"email"}))
 @Data
 public class ForgetPasswordRequest extends Auditable {
 
@@ -41,10 +38,10 @@ public class ForgetPasswordRequest extends Auditable {
         if (oneByEmail == null) {
             oneByEmail = new ForgetPasswordRequest();
             oneByEmail.setEmail(email);
+            oneByEmail.setId(idGenerator.getId());
         }
         oneByEmail.setToken(generateToken());
         oneByEmail.setConsumed(Boolean.FALSE);
-        oneByEmail.setId(idGenerator.getId());
         forgetPasswordRequestRepo.save(oneByEmail);
         return oneByEmail;
     }
