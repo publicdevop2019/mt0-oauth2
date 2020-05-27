@@ -9,6 +9,7 @@ import com.hw.repo.PendingResourceOwnerRepo;
 import com.hw.repo.ResourceOwnerRepo;
 import com.hw.service.ResourceOwnerServiceImpl;
 import com.hw.shared.BadRequestException;
+import com.hw.shared.IdGenerator;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,6 +41,9 @@ public class ResourceOwnerServiceImplTest {
 
     @Mock
     BCryptPasswordEncoder encoder;
+
+    @Mock
+    IdGenerator idGenerator;
 
     @Mock
     TokenRevocationService<ResourceOwner> tokenRevocationService;
@@ -149,6 +153,7 @@ public class ResourceOwnerServiceImplTest {
         pendingResourceOwner.setActivationCode(UUID.randomUUID().toString());
 
         Mockito.doReturn(null).when(userRepo).findOneByEmail(any(String.class));
+        Mockito.doReturn(0L).when(idGenerator).getId();
         Mockito.doReturn(pendingResourceOwner).when(pendingResourceOwnerRepo).findOneByEmail(any(String.class));
         Mockito.doReturn(create).when(userRepo).save(any(ResourceOwner.class));
         Mockito.doReturn(UUID.randomUUID().toString()).when(encoder).encode(any(String.class));

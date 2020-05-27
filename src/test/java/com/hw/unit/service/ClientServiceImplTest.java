@@ -9,6 +9,7 @@ import com.hw.repo.ClientRepo;
 import com.hw.service.ClientServiceImpl;
 import com.hw.service.ClientTokenRevocationServiceImpl;
 import com.hw.shared.BadRequestException;
+import com.hw.shared.IdGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +32,9 @@ public class ClientServiceImplTest {
 
     @Mock
     ClientRepo clientRepo;
+
+    @Mock
+    IdGenerator idGenerator;
 
     @Mock
     ClientTokenRevocationServiceImpl tokenRevocationService;
@@ -155,6 +159,7 @@ public class ClientServiceImplTest {
         mockClient.setResourceIndicator(Boolean.TRUE);
         Mockito.doReturn(Optional.empty()).when(clientRepo).findByClientId(newClient.getClientId());
         Mockito.doReturn(Optional.of(mockClient)).when(clientRepo).findByClientId(STUB_RESOURCE_ID);
+        Mockito.doReturn(0L).when(idGenerator).getId();
         clientService.createClient(newClient);
         Mockito.verify(encoder, Mockito.times(1)).encode(any(String.class));
     }
