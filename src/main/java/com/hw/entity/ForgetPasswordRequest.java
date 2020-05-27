@@ -4,23 +4,22 @@ import com.hw.repo.ForgetPasswordRequestRepo;
 import com.hw.repo.ResourceOwnerRepo;
 import com.hw.shared.Auditable;
 import com.hw.shared.BadRequestException;
-import lombok.AccessLevel;
+import com.hw.shared.IdGenerator;
 import lombok.Data;
-import lombok.Setter;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
 
 @Entity
 @Table
-@SequenceGenerator(name = "pwdReqId_gen", sequenceName = "pwdReqId_gen", initialValue = 100)
 @Data
 public class ForgetPasswordRequest extends Auditable {
 
     @Id
-    @GeneratedValue(generator = "pwdReqId_gen")
-    @Setter(AccessLevel.NONE)
     private Long id;
 
     @Email
@@ -36,7 +35,7 @@ public class ForgetPasswordRequest extends Auditable {
     @Column
     private Boolean consumed;
 
-    public static ForgetPasswordRequest create(String email, ForgetPasswordRequestRepo forgetPasswordRequestRepo, ResourceOwnerRepo resourceOwnerRepo) {
+    public static ForgetPasswordRequest create(String email, ForgetPasswordRequestRepo forgetPasswordRequestRepo, ResourceOwnerRepo resourceOwnerRepo, IdGenerator idGenerator) {
         validateOnCreate(email, resourceOwnerRepo);
         ForgetPasswordRequest oneByEmail = forgetPasswordRequestRepo.findOneByEmail(email);
         if (oneByEmail == null) {
@@ -45,6 +44,7 @@ public class ForgetPasswordRequest extends Auditable {
         }
         oneByEmail.setToken(generateToken());
         oneByEmail.setConsumed(Boolean.FALSE);
+        oneByEmail.setId(idGenerator.getId());
         forgetPasswordRequestRepo.save(oneByEmail);
         return oneByEmail;
     }

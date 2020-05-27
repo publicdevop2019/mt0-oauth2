@@ -5,21 +5,23 @@ import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.repo.PendingResourceOwnerRepo;
 import com.hw.repo.ResourceOwnerRepo;
 import com.hw.shared.BadRequestException;
+import com.hw.shared.IdGenerator;
 import lombok.Data;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import java.util.Collections;
 
 @Entity
 @Table
-@SequenceGenerator(name = "pendingROId_gen", sequenceName = "pendingROId_gen", initialValue = 100)
 @Data
 public class PendingResourceOwner {
     @Id
-    @GeneratedValue(generator = "pendingROId_gen")
     private Long id;
 
     @Email
@@ -32,7 +34,7 @@ public class PendingResourceOwner {
     @Column
     private String password;
 
-    public static PendingResourceOwner create(String email, PendingResourceOwnerRepo pendingRORepo, ResourceOwnerRepo resourceOwnerRepo) {
+    public static PendingResourceOwner create(String email, PendingResourceOwnerRepo pendingRORepo, ResourceOwnerRepo resourceOwnerRepo, IdGenerator idGenerator) {
         validateOnCreate(email, pendingRORepo, resourceOwnerRepo);
         PendingResourceOwner pendingResourceOwner = pendingRORepo.findOneByEmail(email);
         if (pendingResourceOwner == null) {
@@ -40,6 +42,7 @@ public class PendingResourceOwner {
             pendingResourceOwner.setEmail(email);
         }
         pendingResourceOwner.setActivationCode(PendingResourceOwner.generateCode());
+        pendingResourceOwner.setId(idGenerator.getId());
         pendingRORepo.save(pendingResourceOwner);
         return pendingResourceOwner;
     }
@@ -59,9 +62,10 @@ public class PendingResourceOwner {
             throw new BadRequestException("already an user " + email);
     }
 
-    public ResourceOwner convert(PasswordEncoder encoder, PendingResourceOwnerRepo pendingResourceOwnerRepo, ResourceOwnerRepo userRepo) {
+    public ResourceOwner convert(PasswordEncoder encoder, PendingResourceOwnerRepo pendingResourceOwnerRepo, ResourceOwnerRepo userRepo, IdGenerator idGenerator) {
         validateOnConvert(pendingResourceOwnerRepo, userRepo);
         ResourceOwner var1 = new ResourceOwner();
+        var1.setId(idGenerator.getId());
         var1.setEmail(email);
         var1.setPassword(encoder.encode(password));
         var1.setGrantedAuthorities(Collections.singletonList(new GrantedAuthorityImpl(ResourceOwnerAuthorityEnum.ROLE_USER)));

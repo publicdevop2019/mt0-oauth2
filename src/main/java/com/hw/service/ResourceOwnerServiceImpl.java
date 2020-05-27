@@ -11,6 +11,7 @@ import com.hw.repo.ForgetPasswordRequestRepo;
 import com.hw.repo.PendingResourceOwnerRepo;
 import com.hw.repo.ResourceOwnerRepo;
 import com.hw.shared.BadRequestException;
+import com.hw.shared.IdGenerator;
 import com.hw.utility.ServiceUtilityExt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,9 @@ public class ResourceOwnerServiceImpl {
     @Autowired
     EmailServiceImpl emailService;
 
+    @Autowired
+    private IdGenerator idGenerator;
+
     /**
      * update pwd, id is part of bearer token,
      * must revoke issued token if pwd changed
@@ -75,16 +79,16 @@ public class ResourceOwnerServiceImpl {
      * if id present it will used instead generated
      */
     public ResourceOwner createResourceOwner(PendingResourceOwner pendingResourceOwner) {
-        return pendingResourceOwner.convert(encoder, pendingResourceOwnerRepo, resourceOwnerRepo);
+        return pendingResourceOwner.convert(encoder, pendingResourceOwnerRepo, resourceOwnerRepo, idGenerator);
     }
 
     public void createPendingResourceOwner(PendingResourceOwner pendingResourceOwner) {
-        PendingResourceOwner pendingResourceOwner1 = PendingResourceOwner.create(pendingResourceOwner.getEmail(), pendingResourceOwnerRepo, resourceOwnerRepo);
+        PendingResourceOwner pendingResourceOwner1 = PendingResourceOwner.create(pendingResourceOwner.getEmail(), pendingResourceOwnerRepo, resourceOwnerRepo, idGenerator);
         emailService.sendActivationCode(pendingResourceOwner1.getActivationCode(), pendingResourceOwner1.getEmail());
     }
 
     public void sendForgetPassword(ForgetPasswordRequest forgetPasswordRequest) {
-        ForgetPasswordRequest forgetPasswordRequest1 = ForgetPasswordRequest.create(forgetPasswordRequest.getEmail(), forgetPasswordRequestRepo, resourceOwnerRepo);
+        ForgetPasswordRequest forgetPasswordRequest1 = ForgetPasswordRequest.create(forgetPasswordRequest.getEmail(), forgetPasswordRequestRepo, resourceOwnerRepo, idGenerator);
         emailService.sendPasswordResetLink(forgetPasswordRequest1.getToken(), forgetPasswordRequest.getEmail());
     }
 

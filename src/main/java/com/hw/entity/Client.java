@@ -8,9 +8,7 @@ import com.hw.clazz.eenum.GrantTypeEnum;
 import com.hw.clazz.eenum.ScopeEnum;
 import com.hw.converter.StringSetConverter;
 import com.hw.shared.Auditable;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Setter;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
@@ -32,13 +30,10 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table
-@SequenceGenerator(name = "entityId_gen", sequenceName = "entityId_seq", initialValue = 100)
 @Data
 public class Client extends Auditable implements ClientDetails {
 
     @Id
-    @GeneratedValue(generator = "entityId_gen")
-    @Setter(AccessLevel.NONE)
     private Long id;
 
     @NotNull

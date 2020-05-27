@@ -5,6 +5,7 @@ import com.hw.entity.Client;
 import com.hw.interfaze.TokenRevocationService;
 import com.hw.repo.ClientRepo;
 import com.hw.shared.BadRequestException;
+import com.hw.shared.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class ClientServiceImpl {
     @Autowired
     TokenRevocationService<Client> tokenRevocationService;
 
+    @Autowired
+    private IdGenerator idGenerator;
+
     public Client createClient(Client client) {
         validateResourceId(client);
         validateResourceIndicator(client);
@@ -42,6 +46,7 @@ public class ClientServiceImpl {
             } else {
                 client.setClientSecret(encoder.encode(client.getClientSecret().trim()));
             }
+            client.setId(idGenerator.getId());
             return clientRepo.save(client);
         } else {
             throw new BadRequestException("client already exist");
@@ -88,6 +93,7 @@ public class ClientServiceImpl {
     public void replaceClient(Client client, Long id) {
         validateResourceIndicator(client);
         validateResourceId(client);
+        client.setId(id);
         Client clientById = getClientById(id);
         String oldClientId = clientById.getClientId();
         boolean b = tokenRevocationService.shouldRevoke(clientById, client);

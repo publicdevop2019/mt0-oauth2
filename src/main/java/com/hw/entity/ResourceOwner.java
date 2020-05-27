@@ -5,9 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ResourceOwnerAuthorityEnum;
 import com.hw.shared.Auditable;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -27,11 +25,8 @@ import java.util.List;
 @Entity
 @Table
 @Data
-@SequenceGenerator(name = "entityId_gen", sequenceName = "entityId_seq", initialValue = 100)
 public class ResourceOwner extends Auditable implements UserDetails {
     @Id
-    @GeneratedValue(generator = "entityId_gen")
-    @Setter(AccessLevel.NONE)
     protected Long id;
 
     @Column(nullable = false)
