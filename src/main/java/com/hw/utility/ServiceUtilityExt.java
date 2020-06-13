@@ -7,17 +7,17 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public class ServiceUtilityExt extends ServiceUtility {
+public class ServiceUtilityExt {
 
     public static Authentication getAuthentication(String bearerHeader) {
         try {
-            Collection<? extends GrantedAuthority> au = getAuthority(bearerHeader).stream().map(e -> new GrantedAuthority() {
+            Collection<? extends GrantedAuthority> au = ServiceUtility.getAuthority(bearerHeader).stream().map(e -> new GrantedAuthority() {
                 @Override
                 public String getAuthority() {
                     return e;
                 }
             }).collect(Collectors.toList());
-            String userId = getUserId(bearerHeader);
+            String userId = ServiceUtility.getUserId(bearerHeader);
             Authentication authentication = new Authentication() {
                 @Override
                 public Collection<? extends GrantedAuthority> getAuthorities() {

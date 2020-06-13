@@ -12,7 +12,7 @@ import com.hw.repo.PendingResourceOwnerRepo;
 import com.hw.repo.ResourceOwnerRepo;
 import com.hw.shared.BadRequestException;
 import com.hw.shared.IdGenerator;
-import com.hw.utility.ServiceUtilityExt;
+import com.hw.shared.ServiceUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -59,7 +59,7 @@ public class ResourceOwnerServiceImpl {
      * must revoke issued token if pwd changed
      */
     public void updateResourceOwnerPwd(ResourceOwnerUpdatePwd resourceOwner, String authorization) throws BadRequestException {
-        String userId = ServiceUtilityExt.getUserId(authorization);
+        String userId = ServiceUtility.getUserId(authorization);
         if (!StringUtils.hasText(resourceOwner.getPassword()) || !StringUtils.hasText(resourceOwner.getCurrentPwd()))
             throw new BadRequestException("password(s)");
         ResourceOwner resourceOwnerById = getResourceOwnerById(Long.parseLong(userId));
@@ -106,7 +106,7 @@ public class ResourceOwnerServiceImpl {
      */
     public void updateResourceOwner(ResourceOwner updatedRO, Long id, String authorization) {
         preventRootAccountChange(id);
-        List<String> currentAuthorities = ServiceUtilityExt.getAuthority(authorization);
+        List<String> currentAuthorities = ServiceUtility.getAuthority(authorization);
         if (updatedRO.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new BadRequestException("assign root grantedAuthorities is prohibited");
         if (currentAuthorities.stream().noneMatch("ROLE_ROOT"::equals) && updatedRO.getAuthorities() != null)

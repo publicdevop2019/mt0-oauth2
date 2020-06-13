@@ -7,11 +7,11 @@ import java.util.function.Function;
 
 @FunctionalInterface
 public interface ThrowingFunction<T, R, E extends RuntimeException> extends Function<T, R> {
-    R apply(T var1) throws E;
+    R apply(T var1);
 
     default Consumer<T> andThen(Consumer<? super R> after) {
         Objects.requireNonNull(after);
-        return (t) -> after.accept(this.apply(t));
+        return t -> after.accept(this.apply(t));
     }
 
     default <U> BiConsumer<T, U> andThen(BiConsumer<? super R, ? super U> after) {

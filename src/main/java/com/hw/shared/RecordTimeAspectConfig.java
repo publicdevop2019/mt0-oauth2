@@ -14,6 +14,7 @@ public class RecordTimeAspectConfig {
 
     @Pointcut("@annotation(com.hw.shared.RecordElapseTime)")
     public void restrictAccess() {
+        //for aop purpose
     }
 
     @Around(value = "com.hw.shared.RecordTimeAspectConfig.restrictAccess()")

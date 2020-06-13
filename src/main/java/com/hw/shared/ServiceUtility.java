@@ -11,16 +11,27 @@ import java.util.List;
 import java.util.Map;
 
 public class ServiceUtility {
-    private static ObjectMapper mapper = new ObjectMapper();
-    private static String AUTHORITIES = "authorities";
+    private ServiceUtility() {
+    }
+
+    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final String HTTP_HEADER_BEARER = "Bearer ";
+    private static final String JWT_CLAIM_AUTHORITIES = "authorities";
+    private static final String JWT_CLAIM_UID = "uid";
+    private static final String JWT_CLAIM_CLIENT_ID = "client_id";
 
     public static String getUserId(String bearerHeader) {
-        String replace = bearerHeader.replace("Bearer ", "");
+        return getField(JWT_CLAIM_UID, bearerHeader);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T getField(String field, String bearerHeader) {
+        String replace = bearerHeader.replace(HTTP_HEADER_BEARER, "");
         String jwtBody;
         try {
             jwtBody = replace.split("\\.")[1];
         } catch (ArrayIndexOutOfBoundsException ex) {
-            throw new IllegalArgumentException("malformed jwt token");
+            throw new JwtTokenExtractException();
         }
         Base64.Decoder decoder = Base64.getDecoder();
         byte[] decode = decoder.decode(jwtBody);
@@ -28,54 +39,21 @@ public class ServiceUtility {
         try {
             Map<String, Object> var0 = mapper.readValue(s, new TypeReference<Map<String, Object>>() {
             });
-            return (String) var0.get("uid");
+            return (T) var0.get(field);
         } catch (IOException e) {
-            throw new IllegalArgumentException("unable to find uid in authorization header");
+            throw new JwtTokenExtractException();
         }
     }
-
-    public static List<String> getAuthority(String bearerHeader) {
-        String replace = bearerHeader.replace("Bearer ", "");
-        String jwtBody;
-        try {
-            jwtBody = replace.split("\\.")[1];
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            throw new IllegalArgumentException("malformed jwt token");
-        }
-        Base64.Decoder decoder = Base64.getDecoder();
-        byte[] decode = decoder.decode(jwtBody);
-        String s = new String(decode);
-        try {
-            Map<String, Object> var0 = mapper.readValue(s, new TypeReference<Map<String, Object>>() {
-            });
-            return (List<String>) var0.get(AUTHORITIES);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("unable to find authorities in authorization header");
-        }
-    }
-
 
     public static String getServerTimeStamp() {
         return OffsetDateTime.now(ZoneOffset.UTC).toString();
     }
 
     public static String getClientId(String bearerHeader) {
-        String replace = bearerHeader.replace("Bearer ", "");
-        String jwtBody;
-        try {
-            jwtBody = replace.split("\\.")[1];
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            throw new IllegalArgumentException("malformed jwt token");
-        }
-        Base64.Decoder decoder = Base64.getDecoder();
-        byte[] decode = decoder.decode(jwtBody);
-        String s = new String(decode);
-        try {
-            Map<String, Object> var0 = mapper.readValue(s, new TypeReference<Map<String, Object>>() {
-            });
-            return (String) var0.get("client_id");
-        } catch (IOException e) {
-            throw new IllegalArgumentException("unable to find client_id in authorization header");
-        }
+        return getField(JWT_CLAIM_CLIENT_ID, bearerHeader);
+    }
+
+    public static List<String> getAuthority(String bearerHeader) {
+        return getField(JWT_CLAIM_AUTHORITIES, bearerHeader);
     }
 }

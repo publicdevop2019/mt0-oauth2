@@ -2,7 +2,6 @@ package com.hw.shared;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -13,11 +12,8 @@ import java.util.Collections;
 @Configuration
 public class OAuthRestTemplateConfig {
 
-    @Autowired
-    OutgoingReqInterceptor requestInterceptor;
-
     @Bean
-    public RestTemplate getRestTemplate(HttpComponentsClientHttpRequestFactory factory) {
+    public RestTemplate getRestTemplate(HttpComponentsClientHttpRequestFactory factory, OutgoingReqInterceptor requestInterceptor) {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setInterceptors(Collections.singletonList(requestInterceptor));
         restTemplate.setRequestFactory(factory);

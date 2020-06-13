@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ErrorMessage {
     private List<String> errors;
-    public String errorId;
+    private String errorId;
 
     public ErrorMessage(RuntimeException ex) {
         errorId = UUID.randomUUID().toString();

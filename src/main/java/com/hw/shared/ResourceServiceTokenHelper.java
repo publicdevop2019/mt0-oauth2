@@ -71,6 +71,8 @@ public class ResourceServiceTokenHelper {
     public <T> ResponseEntity<T> exchange(String url, HttpMethod httpMethod, HttpEntity<?> httpEntity, Class<T> clazz) {
         if (storedJwtToken == null)
             storedJwtToken = getJwtToken();
+        if (storedJwtToken == null)
+            throw new JwtTokenRetrievalException();
         HttpHeaders httpHeaders = HttpHeaders.writableHttpHeaders(httpEntity.getHeaders());
         httpHeaders.setBearerAuth(storedJwtToken);
         HttpEntity<?> httpEntity1 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
@@ -79,6 +81,8 @@ public class ResourceServiceTokenHelper {
         } catch (HttpClientErrorException ex) {
             if (ex.getRawStatusCode() == 401) {
                 storedJwtToken = getJwtToken();
+                if (storedJwtToken == null)
+                    throw new JwtTokenRetrievalException();
                 httpHeaders.setBearerAuth(storedJwtToken);
                 HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
                 return restTemplate.exchange(url, httpMethod, httpEntity2, clazz);
@@ -90,6 +94,8 @@ public class ResourceServiceTokenHelper {
     public <T> ResponseEntity<T> exchange(String url, HttpMethod httpMethod, HttpEntity<?> httpEntity, ParameterizedTypeReference<T> responseType) {
         if (storedJwtToken == null)
             storedJwtToken = getJwtToken();
+        if (storedJwtToken == null)
+            throw new JwtTokenRetrievalException();
         HttpHeaders httpHeaders = HttpHeaders.writableHttpHeaders(httpEntity.getHeaders());
         httpHeaders.setBearerAuth(storedJwtToken);
         HttpEntity<?> httpEntity1 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
@@ -98,6 +104,8 @@ public class ResourceServiceTokenHelper {
         } catch (HttpClientErrorException ex) {
             if (ex.getRawStatusCode() == 401) {
                 storedJwtToken = getJwtToken();
+                if (storedJwtToken == null)
+                    throw new JwtTokenRetrievalException();
                 httpHeaders.setBearerAuth(storedJwtToken);
                 HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
                 return restTemplate.exchange(url, httpMethod, httpEntity2, responseType);

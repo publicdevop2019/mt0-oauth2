@@ -17,6 +17,10 @@ public class AuditorAwareImpl implements AuditorAware<String> {
         if (httpServletRequest.isEmpty())
             return Optional.of("NOT_HTTP");
         String authorization = httpServletRequest.get().getHeader("authorization");
-        return Optional.ofNullable(authorization == null ? "EMPTY_AUTH_HEADER" : ServiceUtility.getUserId(authorization) == null ? ServiceUtility.getClientId(authorization) : ServiceUtility.getUserId(authorization));
+        if (authorization == null)
+            return Optional.ofNullable("EMPTY_AUTH_HEADER");
+        return Optional.ofNullable(
+                ServiceUtility.getUserId(authorization) == null ?
+                        ServiceUtility.getClientId(authorization) : ServiceUtility.getUserId(authorization));
     }
 }
