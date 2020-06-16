@@ -9,8 +9,6 @@ COPY ./shared/parent-pom.xml ./shared/parent-pom.xml
 #replace default property file
 COPY ./build/hw/application-shared-hw.properties ./src/main/resources/application-shared.properties
 
-COPY ./build/hw/import.sql ./src/main/resources/import.sql
-
 # build all dependencies for offline use
 RUN mvn dependency:go-offline -B
 
