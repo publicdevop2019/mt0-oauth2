@@ -9,11 +9,11 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class EnumConverter<T extends Enum<T>> implements AttributeConverter<Set<T>, String> {
+public class EnumSetConverter<T extends Enum<T>> implements AttributeConverter<Set<T>, String> {
 
     private final Class<T> type;
 
-    public EnumConverter(Class<T> type) {
+    public EnumSetConverter(Class<T> type) {
         this.type = type;
     }
 

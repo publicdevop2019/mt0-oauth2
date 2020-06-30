@@ -1,14 +1,14 @@
 package com.hw.clazz.eenum;
 
-import com.hw.converter.EnumConverter;
+import com.hw.converter.EnumSetConverter;
 
 public enum ScopeEnum {
     write,
     read,
     trust;
 
-    public static class ScopeConverter extends EnumConverter {
-        public ScopeConverter() {
+    public static class ScopeSetConverter extends EnumSetConverter {
+        public ScopeSetConverter() {
             super(ScopeEnum.class);
         }
     }

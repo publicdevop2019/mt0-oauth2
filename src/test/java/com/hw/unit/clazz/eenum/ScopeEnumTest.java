@@ -12,7 +12,7 @@ public class ScopeEnumTest {
     @Test
     public void ScopeEnumConverter_to_db_column() {
         List<ScopeEnum> values = List.of(ScopeEnum.read, ScopeEnum.write);
-        ScopeEnum.ScopeConverter scopeConverter = new ScopeEnum.ScopeConverter();
+        ScopeEnum.ScopeSetConverter scopeConverter = new ScopeEnum.ScopeSetConverter();
         String s = scopeConverter.convertToDatabaseColumn(new HashSet<>(values));
         String collect = ScopeEnum.read.toString() + "," + ScopeEnum.write.toString();
         Assert.assertEquals(collect, s);
@@ -21,7 +21,7 @@ public class ScopeEnumTest {
     @Test
     public void ScopeEnumConverter_to_db_column_swap_order() {
         List<ScopeEnum> values = List.of(ScopeEnum.write, ScopeEnum.read);
-        ScopeEnum.ScopeConverter scopeConverter = new ScopeEnum.ScopeConverter();
+        ScopeEnum.ScopeSetConverter scopeConverter = new ScopeEnum.ScopeSetConverter();
         String s = scopeConverter.convertToDatabaseColumn(new HashSet<>(values));
         String collect = ScopeEnum.read.toString() + "," + ScopeEnum.write.toString();
         Assert.assertEquals(collect, s);
@@ -30,7 +30,7 @@ public class ScopeEnumTest {
     @Test
     public void ScopeEnumConverter_to_entity_attribute() {
         String collect = ScopeEnum.write.toString() + "," + ScopeEnum.read.toString();
-        ScopeEnum.ScopeConverter scopeConverter = new ScopeEnum.ScopeConverter();
+        ScopeEnum.ScopeSetConverter scopeConverter = new ScopeEnum.ScopeSetConverter();
         Set<ScopeEnum> set = scopeConverter.convertToEntityAttribute(collect);
         Assert.assertEquals(2, set.size());
     }

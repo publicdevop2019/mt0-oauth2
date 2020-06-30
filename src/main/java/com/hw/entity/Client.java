@@ -6,8 +6,8 @@ import com.hw.clazz.GrantedAuthorityImpl;
 import com.hw.clazz.eenum.ClientAuthorityEnum;
 import com.hw.clazz.eenum.GrantTypeEnum;
 import com.hw.clazz.eenum.ScopeEnum;
-import com.hw.converter.StringSetConverter;
 import com.hw.shared.Auditable;
+import com.hw.shared.StringSetConverter;
 import lombok.Data;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -48,7 +48,7 @@ public class Client extends Auditable implements ClientDetails {
     @NotNull
     @NotEmpty
     @Column(nullable = false)
-    @Convert(converter = GrantTypeEnum.GrantTypeConverter.class)
+    @Convert(converter = GrantTypeEnum.GrantTypeSetConverter.class)
     private Set<GrantTypeEnum> grantTypeEnums;
 
     @NotNull
@@ -60,7 +60,7 @@ public class Client extends Auditable implements ClientDetails {
     @NotNull
     @NotEmpty
     @Column(nullable = false)
-    @Convert(converter = ScopeEnum.ScopeConverter.class)
+    @Convert(converter = ScopeEnum.ScopeSetConverter.class)
     private Set<ScopeEnum> scopeEnums;
 
     @Min(value = 0)
