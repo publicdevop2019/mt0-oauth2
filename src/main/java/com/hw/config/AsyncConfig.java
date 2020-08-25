@@ -1,6 +1,5 @@
 package com.hw.config;
 
-import com.hw.handler.CustomAsyncExceptionHandler;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

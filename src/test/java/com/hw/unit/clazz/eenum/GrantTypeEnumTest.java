@@ -1,6 +1,6 @@
 package com.hw.unit.clazz.eenum;
 
-import com.hw.clazz.eenum.GrantTypeEnum;
+import com.hw.aggregate.client.model.GrantTypeEnum;
 import org.junit.Assert;
 import org.junit.Test;
 

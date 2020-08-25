@@ -1,6 +1,6 @@
 package com.hw.unit.clazz.eenum;
 
-import com.hw.clazz.eenum.ScopeEnum;
+import com.hw.aggregate.client.model.ScopeEnum;
 import org.junit.Assert;
 import org.junit.Test;
 
