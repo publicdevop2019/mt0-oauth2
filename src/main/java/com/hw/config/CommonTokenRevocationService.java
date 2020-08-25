@@ -1,7 +1,8 @@
-package com.hw.aggregate.token.model;
+package com.hw.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hw.config.SelfSignedTokenConfig;
 import com.hw.shared.EurekaRegistryHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -21,10 +22,10 @@ public class CommonTokenRevocationService {
     private ObjectMapper mapper;
 
     @Autowired
-    private AuthTokenHelper authTokenHelper;
+    private SelfSignedTokenConfig authTokenHelper;
 
     @Autowired
-    EurekaRegistryHelper eurekaRegistryHelper;
+    private EurekaRegistryHelper eurekaRegistryHelper;
 
     protected void blacklist(String url, String name, boolean shouldRevoke) {
         String resolvedUrl = eurekaRegistryHelper.getProxyHomePageUrl() + url;

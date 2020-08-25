@@ -2,11 +2,11 @@ package com.hw.aggregate.user;
 
 import com.hw.aggregate.client.model.GrantedAuthorityImpl;
 import com.hw.aggregate.pending_user.PendingBizUserRepo;
+import com.hw.aggregate.pending_user.model.PendingBizUser;
 import com.hw.aggregate.user.command.BizBizUserUpdatePwd;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserAuthorityEnum;
 import com.hw.aggregate.user.model.ForgetPasswordRequest;
-import com.hw.aggregate.pending_user.model.PendingBizUser;
 import com.hw.shared.BadRequestException;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.ServiceUtility;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class BizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser,Void,Void, VoidTypedClass> {
+public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser,Void,Void, VoidTypedClass> {
     @Autowired
     BizUserRepo resourceOwnerRepo;
 

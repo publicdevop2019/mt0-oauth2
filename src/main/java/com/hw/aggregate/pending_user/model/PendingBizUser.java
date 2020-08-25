@@ -1,10 +1,14 @@
-package com.hw.aggregate.user.model;
+package com.hw.aggregate.pending_user.model;
 
 import com.hw.aggregate.client.model.GrantedAuthorityImpl;
-import com.hw.aggregate.user.PendingBizUserRepo;
+import com.hw.aggregate.pending_user.PendingBizUserRepo;
+import com.hw.aggregate.user.BizUserApplicationService;
 import com.hw.aggregate.user.BizUserRepo;
+import com.hw.aggregate.user.model.BizUser;
+import com.hw.aggregate.user.model.BizUserAuthorityEnum;
 import com.hw.shared.BadRequestException;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
@@ -30,7 +34,7 @@ public class PendingBizUser {
     @Column
     private String password;
 
-    public static PendingBizUser create(String email, PendingBizUserRepo pendingRORepo, BizUserRepo resourceOwnerRepo, IdGenerator idGenerator) {
+    public static PendingBizUser create(String email, PendingBizUserRepo pendingRORepo, BizUserApplicationService resourceOwnerRepo, IdGenerator idGenerator) {
         validateOnCreate(email, pendingRORepo, resourceOwnerRepo);
         PendingBizUser pendingResourceOwner = pendingRORepo.findOneByEmail(email);
         if (pendingResourceOwner == null) {
@@ -50,10 +54,11 @@ public class PendingBizUser {
 //        return String.valueOf(m + new Random().nextInt(9 * m));
     }
 
-    private static void validateOnCreate(String email, PendingBizUserRepo pendingRORepo, BizUserRepo resourceOwnerRepo) {
+    private static void validateOnCreate(String email, PendingBizUserRepo pendingRORepo, BizUserApplicationService bizUserApplicationService) {
         if (!StringUtils.hasText(email))
             throw new BadRequestException("email is empty");
-        BizUser var2 = resourceOwnerRepo.findOneByEmail(email);
+        SumPagedRep<Void> voidSumPagedRep = bizUserApplicationService.readByQuery("email:" + email, null, null);
+        BizUser var2 = bizUserApplicationService.findOneByEmail(email);
         if (var2 != null)
             throw new BadRequestException("already an user " + email);
     }

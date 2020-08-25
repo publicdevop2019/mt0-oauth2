@@ -9,7 +9,7 @@ import java.util.Map;
 public class AuthorizeCodeController {
 
     @Autowired
-    AuthorizeCodeServiceImpl authorizeCodeService;
+    AuthorizeCodeApplicationService authorizeCodeService;
 
     @PostMapping("/authorize")
     public Map<String, String> authorize(@RequestParam Map<String, String> parameters, @RequestHeader("authorization") String authorization) {

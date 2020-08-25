@@ -1,14 +1,15 @@
 package com.hw.aggregate.user;
 
 import com.hw.aggregate.user.command.BizBizUserUpdatePwd;
-import com.hw.aggregate.forget_pwd_req.model.ForgetPasswordRequest;
-import com.hw.aggregate.user.model.PendingBizUser;
+import com.hw.aggregate.user.model.ForgetPasswordRequest;
+import com.hw.aggregate.pending_user.model.PendingBizUser;
 import com.hw.aggregate.user.model.BizUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping(produces = "application/json", path = "users")
 public class BizUserController {
 
     @Autowired
@@ -20,42 +21,30 @@ public class BizUserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("resourceOwners")
-    public ResponseEntity<?> readROs() {
+    @GetMapping("/admin")
+    public ResponseEntity<?> readForAdminByQuery() {
         return ResponseEntity.ok(resourceOwnerService.readAllResourceOwners());
     }
 
-    @PostMapping("resourceOwners")
-    public ResponseEntity<?> createRO(@RequestBody PendingBizUser pendingResourceOwner) {
-        BizUser user = resourceOwnerService.createResourceOwner(pendingResourceOwner);
-        return ResponseEntity.ok().header("Location", String.valueOf(user.getId())).build();
-    }
-
-    @PostMapping("resourceOwners/register")
-    public ResponseEntity<?> createPendingRO(@RequestBody PendingBizUser pendingResourceOwner) {
-        resourceOwnerService.createPendingResourceOwner(pendingResourceOwner);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("resourceOwners/forgetPwd")
+    @PostMapping("/forgetPwd")
     public ResponseEntity<?> forgetPwd(@RequestBody ForgetPasswordRequest forgetPasswordRequest) {
         resourceOwnerService.sendForgetPassword(forgetPasswordRequest);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("resourceOwners/resetPwd")
+    @PostMapping("/resetPwd")
     public ResponseEntity<?> resetPwd(@RequestBody ForgetPasswordRequest forgetPasswordRequest) {
         resourceOwnerService.resetPassword(forgetPasswordRequest);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("resourceOwners/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> updateRO(@RequestBody BizUser resourceOwner, @PathVariable Long id, @RequestHeader("authorization") String authorization) {
         resourceOwnerService.updateResourceOwner(resourceOwner, id, authorization);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("resourceOwners/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteRO(@PathVariable Long id) {
         resourceOwnerService.deleteResourceOwner(id);
         return ResponseEntity.ok().build();

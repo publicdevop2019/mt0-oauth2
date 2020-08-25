@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
-public class AuthorizeCodeServiceImpl {
+public class AuthorizeCodeApplicationService {
     @Autowired
-    BizClientDetailsService clientDetailsService;
+    private BizClientDetailsService clientDetailsService;
 
     @Autowired
     private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory;

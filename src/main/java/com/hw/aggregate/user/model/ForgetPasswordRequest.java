@@ -1,7 +1,6 @@
-package com.hw.aggregate.forget_pwd_req.model;
+package com.hw.aggregate.user.model;
 
-import com.hw.aggregate.user.model.BizUser;
-import com.hw.aggregate.forget_pwd_req.ForgetPasswordRequestRepo;
+import com.hw.aggregate.user.ForgetPasswordRequestRepo;
 import com.hw.aggregate.user.BizUserRepo;
 import com.hw.shared.Auditable;
 import com.hw.shared.BadRequestException;

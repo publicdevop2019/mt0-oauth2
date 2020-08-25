@@ -2,8 +2,6 @@ package com.hw.config;
 
 import com.hw.aggregate.client.model.BizClientDetailsService;
 import com.hw.aggregate.user.model.BizUserDetailsService;
-import com.hw.aggregate.token.model.AuthTokenHelper;
-import com.hw.aggregate.token.model.CustomTokenEnhancer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,7 +32,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     BizUserDetailsService userDetailsService;
 
     @Autowired
-    AuthTokenHelper authTokenHelper;
+    SelfSignedTokenConfig authTokenHelper;
 
     @Autowired
     BizClientDetailsService clientDetailsService;

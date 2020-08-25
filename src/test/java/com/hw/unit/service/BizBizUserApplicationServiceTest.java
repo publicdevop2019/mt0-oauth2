@@ -2,10 +2,10 @@ package com.hw.unit.service;
 
 import com.hw.aggregate.client.model.GrantedAuthorityImpl;
 import com.hw.aggregate.user.model.BizUserAuthorityEnum;
-import com.hw.aggregate.user.model.PendingBizUser;
+import com.hw.aggregate.pending_user.model.PendingBizUser;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.authorize_code.model.TokenRevocationService;
-import com.hw.aggregate.user.PendingBizUserRepo;
+import com.hw.aggregate.pending_user.PendingBizUserRepo;
 import com.hw.aggregate.user.BizUserRepo;
 import com.hw.aggregate.user.BizUserApplicationService;
 import com.hw.shared.BadRequestException;

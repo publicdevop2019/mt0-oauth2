@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.aggregate.client.model.GrantedAuthorityImpl;
 import com.hw.shared.Auditable;
+import com.hw.shared.rest.IdBasedEntity;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,9 +25,9 @@ import java.util.List;
 @Entity
 @Table
 @Data
-public class BizUser extends Auditable implements UserDetails {
+public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     @Id
-    protected Long id;
+    private Long id;
 
     @Column(nullable = false)
     @NotBlank

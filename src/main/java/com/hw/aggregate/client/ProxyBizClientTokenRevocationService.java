@@ -1,6 +1,6 @@
 package com.hw.aggregate.client;
 
-import com.hw.aggregate.token.model.CommonTokenRevocationService;
+import com.hw.config.CommonTokenRevocationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

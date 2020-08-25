@@ -1,4 +1,4 @@
-package com.hw.aggregate.token.model;
+package com.hw.config;
 
 import com.hw.aggregate.user.BizUserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
