@@ -4,6 +4,6 @@ import com.hw.aggregate.user.model.BizUser;
 import lombok.Data;
 
 @Data
-public class BizBizUserUpdatePwd extends BizUser {
+public class UpdateBizUserPwdCommand extends BizUser {
     private String currentPwd;
 }

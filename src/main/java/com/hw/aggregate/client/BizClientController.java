@@ -21,7 +21,7 @@ public class BizClientController {
 
     @PostMapping("root")
     public ResponseEntity<?> createForRoot(@RequestBody CreateClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        return ResponseEntity.ok().header("Location", String.valueOf(rootClientApplicationService.create(command,changeId).getId())).build();
+        return ResponseEntity.ok().header("Location", String.valueOf(rootClientApplicationService.create(command, changeId).getId())).build();
     }
 
     @GetMapping("root")
@@ -50,8 +50,8 @@ public class BizClientController {
 
     @GetMapping("user")
     public ResponseEntity<?> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                                       @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                       @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
+                                               @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                               @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
         return ResponseEntity.ok(userClientApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 

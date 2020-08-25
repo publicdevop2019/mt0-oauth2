@@ -1,7 +1,7 @@
 package com.hw.aggregate.user.model;
 
-import com.hw.aggregate.user.ForgetPasswordRequestRepo;
 import com.hw.aggregate.user.BizUserRepo;
+import com.hw.aggregate.user.ForgetPasswordRequestRepo;
 import com.hw.shared.Auditable;
 import com.hw.shared.BadRequestException;
 import com.hw.shared.IdGenerator;

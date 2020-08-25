@@ -9,7 +9,7 @@ public class RootBizClientPatchMiddleLayer extends TypedClass<RootBizClientPatch
 
     public RootBizClientPatchMiddleLayer(BizClient bizClient) {
         super(RootBizClientPatchMiddleLayer.class);
-        this.description=bizClient.getDescription();
+        this.description = bizClient.getDescription();
     }
 
     public RootBizClientPatchMiddleLayer() {

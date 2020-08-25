@@ -11,14 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 public class ServiceUtility {
-    private ServiceUtility() {
-    }
-
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String HTTP_HEADER_BEARER = "Bearer ";
     private static final String JWT_CLAIM_AUTHORITIES = "authorities";
     private static final String JWT_CLAIM_UID = "uid";
     private static final String JWT_CLAIM_CLIENT_ID = "client_id";
+    private ServiceUtility() {
+    }
 
     public static String getUserId(String bearerHeader) {
         return getField(JWT_CLAIM_UID, bearerHeader);

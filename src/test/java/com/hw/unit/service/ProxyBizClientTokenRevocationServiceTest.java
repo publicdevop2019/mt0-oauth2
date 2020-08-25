@@ -1,23 +1,15 @@
 package com.hw.unit.service;
 
-import com.hw.aggregate.client.model.GrantedAuthorityImpl;
-import com.hw.aggregate.client.model.BizClientAuthorityEnum;
-import com.hw.aggregate.client.model.GrantTypeEnum;
-import com.hw.aggregate.client.model.ScopeEnum;
-import com.hw.aggregate.client.model.BizClient;
-import com.hw.aggregate.client.ProxyBizClientTokenRevocationService;
-import org.junit.Assert;
-import org.junit.Test;
+import com.hw.aggregate.client.RevokeBizClientTokenService;
+import com.hw.aggregate.client.model.*;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.UUID;
 
 public class ProxyBizClientTokenRevocationServiceTest {
 
 
-    ProxyBizClientTokenRevocationService clientTokenRevocationServiceImpl = new ProxyBizClientTokenRevocationService();
+    RevokeBizClientTokenService clientTokenRevocationServiceImpl = new RevokeBizClientTokenService();
 
 //    @Test
 //    public void test_shouldRevoke_authority_same() {

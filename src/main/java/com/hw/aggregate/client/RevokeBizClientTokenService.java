@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProxyBizClientTokenRevocationService extends CommonTokenRevocationService {
+public class RevokeBizClientTokenService extends CommonTokenRevocationService {
 
     @Value("${url.zuul.client}")
     private String url;

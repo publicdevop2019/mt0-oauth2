@@ -1,4 +1,4 @@
 package com.hw.aggregate.client.exception;
 
-public class RootClientDeleteException extends RuntimeException{
+public class RootClientDeleteException extends RuntimeException {
 }

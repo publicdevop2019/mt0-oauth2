@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 
 @Service
-public class EmailServiceImpl {
+public class PwdResetEmailService {
     @Autowired
     private CommonEmailService commonEmailService;
 

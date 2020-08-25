@@ -3,7 +3,7 @@ package com.hw.aggregate.client.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.aggregate.client.BizClientRepo;
-import com.hw.aggregate.client.ProxyBizClientTokenRevocationService;
+import com.hw.aggregate.client.RevokeBizClientTokenService;
 import com.hw.aggregate.client.command.CreateClientCommand;
 import com.hw.aggregate.client.command.UpdateClientCommand;
 import com.hw.aggregate.client.exception.ClientAlreadyExistException;
@@ -35,47 +35,37 @@ import java.util.stream.Collectors;
 @Table
 @Data
 public class BizClient extends Auditable implements ClientDetails, IdBasedEntity {
-    public BizClient() {
-    }
-
+    public static final String ENTITY_CLIENT_ID = "clientId";
+    public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
+    public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
     @Id
     private Long id;
-
     @NotNull
     @Column(nullable = false)
     private String clientId;
-    public static final String ENTITY_CLIENT_ID = "clientId";
-
     private String description;
-
     @Nullable
     @Column
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String clientSecret;
-
     @NotNull
     @NotEmpty
     @Column(nullable = false)
     @Convert(converter = GrantTypeEnum.GrantTypeSetConverter.class)
     private Set<GrantTypeEnum> grantTypeEnums;
-
     @NotNull
     @NotEmpty
     @Column(nullable = false)
     @Convert(converter = BizClientAuthorityEnum.ClientAuthorityConverter.class)
     private List<@Valid @NotNull GrantedAuthorityImpl<BizClientAuthorityEnum>> grantedAuthorities;
-
     @NotNull
     @NotEmpty
     @Column(nullable = false)
     @Convert(converter = ScopeEnum.ScopeSetConverter.class)
     private Set<ScopeEnum> scopeEnums;
-
     @Min(value = 0)
     @Column(nullable = false)
     private Integer accessTokenValiditySeconds;
-    public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
-
     @Column
     @Nullable
     @Convert(converter = StringSetConverter.class)
@@ -97,15 +87,12 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     @Column
     @NotNull
     private Boolean resourceIndicator;
-    public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
-
     /**
      * indicates if a authorization_code client can be auto approved
      */
     @Column
     @Nullable
     private Boolean autoApprove;
-
     /**
      * this field is not used in spring oauth2,
      * client with no secret requires empty secret (mostly encoded)
@@ -116,11 +103,14 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     @NotNull
     private Boolean hasSecret;
 
+    public BizClient() {
+    }
+
     private BizClient(long id, CreateClientCommand command) {
         this.id = id;
         this.clientId = command.getClientId();
         this.clientSecret = command.getClientSecret();
-        this.description=command.getDescription();
+        this.description = command.getDescription();
         this.grantTypeEnums = command.getGrantTypeEnums();
         this.grantedAuthorities = command.getGrantedAuthorities();
         this.scopeEnums = command.getScopeEnums();
@@ -151,6 +141,26 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     }
 
     /**
+     * selected resource ids should be eligible resource
+     */
+    private static void validateResourceId(BizClient client, BizClientRepo clientRepo) throws IllegalArgumentException {
+        if (client.getResourceIds() == null || client.getResourceIds().size() == 0
+                || client.getResourceIds().stream().anyMatch(resourceId -> clientRepo.findByClientId(resourceId).isEmpty()
+                || !clientRepo.findByClientId(resourceId).get().getResourceIndicator()))
+            throw new BadRequestException("invalid resourceId found");
+    }
+
+    /**
+     * if client is marked as resource then it must be a backend and first party application
+     */
+    private static void validateResourceIndicator(BizClient client) throws IllegalArgumentException {
+        if (client.getResourceIndicator())
+            if (client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(BizClientAuthorityEnum.ROLE_BACKEND))
+                    || client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY)))
+                throw new BadRequestException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
+    }
+
+    /**
      * JsonIgnore make sure filed does not get print two times
      */
     @Override
@@ -158,7 +168,6 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     public boolean isSecretRequired() {
         return hasSecret;
     }
-
 
     @Override
     @JsonIgnore
@@ -195,7 +204,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         return null;
     }
 
-    public BizClient replace(UpdateClientCommand command, ProxyBizClientTokenRevocationService tokenRevocationService, BizClientRepo clientRepo, BCryptPasswordEncoder encoder) {
+    public BizClient replace(UpdateClientCommand command, RevokeBizClientTokenService tokenRevocationService, BizClientRepo clientRepo, BCryptPasswordEncoder encoder) {
         boolean b = shouldRevoke(this, command);
         tokenRevocationService.blacklist(this.getClientId(), b);
         if (StringUtils.hasText(command.getClientSecret())) {
@@ -203,7 +212,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         }
         this.clientId = command.getClientId();
         this.grantTypeEnums = command.getGrantTypeEnums();
-        this.description=command.getDescription();
+        this.description = command.getDescription();
         this.grantedAuthorities = command.getGrantedAuthorities();
         this.scopeEnums = command.getScopeEnums();
         this.accessTokenValiditySeconds = command.getAccessTokenValiditySeconds();
@@ -225,26 +234,6 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         if (this.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new RootClientDeleteException();
         return true;
-    }
-
-    /**
-     * selected resource ids should be eligible resource
-     */
-    private static void validateResourceId(BizClient client, BizClientRepo clientRepo) throws IllegalArgumentException {
-        if (client.getResourceIds() == null || client.getResourceIds().size() == 0
-                || client.getResourceIds().stream().anyMatch(resourceId -> clientRepo.findByClientId(resourceId).isEmpty()
-                || !clientRepo.findByClientId(resourceId).get().getResourceIndicator()))
-            throw new BadRequestException("invalid resourceId found");
-    }
-
-    /**
-     * if client is marked as resource then it must be a backend and first party application
-     */
-    private static void validateResourceIndicator(BizClient client) throws IllegalArgumentException {
-        if (client.getResourceIndicator())
-            if (client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(BizClientAuthorityEnum.ROLE_BACKEND))
-                    || client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY)))
-                throw new BadRequestException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
     }
 
     public boolean shouldRevoke(BizClient oldClient, UpdateClientCommand newClient) {

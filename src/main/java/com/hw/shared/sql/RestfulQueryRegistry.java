@@ -10,22 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class RestfulQueryRegistry<T> {
-    public enum RoleEnum {
-        ROOT,
-        ADMIN,
-        USER,
-        APP,
-        PUBLIC
-    }
-
     protected Map<RoleEnum, SelectQueryBuilder<T>> selectQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, UpdateQueryBuilder<T>> updateQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, DeleteQueryBuilder<T>> deleteQueryBuilder = new HashMap<>();
 
     protected abstract void configQueryBuilder();
-
-    //    abstract <S> T create(S command);
-
 
     //GET service-name/role-name/entity-collection - read object collection with pagination
     //GET service-name/role-name/object-collection?query={condition-clause}
@@ -40,6 +29,8 @@ public abstract class RestfulQueryRegistry<T> {
         }
         return new SumPagedRep<>(select, aLong);
     }
+
+    //    abstract <S> T create(S command);
 
     // convert GET service-name/role-name/entity-collection/{entity-id} to ByQuery
     public SumPagedRep<T> readById(RoleEnum roleEnum, String id, Class<T> clazz) {
@@ -75,6 +66,14 @@ public abstract class RestfulQueryRegistry<T> {
 
     private String convertIdToQuery(String id) {
         return "id:" + id;
+    }
+
+    public enum RoleEnum {
+        ROOT,
+        ADMIN,
+        USER,
+        APP,
+        PUBLIC
     }
 
 }

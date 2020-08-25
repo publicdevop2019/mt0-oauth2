@@ -6,9 +6,8 @@ import lombok.Data;
 @Data
 public class UserBizClientCardRep {
 
-    private String clientId;
     public static final String CUS_REP_CLIENT_ID = "clientId";
-
+    private String clientId;
     private Boolean autoApprove;
 
     public UserBizClientCardRep(BizClient client) {

@@ -22,6 +22,7 @@ public class Swagger2Config {
                 .paths(PathSelectors.any())
                 .build().apiInfo(apiEndPointsInfo());
     }
+
     private ApiInfo apiEndPointsInfo() {
         return new ApiInfoBuilder().title("Spring Boot REST API")
                 .description("Application REST API")

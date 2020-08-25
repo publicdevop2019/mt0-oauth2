@@ -2,7 +2,6 @@ package com.hw.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hw.config.SelfSignedTokenConfig;
 import com.hw.shared.EurekaRegistryHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;

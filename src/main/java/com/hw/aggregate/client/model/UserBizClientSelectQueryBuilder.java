@@ -8,16 +8,17 @@ import org.springframework.stereotype.Component;
 import javax.persistence.EntityManager;
 
 import static com.hw.aggregate.client.model.BizClient.ENTITY_CLIENT_ID;
+
 @Component
 public class UserBizClientSelectQueryBuilder extends SelectQueryBuilder<BizClient> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
-
     UserBizClientSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1;
         MAX_PAGE_SIZE = 1;
         supportedWhereField.put("clientId", new SelectFieldStringEqualClause<>(ENTITY_CLIENT_ID));
+    }
+
+    @Autowired
+    private void setEntityManager(EntityManager entityManager) {
+        em = entityManager;
     }
 }

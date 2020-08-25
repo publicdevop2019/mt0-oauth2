@@ -1,13 +1,13 @@
 package com.hw.unit.service;
 
-import com.hw.aggregate.client.model.GrantedAuthorityImpl;
-import com.hw.aggregate.user.model.BizUserAuthorityEnum;
-import com.hw.aggregate.pending_user.model.PendingBizUser;
-import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.authorize_code.model.TokenRevocationService;
-import com.hw.aggregate.pending_user.PendingBizUserRepo;
+import com.hw.aggregate.client.model.GrantedAuthorityImpl;
+import com.hw.aggregate.pending_user.PendingUserRepo;
+import com.hw.aggregate.pending_user.model.PendingUser;
+import com.hw.aggregate.user.AdminBizUserApplicationService;
 import com.hw.aggregate.user.BizUserRepo;
-import com.hw.aggregate.user.BizUserApplicationService;
+import com.hw.aggregate.user.model.BizUser;
+import com.hw.aggregate.user.model.BizUserAuthorityEnum;
 import com.hw.shared.BadRequestException;
 import com.hw.shared.IdGenerator;
 import org.junit.Assert;
@@ -25,18 +25,18 @@ import java.util.*;
 import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BizBizUserApplicationServiceTest {
+public class BizAdminBizUserApplicationServiceTest {
     private String AUTHORIZATION_HEADER_ROOT = "xx.eyJ1aWQiOiIwIiwiYXVkIjpbInByb2R1Y3QiLCJmaWxlLXVwbG9hZCIsImVkZ2UtcHJveHkiLCJ1c2VyLXByb2ZpbGUiLCJvYXV0aDItaWQiXSwidXNlcl9uYW1lIjoiaGFvbGlud2VpMjAxNUBnbWFpbC5jb20iLCJzY29wZSI6WyJ0cnVzdCIsInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE1ODIyNTU2NjQsImlhdCI6MTU4MjI1NTU0NCwiYXV0aG9yaXRpZXMiOlsiUk9MRV9ST09UIiwiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJqdGkiOiJmOTI1YzdhOC0xMGU2LTQ1OGMtYjg1MS0zMmM3YjllMDQ2OTgiLCJjbGllbnRfaWQiOiJsb2dpbi1pZCJ9.zz";
     private String AUTHORIZATION_HEADER_ADMIN = "xx.eyJ1aWQiOiIwIiwiYXVkIjpbInByb2R1Y3QiLCJmaWxlLXVwbG9hZCIsImVkZ2UtcHJveHkiLCJ1c2VyLXByb2ZpbGUiLCJvYXV0aDItaWQiXSwidXNlcl9uYW1lIjoiaGFvbGlud2VpMjAxNUBnbWFpbC5jb20iLCJzY29wZSI6WyJ0cnVzdCIsInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE1ODIyNTU2NjQsImlhdCI6MTU4MjI1NTU0NCwiYXV0aG9yaXRpZXMiOlsiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJqdGkiOiJmOTI1YzdhOC0xMGU2LTQ1OGMtYjg1MS0zMmM3YjllMDQ2OTgiLCJjbGllbnRfaWQiOiJsb2dpbi1pZCJ9.zz";
     private String AUTHORIZATION_HEADER_USER = "xx.eyJ1aWQiOiIwIiwiYXVkIjpbInByb2R1Y3QiLCJmaWxlLXVwbG9hZCIsImVkZ2UtcHJveHkiLCJ1c2VyLXByb2ZpbGUiLCJvYXV0aDItaWQiXSwidXNlcl9uYW1lIjoiaGFvbGlud2VpMjAxNUBnbWFpbC5jb20iLCJzY29wZSI6WyJ0cnVzdCIsInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE1ODIyNTU2NjQsImlhdCI6MTU4MjI1NTU0NCwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0VSIl0sImp0aSI6ImY5MjVjN2E4LTEwZTYtNDU4Yy1iODUxLTMyYzdiOWUwNDY5OCIsImNsaWVudF9pZCI6ImxvZ2luLWlkIn0=.zz";
     @InjectMocks
-    BizUserApplicationService resourceOwnerService = new BizUserApplicationService();
+    AdminBizUserApplicationService resourceOwnerService = new AdminBizUserApplicationService();
 
     @Mock
     BizUserRepo userRepo;
 
     @Mock
-    PendingBizUserRepo pendingResourceOwnerRepo;
+    PendingUserRepo pendingResourceOwnerRepo;
 
     @Mock
     BCryptPasswordEncoder encoder;
@@ -146,7 +146,7 @@ public class BizBizUserApplicationServiceTest {
     public void create_ro() {
         BizUser create = getRootResourceOwner();
         create.setPassword(UUID.randomUUID().toString());
-        PendingBizUser pendingResourceOwner = new PendingBizUser();
+        PendingUser pendingResourceOwner = new PendingUser();
         pendingResourceOwner.setEmail(create.getEmail());
         pendingResourceOwner.setPassword(create.getPassword());
         pendingResourceOwner.setActivationCode(UUID.randomUUID().toString());
@@ -165,7 +165,7 @@ public class BizBizUserApplicationServiceTest {
     public void create_ro_with_invalid_payload() {
         BizUser create = getRootResourceOwner();
         create.setPassword(UUID.randomUUID().toString());
-        PendingBizUser pendingResourceOwner = new PendingBizUser();
+        PendingUser pendingResourceOwner = new PendingUser();
         pendingResourceOwner.setEmail(create.getEmail());
 
         pendingResourceOwner.setActivationCode(UUID.randomUUID().toString());
@@ -178,7 +178,7 @@ public class BizBizUserApplicationServiceTest {
     public void create_ro_which_email_already_exist() {
         BizUser create = getRootResourceOwner();
         create.setPassword(UUID.randomUUID().toString());
-        PendingBizUser pendingResourceOwner = new PendingBizUser();
+        PendingUser pendingResourceOwner = new PendingUser();
         pendingResourceOwner.setEmail(create.getEmail());
         pendingResourceOwner.setPassword(create.getPassword());
         pendingResourceOwner.setActivationCode(UUID.randomUUID().toString());

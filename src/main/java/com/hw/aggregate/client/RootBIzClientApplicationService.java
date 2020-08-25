@@ -32,7 +32,7 @@ public class RootBIzClientApplicationService extends DefaultRoleBasedRestfulServ
     BCryptPasswordEncoder encoder;
 
     @Autowired
-    ProxyBizClientTokenRevocationService tokenRevocationService;
+    RevokeBizClientTokenService tokenRevocationService;
 
     @Autowired
     private BizClientQueryRegistry clientQueryRegistry;
@@ -44,16 +44,17 @@ public class RootBIzClientApplicationService extends DefaultRoleBasedRestfulServ
 
     @Autowired
     private ObjectMapper objectMapper;
+
     @PostConstruct
     private void setUp() {
         repo = clientRepo;
         queryRegistry = clientQueryRegistry;
         entityClass = BizClient.class;
         role = RestfulQueryRegistry.RoleEnum.ROOT;
-        idGenerator=idGenerator2;
-        changeRepository=changeHistoryRepository;
+        idGenerator = idGenerator2;
+        changeRepository = changeHistoryRepository;
         entityPatchSupplier = RootBizClientPatchMiddleLayer::new;
-        om=objectMapper;
+        om = objectMapper;
     }
 
     @Override

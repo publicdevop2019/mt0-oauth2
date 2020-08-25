@@ -1,9 +1,6 @@
 package com.hw.shared;
 
 public class AppConstant {
-    private AppConstant() {
-    }
-
     public static final String HTTP_HEADER_ERROR_ID = "Error-Id";
     public static final String HTTP_PARAM_QUERY = "query";
     public static final String HTTP_PARAM_PAGE = "page";
@@ -15,4 +12,6 @@ public class AppConstant {
     public static final String PATCH_OP_TYPE_DIFF = "diff";
     public static final String PATCH_OP_TYPE_REPLACE = "replace";
     public static final String COMMON_ENTITY_ID = "id";
+    private AppConstant() {
+    }
 }

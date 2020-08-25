@@ -13,5 +13,6 @@ public class CustomAsyncExceptionHandler implements AsyncUncaughtExceptionHandle
         log.debug("Method name - " + method.getName());
         for (Object param : obj) {
             log.debug("Parameter value - " + param);
-        }    }
+        }
+    }
 }

@@ -6,6 +6,7 @@ import javax.persistence.criteria.Root;
 
 public abstract class WhereClause<T> {
     protected String entityFieldName;
+
     public abstract Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root);
 
 }

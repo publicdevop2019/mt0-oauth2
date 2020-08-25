@@ -1,27 +1,19 @@
 package com.hw.unit.service;
 
-import com.hw.aggregate.client.model.GrantedAuthorityImpl;
-import com.hw.aggregate.client.model.BizClientAuthorityEnum;
-import com.hw.aggregate.client.model.GrantTypeEnum;
-import com.hw.aggregate.client.model.ScopeEnum;
-import com.hw.aggregate.client.model.BizClient;
 import com.hw.aggregate.client.BizClientRepo;
+import com.hw.aggregate.client.RevokeBizClientTokenService;
 import com.hw.aggregate.client.RootBIzClientApplicationService;
-import com.hw.aggregate.client.ProxyBizClientTokenRevocationService;
-import com.hw.shared.BadRequestException;
+import com.hw.aggregate.client.model.*;
 import com.hw.shared.IdGenerator;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.*;
-
-import static org.mockito.ArgumentMatchers.any;
+import java.util.Collections;
+import java.util.HashSet;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RootBizClientApplicationServiceTest {
@@ -37,7 +29,7 @@ public class RootBizClientApplicationServiceTest {
     IdGenerator idGenerator;
 
     @Mock
-    ProxyBizClientTokenRevocationService tokenRevocationService;
+    RevokeBizClientTokenService tokenRevocationService;
 
     @Mock
     BCryptPasswordEncoder encoder;
