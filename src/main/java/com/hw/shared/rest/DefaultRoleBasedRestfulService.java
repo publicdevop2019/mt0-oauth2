@@ -107,7 +107,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
         return getEntityRepresentation(tSumPagedRep.getData().get(0));
     }
 
-    private SumPagedRep<T> getEntityById(Long id) {
+    protected SumPagedRep<T> getEntityById(Long id) {
         SumPagedRep<T> tSumPagedRep = queryRegistry.readById(role, id.toString(), entityClass);
         if (tSumPagedRep.getData().size() == 0)
             throw new EntityNotExistException();

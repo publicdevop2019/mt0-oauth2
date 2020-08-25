@@ -6,9 +6,14 @@ import com.hw.aggregate.client.model.GrantedAuthorityImpl;
 import com.hw.aggregate.pending_user.AppPendingUserApplicationService;
 import com.hw.aggregate.pending_user.representation.AppPendingUserCardRep;
 import com.hw.aggregate.user.AppBizUserApplicationService;
+import com.hw.aggregate.user.BizUserRepo;
+import com.hw.aggregate.user.PwdResetEmailService;
 import com.hw.aggregate.user.RevokeBizUserTokenService;
 import com.hw.aggregate.user.command.CreateBizUserCommand;
+import com.hw.aggregate.user.command.ForgetPasswordCommand;
+import com.hw.aggregate.user.command.ResetPwdCommand;
 import com.hw.aggregate.user.command.UpdateBizUserCommand;
+import com.hw.aggregate.user.representation.AdminBizUserRep;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
 import com.hw.shared.Auditable;
 import com.hw.shared.BadRequestException;
@@ -18,6 +23,7 @@ import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
@@ -58,6 +64,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     @Column(nullable = false)
     @NotNull
     private Boolean locked;
+    private String pwdResetToken;
 
     @Column(nullable = false)
     @NotNull
@@ -68,6 +75,12 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     @Column
     private boolean subscription;
     public static final String ENTITY_SUBSCRIPTION = "subscription";
+
+    public static void canBeDeleted(AdminBizUserRep adminBizUserRep, RevokeBizUserTokenService tokenRevocationService) {
+        if (adminBizUserRep.getGrantedAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
+            throw new BadRequestException("root account can not be modified");
+        tokenRevocationService.blacklist(adminBizUserRep.getId().toString(), true);
+    }
 
     /**
      * make sure grantedAuthorities only get serialized once
@@ -197,5 +210,47 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
         HashSet<GrantedAuthorityImpl<BizUserAuthorityEnum>> grantedAuthorities = new HashSet<>(oldResourceOwner.getGrantedAuthorities());
         HashSet<GrantedAuthorityImpl<BizUserAuthorityEnum>> grantedAuthorities1 = new HashSet<>(newResourceOwner.getGrantedAuthorities());
         return !grantedAuthorities.equals(grantedAuthorities1);
+    }
+
+    public static BizUser createForgetPwdToken(ForgetPasswordCommand command, BizUserRepo resourceOwnerRepo, PwdResetEmailService emailService) {
+        if (!StringUtils.hasText(command.getEmail()))
+            throw new BadRequestException("empty email");
+        BizUser bizUser = resourceOwnerRepo.findOneByEmail(command.getEmail());
+        if (bizUser == null)
+            throw new BadRequestException("user does not exist");
+        bizUser.setPwdResetToken(generateToken());
+        BizUser save = resourceOwnerRepo.save(bizUser);
+        emailService.sendPasswordResetLink(save.getPwdResetToken(), save.getEmail());
+        return bizUser;
+    }
+
+
+    private static String generateToken() {
+        return "123456789";
+//        return UUID.randomUUID().toString().replace("-", "");
+    }
+
+    public static void resetPwd(ResetPwdCommand command, BizUserRepo resourceOwnerRepo, RevokeBizUserTokenService service, BCryptPasswordEncoder encoder) {
+        if (!StringUtils.hasText(command.getEmail()))
+            throw new BadRequestException("empty email");
+        if (!StringUtils.hasText(command.getToken()))
+            throw new BadRequestException("empty token");
+        if (!StringUtils.hasText(command.getNewPassword()))
+            throw new BadRequestException("empty new password");
+        BizUser oneByEmail = resourceOwnerRepo.findOneByEmail(command.getEmail());
+        if (oneByEmail == null)
+            throw new BadRequestException("not an user");
+        BizUser oneByEmail2 = resourceOwnerRepo.findOneByEmail(command.getEmail());
+        if (oneByEmail2 == null)
+            throw new BadRequestException("user does not exist");
+        if (oneByEmail.getPwdResetToken() == null)
+            throw new BadRequestException("token not exist");
+        if (!oneByEmail.getPwdResetToken().equals(command.getToken()))
+            throw new BadRequestException("token mismatch");
+        // reset password
+        oneByEmail.setPassword(encoder.encode(command.getNewPassword()));
+        resourceOwnerRepo.save(oneByEmail);
+        oneByEmail.setPwdResetToken(null);
+        service.blacklist(oneByEmail.getId().toString(), true);
     }
 }

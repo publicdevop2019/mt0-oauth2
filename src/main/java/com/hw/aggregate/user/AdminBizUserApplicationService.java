@@ -59,9 +59,7 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
     @Override
     public Integer deleteById(Long id) {
         AdminBizUserRep adminBizUserRep = readById(id);
-        if (adminBizUserRep.getGrantedAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
-            throw new BadRequestException("root account can not be modified");
-        tokenRevocationService.blacklist(adminBizUserRep.getId().toString(), true);
+        BizUser.canBeDeleted(adminBizUserRep,tokenRevocationService);
         return super.deleteById(id);
     }
 

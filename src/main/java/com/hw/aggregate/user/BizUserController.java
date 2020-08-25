@@ -1,8 +1,6 @@
 package com.hw.aggregate.user;
 
-import com.hw.aggregate.user.command.CreateBizUserCommand;
-import com.hw.aggregate.user.command.UpdateBizUserCommand;
-import com.hw.aggregate.user.command.UpdateBizUserPwdCommand;
+import com.hw.aggregate.user.command.*;
 import com.hw.aggregate.user.model.ForgetPasswordRequest;
 import com.hw.shared.rest.CreatedEntityRep;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +14,13 @@ import static com.hw.shared.AppConstant.*;
 public class BizUserController {
 
     @Autowired
-    AdminBizUserApplicationService adminResourceOwnerService;
+    private AdminBizUserApplicationService adminResourceOwnerService;
     @Autowired
-    PublicBizUserApplicationService publicBizUserApplicationService;
+    private PublicBizUserApplicationService publicBizUserApplicationService;
     @Autowired
-    AppBizUserApplicationService appBizUserApplicationService;
+    private AppBizUserApplicationService appBizUserApplicationService;
     @Autowired
-    UserBizUserApplicationService userBizUserApplicationService;
+    private UserBizUserApplicationService userBizUserApplicationService;
 
     @PostMapping("public")
     public ResponseEntity<?> createForPublic(@RequestBody CreateBizUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
@@ -46,8 +44,8 @@ public class BizUserController {
     }
 
     @DeleteMapping("admin/{id}")
-    public ResponseEntity<?> deleteRO(@PathVariable Long id) {
-        adminResourceOwnerService.deleteResourceOwner(id);
+    public ResponseEntity<?> deleteForAdminById(@PathVariable Long id) {
+        adminResourceOwnerService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
@@ -66,13 +64,13 @@ public class BizUserController {
     }
 
     @PostMapping("public/forgetPwd")
-    public ResponseEntity<?> forgetPwd(@RequestBody ForgetPasswordRequest forgetPasswordRequest) {
-        publicBizUserApplicationService.sendForgetPassword(forgetPasswordRequest);
+    public ResponseEntity<?> forgetPwd(@RequestBody ForgetPasswordCommand command) {
+        publicBizUserApplicationService.sendForgetPassword(command);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("public/resetPwd")
-    public ResponseEntity<?> resetPwd(@RequestBody ForgetPasswordRequest forgetPasswordRequest) {
+    public ResponseEntity<?> resetPwd(@RequestBody ResetPwdCommand forgetPasswordRequest) {
         publicBizUserApplicationService.resetPassword(forgetPasswordRequest);
         return ResponseEntity.ok().build();
     }
