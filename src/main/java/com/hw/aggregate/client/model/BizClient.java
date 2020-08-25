@@ -9,7 +9,6 @@ import com.hw.aggregate.client.command.UpdateClientCommand;
 import com.hw.aggregate.client.exception.ClientAlreadyExistException;
 import com.hw.aggregate.client.exception.RootClientDeleteException;
 import com.hw.shared.Auditable;
-import com.hw.shared.BadRequestException;
 import com.hw.shared.StringSetConverter;
 import com.hw.shared.rest.IdBasedEntity;
 import lombok.Data;
@@ -147,7 +146,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         if (client.getResourceIds() == null || client.getResourceIds().size() == 0
                 || client.getResourceIds().stream().anyMatch(resourceId -> clientRepo.findByClientId(resourceId).isEmpty()
                 || !clientRepo.findByClientId(resourceId).get().getResourceIndicator()))
-            throw new BadRequestException("invalid resourceId found");
+            throw new IllegalArgumentException("invalid resourceId found");
     }
 
     /**
@@ -157,7 +156,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         if (client.getResourceIndicator())
             if (client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(BizClientAuthorityEnum.ROLE_BACKEND))
                     || client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY)))
-                throw new BadRequestException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
+                throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
     }
 
     /**

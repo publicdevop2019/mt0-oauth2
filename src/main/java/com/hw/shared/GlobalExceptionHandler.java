@@ -24,7 +24,6 @@ import static com.hw.shared.AppConstant.HTTP_HEADER_ERROR_ID;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
-            BadRequestException.class,
             TransactionSystemException.class,
             IllegalArgumentException.class,
             DataIntegrityViolationException.class,
@@ -51,7 +50,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = {
-            InternalServerException.class,
             RuntimeException.class,
             JwtTokenRetrievalException.class,
             DeepCopyException.class

@@ -6,6 +6,7 @@ import com.hw.aggregate.user.model.BizUserAuthorityEnum;
 import lombok.Data;
 
 import java.util.List;
+
 @Data
 public class AdminBizUserCardRep {
     private Long id;

@@ -20,12 +20,11 @@ public class SelfSignedTokenConfig {
 
     @Autowired
     private BizClientRepo clientRepo;
+    private TokenGranter tokenGranter;
 
     public void setTokenGranter(TokenGranter tokenGranter) {
         this.tokenGranter = tokenGranter;
     }
-
-    private TokenGranter tokenGranter;
 
     public OAuth2AccessToken getSelfSignedAccessToken() {
         Optional<BizClient> byId = clientRepo.findByClientId("oauth2-id");

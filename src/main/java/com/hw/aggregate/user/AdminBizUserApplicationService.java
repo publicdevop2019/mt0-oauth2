@@ -55,7 +55,7 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
     @Override
     public Integer deleteById(Long id) {
         AdminBizUserRep adminBizUserRep = readById(id);
-        BizUser.canBeDeleted(adminBizUserRep,tokenRevocationService);
+        BizUser.canBeDeleted(adminBizUserRep, tokenRevocationService);
         return super.deleteById(id);
     }
 

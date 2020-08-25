@@ -17,22 +17,17 @@ import java.util.HashSet;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RootBizClientApplicationServiceTest {
-    private String STUB_RESOURCE_ID = "dummyResourceId";
-
     @InjectMocks
     RootBIzClientApplicationService clientService = new RootBIzClientApplicationService();
-
     @Mock
     BizClientRepo clientRepo;
-
     @Mock
     IdGenerator idGenerator;
-
     @Mock
     RevokeBizClientTokenService tokenRevocationService;
-
     @Mock
     BCryptPasswordEncoder encoder;
+    private String STUB_RESOURCE_ID = "dummyResourceId";
 
     @Test
 //    public void get_all_clients() {

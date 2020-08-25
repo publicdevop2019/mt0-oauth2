@@ -16,6 +16,7 @@ public class ServiceUtility {
     private static final String JWT_CLAIM_AUTHORITIES = "authorities";
     private static final String JWT_CLAIM_UID = "uid";
     private static final String JWT_CLAIM_CLIENT_ID = "client_id";
+
     private ServiceUtility() {
     }
 

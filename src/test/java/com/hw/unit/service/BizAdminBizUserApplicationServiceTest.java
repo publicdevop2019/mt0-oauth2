@@ -2,46 +2,32 @@ package com.hw.unit.service;
 
 import com.hw.aggregate.client.model.GrantedAuthorityImpl;
 import com.hw.aggregate.pending_user.PendingUserRepo;
-import com.hw.aggregate.pending_user.model.PendingUser;
 import com.hw.aggregate.user.AdminBizUserApplicationService;
 import com.hw.aggregate.user.BizUserRepo;
-import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserAuthorityEnum;
-import com.hw.shared.BadRequestException;
 import com.hw.shared.IdGenerator;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.lang.reflect.Field;
-import java.util.*;
-
-import static org.mockito.ArgumentMatchers.any;
-
 @RunWith(MockitoJUnitRunner.class)
 public class BizAdminBizUserApplicationServiceTest {
+    @InjectMocks
+    AdminBizUserApplicationService resourceOwnerService = new AdminBizUserApplicationService();
+    @Mock
+    BizUserRepo userRepo;
+    @Mock
+    PendingUserRepo pendingResourceOwnerRepo;
+    @Mock
+    BCryptPasswordEncoder encoder;
+    @Mock
+    IdGenerator idGenerator;
     private String AUTHORIZATION_HEADER_ROOT = "xx.eyJ1aWQiOiIwIiwiYXVkIjpbInByb2R1Y3QiLCJmaWxlLXVwbG9hZCIsImVkZ2UtcHJveHkiLCJ1c2VyLXByb2ZpbGUiLCJvYXV0aDItaWQiXSwidXNlcl9uYW1lIjoiaGFvbGlud2VpMjAxNUBnbWFpbC5jb20iLCJzY29wZSI6WyJ0cnVzdCIsInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE1ODIyNTU2NjQsImlhdCI6MTU4MjI1NTU0NCwiYXV0aG9yaXRpZXMiOlsiUk9MRV9ST09UIiwiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJqdGkiOiJmOTI1YzdhOC0xMGU2LTQ1OGMtYjg1MS0zMmM3YjllMDQ2OTgiLCJjbGllbnRfaWQiOiJsb2dpbi1pZCJ9.zz";
     private String AUTHORIZATION_HEADER_ADMIN = "xx.eyJ1aWQiOiIwIiwiYXVkIjpbInByb2R1Y3QiLCJmaWxlLXVwbG9hZCIsImVkZ2UtcHJveHkiLCJ1c2VyLXByb2ZpbGUiLCJvYXV0aDItaWQiXSwidXNlcl9uYW1lIjoiaGFvbGlud2VpMjAxNUBnbWFpbC5jb20iLCJzY29wZSI6WyJ0cnVzdCIsInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE1ODIyNTU2NjQsImlhdCI6MTU4MjI1NTU0NCwiYXV0aG9yaXRpZXMiOlsiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJqdGkiOiJmOTI1YzdhOC0xMGU2LTQ1OGMtYjg1MS0zMmM3YjllMDQ2OTgiLCJjbGllbnRfaWQiOiJsb2dpbi1pZCJ9.zz";
     private String AUTHORIZATION_HEADER_USER = "xx.eyJ1aWQiOiIwIiwiYXVkIjpbInByb2R1Y3QiLCJmaWxlLXVwbG9hZCIsImVkZ2UtcHJveHkiLCJ1c2VyLXByb2ZpbGUiLCJvYXV0aDItaWQiXSwidXNlcl9uYW1lIjoiaGFvbGlud2VpMjAxNUBnbWFpbC5jb20iLCJzY29wZSI6WyJ0cnVzdCIsInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE1ODIyNTU2NjQsImlhdCI6MTU4MjI1NTU0NCwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0VSIl0sImp0aSI6ImY5MjVjN2E4LTEwZTYtNDU4Yy1iODUxLTMyYzdiOWUwNDY5OCIsImNsaWVudF9pZCI6ImxvZ2luLWlkIn0=.zz";
-    @InjectMocks
-    AdminBizUserApplicationService resourceOwnerService = new AdminBizUserApplicationService();
-
-    @Mock
-    BizUserRepo userRepo;
-
-    @Mock
-    PendingUserRepo pendingResourceOwnerRepo;
-
-    @Mock
-    BCryptPasswordEncoder encoder;
-
-    @Mock
-    IdGenerator idGenerator;
 
 //    @Mock
 //    TokenRevocationService<BizUser> tokenRevocationService;

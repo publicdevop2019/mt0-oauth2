@@ -1,13 +1,6 @@
 package com.hw.unit.service;
 
-import com.hw.aggregate.client.model.GrantedAuthorityImpl;
 import com.hw.aggregate.user.RevokeBizUserTokenService;
-import com.hw.aggregate.user.model.BizUser;
-import com.hw.aggregate.user.model.BizUserAuthorityEnum;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.Arrays;
 
 public class RevokeBizUserTokenServiceTest {
     private RevokeBizUserTokenService resourceOwnerTokenRevocationServiceImpl = new RevokeBizUserTokenService();

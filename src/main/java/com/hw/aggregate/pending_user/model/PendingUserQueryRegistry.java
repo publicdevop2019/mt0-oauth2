@@ -8,8 +8,9 @@ import org.springframework.stereotype.Component;
 public class PendingUserQueryRegistry extends RestfulQueryRegistry<PendingUser> {
     @Autowired
     AppPendingUserSelectQueryBuilder appPendingUserSelectQueryBuilder;
+
     @Override
     protected void configQueryBuilder() {
-selectQueryBuilder.put(RoleEnum.APP,appPendingUserSelectQueryBuilder);
+        selectQueryBuilder.put(RoleEnum.APP, appPendingUserSelectQueryBuilder);
     }
 }

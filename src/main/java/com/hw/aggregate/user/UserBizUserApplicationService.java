@@ -6,7 +6,6 @@ import com.hw.aggregate.pending_user.PendingUserRepo;
 import com.hw.aggregate.user.command.UserUpdateBizUserCommand;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserQueryRegistry;
-import com.hw.shared.BadRequestException;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
@@ -17,7 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Optional;
 
 @Component
 public class UserBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, Void, Void, VoidTypedClass> {
@@ -62,7 +60,7 @@ public class UserBizUserApplicationService extends DefaultRoleBasedRestfulServic
 
     @Override
     public BizUser replaceEntity(BizUser storedBizUser, Object command) {
-        return storedBizUser.replace((UserUpdateBizUserCommand) command, tokenRevocationService,encoder);
+        return storedBizUser.replace((UserUpdateBizUserCommand) command, tokenRevocationService, encoder);
     }
 
     @Override

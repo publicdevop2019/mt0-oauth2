@@ -1,6 +1,5 @@
 package com.hw.config;
 
-import com.hw.shared.BadRequestException;
 import com.hw.shared.EurekaRegistryHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -40,7 +39,7 @@ public class CommonEmailService {
                 HttpEntity<String> hashMapHttpEntity2 = new HttpEntity<>(body, headers);
                 restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity2, String.class);
             } else {
-                throw new BadRequestException("please wait for cool down");
+                throw new IllegalArgumentException("please wait for cool down");
             }
 
         }

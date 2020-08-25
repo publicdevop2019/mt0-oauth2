@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 
-import static com.hw.aggregate.client.model.BizClient.*;
-import static com.hw.aggregate.client.model.BizClient.ENTITY_CLIENT_ID;
 import static com.hw.aggregate.user.model.BizUser.ENTITY_EMAIL;
 
 @Component
