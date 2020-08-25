@@ -17,8 +17,8 @@ public class RevokeBizUserTokenService extends CommonTokenRevocationService {
     private String url;
 
 
-    public void blacklist(String name, boolean shouldRevoke) {
-        blacklist(url, name, shouldRevoke);
+    public void blacklist(String name) {
+        blacklist(url, name);
     }
 
 

@@ -2,13 +2,11 @@ package com.hw.aggregate.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.pending_user.AppPendingUserApplicationService;
-import com.hw.aggregate.pending_user.PendingUserRepo;
-import com.hw.aggregate.user.command.UpdateBizUserCommand;
+import com.hw.aggregate.user.command.AdminUpdateBizUserCommand;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserQueryRegistry;
 import com.hw.aggregate.user.representation.AdminBizUserCardRep;
 import com.hw.aggregate.user.representation.AdminBizUserRep;
-import com.hw.shared.BadRequestException;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
@@ -16,11 +14,9 @@ import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -65,7 +61,7 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
 
     @Override
     public BizUser replaceEntity(BizUser storedBizUser, Object command) {
-        return storedBizUser.replace((UpdateBizUserCommand) command, tokenRevocationService);
+        return storedBizUser.replace((AdminUpdateBizUserCommand) command, tokenRevocationService);
     }
 
     @Override

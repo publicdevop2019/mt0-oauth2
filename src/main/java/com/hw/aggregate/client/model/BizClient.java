@@ -206,7 +206,8 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
 
     public BizClient replace(UpdateClientCommand command, RevokeBizClientTokenService tokenRevocationService, BizClientRepo clientRepo, BCryptPasswordEncoder encoder) {
         boolean b = shouldRevoke(this, command);
-        tokenRevocationService.blacklist(this.getClientId(), b);
+        if (b)
+            tokenRevocationService.blacklist(this.getClientId());
         if (StringUtils.hasText(command.getClientSecret())) {
             this.setClientSecret(encoder.encode(command.getClientSecret()));
         }

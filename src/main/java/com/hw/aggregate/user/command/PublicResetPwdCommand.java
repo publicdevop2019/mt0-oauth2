@@ -4,7 +4,7 @@ import lombok.Data;
 
 import javax.persistence.Column;
 @Data
-public class ResetPwdCommand {
+public class PublicResetPwdCommand {
     private String email;
 
     private String token;

@@ -1,7 +1,7 @@
 package com.hw.aggregate.user;
 
 import com.hw.aggregate.user.command.*;
-import com.hw.aggregate.user.model.ForgetPasswordRequest;
+import com.hw.shared.ServiceUtility;
 import com.hw.shared.rest.CreatedEntityRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ public class BizUserController {
     private UserBizUserApplicationService userBizUserApplicationService;
 
     @PostMapping("public")
-    public ResponseEntity<?> createForPublic(@RequestBody CreateBizUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> createForPublic(@RequestBody PublicCreateBizUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         CreatedEntityRep createdEntityRep = publicBizUserApplicationService.create(command, changeId);
         return ResponseEntity.ok().header("Location", String.valueOf(createdEntityRep.getId())).build();
     }
@@ -37,7 +37,7 @@ public class BizUserController {
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> updateForAdmin(@RequestBody UpdateBizUserCommand command, @PathVariable Long id, @RequestHeader("authorization") String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> updateForAdmin(@RequestBody AdminUpdateBizUserCommand command, @PathVariable Long id, @RequestHeader("authorization") String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         command.setAuthorization(authorization);
         adminResourceOwnerService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -57,20 +57,20 @@ public class BizUserController {
     }
 
 
-    @PatchMapping("resourceOwner/pwd")
-    public ResponseEntity<?> updateROPwd(@RequestBody UpdateBizUserPwdCommand resourceOwner, @RequestHeader("authorization") String authorization) {
-        userBizUserApplicationService.updateResourceOwnerPwd(resourceOwner, authorization);
+    @PutMapping("pwd")
+    public ResponseEntity<?> updateForUser(@RequestBody UserUpdateBizUserCommand command, @RequestHeader("authorization") String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        userBizUserApplicationService.replaceById(Long.parseLong(ServiceUtility.getUserId(authorization)), command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("public/forgetPwd")
-    public ResponseEntity<?> forgetPwd(@RequestBody ForgetPasswordCommand command) {
+    public ResponseEntity<?> forgetPwd(@RequestBody PublicForgetPasswordCommand command) {
         publicBizUserApplicationService.sendForgetPassword(command);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("public/resetPwd")
-    public ResponseEntity<?> resetPwd(@RequestBody ResetPwdCommand forgetPasswordRequest) {
+    public ResponseEntity<?> resetPwd(@RequestBody PublicResetPwdCommand forgetPasswordRequest) {
         publicBizUserApplicationService.resetPassword(forgetPasswordRequest);
         return ResponseEntity.ok().build();
     }

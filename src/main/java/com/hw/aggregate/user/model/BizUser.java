@@ -9,10 +9,7 @@ import com.hw.aggregate.user.AppBizUserApplicationService;
 import com.hw.aggregate.user.BizUserRepo;
 import com.hw.aggregate.user.PwdResetEmailService;
 import com.hw.aggregate.user.RevokeBizUserTokenService;
-import com.hw.aggregate.user.command.CreateBizUserCommand;
-import com.hw.aggregate.user.command.ForgetPasswordCommand;
-import com.hw.aggregate.user.command.ResetPwdCommand;
-import com.hw.aggregate.user.command.UpdateBizUserCommand;
+import com.hw.aggregate.user.command.*;
 import com.hw.aggregate.user.representation.AdminBizUserRep;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
 import com.hw.shared.Auditable;
@@ -79,7 +76,21 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     public static void canBeDeleted(AdminBizUserRep adminBizUserRep, RevokeBizUserTokenService tokenRevocationService) {
         if (adminBizUserRep.getGrantedAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new BadRequestException("root account can not be modified");
-        tokenRevocationService.blacklist(adminBizUserRep.getId().toString(), true);
+        tokenRevocationService.blacklist(adminBizUserRep.getId().toString());
+    }
+
+    /**
+     * update pwd, id is part of bearer token,
+     * must revoke issued token if pwd changed
+     */
+    public BizUser replace(UserUpdateBizUserCommand command, RevokeBizUserTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
+        if (!StringUtils.hasText(command.getPassword()) || !StringUtils.hasText(command.getCurrentPwd()))
+            throw new BadRequestException("password(s)");
+        if (!encoder.matches(command.getCurrentPwd(), this.getPassword()))
+            throw new BadRequestException("wrong password");
+        tokenRevocationService.blacklist(this.getId().toString());
+        this.setPassword(encoder.encode(command.getPassword()));
+        return this;
     }
 
     /**
@@ -122,7 +133,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
         return true;
     }
 
-    public static BizUser create(Long id, CreateBizUserCommand command, PasswordEncoder encoder, AppPendingUserApplicationService pendingResourceOwnerRepo, AppBizUserApplicationService service) {
+    public static BizUser create(Long id, PublicCreateBizUserCommand command, PasswordEncoder encoder, AppPendingUserApplicationService pendingResourceOwnerRepo, AppBizUserApplicationService service) {
         validate(command, pendingResourceOwnerRepo, service);
         command.setPassword(encoder.encode(command.getPassword()));
         return new BizUser(command, id);
@@ -132,7 +143,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
      * create user, grantedAuthorities is overwritten to ROLE_USER
      * if id present it will used instead generated
      */
-    private BizUser(CreateBizUserCommand command, Long id) {
+    private BizUser(PublicCreateBizUserCommand command, Long id) {
         this.id = id;
         this.email = command.getEmail();
         this.password = command.getPassword();
@@ -141,7 +152,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
         this.subscription = false;
     }
 
-    private static void validate(CreateBizUserCommand command, AppPendingUserApplicationService pendingUserApplicationService, AppBizUserApplicationService bizUserApplicationService) throws BadRequestException {
+    private static void validate(PublicCreateBizUserCommand command, AppPendingUserApplicationService pendingUserApplicationService, AppBizUserApplicationService bizUserApplicationService) throws BadRequestException {
         if (!StringUtils.hasText(command.getEmail()))
             throw new BadRequestException("email is empty");
         if (!StringUtils.hasText(command.getPassword()))
@@ -159,7 +170,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
             throw new BadRequestException("activation code mismatch");
     }
 
-    public BizUser replace(UpdateBizUserCommand command, RevokeBizUserTokenService tokenRevocationService) {
+    public BizUser replace(AdminUpdateBizUserCommand command, RevokeBizUserTokenService tokenRevocationService) {
         preventRootAccountChange(this);
         List<String> currentAuthorities = ServiceUtility.getAuthority(command.getAuthorization());
         if (this.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
@@ -169,8 +180,8 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
         if (currentAuthorities.stream().noneMatch("ROLE_ROOT"::equals) && this.isSubscription())
             throw new BadRequestException("only root user can change subscription");
         boolean b = shouldRevoke(this, command);
-        tokenRevocationService.blacklist(this.getId().toString(), b);
-
+        if (b)
+            tokenRevocationService.blacklist(this.getId().toString());
         this.setGrantedAuthorities(command.getGrantedAuthorities());
         this.setLocked(command.getLocked());
         if (command.isSubscription()) {
@@ -196,23 +207,23 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
      * @param newResourceOwner
      * @return
      */
-    public boolean shouldRevoke(BizUser oldResourceOwner, UpdateBizUserCommand newResourceOwner) {
+    public boolean shouldRevoke(BizUser oldResourceOwner, AdminUpdateBizUserCommand newResourceOwner) {
         if (authorityChanged(oldResourceOwner, newResourceOwner)) {
             return true;
         } else return lockUser(newResourceOwner);
     }
 
-    private boolean lockUser(UpdateBizUserCommand newResourceOwner) {
+    private boolean lockUser(AdminUpdateBizUserCommand newResourceOwner) {
         return Boolean.TRUE.equals(newResourceOwner.getLocked());
     }
 
-    private boolean authorityChanged(BizUser oldResourceOwner, UpdateBizUserCommand newResourceOwner) {
+    private boolean authorityChanged(BizUser oldResourceOwner, AdminUpdateBizUserCommand newResourceOwner) {
         HashSet<GrantedAuthorityImpl<BizUserAuthorityEnum>> grantedAuthorities = new HashSet<>(oldResourceOwner.getGrantedAuthorities());
         HashSet<GrantedAuthorityImpl<BizUserAuthorityEnum>> grantedAuthorities1 = new HashSet<>(newResourceOwner.getGrantedAuthorities());
         return !grantedAuthorities.equals(grantedAuthorities1);
     }
 
-    public static BizUser createForgetPwdToken(ForgetPasswordCommand command, BizUserRepo resourceOwnerRepo, PwdResetEmailService emailService) {
+    public static BizUser createForgetPwdToken(PublicForgetPasswordCommand command, BizUserRepo resourceOwnerRepo, PwdResetEmailService emailService) {
         if (!StringUtils.hasText(command.getEmail()))
             throw new BadRequestException("empty email");
         BizUser bizUser = resourceOwnerRepo.findOneByEmail(command.getEmail());
@@ -230,7 +241,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
 //        return UUID.randomUUID().toString().replace("-", "");
     }
 
-    public static void resetPwd(ResetPwdCommand command, BizUserRepo resourceOwnerRepo, RevokeBizUserTokenService service, BCryptPasswordEncoder encoder) {
+    public static void resetPwd(PublicResetPwdCommand command, BizUserRepo resourceOwnerRepo, RevokeBizUserTokenService service, BCryptPasswordEncoder encoder) {
         if (!StringUtils.hasText(command.getEmail()))
             throw new BadRequestException("empty email");
         if (!StringUtils.hasText(command.getToken()))
@@ -251,6 +262,6 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
         oneByEmail.setPassword(encoder.encode(command.getNewPassword()));
         resourceOwnerRepo.save(oneByEmail);
         oneByEmail.setPwdResetToken(null);
-        service.blacklist(oneByEmail.getId().toString(), true);
+        service.blacklist(oneByEmail.getId().toString());
     }
 }

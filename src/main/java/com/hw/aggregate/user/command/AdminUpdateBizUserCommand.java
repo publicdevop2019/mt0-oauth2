@@ -15,11 +15,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 @Data
-public class UpdateBizUserCommand {
-    private Long id;
-
-    private String email;
-    private String password;
+public class AdminUpdateBizUserCommand {
 
     private Boolean locked;
 

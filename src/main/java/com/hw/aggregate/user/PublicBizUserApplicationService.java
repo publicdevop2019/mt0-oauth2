@@ -2,9 +2,9 @@ package com.hw.aggregate.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.pending_user.AppPendingUserApplicationService;
-import com.hw.aggregate.user.command.CreateBizUserCommand;
-import com.hw.aggregate.user.command.ForgetPasswordCommand;
-import com.hw.aggregate.user.command.ResetPwdCommand;
+import com.hw.aggregate.user.command.PublicCreateBizUserCommand;
+import com.hw.aggregate.user.command.PublicForgetPasswordCommand;
+import com.hw.aggregate.user.command.PublicResetPwdCommand;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserQueryRegistry;
 import com.hw.shared.IdGenerator;
@@ -58,11 +58,11 @@ public class PublicBizUserApplicationService extends DefaultRoleBasedRestfulServ
         om = objectMapper;
     }
 
-    public void sendForgetPassword(ForgetPasswordCommand command) {
+    public void sendForgetPassword(PublicForgetPasswordCommand command) {
         BizUser.createForgetPwdToken(command, userRepo, emailService);
     }
 
-    public void resetPassword(ResetPwdCommand command) {
+    public void resetPassword(PublicResetPwdCommand command) {
         BizUser.resetPwd(command, userRepo,tokenRevocationService,encoder);
     }
 
@@ -84,7 +84,7 @@ public class PublicBizUserApplicationService extends DefaultRoleBasedRestfulServ
 
     @Override
     protected BizUser createEntity(long id, Object command) {
-        return BizUser.create(id, (CreateBizUserCommand) command, encoder, pendingUserApplicationService, bizUserApplicationService);
+        return BizUser.create(id, (PublicCreateBizUserCommand) command, encoder, pendingUserApplicationService, bizUserApplicationService);
 
     }
 }

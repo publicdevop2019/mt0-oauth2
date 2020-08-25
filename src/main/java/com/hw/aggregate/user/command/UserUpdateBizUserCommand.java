@@ -1,9 +1,9 @@
 package com.hw.aggregate.user.command;
 
-import com.hw.aggregate.user.model.BizUser;
 import lombok.Data;
 
 @Data
-public class UpdateBizUserPwdCommand extends BizUser {
+public class UserUpdateBizUserCommand {
     private String currentPwd;
+    private String password;
 }

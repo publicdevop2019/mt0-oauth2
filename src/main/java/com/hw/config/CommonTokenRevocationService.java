@@ -26,34 +26,32 @@ public class CommonTokenRevocationService {
     @Autowired
     private EurekaRegistryHelper eurekaRegistryHelper;
 
-    protected void blacklist(String url, String name, boolean shouldRevoke) {
+    protected void blacklist(String url, String name) {
         String resolvedUrl = eurekaRegistryHelper.getProxyHomePageUrl() + url;
-        if (shouldRevoke) {
-            HashMap<String, String> blockBody = new HashMap<>();
-            blockBody.put("name", name);
-            String body = null;
-            try {
-                body = mapper.writeValueAsString(blockBody);
-            } catch (JsonProcessingException e) {
-                /**
-                 * this block is purposely left blank
-                 */
-            }
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+        HashMap<String, String> blockBody = new HashMap<>();
+        blockBody.put("name", name);
+        String body = null;
+        try {
+            body = mapper.writeValueAsString(blockBody);
+        } catch (JsonProcessingException e) {
+            /**
+             * this block is purposely left blank
+             */
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
+        HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(body, headers);
+        try {
+            restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity, String.class);
+        } catch (HttpClientErrorException ex) {
+            /**
+             * re-try
+             */
             headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
-            HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(body, headers);
-            try {
-                restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity, String.class);
-            } catch (HttpClientErrorException ex) {
-                /**
-                 * re-try
-                 */
-                headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
-                HttpEntity<String> hashMapHttpEntity2 = new HttpEntity<>(body, headers);
-                restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity2, String.class);
+            HttpEntity<String> hashMapHttpEntity2 = new HttpEntity<>(body, headers);
+            restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity2, String.class);
 
-            }
         }
     }
 }

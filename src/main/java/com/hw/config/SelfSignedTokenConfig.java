@@ -21,7 +21,10 @@ public class SelfSignedTokenConfig {
     @Autowired
     private BizClientRepo clientRepo;
 
-    @Autowired
+    public void setTokenGranter(TokenGranter tokenGranter) {
+        this.tokenGranter = tokenGranter;
+    }
+
     private TokenGranter tokenGranter;
 
     public OAuth2AccessToken getSelfSignedAccessToken() {
@@ -30,7 +33,6 @@ public class SelfSignedTokenConfig {
             throw new IllegalArgumentException("root authorization client not found!,this should never happen");
         BizClient client = byId.get();
         TokenRequest tokenRequest = new TokenRequest(null, client.getClientId(), client.getScope(), client_credentials.name());
-        OAuth2AccessToken grant = tokenGranter.grant(client_credentials.name(), tokenRequest);
-        return grant;
+        return tokenGranter.grant(client_credentials.name(), tokenRequest);
     }
 }

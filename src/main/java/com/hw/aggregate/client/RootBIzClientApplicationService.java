@@ -62,7 +62,7 @@ public class RootBIzClientApplicationService extends DefaultRoleBasedRestfulServ
         Optional<BizClient> byId = clientRepo.findById(id);
         if (byId.isPresent()) {
             byId.get().preventRootChange();
-            tokenRevocationService.blacklist(byId.get().getClientId(), true);
+            tokenRevocationService.blacklist(byId.get().getClientId());
             return super.deleteById(id);
         } else {
             return null;

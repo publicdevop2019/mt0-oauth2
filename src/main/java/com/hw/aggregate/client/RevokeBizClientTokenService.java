@@ -10,8 +10,8 @@ public class RevokeBizClientTokenService extends CommonTokenRevocationService {
     @Value("${url.zuul.client}")
     private String url;
 
-    public void blacklist(String name, boolean shouldRevoke) {
-        blacklist(url, name, shouldRevoke);
+    public void blacklist(String name) {
+        blacklist(url, name);
     }
 
 
