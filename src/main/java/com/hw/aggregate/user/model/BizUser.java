@@ -67,6 +67,9 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     @Column
     private boolean subscription;
 
+    public BizUser() {
+    }
+
     /**
      * create user, grantedAuthorities is overwritten to ROLE_USER
      * if id present it will used instead generated

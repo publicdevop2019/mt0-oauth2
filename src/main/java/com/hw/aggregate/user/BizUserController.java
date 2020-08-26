@@ -35,6 +35,11 @@ public class BizUserController {
         return ResponseEntity.ok(adminResourceOwnerService.readByQuery(queryParam, pageParam, config));
     }
 
+    @GetMapping("admin/{id}")
+    public ResponseEntity<?> readForAdminById(@PathVariable Long id) {
+        return ResponseEntity.ok(adminResourceOwnerService.readById(id));
+    }
+
 
     @PutMapping("admin/{id}")
     public ResponseEntity<?> updateForAdmin(@RequestBody AdminUpdateBizUserCommand command, @PathVariable Long id, @RequestHeader("authorization") String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
@@ -57,7 +62,7 @@ public class BizUserController {
     }
 
 
-    @PutMapping("pwd")
+    @PutMapping("user/pwd")
     public ResponseEntity<?> updateForUser(@RequestBody UserUpdateBizUserCommand command, @RequestHeader("authorization") String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         userBizUserApplicationService.replaceById(Long.parseLong(ServiceUtility.getUserId(authorization)), command, changeId);
         return ResponseEntity.ok().build();

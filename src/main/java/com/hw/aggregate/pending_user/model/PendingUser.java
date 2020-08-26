@@ -26,18 +26,15 @@ public class PendingUser implements IdBasedEntity {
     @Column
     private String activationCode;
 
-    @Column
-    private String password;
-
     public static PendingUser create(String email, PendingUserRepo pendingRORepo, AppBizUserApplicationService resourceOwnerRepo, IdGenerator idGenerator) {
         validateOnCreate(email, resourceOwnerRepo);
         PendingUser pendingResourceOwner = pendingRORepo.findOneByEmail(email);
         if (pendingResourceOwner == null) {
             pendingResourceOwner = new PendingUser();
             pendingResourceOwner.setEmail(email);
+            pendingResourceOwner.setId(idGenerator.getId());
         }
         pendingResourceOwner.setActivationCode(PendingUser.generateCode());
-        pendingResourceOwner.setId(idGenerator.getId());
         return pendingResourceOwner;
     }
 

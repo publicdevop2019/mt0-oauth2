@@ -21,6 +21,7 @@ public class AdminBizUserRep {
     private String modifiedBy;
 
     private Long modifiedAt;
+    private boolean subscription;
 
     public AdminBizUserRep(BizUser bizUser) {
         this.id = bizUser.getId();
@@ -31,5 +32,6 @@ public class AdminBizUserRep {
         this.modifiedAt = bizUser.getModifiedAt().getTime();
         this.createdBy = bizUser.getCreatedBy();
         this.modifiedBy = bizUser.getModifiedBy();
+        this.subscription=bizUser.isSubscription();
     }
 }
