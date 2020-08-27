@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 public class RevokeBizUserTokenService extends CommonTokenRevocationService {
 
 
-    @Value("${url.zuul.resourceOwner}")
+    @Value("${url.zuul.revoke-tokens}")
     private String url;
 
 
-    public void blacklist(String name) {
-        blacklist(url, name);
+    public void blacklist(Long id) {
+        blacklist(url, id,TokenTypeEnum.User);
     }
 
 

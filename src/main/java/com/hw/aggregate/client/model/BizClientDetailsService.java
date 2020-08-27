@@ -17,7 +17,7 @@ public class BizClientDetailsService implements ClientDetailsService {
 
     @Override
     public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
-        Optional<BizClient> byClientId = clientRepo.findByClientId(clientId);
+        Optional<BizClient> byClientId = clientRepo.findById(Long.parseLong(clientId));
         if (byClientId.isEmpty())
             return null;
         return byClientId.get();

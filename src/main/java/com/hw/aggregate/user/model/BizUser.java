@@ -86,7 +86,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     public static void canBeDeleted(AdminBizUserRep adminBizUserRep, RevokeBizUserTokenService tokenRevocationService) {
         if (adminBizUserRep.getGrantedAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new IllegalArgumentException("root account can not be modified");
-        tokenRevocationService.blacklist(adminBizUserRep.getId().toString());
+        tokenRevocationService.blacklist(adminBizUserRep.getId());
     }
 
     public static BizUser create(Long id, PublicCreateBizUserCommand command, PasswordEncoder encoder, AppPendingUserApplicationService pendingResourceOwnerRepo, AppBizUserApplicationService service) {
@@ -151,7 +151,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
         oneByEmail.setPassword(encoder.encode(command.getNewPassword()));
         resourceOwnerRepo.save(oneByEmail);
         oneByEmail.setPwdResetToken(null);
-        service.blacklist(oneByEmail.getId().toString());
+        service.blacklist(oneByEmail.getId());
     }
 
     /**
@@ -163,7 +163,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
             throw new IllegalArgumentException("password(s)");
         if (!encoder.matches(command.getCurrentPwd(), this.getPassword()))
             throw new IllegalArgumentException("wrong password");
-        tokenRevocationService.blacklist(this.getId().toString());
+        tokenRevocationService.blacklist(this.getId());
         this.setPassword(encoder.encode(command.getPassword()));
         return this;
     }
@@ -218,7 +218,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
             throw new IllegalArgumentException("only root user can change subscription");
         boolean b = shouldRevoke(this, command);
         if (b)
-            tokenRevocationService.blacklist(this.getId().toString());
+            tokenRevocationService.blacklist(this.getId());
         this.setGrantedAuthorities(command.getGrantedAuthorities());
         this.setLocked(command.getLocked());
         if (command.isSubscription()) {

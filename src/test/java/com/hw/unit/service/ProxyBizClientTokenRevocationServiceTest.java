@@ -103,7 +103,7 @@ public class ProxyBizClientTokenRevocationServiceTest {
 
     private BizClient getClient(String clientId) {
         BizClient client = new BizClient();
-        client.setClientId(clientId);
+//        client.setClientId(clientId);
         /** set default to prevent NPE*/
         client.setScopeEnums(new HashSet<>(Collections.singletonList(ScopeEnum.read)));
         GrantedAuthorityImpl authority = getAuthority(BizClientAuthorityEnum.ROLE_BACKEND);

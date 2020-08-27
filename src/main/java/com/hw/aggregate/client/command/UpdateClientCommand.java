@@ -11,7 +11,6 @@ import java.util.Set;
 
 @Data
 public class UpdateClientCommand {
-    private String clientId;
     private String clientSecret;
     private String description;
 

@@ -34,14 +34,10 @@ import java.util.stream.Collectors;
 @Table
 @Data
 public class BizClient extends Auditable implements ClientDetails, IdBasedEntity {
-    public static final String ENTITY_CLIENT_ID = "clientId";
     public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
     @Id
     private Long id;
-    @NotNull
-    @Column(nullable = false)
-    private String clientId;
     private String description;
     @Nullable
     @Column
@@ -107,7 +103,6 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
 
     private BizClient(long id, CreateClientCommand command) {
         this.id = id;
-        this.clientId = command.getClientId();
         this.clientSecret = command.getClientSecret();
         this.description = command.getDescription();
         this.grantTypeEnums = command.getGrantTypeEnums();
@@ -126,7 +121,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         BizClient client = new BizClient(id, command);
         validateResourceId(client, clientRepo);
         validateResourceIndicator(client);
-        Optional<BizClient> clientId = clientRepo.findByClientId(client.getClientId());
+        Optional<BizClient> clientId = clientRepo.findById(Long.parseLong(client.getClientId()));
         if (clientId.isEmpty()) {
             if (null == client.getClientSecret()) {
                 client.setClientSecret(encoder.encode(""));
@@ -144,8 +139,8 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
      */
     private static void validateResourceId(BizClient client, BizClientRepo clientRepo) throws IllegalArgumentException {
         if (client.getResourceIds() == null || client.getResourceIds().size() == 0
-                || client.getResourceIds().stream().anyMatch(resourceId -> clientRepo.findByClientId(resourceId).isEmpty()
-                || !clientRepo.findByClientId(resourceId).get().getResourceIndicator()))
+                || client.getResourceIds().stream().anyMatch(resourceId -> clientRepo.findById(Long.parseLong(resourceId)).isEmpty()
+                || !clientRepo.findById(Long.parseLong(resourceId)).get().getResourceIndicator()))
             throw new IllegalArgumentException("invalid resourceId found");
     }
 
@@ -157,6 +152,11 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
             if (client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(BizClientAuthorityEnum.ROLE_BACKEND))
                     || client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY)))
                 throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
+    }
+
+    @Override
+    public String getClientId() {
+        return id.toString();
     }
 
     /**
@@ -206,11 +206,10 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     public BizClient replace(UpdateClientCommand command, RevokeBizClientTokenService tokenRevocationService, BizClientRepo clientRepo, BCryptPasswordEncoder encoder) {
         boolean b = shouldRevoke(this, command);
         if (b)
-            tokenRevocationService.blacklist(this.getClientId());
+            tokenRevocationService.blacklist(this.getId());
         if (StringUtils.hasText(command.getClientSecret())) {
             this.setClientSecret(encoder.encode(command.getClientSecret()));
         }
-        this.clientId = command.getClientId();
         this.grantTypeEnums = command.getGrantTypeEnums();
         this.description = command.getDescription();
         this.grantedAuthorities = command.getGrantedAuthorities();
@@ -237,9 +236,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     }
 
     public boolean shouldRevoke(BizClient oldClient, UpdateClientCommand newClient) {
-        if (!newClient.getClientId().equals(oldClient.getClientId())) {
-            return true;
-        } else if (StringUtils.hasText(newClient.getClientSecret())) {
+        if (StringUtils.hasText(newClient.getClientSecret())) {
             return true;
         } else if (authorityChanged(oldClient, newClient)) {
             return true;

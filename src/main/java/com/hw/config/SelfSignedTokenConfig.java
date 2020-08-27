@@ -27,7 +27,7 @@ public class SelfSignedTokenConfig {
     }
 
     public OAuth2AccessToken getSelfSignedAccessToken() {
-        Optional<BizClient> byId = clientRepo.findByClientId("oauth2-id");
+        Optional<BizClient> byId = clientRepo.findById(4L);
         if (byId.isEmpty())
             throw new IllegalArgumentException("root authorization client not found!,this should never happen");
         BizClient client = byId.get();
