@@ -7,11 +7,11 @@ import lombok.Data;
 public class UserBizClientCardRep {
 
     public static final String CUS_REP_CLIENT_ID = "clientId";
-    private String clientId;
+    private Long clientId;
     private Boolean autoApprove;
 
     public UserBizClientCardRep(BizClient client) {
-        this.clientId = client.getClientId();
+        this.clientId = client.getId();
         this.autoApprove = client.getAutoApprove();
     }
 }

@@ -1,7 +1,6 @@
 package com.hw.aggregate.client.model;
 
 import com.hw.shared.sql.builder.SelectQueryBuilder;
-import com.hw.shared.sql.clause.SelectFieldStringEqualClause;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +13,7 @@ public class RootBizClientSelectQueryBuilder extends SelectQueryBuilder<BizClien
     RootBizClientSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 2000;
+        mappedSortBy.put("name", ENTITY_NAME);
         mappedSortBy.put("resourceIndicator", ENTITY_RESOURCE_INDICATOR);
         mappedSortBy.put("accessTokenValiditySeconds", ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS);
         allowEmptyClause = true;

@@ -36,9 +36,12 @@ import java.util.stream.Collectors;
 public class BizClient extends Auditable implements ClientDetails, IdBasedEntity {
     public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
+    public static final String ENTITY_NAME = "name";
     @Id
     private Long id;
     private String description;
+    @Column(nullable = false)
+    private String name;
     @Nullable
     @Column
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

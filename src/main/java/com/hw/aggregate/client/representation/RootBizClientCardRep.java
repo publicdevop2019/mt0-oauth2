@@ -1,17 +1,20 @@
 package com.hw.aggregate.client.representation;
 
+import com.hw.aggregate.client.RootBIzClientApplicationService;
 import com.hw.aggregate.client.model.*;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class RootBizClientCardRep {
 
     private Long id;
 
-    private String clientId;
+    private String name;
 
     private String description;
 
@@ -35,7 +38,7 @@ public class RootBizClientCardRep {
 
     public RootBizClientCardRep(BizClient client) {
         this.id = client.getId();
-        this.clientId = client.getClientId();
+        this.name = client.getName();
         this.description = client.getDescription();
         this.grantTypeEnums = client.getGrantTypeEnums();
         this.grantedAuthorities = client.getGrantedAuthorities();

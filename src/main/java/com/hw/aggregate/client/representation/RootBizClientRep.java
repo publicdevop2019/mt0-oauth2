@@ -10,7 +10,7 @@ import java.util.Set;
 public class RootBizClientRep {
     private Long id;
 
-    private String clientId;
+    private String name;
 
     private String clientSecret;
 
@@ -38,7 +38,7 @@ public class RootBizClientRep {
 
     public RootBizClientRep(BizClient client) {
         this.id = client.getId();
-        this.clientId = client.getClientId();
+        this.name = client.getName();
         this.description = client.getDescription();
         this.clientSecret = client.getClientSecret();
         this.grantTypeEnums = client.getGrantTypeEnums();
