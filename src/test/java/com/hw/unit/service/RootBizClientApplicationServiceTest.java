@@ -29,7 +29,7 @@ public class RootBizClientApplicationServiceTest {
     BCryptPasswordEncoder encoder;
     private String STUB_RESOURCE_ID = "dummyResourceId";
 
-    @Test
+//    @Test
 //    public void get_all_clients() {
 //        ArrayList<BizClient> clients = new ArrayList<>();
 //        Mockito.doReturn(clients).when(clientRepo).findAll();
@@ -151,21 +151,21 @@ public class RootBizClientApplicationServiceTest {
 //        Mockito.verify(encoder, Mockito.times(1)).encode(any(String.class));
 //    }
 
-    private BizClient getClient(String clientId) {
-        BizClient client = new BizClient();
-//        client.setClientId(clientId);
-        /** set default to prevent NPE*/
-        client.setScopeEnums(new HashSet<>(Collections.singletonList(ScopeEnum.read)));
-        GrantedAuthorityImpl authority = getAuthority(BizClientAuthorityEnum.ROLE_BACKEND);
-        client.setResourceIndicator(Boolean.FALSE);
-        client.setGrantedAuthorities(Collections.singletonList(authority));
-        client.setGrantTypeEnums(new HashSet<>(Collections.singletonList(GrantTypeEnum.client_credentials)));
-        client.setAccessTokenValiditySeconds(1000);
-        client.setResourceIds(new HashSet<>(Collections.singletonList(STUB_RESOURCE_ID)));
-        return client;
-    }
-
-    private GrantedAuthorityImpl getAuthority(BizClientAuthorityEnum clientAuthorityEnum) {
-        return GrantedAuthorityImpl.getGrantedAuthority(BizClientAuthorityEnum.class, clientAuthorityEnum.toString());
-    }
+//    private BizClient getClient(String clientId) {
+//        BizClient client = new BizClient();
+////        client.setClientId(clientId);
+//        /** set default to prevent NPE*/
+//        client.setScopeEnums(new HashSet<>(Collections.singletonList(ScopeEnum.read)));
+//        GrantedAuthorityImpl authority = getAuthority(BizClientAuthorityEnum.ROLE_BACKEND);
+//        client.setResourceIndicator(Boolean.FALSE);
+//        client.setGrantedAuthorities(Collections.singletonList(authority));
+//        client.setGrantTypeEnums(new HashSet<>(Collections.singletonList(GrantTypeEnum.client_credentials)));
+//        client.setAccessTokenValiditySeconds(1000);
+//        client.setResourceIds(new HashSet<>(Collections.singletonList(STUB_RESOURCE_ID)));
+//        return client;
+//    }
+//
+//    private GrantedAuthorityImpl getAuthority(BizClientAuthorityEnum clientAuthorityEnum) {
+//        return GrantedAuthorityImpl.getGrantedAuthority(BizClientAuthorityEnum.class, clientAuthorityEnum.toString());
+//    }
 }

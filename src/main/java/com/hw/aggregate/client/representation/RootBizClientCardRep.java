@@ -20,7 +20,7 @@ public class RootBizClientCardRep {
 
     private Set<GrantTypeEnum> grantTypeEnums;
 
-    private List<GrantedAuthorityImpl<BizClientAuthorityEnum>> grantedAuthorities;
+    private Set<BizClientAuthorityEnum> grantedAuthorities;
 
     private Set<ScopeEnum> scopeEnums;
 

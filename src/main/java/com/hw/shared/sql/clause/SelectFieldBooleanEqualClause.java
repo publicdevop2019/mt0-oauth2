@@ -11,6 +11,8 @@ public class SelectFieldBooleanEqualClause<T> extends WhereClause<T> {
 
     @Override
     public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
-        return cb.equal(root.get(entityFieldName), query);
+        if ("1".equals(query))
+            return cb.isTrue(root.get(entityFieldName));
+        return cb.isFalse(root.get(entityFieldName));
     }
 }

@@ -1,7 +1,5 @@
 package com.hw.aggregate.client.model;
 
-import com.hw.aggregate.user.model.DefaultAuthorityConverter;
-
 public enum BizClientAuthorityEnum {
     ROLE_FRONTEND,
     ROLE_BACKEND,
@@ -13,7 +11,7 @@ public enum BizClientAuthorityEnum {
      */
     ROLE_ROOT;
 
-    public static class ClientAuthorityConverter extends DefaultAuthorityConverter {
+    public static class ClientAuthorityConverter extends EnumSetConverter {
         public ClientAuthorityConverter() {
             super(BizClientAuthorityEnum.class);
         }

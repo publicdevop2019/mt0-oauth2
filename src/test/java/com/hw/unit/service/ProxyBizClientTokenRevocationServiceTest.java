@@ -107,7 +107,7 @@ public class ProxyBizClientTokenRevocationServiceTest {
         /** set default to prevent NPE*/
         client.setScopeEnums(new HashSet<>(Collections.singletonList(ScopeEnum.read)));
         GrantedAuthorityImpl authority = getAuthority(BizClientAuthorityEnum.ROLE_BACKEND);
-        client.setGrantedAuthorities(Collections.singletonList(authority));
+//        client.setGrantedAuthorities(Collections.singletonList(authority));
         client.setGrantTypeEnums(new HashSet<>(Collections.singletonList(GrantTypeEnum.client_credentials)));
         client.setAccessTokenValiditySeconds(1000);
         client.setResourceIds(new HashSet<>(Collections.singletonList("dummyResourceId")));

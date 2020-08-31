@@ -19,11 +19,13 @@ import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +57,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     @NotEmpty
     @Column(nullable = false)
     @Convert(converter = BizClientAuthorityEnum.ClientAuthorityConverter.class)
-    private List<@Valid @NotNull GrantedAuthorityImpl<BizClientAuthorityEnum>> grantedAuthorities;
+    private Set<BizClientAuthorityEnum> grantedAuthorities;
     @NotNull
     @NotEmpty
     @Column(nullable = false)
@@ -75,7 +77,6 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
 
     @Column
     @NotNull
-    @NotEmpty
     @Convert(converter = StringSetConverter.class)
     private Set<String> resourceIds;
 
@@ -152,8 +153,8 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
      */
     private static void validateResourceIndicator(BizClient client) throws IllegalArgumentException {
         if (client.getResourceIndicator())
-            if (client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(BizClientAuthorityEnum.ROLE_BACKEND))
-                    || client.getGrantedAuthorities().stream().noneMatch(e -> e.getGrantedAuthority().equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY)))
+            if (client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_BACKEND))
+                    || client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY)))
                 throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
     }
 
@@ -192,7 +193,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     @Override
     @JsonIgnore
     public Collection<GrantedAuthority> getAuthorities() {
-        return grantedAuthorities.stream().map(e -> (GrantedAuthority) e).collect(Collectors.toList());
+        return grantedAuthorities.stream().map(GrantedAuthorityImpl::new).collect(Collectors.toList());
     }
 
     @Override
@@ -261,9 +262,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     }
 
     private boolean authorityChanged(BizClient oldClient, UpdateClientCommand newClient) {
-        HashSet<GrantedAuthorityImpl<BizClientAuthorityEnum>> grantedAuthorities = new HashSet<>(oldClient.getGrantedAuthorities());
-        HashSet<GrantedAuthorityImpl<BizClientAuthorityEnum>> grantedAuthorities2 = new HashSet<>(newClient.getGrantedAuthorities());
-        return !grantedAuthorities.equals(grantedAuthorities2);
+        return !oldClient.getGrantedAuthorities().equals(newClient.getGrantedAuthorities());
     }
 
     private boolean scopeChanged(BizClient oldClient, UpdateClientCommand newClient) {

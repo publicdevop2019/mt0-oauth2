@@ -24,15 +24,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
-import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * root has ROLE_ROOT, ROLE_ADMIN, ROLE_USER
@@ -63,7 +60,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     @NotNull
     @NotEmpty
     @Convert(converter = BizUserAuthorityEnum.ResourceOwnerAuthorityConverter.class)
-    private List<@Valid @NotNull GrantedAuthorityImpl<BizUserAuthorityEnum>> grantedAuthorities;
+    private Set<BizUserAuthorityEnum> grantedAuthorities;
     @Column
     private boolean subscription;
 
@@ -79,12 +76,12 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
         this.email = command.getEmail();
         this.password = command.getPassword();
         this.locked = false;
-        this.grantedAuthorities = Collections.singletonList(new GrantedAuthorityImpl(BizUserAuthorityEnum.ROLE_USER));
+        this.grantedAuthorities = Collections.singleton(BizUserAuthorityEnum.ROLE_USER);
         this.subscription = false;
     }
 
     public static void canBeDeleted(AdminBizUserRep adminBizUserRep, RevokeBizUserTokenService tokenRevocationService) {
-        if (adminBizUserRep.getGrantedAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
+        if (adminBizUserRep.getGrantedAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.name())))
             throw new IllegalArgumentException("root account can not be modified");
         tokenRevocationService.blacklist(adminBizUserRep.getId());
     }
@@ -174,7 +171,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return grantedAuthorities;
+        return grantedAuthorities.stream().map(GrantedAuthorityImpl::new).collect(Collectors.toList());
     }
 
     @Override
@@ -255,8 +252,6 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     }
 
     private boolean authorityChanged(BizUser oldResourceOwner, AdminUpdateBizUserCommand newResourceOwner) {
-        HashSet<GrantedAuthorityImpl<BizUserAuthorityEnum>> grantedAuthorities = new HashSet<>(oldResourceOwner.getGrantedAuthorities());
-        HashSet<GrantedAuthorityImpl<BizUserAuthorityEnum>> grantedAuthorities1 = new HashSet<>(newResourceOwner.getGrantedAuthorities());
-        return !grantedAuthorities.equals(grantedAuthorities1);
+        return !oldResourceOwner.getGrantedAuthorities().equals(newResourceOwner.getGrantedAuthorities());
     }
 }

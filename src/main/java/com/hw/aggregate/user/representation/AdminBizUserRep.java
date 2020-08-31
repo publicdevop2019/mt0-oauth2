@@ -1,11 +1,10 @@
 package com.hw.aggregate.user.representation;
 
-import com.hw.aggregate.client.model.GrantedAuthorityImpl;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserAuthorityEnum;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class AdminBizUserRep {
@@ -13,7 +12,7 @@ public class AdminBizUserRep {
 
     private String email;
     private Boolean locked;
-    private List<GrantedAuthorityImpl<BizUserAuthorityEnum>> grantedAuthorities;
+    private Set<BizUserAuthorityEnum> grantedAuthorities;
     private String createdBy;
 
     private Long createdAt;
@@ -32,6 +31,6 @@ public class AdminBizUserRep {
         this.modifiedAt = bizUser.getModifiedAt().getTime();
         this.createdBy = bizUser.getCreatedBy();
         this.modifiedBy = bizUser.getModifiedBy();
-        this.subscription=bizUser.isSubscription();
+        this.subscription = bizUser.isSubscription();
     }
 }

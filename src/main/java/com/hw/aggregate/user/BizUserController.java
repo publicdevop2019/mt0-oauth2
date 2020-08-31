@@ -1,5 +1,6 @@
 package com.hw.aggregate.user;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.user.command.*;
 import com.hw.shared.ServiceUtility;
 import com.hw.shared.rest.CreatedEntityRep;
@@ -77,6 +78,11 @@ public class BizUserController {
     @PostMapping("public/resetPwd")
     public ResponseEntity<?> resetPwd(@RequestBody PublicResetPwdCommand forgetPasswordRequest) {
         publicBizUserApplicationService.resetPassword(forgetPasswordRequest);
+        return ResponseEntity.ok().build();
+    }
+    @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
+    public ResponseEntity<?> patchForRootById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        adminResourceOwnerService.patchById(id, patch, changeId);
         return ResponseEntity.ok().build();
     }
 }

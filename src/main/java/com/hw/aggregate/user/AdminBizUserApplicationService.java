@@ -3,6 +3,7 @@ package com.hw.aggregate.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.pending_user.AppPendingUserApplicationService;
 import com.hw.aggregate.user.command.AdminUpdateBizUserCommand;
+import com.hw.aggregate.user.model.AdminBizUserPatchMiddleLayer;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserQueryRegistry;
 import com.hw.aggregate.user.representation.AdminBizUserCardRep;
@@ -20,7 +21,7 @@ import javax.annotation.PostConstruct;
 
 @Service
 @Slf4j
-public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, AdminBizUserCardRep, AdminBizUserRep, VoidTypedClass> {
+public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, AdminBizUserCardRep, AdminBizUserRep, AdminBizUserPatchMiddleLayer> {
     @Autowired
     private BizUserRepo resourceOwnerRepo;
 
@@ -50,6 +51,7 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
         idGenerator = idGenerator2;
         changeRepository = changeRepository2;
         om = objectMapper;
+        entityPatchSupplier=AdminBizUserPatchMiddleLayer::new;
     }
 
     @Override

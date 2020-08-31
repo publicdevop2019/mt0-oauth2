@@ -6,6 +6,7 @@ import com.hw.aggregate.user.model.BizUserAuthorityEnum;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class AdminBizUserCardRep {
@@ -16,7 +17,7 @@ public class AdminBizUserCardRep {
     private Boolean locked;
     private long createAt;
 
-    private List<GrantedAuthorityImpl<BizUserAuthorityEnum>> grantedAuthorities;
+    private Set<BizUserAuthorityEnum> grantedAuthorities;
 
     public AdminBizUserCardRep(BizUser bizUser) {
         this.id = bizUser.getId();
