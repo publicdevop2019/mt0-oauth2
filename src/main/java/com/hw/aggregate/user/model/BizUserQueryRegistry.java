@@ -14,11 +14,15 @@ public class BizUserQueryRegistry extends RestfulQueryRegistry<BizUser> {
     private AppBizUserSelectQueryBuilder appBizUserSelectQueryBuilder;
     @Autowired
     private UserBizUserSelectQueryBuilder userBizUserSelectQueryBuilder;
+    @Autowired
+    private AdminBizUserUpdateQueryBuilder adminBizUserUpdateQueryBuilder;
+
     @Override
     @PostConstruct
     protected void configQueryBuilder() {
-        selectQueryBuilder.put(RoleEnum.ADMIN,adminBizUserSelectQueryBuilder);
-        selectQueryBuilder.put(RoleEnum.APP,appBizUserSelectQueryBuilder);
-        selectQueryBuilder.put(RoleEnum.USER,userBizUserSelectQueryBuilder);
+        selectQueryBuilder.put(RoleEnum.ADMIN, adminBizUserSelectQueryBuilder);
+        selectQueryBuilder.put(RoleEnum.APP, appBizUserSelectQueryBuilder);
+        selectQueryBuilder.put(RoleEnum.USER, userBizUserSelectQueryBuilder);
+        updateQueryBuilder.put(RoleEnum.ADMIN, adminBizUserUpdateQueryBuilder);
     }
 }

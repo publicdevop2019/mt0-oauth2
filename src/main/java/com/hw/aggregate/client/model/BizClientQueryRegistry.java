@@ -12,11 +12,14 @@ public class BizClientQueryRegistry extends RestfulQueryRegistry<BizClient> {
     private UserBizClientSelectQueryBuilder customerClientSelectQueryBuilder;
     @Autowired
     private RootBizClientSelectQueryBuilder rootBizClientSelectQueryBuilder;
+    @Autowired
+    private RootBizClientDeleteQueryBuilder rootBizClientDeleteQueryBuilder;
 
     @Override
     @PostConstruct
     protected void configQueryBuilder() {
         selectQueryBuilder.put(RoleEnum.USER, customerClientSelectQueryBuilder);
         selectQueryBuilder.put(RoleEnum.ROOT, rootBizClientSelectQueryBuilder);
+        deleteQueryBuilder.put(RoleEnum.ROOT, rootBizClientDeleteQueryBuilder);
     }
 }

@@ -40,7 +40,7 @@ public class RootBizClientRep {
         this.id = client.getId();
         this.name = client.getName();
         this.description = client.getDescription();
-        this.clientSecret = client.getClientSecret();
+        this.clientSecret = null;
         this.grantTypeEnums = client.getGrantTypeEnums();
         this.grantedAuthorities = client.getGrantedAuthorities();
         this.scopeEnums = client.getScopeEnums();

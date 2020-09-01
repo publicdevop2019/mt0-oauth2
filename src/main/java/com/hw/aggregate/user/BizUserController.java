@@ -4,9 +4,12 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.user.command.*;
 import com.hw.shared.ServiceUtility;
 import com.hw.shared.rest.CreatedEntityRep;
+import com.hw.shared.sql.PatchCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.hw.shared.AppConstant.*;
 
@@ -80,9 +83,16 @@ public class BizUserController {
         publicBizUserApplicationService.resetPassword(forgetPasswordRequest);
         return ResponseEntity.ok().build();
     }
+
     @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<?> patchForRootById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         adminResourceOwnerService.patchById(id, patch, changeId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping(path = "admin")
+    public ResponseEntity<?> patchForAdminBatch(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        adminResourceOwnerService.patchBatch(patch, changeId);
         return ResponseEntity.ok().build();
     }
 }

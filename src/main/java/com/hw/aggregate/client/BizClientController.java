@@ -48,6 +48,12 @@ public class BizClientController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("root")
+    public ResponseEntity<?> deleteForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam) {
+        rootClientApplicationService.deleteByQuery(queryParam);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("user")
     public ResponseEntity<?> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
                                                @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
