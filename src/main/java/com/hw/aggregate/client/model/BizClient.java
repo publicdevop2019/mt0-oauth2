@@ -123,6 +123,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         this.resourceIndicator = command.getResourceIndicator();
         this.autoApprove = command.getAutoApprove();
         this.hasSecret = command.getClientSecret() != null;
+        this.name=command.getName();
     }
 
     public static BizClient create(long id, CreateClientCommand command, BizClientRepo clientRepo, BCryptPasswordEncoder encoder) {
@@ -229,6 +230,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         this.resourceIndicator = command.getResourceIndicator();
         this.autoApprove = command.getAutoApprove();
         this.hasSecret = command.getClientSecret() != null;
+        this.name=command.getName();
         validateResourceIndicator(this);
         validateResourceId(this, clientRepo);
         return this;

@@ -2,8 +2,7 @@ package com.hw.aggregate.user.model;
 
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.clause.SelectFieldBooleanEqualClause;
-import com.hw.shared.sql.clause.SelectFieldCollectionContainsClause;
-import com.hw.shared.sql.clause.SelectFieldStringEqualClause;
+import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,9 +17,9 @@ public class AdminBizUserSelectQueryBuilder extends SelectQueryBuilder<BizUser> 
         MAX_PAGE_SIZE = 50;
         mappedSortBy.put(ENTITY_EMAIL, ENTITY_EMAIL);
         mappedSortBy.put("createAt", "createdAt");
-        supportedWhereField.put(ENTITY_EMAIL, new SelectFieldStringEqualClause<>(ENTITY_EMAIL));
+        supportedWhereField.put(ENTITY_EMAIL, new SelectFieldStringLikeClause<>(ENTITY_EMAIL));
         supportedWhereField.put(ENTITY_SUBSCRIPTION, new SelectFieldBooleanEqualClause<>(ENTITY_SUBSCRIPTION));
-        supportedWhereField.put(ENTITY_GRANTED_AUTHORITIES, new SelectFieldCollectionContainsClause<>(ENTITY_GRANTED_AUTHORITIES));
+        supportedWhereField.put(ENTITY_GRANTED_AUTHORITIES, new SelectFieldStringLikeClause<>(ENTITY_GRANTED_AUTHORITIES));
         allowEmptyClause = true;
     }
 

@@ -4,13 +4,14 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-public class SelectFieldStringEqualClause<T> extends WhereClause<T> {
+public class SelectFieldStringEqualClause<T> extends SelectFieldStringLikeClause<T> {
     public SelectFieldStringEqualClause(String fieldName) {
-        entityFieldName = fieldName;
+        super(fieldName);
     }
 
     @Override
-    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
-        return cb.equal(root.get(entityFieldName).as(String.class), query);
+    protected Predicate getExpression(String input, CriteriaBuilder cb, Root<T> root) {
+        return cb.equal(root.get(entityFieldName).as(String.class), input);
     }
+
 }

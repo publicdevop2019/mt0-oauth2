@@ -11,6 +11,7 @@ import java.util.Set;
 public class CreateClientCommand {
     private String clientSecret;
     private String description;
+    private String name;
 
     private Set<GrantTypeEnum> grantTypeEnums;
 
