@@ -28,13 +28,12 @@ public class SelectFieldCollectionContainsClause<T> extends WhereClause<T> {
             Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\.")));
             List<Predicate> list1 = strings.stream().map(e -> getExpression(e, cb, root)).collect(Collectors.toList());
             return cb.or(list1.toArray(Predicate[]::new));
-        }
-        else if (query.contains("$")) {
+        } else if (query.contains("$")) {
             Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\$")));
-            List<Predicate> list2 = strings.stream().filter(e -> e.contains("+")).map(e -> getExpression(e, cb, root)).collect(Collectors.toList());
+            List<Predicate> list2 = strings.stream().map(e -> getExpression(e, cb, root)).collect(Collectors.toList());
             return cb.or(list2.toArray(Predicate[]::new));
-        }else {
-            return cb.like(root.get(entityFieldName).as(String.class), "%" + query + "%");
+        } else {
+            return getExpression(query, cb, root);
         }
     }
 }

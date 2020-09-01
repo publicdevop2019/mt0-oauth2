@@ -11,6 +11,6 @@ public class SelectFieldStringEqualClause<T> extends WhereClause<T> {
 
     @Override
     public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
-        return cb.equal(root.get(entityFieldName), query);
+        return cb.equal(root.get(entityFieldName).as(String.class), query);
     }
 }
