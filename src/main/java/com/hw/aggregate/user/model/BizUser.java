@@ -43,6 +43,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     public static final String ENTITY_EMAIL = "email";
     public static final String ENTITY_SUBSCRIPTION = "subscription";
     public static final String ENTITY_LOCKED = "locked";
+    public static final String ENTITY_GRANTED_AUTHORITIES = "grantedAuthorities";
     @Id
     private Long id;
     @Column(nullable = false)

@@ -39,6 +39,10 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
     public static final String ENTITY_NAME = "name";
+    public static final String ENTITY_GRANT_TYPE_ENUMS = "grantTypeEnums";
+    public static final String ENTITY_GRANT_AUTHORITIES = "grantedAuthorities";
+    public static final String ENTITY_SCOPE_ENUMS = "scopeEnums";
+    public static final String ENTITY_RESOURCE_IDS = "resourceIds";
     @Id
     private Long id;
     private String description;
