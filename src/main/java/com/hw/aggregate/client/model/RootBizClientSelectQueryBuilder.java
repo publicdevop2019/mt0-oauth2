@@ -2,6 +2,7 @@ package com.hw.aggregate.client.model;
 
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.clause.SelectFieldBooleanEqualClause;
+import com.hw.shared.sql.clause.SelectFieldNumberRangeClause;
 import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ public class RootBizClientSelectQueryBuilder extends SelectQueryBuilder<BizClien
         supportedWhereField.put(ENTITY_GRANT_AUTHORITIES, new SelectFieldStringLikeClause<>(ENTITY_GRANT_AUTHORITIES));
         supportedWhereField.put(ENTITY_SCOPE_ENUMS, new SelectFieldStringLikeClause<>(ENTITY_SCOPE_ENUMS));
         supportedWhereField.put(ENTITY_RESOURCE_IDS, new SelectFieldStringLikeClause<>(ENTITY_RESOURCE_IDS));
+        supportedWhereField.put(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS, new SelectFieldNumberRangeClause<>(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS));
         allowEmptyClause = true;
     }
 
