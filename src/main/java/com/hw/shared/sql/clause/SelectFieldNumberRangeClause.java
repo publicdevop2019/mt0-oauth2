@@ -19,16 +19,16 @@ public class SelectFieldNumberRangeClause<T> extends WhereClause<T> {
         List<Predicate> results = new ArrayList<>();
         for (String str : split) {
             if (str.contains("<=")) {
-                int i = Integer.parseInt(query.replace("<=", ""));
+                int i = Integer.parseInt(str.replace("<=", ""));
                 results.add(cb.lessThanOrEqualTo(root.get(entityFieldName), i));
             } else if (str.contains(">=")) {
-                int i = Integer.parseInt(query.replace(">=", ""));
+                int i = Integer.parseInt(str.replace(">=", ""));
                 results.add(cb.greaterThanOrEqualTo(root.get(entityFieldName), i));
             } else if (str.contains("<")) {
-                int i = Integer.parseInt(query.replace("<", ""));
+                int i = Integer.parseInt(str.replace("<", ""));
                 results.add(cb.lessThan(root.get(entityFieldName), i));
             } else if (str.contains(">")) {
-                int i = Integer.parseInt(query.replace(">", ""));
+                int i = Integer.parseInt(str.replace(">", ""));
                 results.add(cb.greaterThan(root.get(entityFieldName), i));
             } else {
                 throw new UnsupportedQueryException();
