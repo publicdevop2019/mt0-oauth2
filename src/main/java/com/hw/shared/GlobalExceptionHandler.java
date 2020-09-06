@@ -40,7 +40,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             EntityNotExistException.class,
             EntityPatchException.class,
             QueryBuilderNotFoundException.class,
-            EmptyQueryValueException.class
+            EmptyQueryValueException.class,
+            UnknownWhereClauseException.class
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

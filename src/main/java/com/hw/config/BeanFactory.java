@@ -1,6 +1,6 @@
 package com.hw.config;
 
-import com.hw.aggregate.client.model.BizClientDetailsService;
+import com.hw.aggregate.client.AppBizClientApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -110,7 +110,7 @@ public class BeanFactory {
     }
 
     @Bean
-    private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory(BizClientDetailsService clientDetailsService) {
+    private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory(AppBizClientApplicationService clientDetailsService) {
 
         return new DefaultOAuth2RequestFactory(clientDetailsService);
     }

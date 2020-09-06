@@ -1,13 +1,10 @@
 package com.hw.shared.sql.builder;
 
 import com.hw.shared.Auditable;
-import com.hw.shared.sql.clause.SelectNotDeletedClause;
 import com.hw.shared.sql.clause.SelectFieldIdWhereClause;
+import com.hw.shared.sql.clause.SelectNotDeletedClause;
 import com.hw.shared.sql.clause.WhereClause;
-import com.hw.shared.sql.exception.EmptyQueryValueException;
-import com.hw.shared.sql.exception.EmptyWhereClauseException;
-import com.hw.shared.sql.exception.MaxPageSizeExceedException;
-import com.hw.shared.sql.exception.UnsupportedQueryException;
+import com.hw.shared.sql.exception.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
@@ -53,6 +50,8 @@ public abstract class SelectQueryBuilder<T extends Auditable> {
             for (String param : queryParams) {
                 String[] split = param.split(":");
                 if (split.length == 2) {
+                    if (supportedWhereField.get(split[0]) == null)
+                        throw new UnknownWhereClauseException();
                     if (supportedWhereField.get(split[0]) != null && !split[1].isBlank()) {
                         WhereClause<T> tWhereClause = supportedWhereField.get(split[0]);
                         Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root);

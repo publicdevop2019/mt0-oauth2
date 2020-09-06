@@ -3,17 +3,21 @@ package com.hw.aggregate.client;
 import com.hw.aggregate.client.model.BizClient;
 import com.hw.aggregate.client.model.BizClientQueryRegistry;
 import com.hw.aggregate.client.representation.AppBizClientCardRep;
+import com.hw.aggregate.client.representation.AppBizClientRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Service
-public class AppBizClientApplicationService extends DefaultRoleBasedRestfulService<BizClient, AppBizClientCardRep, Void, VoidTypedClass> {
+public class AppBizClientApplicationService extends DefaultRoleBasedRestfulService<BizClient, AppBizClientCardRep, AppBizClientRep, VoidTypedClass> implements ClientDetailsService {
     @Autowired
     private BizClientRepo clientRepo;
     @Autowired
@@ -59,8 +63,8 @@ public class AppBizClientApplicationService extends DefaultRoleBasedRestfulServi
     }
 
     @Override
-    public Void getEntityRepresentation(BizClient client) {
-        return null;
+    public AppBizClientRep getEntityRepresentation(BizClient client) {
+        return new AppBizClientRep(client);
     }
 
     @Override
@@ -68,4 +72,9 @@ public class AppBizClientApplicationService extends DefaultRoleBasedRestfulServi
         return null;
     }
 
+    @Override
+    public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
+        AppBizClientRep appBizClientRep = readById(Long.parseLong(clientId));
+        return appBizClientRep;
+    }
 }

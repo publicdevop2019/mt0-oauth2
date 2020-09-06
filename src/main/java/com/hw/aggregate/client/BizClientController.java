@@ -19,7 +19,7 @@ public class BizClientController {
     private RootBIzClientApplicationService rootClientApplicationService;
 
     @Autowired
-    private UserBizClientApplicationService userClientApplicationService;
+    private AppBizClientApplicationService appBizClientApplicationService;
 
     @PostMapping("root")
     public ResponseEntity<?> createForRoot(@RequestBody CreateClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
@@ -56,11 +56,11 @@ public class BizClientController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("user")
+    @GetMapping("app")
     public ResponseEntity<?> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
                                                @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
                                                @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
-        return ResponseEntity.ok(userClientApplicationService.readByQuery(queryParam, pageParam, skipCount));
+        return ResponseEntity.ok(appBizClientApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
     @PatchMapping(path = "root/{id}", consumes = "application/json-patch+json")

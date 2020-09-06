@@ -13,6 +13,6 @@ public class SelectNotDeletedClause<T extends Auditable> {
     }
 
     public Predicate getWhereClause(CriteriaBuilder cb, Root<T> root) {
-        return cb.isFalse(root.get(ENTITY_DELETED));
+        return cb.or(cb.isNull(root.get(ENTITY_DELETED)), cb.isFalse(root.get(ENTITY_DELETED)));
     }
 }

@@ -1,7 +1,9 @@
 package com.hw.shared.sql;
 
+import com.hw.shared.Auditable;
 import com.hw.shared.sql.builder.HardDeleteQueryBuilder;
 import com.hw.shared.sql.builder.SelectQueryBuilder;
+import com.hw.shared.sql.builder.SoftDeleteQueryBuilder;
 import com.hw.shared.sql.builder.UpdateQueryBuilder;
 import com.hw.shared.sql.exception.QueryBuilderNotFoundException;
 
@@ -9,10 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class RestfulQueryRegistry<T> {
+public abstract class RestfulQueryRegistry<T extends Auditable> {
     protected Map<RoleEnum, SelectQueryBuilder<T>> selectQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, UpdateQueryBuilder<T>> updateQueryBuilder = new HashMap<>();
-    protected Map<RoleEnum, HardDeleteQueryBuilder<T>> deleteQueryBuilder = new HashMap<>();
+    protected Map<RoleEnum, SoftDeleteQueryBuilder<T>> deleteQueryBuilder = new HashMap<>();
 
     protected abstract void configQueryBuilder();
 
@@ -38,7 +40,7 @@ public abstract class RestfulQueryRegistry<T> {
     }
 
     public Integer deleteByQuery(RoleEnum roleEnum, String query, Class<T> clazz) {
-        HardDeleteQueryBuilder<T> deleteQueryBuilder = this.deleteQueryBuilder.get(roleEnum);
+        SoftDeleteQueryBuilder<T> deleteQueryBuilder = this.deleteQueryBuilder.get(roleEnum);
         if (deleteQueryBuilder == null)
             throw new QueryBuilderNotFoundException();
         return deleteQueryBuilder.delete(query, clazz);

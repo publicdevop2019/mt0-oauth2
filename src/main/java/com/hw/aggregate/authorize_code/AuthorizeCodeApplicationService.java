@@ -1,6 +1,6 @@
 package com.hw.aggregate.authorize_code;
 
-import com.hw.aggregate.client.model.BizClientDetailsService;
+import com.hw.aggregate.client.AppBizClientApplicationService;
 import com.hw.misc.ServiceUtilityExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -26,7 +26,7 @@ import java.util.Set;
 @Service
 public class AuthorizeCodeApplicationService {
     @Autowired
-    private BizClientDetailsService clientDetailsService;
+    private AppBizClientApplicationService clientDetailsService;
 
     @Autowired
     private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory;

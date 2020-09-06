@@ -3,6 +3,7 @@ package com.hw.aggregate.pending_user.model;
 import com.hw.aggregate.pending_user.PendingUserRepo;
 import com.hw.aggregate.user.AppBizUserApplicationService;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
+import com.hw.shared.Auditable;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.rest.IdBasedEntity;
 import com.hw.shared.sql.SumPagedRep;
@@ -15,7 +16,7 @@ import javax.validation.constraints.Email;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"email"}))
 @Data
-public class PendingUser implements IdBasedEntity {
+public class PendingUser extends Auditable implements IdBasedEntity {
     @Id
     private Long id;
 

@@ -1,6 +1,6 @@
 package com.hw.config;
 
-import com.hw.aggregate.client.model.BizClientDetailsService;
+import com.hw.aggregate.client.AppBizClientApplicationService;
 import com.hw.aggregate.user.model.BizUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +35,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     SelfSignedTokenConfig authTokenHelper;
 
     @Autowired
-    BizClientDetailsService clientDetailsService;
+    AppBizClientApplicationService clientDetailsService;
 
     @Autowired
     AuthenticationManager authenticationManager;

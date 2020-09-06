@@ -39,7 +39,7 @@ public class Auditable {
     private Date modifiedAt;
     public static final String ENTITY_MODIFIED_AT = "modifiedAt";
 
-    private boolean deleted;
+    private Boolean deleted;
     public static final String ENTITY_DELETED = "deleted";
 
     private String deletedBy;

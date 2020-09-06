@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import com.hw.shared.Auditable;
 import com.hw.shared.DeepCopyException;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRecord;
@@ -25,13 +26,14 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.hw.shared.AppConstant.HTTP_HEADER_CHANGE_ID;
 
 @Slf4j
-public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X, Y, Z extends TypedClass<Z>> {
+public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBasedEntity, X, Y, Z extends TypedClass<Z>> {
 
     protected JpaRepository<T, Long> repo;
     protected IdGenerator idGenerator;
@@ -109,7 +111,9 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
                 data = queryRegistry.readByQuery(role, query, "num:" + a, null, entityClass).getData();
             }
             data.forEach(this::preDelete);
-            repo.deleteAll(data);
+            Set<String> collect = data.stream().map(e -> e.getId().toString()).collect(Collectors.toSet());
+            String join = "id:" + String.join(".", collect);
+            queryRegistry.deleteByQuery(role, join, entityClass);//delete only checked entity
             data.forEach(this::postDelete);
             return data.size();
         } else {

@@ -9,8 +9,6 @@ import javax.annotation.PostConstruct;
 @Component
 public class BizClientQueryRegistry extends RestfulQueryRegistry<BizClient> {
     @Autowired
-    private UserBizClientSelectQueryBuilder customerClientSelectQueryBuilder;
-    @Autowired
     private RootBizClientSelectQueryBuilder rootBizClientSelectQueryBuilder;
     @Autowired
     private AppBizClientSelectQueryBuilder appBizClientSelectQueryBuilder;
@@ -20,7 +18,6 @@ public class BizClientQueryRegistry extends RestfulQueryRegistry<BizClient> {
     @Override
     @PostConstruct
     protected void configQueryBuilder() {
-        selectQueryBuilder.put(RoleEnum.USER, customerClientSelectQueryBuilder);
         selectQueryBuilder.put(RoleEnum.ROOT, rootBizClientSelectQueryBuilder);
         selectQueryBuilder.put(RoleEnum.APP, appBizClientSelectQueryBuilder);
         deleteQueryBuilder.put(RoleEnum.ROOT, rootBizClientDeleteQueryBuilder);
