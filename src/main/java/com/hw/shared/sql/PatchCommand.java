@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * used for json patch and create/delete operation
+ */
 @Data
 public class PatchCommand implements Comparable<PatchCommand>, Serializable {
     private static final long serialVersionUID = 1;

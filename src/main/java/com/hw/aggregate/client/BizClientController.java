@@ -45,14 +45,20 @@ public class BizClientController {
     }
 
     @DeleteMapping("root/{id}")
-    public ResponseEntity<?> deleteForRootById(@PathVariable Long id) {
-        rootClientApplicationService.deleteById(id);
+    public ResponseEntity<?> deleteForRootById(@PathVariable Long id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        rootClientApplicationService.deleteById(id, changeId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("change/root/{id}")
+    public ResponseEntity<?> rollbackChangeForRootById(@PathVariable String id) {
+        rootClientApplicationService.rollbackCreateOrDelete(id);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("root")
-    public ResponseEntity<?> deleteForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam) {
-        rootClientApplicationService.deleteByQuery(queryParam);
+    public ResponseEntity<?> deleteForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        rootClientApplicationService.deleteByQuery(queryParam, changeId);
         return ResponseEntity.ok().build();
     }
 

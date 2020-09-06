@@ -54,8 +54,8 @@ public class BizUserController {
     }
 
     @DeleteMapping("admin/{id}")
-    public ResponseEntity<?> deleteForAdminById(@PathVariable Long id) {
-        adminResourceOwnerService.deleteById(id);
+    public ResponseEntity<?> deleteForAdminById(@PathVariable Long id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        adminResourceOwnerService.deleteById(id, changeId);
         return ResponseEntity.ok().build();
     }
 

@@ -22,4 +22,7 @@ public class ChangeRecord extends Auditable {
     @Column(length = 100000)
     private ArrayList<PatchCommand> patchCommands;
 
+    @Column(length = 100000)
+    private CreateDeleteCommand createDeleteCommands;
+
 }

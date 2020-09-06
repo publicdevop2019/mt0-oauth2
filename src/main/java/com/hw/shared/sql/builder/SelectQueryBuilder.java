@@ -40,7 +40,25 @@ public abstract class SelectQueryBuilder<T extends Auditable> {
         Root<T> root = query.from(clazz);
         query.select(root);
         PageRequest pageRequest = getPageRequest(page);
+        Predicate and = getPredicate(search, cb, root);
+        if (and != null)
+            query.where(and);
+        Set<Order> collect = pageRequest.getSort().get().map(e -> {
+            if (e.getDirection().isAscending()) {
+                return cb.asc(root.get(e.getProperty()));
+            } else {
+                return cb.desc(root.get(e.getProperty()));
+            }
+        }).collect(Collectors.toSet());
+        query.orderBy(collect.toArray(Order[]::new));
 
+        TypedQuery<T> query1 = em.createQuery(query)
+                .setFirstResult(BigDecimal.valueOf(pageRequest.getOffset()).intValue())
+                .setMaxResults(pageRequest.getPageSize());
+        return query1.getResultList();
+    }
+
+    private Predicate getPredicate(String search, CriteriaBuilder cb, Root<T> root) {
         List<Predicate> results = new ArrayList<>();
         if (search == null) {
             if (!allowEmptyClause)
@@ -69,22 +87,7 @@ public abstract class SelectQueryBuilder<T extends Auditable> {
         //force to select only not deleted entity
         Predicate notSoftDeleted = new SelectNotDeletedClause<T>().getWhereClause(cb, root);
         results.add(notSoftDeleted);
-        Predicate and = cb.and(results.toArray(new Predicate[0]));
-        if (and != null)
-            query.where(and);
-        Set<Order> collect = pageRequest.getSort().get().map(e -> {
-            if (e.getDirection().isAscending()) {
-                return cb.asc(root.get(e.getProperty()));
-            } else {
-                return cb.desc(root.get(e.getProperty()));
-            }
-        }).collect(Collectors.toSet());
-        query.orderBy(collect.toArray(Order[]::new));
-
-        TypedQuery<T> query1 = em.createQuery(query)
-                .setFirstResult(BigDecimal.valueOf(pageRequest.getOffset()).intValue())
-                .setMaxResults(pageRequest.getPageSize());
-        return query1.getResultList();
+        return cb.and(results.toArray(new Predicate[0]));
     }
 
     public Long selectCount(String search, Class<T> clazz) {
@@ -92,28 +95,7 @@ public abstract class SelectQueryBuilder<T extends Auditable> {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(clazz);
         query.select(cb.count(root));
-        List<Predicate> results = new ArrayList<>();
-        if (search == null) {
-            if (!allowEmptyClause)
-                throw new EmptyWhereClauseException();
-        } else {
-            String[] queryParams = search.split(",");
-            for (String param : queryParams) {
-                String[] split = param.split(":");
-                if (split.length == 2) {
-                    if (supportedWhereField.get(split[0]) != null && !split[1].isBlank()) {
-                        WhereClause<T> tWhereClause = supportedWhereField.get(split[0]);
-                        Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root);
-                        results.add(whereClause);
-                    }
-                }
-            }
-        }
-        if (defaultWhereField.size() != 0) {
-            Set<Predicate> collect = defaultWhereField.stream().map(e -> e.getWhereClause(null, cb, root)).distinct().collect(Collectors.toSet());
-            results.addAll(collect);
-        }
-        Predicate and = cb.and(results.toArray(new Predicate[0]));
+        Predicate and = getPredicate(search, cb, root);
         if (and != null)
             query.where(and);
         return em.createQuery(query).getSingleResult();
