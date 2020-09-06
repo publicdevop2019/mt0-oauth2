@@ -2,7 +2,7 @@ package com.hw.aggregate.client;
 
 import com.hw.aggregate.client.model.BizClient;
 import com.hw.aggregate.client.model.BizClientQueryRegistry;
-import com.hw.aggregate.client.representation.UserBizClientCardRep;
+import com.hw.aggregate.client.representation.AppBizClientCardRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -13,7 +13,7 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Service
-public class UserBizClientApplicationService extends DefaultRoleBasedRestfulService<BizClient, UserBizClientCardRep, Void, VoidTypedClass> {
+public class AppBizClientApplicationService extends DefaultRoleBasedRestfulService<BizClient, AppBizClientCardRep, Void, VoidTypedClass> {
     @Autowired
     private BizClientRepo clientRepo;
     @Autowired
@@ -24,7 +24,7 @@ public class UserBizClientApplicationService extends DefaultRoleBasedRestfulServ
         repo = clientRepo;
         queryRegistry = clientQueryRegistry;
         entityClass = BizClient.class;
-        role = RestfulQueryRegistry.RoleEnum.USER;
+        role = RestfulQueryRegistry.RoleEnum.APP;
     }
 
     @Override
@@ -54,8 +54,8 @@ public class UserBizClientApplicationService extends DefaultRoleBasedRestfulServ
 
 
     @Override
-    public UserBizClientCardRep getEntitySumRepresentation(BizClient client) {
-        return new UserBizClientCardRep(client);
+    public AppBizClientCardRep getEntitySumRepresentation(BizClient client) {
+        return new AppBizClientCardRep(client);
     }
 
     @Override

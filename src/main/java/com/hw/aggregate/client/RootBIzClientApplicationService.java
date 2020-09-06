@@ -13,12 +13,13 @@ import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Optional;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 @Service
@@ -33,6 +34,8 @@ public class RootBIzClientApplicationService extends DefaultRoleBasedRestfulServ
 
     @Autowired
     RevokeBizClientTokenService tokenRevocationService;
+    @Autowired
+    AppBizClientApplicationService appBizClientApplicationService;
 
     @Autowired
     private BizClientQueryRegistry clientQueryRegistry;
@@ -55,23 +58,36 @@ public class RootBIzClientApplicationService extends DefaultRoleBasedRestfulServ
         changeRepository = changeHistoryRepository;
         entityPatchSupplier = RootBizClientPatchMiddleLayer::new;
         om = objectMapper;
-    }
-
-    @Override
-    public Integer deleteById(Long id) {
-        Optional<BizClient> byId = clientRepo.findById(id);
-        if (byId.isPresent()) {
-            byId.get().preventRootChange();
-            tokenRevocationService.blacklist(byId.get().getId());
-            return super.deleteById(id);
-        } else {
-            return null;
-        }
+        deleteHook = true;
     }
 
     @Override
     public BizClient replaceEntity(BizClient stored, Object command) {
-        return stored.replace((UpdateClientCommand) command, tokenRevocationService, clientRepo, encoder);
+        return stored.replace((UpdateClientCommand) command, tokenRevocationService, appBizClientApplicationService, encoder);
+    }
+
+    @Override
+    public void preDelete(BizClient bizClient) {
+        bizClient.validateDelete();
+    }
+
+    @Override
+    public void postDelete(BizClient bizClient) {
+        tokenRevocationService.blacklist(bizClient.getId());
+    }
+
+    @Override
+    protected void prePatch(BizClient bizClient, Map<String, Object> params, RootBizClientPatchMiddleLayer middleLayer) {
+        UpdateClientCommand updateClientCommand = new UpdateClientCommand();
+        BeanUtils.copyProperties(bizClient, updateClientCommand);//copy old values so shouldRevoke will work
+        BeanUtils.copyProperties(middleLayer, updateClientCommand);
+        bizClient.shouldRevoke(updateClientCommand, tokenRevocationService);
+        BizClient.validateResourceId(bizClient, appBizClientApplicationService);
+    }
+
+    @Override
+    protected void postPatch(BizClient bizClient, Map<String, Object> params, RootBizClientPatchMiddleLayer middleLayer) {
+        BizClient.validateResourceIndicator(bizClient);
     }
 
     @Override
@@ -86,6 +102,7 @@ public class RootBIzClientApplicationService extends DefaultRoleBasedRestfulServ
 
     @Override
     protected BizClient createEntity(long id, Object command) {
-        return BizClient.create(id, (CreateClientCommand) command, clientRepo, encoder);
+        return BizClient.create(id, (CreateClientCommand) command, appBizClientApplicationService, encoder);
     }
+
 }

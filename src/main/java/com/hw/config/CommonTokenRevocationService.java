@@ -51,14 +51,14 @@ public class CommonTokenRevocationService {
         }
     }
 
+    public enum TokenTypeEnum {
+        Client,
+        User;
+    }
+
     @Data
     public class CreateRevokeTokenCommand {
         private Long id;
         private TokenTypeEnum type;
-    }
-
-    public enum TokenTypeEnum {
-        Client,
-        User;
     }
 }

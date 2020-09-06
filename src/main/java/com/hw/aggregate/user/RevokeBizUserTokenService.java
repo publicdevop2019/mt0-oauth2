@@ -13,7 +13,7 @@ public class RevokeBizUserTokenService extends CommonTokenRevocationService {
 
 
     public void blacklist(Long id) {
-        blacklist(url, id,TokenTypeEnum.User);
+        blacklist(url, id, TokenTypeEnum.User);
     }
 
 

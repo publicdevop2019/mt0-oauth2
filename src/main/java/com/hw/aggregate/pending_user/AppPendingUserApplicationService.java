@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 
 @Service
 public class AppPendingUserApplicationService extends DefaultRoleBasedRestfulService<PendingUser, AppPendingUserCardRep, Void, VoidTypedClass> {
@@ -65,4 +66,26 @@ public class AppPendingUserApplicationService extends DefaultRoleBasedRestfulSer
         activationCodeEmailService.sendActivationCode(pendingBizUser.getActivationCode(), pendingBizUser.getEmail());
         return pendingBizUser;
     }
+
+    @Override
+    public void preDelete(PendingUser pendingUser) {
+
+    }
+
+    @Override
+    public void postDelete(PendingUser pendingUser) {
+
+    }
+
+    @Override
+    protected void prePatch(PendingUser pendingUser, Map<String, Object> params, VoidTypedClass middleLayer) {
+
+    }
+
+    @Override
+    protected void postPatch(PendingUser pendingUser, Map<String, Object> params, VoidTypedClass middleLayer) {
+
+    }
+
+
 }

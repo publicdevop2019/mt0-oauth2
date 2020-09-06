@@ -21,10 +21,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.hw.shared.AppConstant.HTTP_HEADER_CHANGE_ID;
 
 @Slf4j
 public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X, Y, Z extends TypedClass<Z>> {
@@ -40,13 +44,14 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
     protected RestfulQueryRegistry.RoleEnum role;
     protected ObjectMapper om;
     protected ChangeRepository changeRepository;
+    protected boolean deleteHook = false;
 
     @Transactional
     public CreatedEntityRep create(Object command, String changeId) {
         saveChangeRecord(null, changeId);
         T created = createEntity(idGenerator.getId(), command);
-        repo.save(created);
-        return getCreatedEntityRepresentation(created);
+        T save = repo.save(created);
+        return getCreatedEntityRepresentation(save);
     }
 
     @Transactional
@@ -57,23 +62,25 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
         repo.save(after);
     }
 
+
     @Transactional
-    public void patchById(Long id, JsonPatch patch, String changeId) {
-        saveChangeRecord(null, changeId);
+    public void patchById(Long id, JsonPatch patch, Map<String, Object> params) {
+        saveChangeRecord(null, (String) params.get(HTTP_HEADER_CHANGE_ID));
         SumPagedRep<T> entityById = getEntityById(id);
         T original = entityById.getData().get(0);
         Z command = entityPatchSupplier.apply(original);
-        Z patchMiddleLayer;
         try {
             JsonNode jsonNode = om.convertValue(command, JsonNode.class);
             JsonNode patchedNode = patch.apply(jsonNode);
-            patchMiddleLayer = om.treeToValue(patchedNode, command.getClazz());
+            command = om.treeToValue(patchedNode, command.getClazz());
         } catch (JsonPatchException | JsonProcessingException e) {
             e.printStackTrace();
             throw new EntityPatchException();
         }
-        BeanUtils.copyProperties(patchMiddleLayer, original);
+        prePatch(original, params, command);
+        BeanUtils.copyProperties(command, original);
         repo.save(original);
+        postPatch(original, params, command);
     }
 
     @Transactional
@@ -85,12 +92,30 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
 
     @Transactional
     public Integer deleteById(Long id) {
-        return queryRegistry.deleteById(role, id.toString(), entityClass);
+        return deleteByQuery("id:" + id);
     }
 
     @Transactional
     public Integer deleteByQuery(String query) {
-        return queryRegistry.deleteByQuery(role, query, entityClass);
+        if (deleteHook) {
+            int pageNum = 0;
+            SumPagedRep<T> tSumPagedRep = queryRegistry.readByQuery(role, query, "num:" + pageNum, null, entityClass);
+            long l = tSumPagedRep.getTotalItemCount() / tSumPagedRep.getData().size();
+            double ceil = Math.ceil(l);
+            int i = BigDecimal.valueOf(ceil).intValue();
+            List<T> data = new ArrayList<>();
+            data.addAll(tSumPagedRep.getData());
+            for (int a = 1; a < i; a++) {
+                data = queryRegistry.readByQuery(role, query, "num:" + a, null, entityClass).getData();
+            }
+            data.forEach(this::preDelete);
+            repo.deleteAll(data);
+            data.forEach(this::postDelete);
+            return data.size();
+        } else {
+            return queryRegistry.deleteByQuery(role, query, entityClass);
+        }
+
     }
 
     @Transactional(readOnly = true)
@@ -141,9 +166,18 @@ public abstract class DefaultRoleBasedRestfulService<T extends IdBasedEntity, X,
 
     public abstract T replaceEntity(T t, Object command);
 
+
     public abstract X getEntitySumRepresentation(T t);
 
     public abstract Y getEntityRepresentation(T t);
 
     protected abstract T createEntity(long id, Object command);
+
+    public abstract void preDelete(T t);
+
+    public abstract void postDelete(T t);
+
+    protected abstract void prePatch(T t, Map<String, Object> params, Z middleLayer);
+
+    protected abstract void postPatch(T t, Map<String, Object> params, Z middleLayer);
 }

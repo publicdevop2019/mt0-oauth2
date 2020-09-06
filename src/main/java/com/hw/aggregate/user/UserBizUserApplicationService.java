@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 
 @Component
 public class UserBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, Void, Void, VoidTypedClass> {
@@ -77,4 +78,26 @@ public class UserBizUserApplicationService extends DefaultRoleBasedRestfulServic
     protected BizUser createEntity(long id, Object command) {
         return null;
     }
+
+    @Override
+    public void preDelete(BizUser bizUser) {
+
+    }
+
+    @Override
+    public void postDelete(BizUser bizUser) {
+
+    }
+
+    @Override
+    protected void prePatch(BizUser bizUser, Map<String, Object> params, VoidTypedClass middleLayer) {
+
+    }
+
+    @Override
+    protected void postPatch(BizUser bizUser, Map<String, Object> params, VoidTypedClass middleLayer) {
+
+    }
+
+
 }

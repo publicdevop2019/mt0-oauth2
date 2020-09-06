@@ -2,15 +2,17 @@ package com.hw.aggregate.client.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hw.aggregate.client.BizClientRepo;
+import com.hw.aggregate.client.AppBizClientApplicationService;
 import com.hw.aggregate.client.RevokeBizClientTokenService;
 import com.hw.aggregate.client.command.CreateClientCommand;
 import com.hw.aggregate.client.command.UpdateClientCommand;
 import com.hw.aggregate.client.exception.ClientAlreadyExistException;
 import com.hw.aggregate.client.exception.RootClientDeleteException;
+import com.hw.aggregate.client.representation.AppBizClientCardRep;
 import com.hw.shared.Auditable;
 import com.hw.shared.StringSetConverter;
 import com.hw.shared.rest.IdBasedEntity;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,7 +26,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -123,15 +124,15 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         this.resourceIndicator = command.getResourceIndicator();
         this.autoApprove = command.getAutoApprove();
         this.hasSecret = command.getClientSecret() != null;
-        this.name=command.getName();
+        this.name = command.getName();
     }
 
-    public static BizClient create(long id, CreateClientCommand command, BizClientRepo clientRepo, BCryptPasswordEncoder encoder) {
+    public static BizClient create(long id, CreateClientCommand command, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder) {
         BizClient client = new BizClient(id, command);
-        validateResourceId(client, clientRepo);
+        validateResourceId(client, appBizClientApplicationService);
         validateResourceIndicator(client);
-        Optional<BizClient> clientId = clientRepo.findById(Long.parseLong(client.getClientId()));
-        if (clientId.isEmpty()) {
+        SumPagedRep<AppBizClientCardRep> appBizClientCardRepSumPagedRep = appBizClientApplicationService.readByQuery("id:" + client.getClientId(), null, null);
+        if (appBizClientCardRepSumPagedRep.getData().size() == 0) {
             if (null == client.getClientSecret()) {
                 client.setClientSecret(encoder.encode(""));
             } else {
@@ -146,17 +147,21 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     /**
      * selected resource ids should be eligible resource
      */
-    private static void validateResourceId(BizClient client, BizClientRepo clientRepo) throws IllegalArgumentException {
-        if (client.getResourceIds() == null || client.getResourceIds().size() == 0
-                || client.getResourceIds().stream().anyMatch(resourceId -> clientRepo.findById(Long.parseLong(resourceId)).isEmpty()
-                || !clientRepo.findById(Long.parseLong(resourceId)).get().getResourceIndicator()))
+    public static void validateResourceId(BizClient client, AppBizClientApplicationService appBizClientApplicationService) throws IllegalArgumentException {
+        if (client.getResourceIds() == null || client.getResourceIds().size() == 0)
+            throw new IllegalArgumentException("invalid resourceId found");
+        String join = String.join(".", client.getResourceIds());
+        SumPagedRep<AppBizClientCardRep> appBizClientCardRepSumPagedRep = appBizClientApplicationService.readByQuery("id:" + join, null, null);
+        if (appBizClientCardRepSumPagedRep.getData().size() != client.getResourceIds().size())
+            throw new IllegalArgumentException("unable to find resourceId listed");
+        if (appBizClientCardRepSumPagedRep.getData().stream().anyMatch(e -> !e.getResourceIndicator()))
             throw new IllegalArgumentException("invalid resourceId found");
     }
 
     /**
      * if client is marked as resource then it must be a backend and first party application
      */
-    private static void validateResourceIndicator(BizClient client) throws IllegalArgumentException {
+    public static void validateResourceIndicator(BizClient client) throws IllegalArgumentException {
         if (client.getResourceIndicator())
             if (client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_BACKEND))
                     || client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY)))
@@ -212,10 +217,9 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         return null;
     }
 
-    public BizClient replace(UpdateClientCommand command, RevokeBizClientTokenService tokenRevocationService, BizClientRepo clientRepo, BCryptPasswordEncoder encoder) {
-        boolean b = shouldRevoke(this, command);
-        if (b)
-            tokenRevocationService.blacklist(this.getId());
+    public BizClient replace(UpdateClientCommand command, RevokeBizClientTokenService tokenRevocationService, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder) {
+        shouldRevoke(command, tokenRevocationService);
+        validateResourceId(this, appBizClientApplicationService);
         if (StringUtils.hasText(command.getClientSecret())) {
             this.setClientSecret(encoder.encode(command.getClientSecret()));
         }
@@ -230,40 +234,32 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         this.resourceIndicator = command.getResourceIndicator();
         this.autoApprove = command.getAutoApprove();
         this.hasSecret = command.getClientSecret() != null;
-        this.name=command.getName();
+        this.name = command.getName();
         validateResourceIndicator(this);
-        validateResourceId(this, clientRepo);
         return this;
     }
 
     /**
      * root client can not be deleted
      */
-    public boolean preventRootChange() {
+    public void validateDelete() {
         if (this.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
             throw new RootClientDeleteException();
-        return true;
     }
 
-    public boolean shouldRevoke(BizClient oldClient, UpdateClientCommand newClient) {
-        if (StringUtils.hasText(newClient.getClientSecret())) {
-            return true;
-        } else if (authorityChanged(oldClient, newClient)) {
-            return true;
-        } else if (scopeChanged(oldClient, newClient)) {
-            return true;
-        } else if (accessTokenChanged(oldClient, newClient)) {
-            return true;
-        } else if (refreshTokenChanged(oldClient, newClient)) {
-            return true;
-        } else if (grantTypeChanged(oldClient, newClient)) {
-            return true;
-        } else if (resourceIdChanged(oldClient, newClient)) {
-            return true;
-        } else if (redirectUrlChanged(oldClient, newClient)) {
-            return true;
-        } else {
-            return false;
+    public void shouldRevoke(UpdateClientCommand newClient, RevokeBizClientTokenService tokenRevocationService) {
+
+        if (StringUtils.hasText(newClient.getClientSecret())
+                || authorityChanged(this, newClient)
+                || scopeChanged(this, newClient)
+                || accessTokenChanged(this, newClient)
+                || refreshTokenChanged(this, newClient)
+                || grantTypeChanged(this, newClient)
+                || resourceIdChanged(this, newClient)
+                || redirectUrlChanged(this, newClient)
+
+        ) {
+            tokenRevocationService.blacklist(this.getId());
         }
     }
 

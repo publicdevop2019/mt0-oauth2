@@ -1,13 +1,12 @@
 package com.hw.aggregate.client.representation;
 
-import com.hw.aggregate.client.RootBIzClientApplicationService;
-import com.hw.aggregate.client.model.*;
-import com.hw.shared.sql.SumPagedRep;
+import com.hw.aggregate.client.model.BizClient;
+import com.hw.aggregate.client.model.BizClientAuthorityEnum;
+import com.hw.aggregate.client.model.GrantTypeEnum;
+import com.hw.aggregate.client.model.ScopeEnum;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 public class RootBizClientCardRep {

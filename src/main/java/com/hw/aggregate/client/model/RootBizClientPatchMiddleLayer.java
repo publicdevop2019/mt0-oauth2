@@ -15,16 +15,17 @@ public class RootBizClientPatchMiddleLayer extends TypedClass<RootBizClientPatch
     private Set<BizClientAuthorityEnum> grantedAuthorities;
     private Integer accessTokenValiditySeconds;
     private Set<String> resourceIds;
+
     public RootBizClientPatchMiddleLayer(BizClient bizClient) {
         super(RootBizClientPatchMiddleLayer.class);
         this.description = bizClient.getDescription();
         this.name = bizClient.getName();
         this.resourceIndicator = bizClient.getResourceIndicator();
-        this.scopeEnums=bizClient.getScopeEnums();
-        this.grantTypeEnums=bizClient.getGrantTypeEnums();
-        this.accessTokenValiditySeconds=bizClient.getAccessTokenValiditySeconds();
-        this.resourceIds=bizClient.getResourceIds();
-        this.grantedAuthorities=bizClient.getGrantedAuthorities();
+        this.scopeEnums = bizClient.getScopeEnums();
+        this.grantTypeEnums = bizClient.getGrantTypeEnums();
+        this.accessTokenValiditySeconds = bizClient.getAccessTokenValiditySeconds();
+        this.resourceIds = bizClient.getResourceIds();
+        this.grantedAuthorities = bizClient.getGrantedAuthorities();
     }
 
     public RootBizClientPatchMiddleLayer() {

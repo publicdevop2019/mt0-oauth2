@@ -1,5 +1,7 @@
 package com.hw.config;
 
+import com.hw.aggregate.client.exception.ClientAlreadyExistException;
+import com.hw.aggregate.client.exception.RootClientDeleteException;
 import com.hw.shared.ErrorMessage;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -19,7 +21,9 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
             RedirectMismatchException.class,
-            AccessDeniedException.class
+            AccessDeniedException.class,
+            ClientAlreadyExistException.class,
+            RootClientDeleteException.class
     })
     protected ResponseEntity<?> handleException(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);

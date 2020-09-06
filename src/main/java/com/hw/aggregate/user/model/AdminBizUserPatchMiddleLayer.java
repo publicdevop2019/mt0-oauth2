@@ -4,6 +4,7 @@ import com.hw.shared.rest.TypedClass;
 import lombok.Data;
 
 import java.util.Set;
+
 @Data
 public class AdminBizUserPatchMiddleLayer extends TypedClass<AdminBizUserPatchMiddleLayer> {
     private Boolean locked;

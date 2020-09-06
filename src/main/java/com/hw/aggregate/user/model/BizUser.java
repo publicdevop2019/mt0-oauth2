@@ -10,7 +10,6 @@ import com.hw.aggregate.user.BizUserRepo;
 import com.hw.aggregate.user.PwdResetEmailService;
 import com.hw.aggregate.user.RevokeBizUserTokenService;
 import com.hw.aggregate.user.command.*;
-import com.hw.aggregate.user.representation.AdminBizUserRep;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
 import com.hw.shared.Auditable;
 import com.hw.shared.ServiceUtility;
@@ -28,7 +27,10 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -82,19 +84,13 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
         this.subscription = false;
     }
 
-    public static void canBeDeleted(AdminBizUserRep adminBizUserRep, RevokeBizUserTokenService tokenRevocationService) {
-        if (adminBizUserRep.getGrantedAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.name())))
-            throw new IllegalArgumentException("root account can not be modified");
-        tokenRevocationService.blacklist(adminBizUserRep.getId());
-    }
-
     public static BizUser create(Long id, PublicCreateBizUserCommand command, PasswordEncoder encoder, AppPendingUserApplicationService pendingResourceOwnerRepo, AppBizUserApplicationService service) {
-        validate(command, pendingResourceOwnerRepo, service);
+        validateBeforeCreate(command, pendingResourceOwnerRepo, service);
         command.setPassword(encoder.encode(command.getPassword()));
         return new BizUser(command, id);
     }
 
-    private static void validate(PublicCreateBizUserCommand command, AppPendingUserApplicationService pendingUserApplicationService, AppBizUserApplicationService bizUserApplicationService) throws IllegalArgumentException {
+    private static void validateBeforeCreate(PublicCreateBizUserCommand command, AppPendingUserApplicationService pendingUserApplicationService, AppBizUserApplicationService bizUserApplicationService) throws IllegalArgumentException {
         if (!StringUtils.hasText(command.getEmail()))
             throw new IllegalArgumentException("email is empty");
         if (!StringUtils.hasText(command.getPassword()))
@@ -153,6 +149,11 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
         service.blacklist(oneByEmail.getId());
     }
 
+    public void validateBeforeDelete() {
+        if (getGrantedAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.name())))
+            throw new IllegalArgumentException("root account can not be modified");
+    }
+
     /**
      * update pwd, id is part of bearer token,
      * must revoke issued token if pwd changed
@@ -207,53 +208,53 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     }
 
     public BizUser replace(AdminUpdateBizUserCommand command, RevokeBizUserTokenService tokenRevocationService) {
-        preventRootAccountChange(this);
-        List<String> currentAuthorities = ServiceUtility.getAuthority(command.getAuthorization());
-        if (this.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
-            throw new IllegalArgumentException("assign root grantedAuthorities is prohibited");
-        if (currentAuthorities.stream().noneMatch("ROLE_ROOT"::equals) && this.getAuthorities() != null)
-            throw new IllegalArgumentException("only root user can change grantedAuthorities");
-        if (currentAuthorities.stream().noneMatch("ROLE_ROOT"::equals) && this.isSubscription())
-            throw new IllegalArgumentException("only root user can change subscription");
-        boolean b = shouldRevoke(this, command);
-        if (b)
-            tokenRevocationService.blacklist(this.getId());
+        validateBeforeUpdate(command);
+        shouldRevoke(command, tokenRevocationService);
         this.setGrantedAuthorities(command.getGrantedAuthorities());
         this.setLocked(command.getLocked());
-        if (command.isSubscription()) {
-            if (this.getAuthorities().stream().anyMatch(e -> "ROLE_ADMIN".equals(e.getAuthority()))) {
-                this.setSubscription(Boolean.TRUE);
-            } else {
-                throw new IllegalArgumentException("only admin or root can subscribe to new order");
-            }
-        }
+        this.setSubscription(command.isSubscription());
+        validateAfterUpdate();
         return this;
     }
 
-    private void preventRootAccountChange(BizUser bizUser) {
-        if (bizUser.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
+    public void validateAfterUpdate() {
+        if (isSubscription()) {
+            if (getGrantedAuthorities().stream().noneMatch(e -> "ROLE_ADMIN".equals(e.name()))) {
+                throw new IllegalArgumentException("only admin can subscribe to new order");
+            }
+        }
+    }
+
+    public void validateBeforeUpdate(AdminUpdateBizUserCommand command) {
+        if (getGrantedAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.name())))
             throw new IllegalArgumentException("root account can not be modified");
+        List<String> currentAuthorities = ServiceUtility.getAuthority(command.getAuthorization());
+        if (command.getGrantedAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.name())))
+            throw new IllegalArgumentException("assign root grantedAuthorities is prohibited");
+        if (currentAuthorities.stream().noneMatch("ROLE_ROOT"::equals) && getGrantedAuthorities().equals(command.getGrantedAuthorities()))
+            throw new IllegalArgumentException("only root user can change grantedAuthorities");
+        if (currentAuthorities.stream().noneMatch("ROLE_ROOT"::equals) && isSubscription() != command.isSubscription())
+            throw new IllegalArgumentException("only root user can change subscription");
     }
 
     /**
      * aspects: authority, lock
      * unlock a user should not revoke
      *
-     * @param oldResourceOwner
-     * @param newResourceOwner
+     * @param tokenRevocationService
      * @return
      */
-    public boolean shouldRevoke(BizUser oldResourceOwner, AdminUpdateBizUserCommand newResourceOwner) {
-        if (authorityChanged(oldResourceOwner, newResourceOwner)) {
-            return true;
-        } else return lockUser(newResourceOwner);
+    public void shouldRevoke(AdminUpdateBizUserCommand command, RevokeBizUserTokenService tokenRevocationService) {
+        if (authorityChanged(getGrantedAuthorities(), command.getGrantedAuthorities())) {
+            tokenRevocationService.blacklist(this.getId());
+        } else {
+            if (command.getLocked())
+                tokenRevocationService.blacklist(this.getId());
+        }
     }
 
-    private boolean lockUser(AdminUpdateBizUserCommand newResourceOwner) {
-        return Boolean.TRUE.equals(newResourceOwner.getLocked());
-    }
 
-    private boolean authorityChanged(BizUser oldResourceOwner, AdminUpdateBizUserCommand newResourceOwner) {
-        return !oldResourceOwner.getGrantedAuthorities().equals(newResourceOwner.getGrantedAuthorities());
+    private boolean authorityChanged(Set<BizUserAuthorityEnum> old, Set<BizUserAuthorityEnum> next) {
+        return !old.equals(next);
     }
 }

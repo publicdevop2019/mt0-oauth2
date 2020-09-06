@@ -1,11 +1,9 @@
 package com.hw.aggregate.user.representation;
 
-import com.hw.aggregate.client.model.GrantedAuthorityImpl;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserAuthorityEnum;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Set;
 
 @Data

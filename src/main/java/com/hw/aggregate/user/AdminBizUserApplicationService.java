@@ -11,13 +11,16 @@ import com.hw.aggregate.user.representation.AdminBizUserRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
-import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
+
+import static com.hw.shared.AppConstant.HTTP_HEADER_AUTHORIZATION;
 
 @Service
 @Slf4j
@@ -51,14 +54,8 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
         idGenerator = idGenerator2;
         changeRepository = changeRepository2;
         om = objectMapper;
-        entityPatchSupplier=AdminBizUserPatchMiddleLayer::new;
-    }
-
-    @Override
-    public Integer deleteById(Long id) {
-        AdminBizUserRep adminBizUserRep = readById(id);
-        BizUser.canBeDeleted(adminBizUserRep, tokenRevocationService);
-        return super.deleteById(id);
+        entityPatchSupplier = AdminBizUserPatchMiddleLayer::new;
+        deleteHook = true;
     }
 
     @Override
@@ -80,4 +77,32 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
     protected BizUser createEntity(long id, Object command) {
         return null;
     }
+
+    @Override
+    public void preDelete(BizUser bizUser) {
+        bizUser.validateBeforeDelete();
+    }
+
+    @Override
+    public void postDelete(BizUser bizUser) {
+        tokenRevocationService.blacklist(bizUser.getId());
+    }
+
+    @Override
+    protected void prePatch(BizUser bizUser, Map<String, Object> params, AdminBizUserPatchMiddleLayer middleLayer) {
+        AdminUpdateBizUserCommand adminUpdateBizUserCommand = new AdminUpdateBizUserCommand();
+        adminUpdateBizUserCommand.setAuthorization((String) params.get(HTTP_HEADER_AUTHORIZATION));
+        BeanUtils.copyProperties(bizUser, adminUpdateBizUserCommand);
+        BeanUtils.copyProperties(middleLayer, adminUpdateBizUserCommand);
+        bizUser.shouldRevoke(adminUpdateBizUserCommand, tokenRevocationService);
+        bizUser.validateBeforeUpdate(adminUpdateBizUserCommand);
+
+    }
+
+    @Override
+    protected void postPatch(BizUser bizUser, Map<String, Object> params, AdminBizUserPatchMiddleLayer middleLayer) {
+        bizUser.validateAfterUpdate();
+    }
+
+
 }

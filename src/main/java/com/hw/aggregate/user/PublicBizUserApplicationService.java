@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -87,4 +88,25 @@ public class PublicBizUserApplicationService extends DefaultRoleBasedRestfulServ
         return BizUser.create(id, (PublicCreateBizUserCommand) command, encoder, pendingUserApplicationService, bizUserApplicationService);
 
     }
+
+    @Override
+    public void preDelete(BizUser bizUser) {
+
+    }
+
+    @Override
+    public void postDelete(BizUser bizUser) {
+
+    }
+
+    @Override
+    protected void prePatch(BizUser bizUser, Map<String, Object> params, VoidTypedClass middleLayer) {
+
+    }
+
+    @Override
+    protected void postPatch(BizUser bizUser, Map<String, Object> params, VoidTypedClass middleLayer) {
+
+    }
+
 }
