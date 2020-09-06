@@ -81,8 +81,8 @@ public class RootBIzClientApplicationService extends DefaultRoleBasedRestfulServ
         UpdateClientCommand updateClientCommand = new UpdateClientCommand();
         BeanUtils.copyProperties(bizClient, updateClientCommand);//copy old values so shouldRevoke will work
         BeanUtils.copyProperties(middleLayer, updateClientCommand);
-        bizClient.shouldRevoke(updateClientCommand, tokenRevocationService);
         BizClient.validateResourceId(bizClient, appBizClientApplicationService);
+        bizClient.shouldRevoke(updateClientCommand, tokenRevocationService);//make sure validation execute before revoke
     }
 
     @Override

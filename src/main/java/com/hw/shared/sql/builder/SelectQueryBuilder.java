@@ -1,5 +1,7 @@
 package com.hw.shared.sql.builder;
 
+import com.hw.shared.Auditable;
+import com.hw.shared.sql.clause.SelectNotDeletedClause;
 import com.hw.shared.sql.clause.SelectFieldIdWhereClause;
 import com.hw.shared.sql.clause.WhereClause;
 import com.hw.shared.sql.exception.EmptyQueryValueException;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 
 import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
-public abstract class SelectQueryBuilder<T> {
+public abstract class SelectQueryBuilder<T extends Auditable> {
     protected Integer DEFAULT_PAGE_SIZE = 10;
     protected Integer MAX_PAGE_SIZE = 20;
     protected Integer DEFAULT_PAGE_NUM = 0;
@@ -62,9 +64,12 @@ public abstract class SelectQueryBuilder<T> {
             }
         }
         if (defaultWhereField.size() != 0) {
-            Set<Predicate> collect = defaultWhereField.stream().map(e -> e.getWhereClause(null, cb, root)).distinct().collect(Collectors.toSet());
+            Set<Predicate> collect = defaultWhereField.stream().map(e -> e.getWhereClause(null, cb, root)).collect(Collectors.toSet());
             results.addAll(collect);
         }
+        //force to select only not deleted entity
+        Predicate notSoftDeleted = new SelectNotDeletedClause<T>().getWhereClause(cb, root);
+        results.add(notSoftDeleted);
         Predicate and = cb.and(results.toArray(new Predicate[0]));
         if (and != null)
             query.where(and);

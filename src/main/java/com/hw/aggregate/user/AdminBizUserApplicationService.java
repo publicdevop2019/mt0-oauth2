@@ -94,8 +94,8 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
         adminUpdateBizUserCommand.setAuthorization((String) params.get(HTTP_HEADER_AUTHORIZATION));
         BeanUtils.copyProperties(bizUser, adminUpdateBizUserCommand);
         BeanUtils.copyProperties(middleLayer, adminUpdateBizUserCommand);
-        bizUser.shouldRevoke(adminUpdateBizUserCommand, tokenRevocationService);
         bizUser.validateBeforeUpdate(adminUpdateBizUserCommand);
+        bizUser.shouldRevoke(adminUpdateBizUserCommand, tokenRevocationService);//make sure validation execute before revoke
 
     }
 

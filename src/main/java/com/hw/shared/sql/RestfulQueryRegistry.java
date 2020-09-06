@@ -1,6 +1,6 @@
 package com.hw.shared.sql;
 
-import com.hw.shared.sql.builder.DeleteQueryBuilder;
+import com.hw.shared.sql.builder.HardDeleteQueryBuilder;
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.builder.UpdateQueryBuilder;
 import com.hw.shared.sql.exception.QueryBuilderNotFoundException;
@@ -12,7 +12,7 @@ import java.util.Map;
 public abstract class RestfulQueryRegistry<T> {
     protected Map<RoleEnum, SelectQueryBuilder<T>> selectQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, UpdateQueryBuilder<T>> updateQueryBuilder = new HashMap<>();
-    protected Map<RoleEnum, DeleteQueryBuilder<T>> deleteQueryBuilder = new HashMap<>();
+    protected Map<RoleEnum, HardDeleteQueryBuilder<T>> deleteQueryBuilder = new HashMap<>();
 
     protected abstract void configQueryBuilder();
 
@@ -38,7 +38,7 @@ public abstract class RestfulQueryRegistry<T> {
     }
 
     public Integer deleteByQuery(RoleEnum roleEnum, String query, Class<T> clazz) {
-        DeleteQueryBuilder<T> deleteQueryBuilder = this.deleteQueryBuilder.get(roleEnum);
+        HardDeleteQueryBuilder<T> deleteQueryBuilder = this.deleteQueryBuilder.get(roleEnum);
         if (deleteQueryBuilder == null)
             throw new QueryBuilderNotFoundException();
         return deleteQueryBuilder.delete(query, clazz);

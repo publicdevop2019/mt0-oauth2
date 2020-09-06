@@ -10,7 +10,7 @@ import java.util.List;
 
 import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
-public abstract class DeleteByIdQueryBuilder<T> extends DeleteQueryBuilder<T> {
+public abstract class DeleteByIdQueryBuilder<T> extends SoftDeleteQueryBuilder<T> {
     protected String inputFieldLiteral = COMMON_ENTITY_ID;
     protected String mappedSqlFieldLiteral = COMMON_ENTITY_ID;
 

@@ -23,4 +23,19 @@ public class AuditorAwareImpl implements AuditorAware<String> {
                 ServiceUtility.getUserId(authorization) == null ?
                         ServiceUtility.getClientId(authorization) : ServiceUtility.getUserId(authorization));
     }
+
+    public static Optional<String> getAuditor() {
+        Optional<HttpServletRequest> httpServletRequest = Optional.ofNullable(RequestContextHolder.getRequestAttributes())
+                .filter(requestAttributes -> ServletRequestAttributes.class.isAssignableFrom(requestAttributes.getClass()))
+                .map(requestAttributes -> ((ServletRequestAttributes) requestAttributes))
+                .map(ServletRequestAttributes::getRequest);
+        if (httpServletRequest.isEmpty())
+            return Optional.of("NOT_HTTP");
+        String authorization = httpServletRequest.get().getHeader("authorization");
+        if (authorization == null)
+            return Optional.ofNullable("EMPTY_AUTH_HEADER");
+        return Optional.ofNullable(
+                ServiceUtility.getUserId(authorization) == null ?
+                        ServiceUtility.getClientId(authorization) : ServiceUtility.getUserId(authorization));
+    }
 }

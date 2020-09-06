@@ -1,6 +1,7 @@
 package com.hw.shared.sql.builder;
 
 
+import com.hw.shared.Auditable;
 import com.hw.shared.rest.exception.NoUpdatableFieldException;
 import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
 import com.hw.shared.sql.PatchCommand;
@@ -19,7 +20,7 @@ import java.util.function.Function;
 import static com.hw.shared.AppConstant.*;
 
 @Component
-public abstract class UpdateByIdQueryBuilder<T> extends UpdateQueryBuilder<T> {
+public abstract class UpdateByIdQueryBuilder<T extends Auditable> extends UpdateQueryBuilder<T> {
     protected Map<String, String> filedMap = new HashMap<>();
     protected Map<String, Function<Object, ?>> filedTypeMap = new HashMap<>();
 

@@ -1,6 +1,9 @@
 package com.hw.shared.sql.builder;
 
+import com.hw.shared.Auditable;
+import com.hw.shared.AuditorAwareImpl;
 import com.hw.shared.sql.PatchCommand;
+import com.hw.shared.sql.clause.SelectNotDeletedClause;
 import com.hw.shared.sql.exception.PatchCommandExpectNotMatchException;
 
 import javax.persistence.EntityManager;
@@ -14,8 +17,10 @@ import java.util.stream.Collectors;
 
 import static com.hw.shared.AppConstant.PATCH_OP_TYPE_DIFF;
 import static com.hw.shared.AppConstant.PATCH_OP_TYPE_SUM;
+import static com.hw.shared.Auditable.ENTITY_MODIFIED_AT;
+import static com.hw.shared.Auditable.ENTITY_MODIFIED_BY;
 
-public abstract class UpdateQueryBuilder<T> {
+public abstract class UpdateQueryBuilder<T extends Auditable> {
     protected EntityManager em;
 
     /**
@@ -43,10 +48,17 @@ public abstract class UpdateQueryBuilder<T> {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaUpdate<T> criteriaUpdate = cb.createCriteriaUpdate(clazz);
             Root<T> root = criteriaUpdate.from(clazz);
-            Predicate or = getWhereClause(root, jsonPatchCommandListHashMap.get(comm), comm);
-            if (or != null)
-                criteriaUpdate.where(or);
+            Predicate predicate = getWhereClause(root, jsonPatchCommandListHashMap.get(comm), comm);
+            //force to select only not deleted entity
+            Predicate notSoftDeleted = new SelectNotDeletedClause<T>().getWhereClause(cb, root);
+            Predicate and = cb.and(notSoftDeleted, predicate);
+            if (and != null)
+                criteriaUpdate.where(and);
             setUpdateValue(root, criteriaUpdate, comm);
+            //manually set updateAt updateBy bcz criteria api bypass hibernate session
+            Optional<String> currentAuditor = AuditorAwareImpl.getAuditor();
+            criteriaUpdate.set(ENTITY_MODIFIED_BY, currentAuditor.orElse(""));
+            criteriaUpdate.set(ENTITY_MODIFIED_AT, new Date());
             patchCommandCriteriaUpdateHashMap.put(comm, criteriaUpdate);
         });
         AtomicInteger count = new AtomicInteger(0);
@@ -101,10 +113,6 @@ public abstract class UpdateQueryBuilder<T> {
             }
         });
         return jsonPatchCommandListHashMap;
-    }
-
-    private boolean hasMoreThanOne(PatchCommand e) {
-        return false;
     }
 
     private String removeId(String path) {
