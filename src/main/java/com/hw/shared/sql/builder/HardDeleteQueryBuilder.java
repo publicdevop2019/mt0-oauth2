@@ -1,9 +1,10 @@
 package com.hw.shared.sql.builder;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.*;
-
-import static com.hw.shared.Auditable.ENTITY_DELETED;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 public abstract class HardDeleteQueryBuilder<T> {
     protected EntityManager em;

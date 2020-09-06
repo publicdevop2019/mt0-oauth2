@@ -1,7 +1,6 @@
 package com.hw.shared.sql;
 
 import com.hw.shared.Auditable;
-import com.hw.shared.sql.builder.HardDeleteQueryBuilder;
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.builder.SoftDeleteQueryBuilder;
 import com.hw.shared.sql.builder.UpdateQueryBuilder;
