@@ -42,7 +42,7 @@ public class RootChangeRecordApplicationService extends DefaultRoleBasedRestfulS
             e.printStackTrace();
         }
         DefaultRoleBasedRestfulService bean = (DefaultRoleBasedRestfulService) context.getBean(aClass);
-        bean.rollbackCreateOrDelete(changeRecord.getChangeId());
+        bean.rollback(changeRecord.getChangeId());
     }
 
     @Override

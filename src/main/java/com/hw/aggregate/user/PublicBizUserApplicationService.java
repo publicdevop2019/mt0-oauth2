@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
@@ -58,11 +59,12 @@ public class PublicBizUserApplicationService extends DefaultRoleBasedRestfulServ
         changeRepository = changeRepository2;
         om = objectMapper;
     }
-
+    @Transactional
     public void sendForgetPassword(PublicForgetPasswordCommand command) {
         BizUser.createForgetPwdToken(command, userRepo, emailService);
     }
 
+    @Transactional
     public void resetPassword(PublicResetPwdCommand command) {
         BizUser.resetPwd(command, userRepo, tokenRevocationService, encoder);
     }

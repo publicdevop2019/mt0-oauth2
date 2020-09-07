@@ -1,14 +1,14 @@
 package com.hw.shared.idempotent;
 
-import com.hw.shared.idempotent.command.CreateChangeRecordCommand;
 import com.hw.shared.idempotent.model.ChangeRecord;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+
 @Service
-public class AppChangeRecordApplicationService extends DefaultRoleBasedRestfulService<ChangeRecord,Void,Void, VoidTypedClass> {
+public class AppChangeRecordApplicationService extends DefaultRoleBasedRestfulService<ChangeRecord, Void, Void, VoidTypedClass> {
     @Override
     public ChangeRecord replaceEntity(ChangeRecord changeRecord, Object command) {
         return null;
@@ -26,7 +26,7 @@ public class AppChangeRecordApplicationService extends DefaultRoleBasedRestfulSe
 
     @Override
     protected ChangeRecord createEntity(long id, Object command) {
-        return ChangeRecord.create((CreateChangeRecordCommand)command);
+        return null;
     }
 
     @Override

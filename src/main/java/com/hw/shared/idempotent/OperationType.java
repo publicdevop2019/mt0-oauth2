@@ -1,6 +1,11 @@
 package com.hw.shared.idempotent;
 
 public enum OperationType {
-    CREATE,
-    DELETE;
+    POST,
+    PATCH_BATCH,
+    PATCH_BY_ID,
+    PUT,
+    RESTORE,
+    DELETE_BY_ID,
+    DELETE_BY_QUERY;
 }

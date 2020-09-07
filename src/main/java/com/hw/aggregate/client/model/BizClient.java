@@ -145,17 +145,17 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     }
 
     /**
-     * selected resource ids should be eligible resource
+     * selected resource ids should be eligible resource, nullable
      */
     public static void validateResourceId(BizClient client, AppBizClientApplicationService appBizClientApplicationService) throws IllegalArgumentException {
-        if (client.getResourceIds() == null || client.getResourceIds().size() == 0)
-            throw new IllegalArgumentException("invalid resourceId found");
-        String join = String.join(".", client.getResourceIds());
-        SumPagedRep<AppBizClientCardRep> appBizClientCardRepSumPagedRep = appBizClientApplicationService.readByQuery("id:" + join, null, null);
-        if (appBizClientCardRepSumPagedRep.getData().size() != client.getResourceIds().size())
-            throw new IllegalArgumentException("unable to find resourceId listed");
-        if (appBizClientCardRepSumPagedRep.getData().stream().anyMatch(e -> !e.getResourceIndicator()))
-            throw new IllegalArgumentException("invalid resourceId found");
+        if (client.getResourceIds() != null && client.getResourceIds().size() != 0) {
+            String join = String.join(".", client.getResourceIds());
+            SumPagedRep<AppBizClientCardRep> appBizClientCardRepSumPagedRep = appBizClientApplicationService.readByQuery("id:" + join, null, null);
+            if (appBizClientCardRepSumPagedRep.getData().size() != client.getResourceIds().size())
+                throw new IllegalArgumentException("unable to find resourceId listed");
+            if (appBizClientCardRepSumPagedRep.getData().stream().anyMatch(e -> !e.getResourceIndicator()))
+                throw new IllegalArgumentException("invalid resourceId found");
+        }
     }
 
     /**

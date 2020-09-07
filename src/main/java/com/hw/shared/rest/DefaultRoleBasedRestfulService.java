@@ -10,11 +10,11 @@ import com.hw.shared.Auditable;
 import com.hw.shared.AuditorAwareImpl;
 import com.hw.shared.DeepCopyException;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.model.ChangeRecord;
 import com.hw.shared.idempotent.ChangeRepository;
-import com.hw.shared.idempotent.model.CreateDeleteCommand;
 import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.exception.HangingTransactionException;
+import com.hw.shared.idempotent.exception.RollbackNotSupportedException;
+import com.hw.shared.idempotent.model.ChangeRecord;
 import com.hw.shared.rest.exception.EntityNotExistException;
 import com.hw.shared.rest.exception.EntityPatchException;
 import com.hw.shared.sql.PatchCommand;
@@ -53,7 +53,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     @Transactional
     public CreatedEntityRep create(Object command, String changeId) {
         long id = idGenerator.getId();
-        saveChangeRecord(null, changeId, new CreateDeleteCommand("id:" + id, OperationType.CREATE));
+        saveChangeRecord(null, changeId, OperationType.POST, "id:" + id);
         T created = createEntity(id, command);
         T save = repo.save(created);
         return getCreatedEntityRepresentation(save);
@@ -61,7 +61,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
 
     @Transactional
     public void replaceById(Long id, Object command, String changeId) {
-        saveChangeRecord(null, changeId, null);
+        saveChangeRecord(null, changeId, OperationType.PUT, "id:" +id.toString());
         SumPagedRep<T> tSumPagedRep = getEntityById(id);
         T after = replaceEntity(tSumPagedRep.getData().get(0), command);
         repo.save(after);
@@ -70,7 +70,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
 
     @Transactional
     public void patchById(Long id, JsonPatch patch, Map<String, Object> params) {
-        saveChangeRecord(null, (String) params.get(HTTP_HEADER_CHANGE_ID), null);
+        saveChangeRecord(null, (String) params.get(HTTP_HEADER_CHANGE_ID), OperationType.PATCH_BY_ID, "id:" + id.toString());
         SumPagedRep<T> entityById = getEntityById(id);
         T original = entityById.getData().get(0);
         Z command = entityPatchSupplier.apply(original);
@@ -90,19 +90,25 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
 
     @Transactional
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
-        saveChangeRecord(commands, changeId, null);
+        saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null);
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         return queryRegistry.update(role, deepCopy, entityClass);
     }
 
     @Transactional
     public Integer deleteById(Long id, String changeId) {
-        return deleteByQuery("id:" + id, changeId);
+        saveChangeRecord(null, changeId, OperationType.DELETE_BY_ID, "id:" + id.toString());
+        return doDelete("id:" + id);
     }
 
     @Transactional
     public Integer deleteByQuery(String query, String changeId) {
-        saveChangeRecord(null, changeId, new CreateDeleteCommand(query, OperationType.DELETE));
+        saveChangeRecord(null, changeId, OperationType.DELETE_BY_QUERY, query);
+        return doDelete(query);
+
+    }
+
+    private Integer doDelete(String query) {
         if (deleteHook) {
             int pageNum = 0;
             SumPagedRep<T> tSumPagedRep = queryRegistry.readByQuery(role, query, "num:" + pageNum, null, entityClass);
@@ -122,7 +128,6 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         } else {
             return queryRegistry.deleteByQuery(role, query, entityClass);
         }
-
     }
 
     @Transactional(readOnly = true)
@@ -140,33 +145,41 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     }
 
     @Transactional
-    public void rollbackCreateOrDelete(String changeId) {
+    public void rollback(String changeId) {
         log.info("start of rollback change /w id {}", changeId);
         if (changeRepository.findByChangeIdAndEntityType(changeId + CHANGE_REVOKED, entityClass.getName()).isPresent()) {
             throw new HangingTransactionException();
         }
         Optional<ChangeRecord> byChangeId = changeRepository.findByChangeIdAndEntityType(changeId, entityClass.getName());
-        if (byChangeId.isPresent() && byChangeId.get().getCreateDeleteCommand() != null) {
-            CreateDeleteCommand createDeleteCommands = byChangeId.get().getCreateDeleteCommand();
-            if (createDeleteCommands.getOperationType().equals(OperationType.CREATE)) {
-                deleteByQuery(createDeleteCommands.getQuery(), changeId + CHANGE_REVOKED);
+        if (byChangeId.isPresent() &&
+                (byChangeId.get().getOperationType().equals(OperationType.DELETE_BY_ID)
+                        || byChangeId.get().getOperationType().equals(OperationType.DELETE_BY_QUERY)
+                        || byChangeId.get().getOperationType().equals(OperationType.POST)
+                )) {
+            if (byChangeId.get().getOperationType().equals(OperationType.POST)) {
+                deleteByQuery(byChangeId.get().getQuery(), changeId + CHANGE_REVOKED);
             } else {
-                restoreDelete(createDeleteCommands.getQuery().replace("id:", ""), changeId + CHANGE_REVOKED);
+                restoreDelete(byChangeId.get().getQuery().replace("id:", ""), changeId + CHANGE_REVOKED);
             }
+        } else {
+            throw new RollbackNotSupportedException();
         }
     }
 
-    private void restoreDelete(String id, String changeId) {
-        saveChangeRecord(null, changeId, new CreateDeleteCommand("id:" + id, OperationType.CREATE));
-        Optional<T> byId = repo.findById(Long.parseLong(id));//use repo instead of common readyBy
-        if (byId.isEmpty())
-            throw new EntityNotExistException();
-        T t = byId.get();
-        t.setDeleted(false);
-        t.setRestoredAt(new Date());
-        Optional<String> currentAuditor = AuditorAwareImpl.getAuditor();
-        t.setRestoredBy(currentAuditor.orElse(""));
-        repo.save(byId.get());
+    private void restoreDelete(String ids, String changeId) {
+        saveChangeRecord(null, changeId, OperationType.RESTORE, "id:" + ids);
+        String[] split = ids.split(".");
+        for (String str : split) {
+            Optional<T> byId = repo.findById(Long.parseLong(str));//use repo instead of common readyBy
+            if (byId.isEmpty())
+                throw new EntityNotExistException();
+            T t = byId.get();
+            t.setDeleted(false);
+            t.setRestoredAt(new Date());
+            Optional<String> currentAuditor = AuditorAwareImpl.getAuditor();
+            t.setRestoredBy(currentAuditor.orElse(""));
+            repo.save(byId.get());
+        }
     }
 
     protected SumPagedRep<T> getEntityById(Long id) {
@@ -188,14 +201,15 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         return deepCopy;
     }
 
-    protected void saveChangeRecord(List<PatchCommand> patchCommands, String changeId, CreateDeleteCommand command) {
+    protected void saveChangeRecord(List<PatchCommand> patchCommands, String changeId, OperationType operationType, String query) {
         ChangeRecord changeRecord = new ChangeRecord();
         changeRecord.setPatchCommands((ArrayList<PatchCommand>) patchCommands);
         changeRecord.setChangeId(changeId);
         changeRecord.setId(idGenerator.getId());
         changeRecord.setEntityType(entityClass.getName());
         changeRecord.setServiceBeanName(this.getClass().getName());
-        changeRecord.setCreateDeleteCommand(command);
+        changeRecord.setOperationType(operationType);
+        changeRecord.setQuery(query);
         changeRepository.save(changeRecord);
     }
 

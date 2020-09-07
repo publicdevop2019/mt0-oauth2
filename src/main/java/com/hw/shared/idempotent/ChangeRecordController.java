@@ -1,6 +1,5 @@
 package com.hw.shared.idempotent;
 
-import com.hw.shared.idempotent.command.CreateChangeRecordCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

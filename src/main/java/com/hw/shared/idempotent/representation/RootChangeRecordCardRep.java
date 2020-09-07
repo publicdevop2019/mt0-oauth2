@@ -1,7 +1,7 @@
 package com.hw.shared.idempotent.representation;
 
+import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.model.ChangeRecord;
-import com.hw.shared.idempotent.model.CreateDeleteCommand;
 import com.hw.shared.sql.PatchCommand;
 import lombok.Data;
 
@@ -15,14 +15,16 @@ public class RootChangeRecordCardRep {
     private String entityType;
 
     private ArrayList<PatchCommand> patchCommands;
+    private OperationType operationType;
+    private String query;
 
-    private CreateDeleteCommand createDeleteCommand;
 
     public RootChangeRecordCardRep(ChangeRecord changeRecord) {
         this.id = changeRecord.getId();
         this.changeId = changeRecord.getChangeId();
         this.entityType = changeRecord.getEntityType();
         this.patchCommands = changeRecord.getPatchCommands();
-        this.createDeleteCommand = changeRecord.getCreateDeleteCommand();
+        this.operationType = changeRecord.getOperationType();
+        this.query = changeRecord.getQuery();
     }
 }

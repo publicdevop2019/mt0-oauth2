@@ -52,7 +52,7 @@ public class BizClientController {
 
     @DeleteMapping("change/root/{id}")
     public ResponseEntity<?> rollbackChangeForRootById(@PathVariable String id) {
-        rootClientApplicationService.rollbackCreateOrDelete(id);
+        rootClientApplicationService.rollback(id);
         return ResponseEntity.ok().build();
     }
 
