@@ -157,7 +157,8 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
                         || byChangeId.get().getOperationType().equals(OperationType.POST)
                 )) {
             if (byChangeId.get().getOperationType().equals(OperationType.POST)) {
-                deleteByQuery(byChangeId.get().getQuery(), changeId + CHANGE_REVOKED);
+                saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.CANCEL_CREATE, byChangeId.get().getQuery());
+                doDelete(byChangeId.get().getQuery());
             } else {
                 restoreDelete(byChangeId.get().getQuery().replace("id:", ""), changeId + CHANGE_REVOKED);
             }
@@ -167,7 +168,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     }
 
     private void restoreDelete(String ids, String changeId) {
-        saveChangeRecord(null, changeId, OperationType.RESTORE, "id:" + ids);
+        saveChangeRecord(null, changeId, OperationType.RESTORE_DELETE, "id:" + ids);
         String[] split = ids.split(".");
         for (String str : split) {
             Optional<T> byId = repo.findById(Long.parseLong(str));//use repo instead of common readyBy
