@@ -1,5 +1,6 @@
-package com.hw.shared.idempotent;
+package com.hw.shared.idempotent.model;
 
+import com.hw.shared.idempotent.OperationType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

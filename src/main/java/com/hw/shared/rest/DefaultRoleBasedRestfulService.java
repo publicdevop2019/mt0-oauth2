@@ -10,9 +10,9 @@ import com.hw.shared.Auditable;
 import com.hw.shared.AuditorAwareImpl;
 import com.hw.shared.DeepCopyException;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.ChangeRecord;
+import com.hw.shared.idempotent.model.ChangeRecord;
 import com.hw.shared.idempotent.ChangeRepository;
-import com.hw.shared.idempotent.CreateDeleteCommand;
+import com.hw.shared.idempotent.model.CreateDeleteCommand;
 import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.exception.HangingTransactionException;
 import com.hw.shared.rest.exception.EntityNotExistException;
@@ -102,7 +102,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
 
     @Transactional
     public Integer deleteByQuery(String query, String changeId) {
-        saveChangeRecord(null, changeId, new CreateDeleteCommand(query, OperationType.Delete));
+        saveChangeRecord(null, changeId, new CreateDeleteCommand(query, OperationType.DELETE));
         if (deleteHook) {
             int pageNum = 0;
             SumPagedRep<T> tSumPagedRep = queryRegistry.readByQuery(role, query, "num:" + pageNum, null, entityClass);
@@ -146,8 +146,8 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             throw new HangingTransactionException();
         }
         Optional<ChangeRecord> byChangeId = changeRepository.findByChangeIdAndEntityType(changeId, entityClass.getName());
-        if (byChangeId.isPresent() && byChangeId.get().getCreateDeleteCommands() != null) {
-            CreateDeleteCommand createDeleteCommands = byChangeId.get().getCreateDeleteCommands();
+        if (byChangeId.isPresent() && byChangeId.get().getCreateDeleteCommand() != null) {
+            CreateDeleteCommand createDeleteCommands = byChangeId.get().getCreateDeleteCommand();
             if (createDeleteCommands.getOperationType().equals(OperationType.CREATE)) {
                 deleteByQuery(createDeleteCommands.getQuery(), changeId + CHANGE_REVOKED);
             } else {
@@ -194,7 +194,8 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         changeRecord.setChangeId(changeId);
         changeRecord.setId(idGenerator.getId());
         changeRecord.setEntityType(entityClass.getName());
-        changeRecord.setCreateDeleteCommands(command);
+        changeRecord.setServiceBeanName(this.getClass().getName());
+        changeRecord.setCreateDeleteCommand(command);
         changeRepository.save(changeRecord);
     }
 
