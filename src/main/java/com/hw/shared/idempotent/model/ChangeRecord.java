@@ -22,6 +22,7 @@ public class ChangeRecord extends Auditable implements IdBasedEntity {
     private String changeId;
     @Column(nullable = false)
     private String entityType;
+    public static final String ENTITY_TYPE = "entityType";
     @Column(nullable = false)
     private String serviceBeanName;
 

@@ -11,7 +11,7 @@ public class RevokeBizClientTokenService extends CommonTokenRevocationService {
     private String url;
 
     public void blacklist(Long id) {
-        blacklist(url, id, TokenTypeEnum.Client);
+        blacklist(url, id, TokenTypeEnum.CLIENT);
     }
 
 

@@ -147,10 +147,11 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     @Transactional
     public void rollback(String changeId) {
         log.info("start of rollback change /w id {}", changeId);
-        if (changeRepository.findByChangeIdAndEntityType(changeId + CHANGE_REVOKED, entityClass.getName()).isPresent()) {
+        String[] split = entityClass.getName().split("\\.");
+        if (changeRepository.findByChangeIdAndEntityType(changeId + CHANGE_REVOKED,split[split.length-1] ).isPresent()) {
             throw new HangingTransactionException();
         }
-        Optional<ChangeRecord> byChangeId = changeRepository.findByChangeIdAndEntityType(changeId, entityClass.getName());
+        Optional<ChangeRecord> byChangeId = changeRepository.findByChangeIdAndEntityType(changeId, split[split.length-1]);
         if (byChangeId.isPresent() &&
                 (byChangeId.get().getOperationType().equals(OperationType.DELETE_BY_ID)
                         || byChangeId.get().getOperationType().equals(OperationType.DELETE_BY_QUERY)
@@ -207,7 +208,8 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         changeRecord.setPatchCommands((ArrayList<PatchCommand>) patchCommands);
         changeRecord.setChangeId(changeId);
         changeRecord.setId(idGenerator.getId());
-        changeRecord.setEntityType(entityClass.getName());
+        String[] split = entityClass.getName().split("\\.");
+        changeRecord.setEntityType(split[split.length-1]);
         changeRecord.setServiceBeanName(this.getClass().getName());
         changeRecord.setOperationType(operationType);
         changeRecord.setQuery(query);

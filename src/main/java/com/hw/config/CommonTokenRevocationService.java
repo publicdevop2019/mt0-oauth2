@@ -52,8 +52,8 @@ public class CommonTokenRevocationService {
     }
 
     public enum TokenTypeEnum {
-        Client,
-        User;
+        CLIENT,
+        USER;
     }
 
     @Data
