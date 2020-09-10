@@ -9,6 +9,7 @@ import com.hw.aggregate.client.model.RootBizClientPatchMiddleLayer;
 import com.hw.aggregate.client.representation.RootBizClientCardRep;
 import com.hw.aggregate.client.representation.RootBizClientRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -43,7 +44,7 @@ public class RootBIzClientApplicationService extends DefaultRoleBasedRestfulServ
     @Autowired
     private IdGenerator idGenerator2;
     @Autowired
-    private ChangeRepository changeHistoryRepository;
+    private AppChangeRecordApplicationService changeHistoryRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -55,7 +56,7 @@ public class RootBIzClientApplicationService extends DefaultRoleBasedRestfulServ
         entityClass = BizClient.class;
         role = RestfulQueryRegistry.RoleEnum.ROOT;
         idGenerator = idGenerator2;
-        changeRepository = changeHistoryRepository;
+        appChangeRecordApplicationService = changeHistoryRepository;
         entityPatchSupplier = RootBizClientPatchMiddleLayer::new;
         om = objectMapper;
         deleteHook = true;

@@ -7,6 +7,7 @@ import com.hw.aggregate.pending_user.model.PendingUserQueryRegistry;
 import com.hw.aggregate.pending_user.representation.AppPendingUserCardRep;
 import com.hw.aggregate.user.AppBizUserApplicationService;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
@@ -28,7 +29,7 @@ public class AppPendingUserApplicationService extends DefaultRoleBasedRestfulSer
     @Autowired
     private IdGenerator idGenerator2;
     @Autowired
-    private ChangeRepository changeRepository2;
+    private AppChangeRecordApplicationService changeRepository2;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -41,7 +42,7 @@ public class AppPendingUserApplicationService extends DefaultRoleBasedRestfulSer
         entityClass = PendingUser.class;
         role = RestfulQueryRegistry.RoleEnum.APP;
         idGenerator = idGenerator2;
-        changeRepository = changeRepository2;
+        appChangeRecordApplicationService = changeRepository2;
         om = objectMapper;
     }
 

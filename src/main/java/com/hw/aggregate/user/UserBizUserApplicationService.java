@@ -7,6 +7,7 @@ import com.hw.aggregate.user.command.UserUpdateBizUserCommand;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserQueryRegistry;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
@@ -39,7 +40,7 @@ public class UserBizUserApplicationService extends DefaultRoleBasedRestfulServic
     @Autowired
     private IdGenerator idGenerator2;
     @Autowired
-    private ChangeRepository changeRepository2;
+    private AppChangeRecordApplicationService changeRepository2;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -55,7 +56,7 @@ public class UserBizUserApplicationService extends DefaultRoleBasedRestfulServic
         entityClass = BizUser.class;
         role = RestfulQueryRegistry.RoleEnum.USER;
         idGenerator = idGenerator2;
-        changeRepository = changeRepository2;
+        appChangeRecordApplicationService = changeRepository2;
         om = objectMapper;
     }
 

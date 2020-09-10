@@ -9,6 +9,7 @@ import com.hw.aggregate.user.model.BizUserQueryRegistry;
 import com.hw.aggregate.user.representation.AdminBizUserCardRep;
 import com.hw.aggregate.user.representation.AdminBizUserRep;
 import com.hw.shared.IdGenerator;
+import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -36,7 +37,7 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
     @Autowired
     private IdGenerator idGenerator2;
     @Autowired
-    private ChangeRepository changeRepository2;
+    private AppChangeRecordApplicationService changeRepository2;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -52,7 +53,7 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
         entityClass = BizUser.class;
         role = RestfulQueryRegistry.RoleEnum.ADMIN;
         idGenerator = idGenerator2;
-        changeRepository = changeRepository2;
+        appChangeRecordApplicationService = changeRepository2;
         om = objectMapper;
         entityPatchSupplier = AdminBizUserPatchMiddleLayer::new;
         deleteHook = true;
