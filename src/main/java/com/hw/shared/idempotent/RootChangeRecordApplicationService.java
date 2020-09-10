@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -81,6 +82,22 @@ public class RootChangeRecordApplicationService extends DefaultRoleBasedRestfulS
 
     @Override
     protected void postPatch(ChangeRecord changeRecord, Map<String, Object> params, VoidTypedClass middleLayer) {
+
+    }
+
+    @Transactional
+    public void deleteByQuery(String queryParam) {
+        List<RootChangeRecordCardRep> allByQuery = getAllByQuery(queryParam);
+        allByQuery.forEach(e -> {
+            Class<?> aClass = null;
+            try {
+                aClass = Class.forName(e.getServiceBeanName());
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
+            DefaultRoleBasedRestfulService bean = (DefaultRoleBasedRestfulService) context.getBean(aClass);
+            bean.rollback(e.getChangeId());
+        });
 
     }
 }

@@ -8,24 +8,26 @@ import lombok.Data;
 import java.util.ArrayList;
 
 @Data
-public class RootChangeRecordCardRep {
+public class AppChangeRecordCardRep {
     private Long id;
 
     private String changeId;
     private String entityType;
-
-    private ArrayList<PatchCommand> patchCommands;
-    private OperationType operationType;
-    private String query;
     private String serviceBeanName;
 
-    public RootChangeRecordCardRep(ChangeRecord changeRecord) {
+    private ArrayList<PatchCommand> patchCommands;
+
+    private OperationType operationType;
+    private String query;
+
+
+    public AppChangeRecordCardRep(ChangeRecord changeRecord) {
         this.id = changeRecord.getId();
         this.changeId = changeRecord.getChangeId();
         this.entityType = changeRecord.getEntityType();
+        this.serviceBeanName = changeRecord.getServiceBeanName();
         this.patchCommands = changeRecord.getPatchCommands();
         this.operationType = changeRecord.getOperationType();
         this.query = changeRecord.getQuery();
-        this.serviceBeanName = changeRecord.getServiceBeanName();
     }
 }
