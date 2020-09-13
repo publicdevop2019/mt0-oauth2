@@ -1,5 +1,7 @@
 package com.hw.shared.idempotent;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.model.ChangeRecord;
 import com.hw.shared.idempotent.model.ChangeRecordQueryRegistry;
 import com.hw.shared.idempotent.representation.RootChangeRecordCardRep;
@@ -21,16 +23,21 @@ public class RootChangeRecordApplicationService extends DefaultRoleBasedRestfulS
     @Autowired
     private ApplicationContext context;
     @Autowired
+    private IdGenerator idGenerator2;
+    @Autowired
     private ChangeRepository changeRepository;
     @Autowired
     private ChangeRecordQueryRegistry changeRecordQueryRegistry;
-
+    @Autowired
+    private ObjectMapper om2;
     @PostConstruct
     private void setUp() {
         repo = changeRepository;
+        idGenerator = idGenerator2;
         queryRegistry = changeRecordQueryRegistry;
         entityClass = ChangeRecord.class;
         role = RestfulQueryRegistry.RoleEnum.ROOT;
+        om = om2;
     }
 
     @Transactional

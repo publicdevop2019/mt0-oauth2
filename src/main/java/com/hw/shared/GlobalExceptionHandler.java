@@ -1,5 +1,6 @@
 package com.hw.shared;
 
+import com.hw.shared.idempotent.exception.ChangeNotFoundException;
 import com.hw.shared.idempotent.exception.HangingTransactionException;
 import com.hw.shared.idempotent.exception.RollbackNotSupportedException;
 import com.hw.shared.rest.exception.EntityNotExistException;
@@ -41,7 +42,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             EntityPatchException.class,
             QueryBuilderNotFoundException.class,
             EmptyQueryValueException.class,
-            UnknownWhereClauseException.class
+            UnknownWhereClauseException.class,
+            ChangeNotFoundException.class,
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

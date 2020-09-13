@@ -10,10 +10,13 @@ import javax.annotation.PostConstruct;
 public class ChangeRecordQueryRegistry extends RestfulQueryRegistry<ChangeRecord> {
     @Autowired
     private RootChangeRecordSelectQueryBuilder changeRecordSelectQueryBuilder;
+    @Autowired
+    private AppChangeRecordSelectQueryBuilder appChangeRecordSelectQueryBuilder;
 
     @Override
     @PostConstruct
     protected void configQueryBuilder() {
         selectQueryBuilder.put(RoleEnum.ROOT, changeRecordSelectQueryBuilder);
+        selectQueryBuilder.put(RoleEnum.APP, appChangeRecordSelectQueryBuilder);
     }
 }

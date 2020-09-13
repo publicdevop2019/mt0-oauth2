@@ -13,6 +13,7 @@ import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.command.AppCreateChangeRecordCommand;
+import com.hw.shared.idempotent.exception.ChangeNotFoundException;
 import com.hw.shared.idempotent.exception.HangingTransactionException;
 import com.hw.shared.idempotent.exception.RollbackNotSupportedException;
 import com.hw.shared.idempotent.representation.AppChangeRecordCardRep;
@@ -156,18 +157,20 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         }
         SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep1 = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + split[split.length - 1], null, "sc:1");
         List<AppChangeRecordCardRep> data = appChangeRecordCardRepSumPagedRep1.getData();
-        if (data != null &&
-                (data.get(0).getOperationType().equals(OperationType.DELETE_BY_ID)
-                        || data.get(0).getOperationType().equals(OperationType.DELETE_BY_QUERY)
-                        || data.get(0).getOperationType().equals(OperationType.POST)
-                )) {
+        if (data == null || data.size() == 0) {
+            throw new ChangeNotFoundException();
+        }
+        if ((data.get(0).getOperationType().equals(OperationType.DELETE_BY_ID)
+                || data.get(0).getOperationType().equals(OperationType.DELETE_BY_QUERY)
+                || data.get(0).getOperationType().equals(OperationType.POST)
+        )) {
             if (data.get(0).getOperationType().equals(OperationType.POST)) {
                 saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.CANCEL_CREATE, data.get(0).getQuery());
                 doDelete(data.get(0).getQuery());
             } else {
                 restoreDelete(data.get(0).getQuery().replace("id:", ""), changeId + CHANGE_REVOKED);
             }
-        } else if (data != null && data.get(0).getOperationType().equals(OperationType.PATCH_BATCH)) {
+        } else if (data.get(0).getOperationType().equals(OperationType.PATCH_BATCH)) {
             List<PatchCommand> rollbackCmd = buildRollbackCommand(data.get(0).getPatchCommands());
             patchBatch(rollbackCmd, changeId + CHANGE_REVOKED);
         } else {
@@ -239,6 +242,8 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     protected List<X> getAllByQuery(String query) {
         SumPagedRep<X> sumPagedRep = readByQuery(query, null, null);
         List<X> data = sumPagedRep.getData();
+        if (data.size() == 0)
+            return data;
         long l = sumPagedRep.getTotalItemCount() / data.size();
         double ceil = Math.ceil(l);
         int count = BigDecimal.valueOf(ceil).intValue();
