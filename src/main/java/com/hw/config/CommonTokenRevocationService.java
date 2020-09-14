@@ -37,7 +37,7 @@ public class CommonTokenRevocationService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
         headers.set(HTTP_HEADER_CHANGE_ID, UUID.randomUUID().toString());
-        HttpEntity<String> hashMapHttpEntity = new HttpEntity(createRevokeTokenCommand, headers);
+        HttpEntity<CreateRevokeTokenCommand> hashMapHttpEntity = new HttpEntity<>(createRevokeTokenCommand, headers);
         try {
             restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity, String.class);
         } catch (HttpClientErrorException ex) {
@@ -45,7 +45,7 @@ public class CommonTokenRevocationService {
              * re-try
              */
             headers.setBearerAuth(authTokenHelper.getSelfSignedAccessToken().getValue());
-            HttpEntity<String> hashMapHttpEntity2 = new HttpEntity(createRevokeTokenCommand, headers);
+            HttpEntity<CreateRevokeTokenCommand> hashMapHttpEntity2 = new HttpEntity<>(createRevokeTokenCommand, headers);
             restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity2, String.class);
 
         }

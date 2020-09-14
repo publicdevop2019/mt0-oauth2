@@ -14,7 +14,7 @@ public class BizUserDetailsService implements UserDetailsService {
     BizUserRepo resourceOwnerRepo;
 
     @Override
-    public UserDetails loadUserByUsername(String usernameOrId) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String usernameOrId) {
         try {
             return resourceOwnerRepo.findById(Long.parseLong(usernameOrId)).get();
         } catch (NumberFormatException ex) {

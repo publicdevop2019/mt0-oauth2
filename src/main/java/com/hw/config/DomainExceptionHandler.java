@@ -28,7 +28,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             IllegalArgumentException.class,
             OAuth2Exception.class
     })
-    protected ResponseEntity<?> handleException(RuntimeException ex, WebRequest request) {
+    protected ResponseEntity<Object> handleException(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 }

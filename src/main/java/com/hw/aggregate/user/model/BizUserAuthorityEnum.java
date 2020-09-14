@@ -7,7 +7,7 @@ public enum BizUserAuthorityEnum {
     ROLE_ROOT,
     ROLE_USER;
 
-    public static class ResourceOwnerAuthorityConverter extends EnumSetConverter {
+    public static class ResourceOwnerAuthorityConverter extends EnumSetConverter<BizUserAuthorityEnum> {
         public ResourceOwnerAuthorityConverter() {
             super(BizUserAuthorityEnum.class);
         }

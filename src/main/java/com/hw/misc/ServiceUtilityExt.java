@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 public class ServiceUtilityExt {
+    private ServiceUtilityExt() {
+    }
 
     public static Authentication getAuthentication(String bearerHeader) {
         try {
@@ -18,7 +20,7 @@ public class ServiceUtilityExt {
                 }
             }).collect(Collectors.toList());
             String userId = ServiceUtility.getUserId(bearerHeader);
-            Authentication authentication = new Authentication() {
+            return new Authentication() {
                 @Override
                 public Collection<? extends GrantedAuthority> getAuthorities() {
                     return au;
@@ -46,7 +48,7 @@ public class ServiceUtilityExt {
                 }
 
                 @Override
-                public void setAuthenticated(boolean b) throws IllegalArgumentException {
+                public void setAuthenticated(boolean b) {
 
                 }
 
@@ -55,7 +57,6 @@ public class ServiceUtilityExt {
                     return null;
                 }
             };
-            return authentication;
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("unable to create authentication obj in authorization header");
         }

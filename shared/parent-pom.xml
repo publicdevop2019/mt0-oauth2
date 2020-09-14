@@ -22,7 +22,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
-        <sonar.coverage.exclusions>**/shared/**/*,**/exception/**/*,**/config/**/*</sonar.coverage.exclusions>
+        <sonar.exclusions>**/shared/**/*,**/exception/**/*,**/config/**/*</sonar.exclusions>
     </properties>
     <dependencies>
         <dependency>

@@ -299,11 +299,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
             return false;
         } else if (oldClient.getRegisteredRedirectUri() != null && oldClient.getRegisteredRedirectUri().equals(newClient.getRegisteredRedirectUri())) {
             return false;
-        } else if (newClient.getRegisteredRedirectUri() != null && newClient.getRegisteredRedirectUri().equals(oldClient.getRegisteredRedirectUri())) {
-            return false;
-        } else {
-            return true;
-        }
+        } else return newClient.getRegisteredRedirectUri() == null || !newClient.getRegisteredRedirectUri().equals(oldClient.getRegisteredRedirectUri());
     }
 
     private boolean resourceIdChanged(BizClient oldClient, UpdateClientCommand newClient) {

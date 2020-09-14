@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class DefaultAuthorityConverter<T extends Enum<T>> implements AttributeConverter<List<GrantedAuthorityImpl>, String> {
+public class DefaultAuthorityConverter<T extends Enum<T>> implements AttributeConverter<List<GrantedAuthorityImpl<T>>, String> {
 
     private final Class<T> type;
 
@@ -17,12 +17,12 @@ public class DefaultAuthorityConverter<T extends Enum<T>> implements AttributeCo
     }
 
     @Override
-    public String convertToDatabaseColumn(List<GrantedAuthorityImpl> grantedAuthorities) {
+    public String convertToDatabaseColumn(List<GrantedAuthorityImpl<T>> grantedAuthorities) {
         return grantedAuthorities.stream().filter(Objects::nonNull).map(e -> e.getGrantedAuthority().toString()).collect(Collectors.joining(","));
     }
 
     @Override
-    public List<GrantedAuthorityImpl> convertToEntityAttribute(String s) {
+    public List<GrantedAuthorityImpl<T>> convertToEntityAttribute(String s) {
         return Arrays.stream(s.split(",")).map(e -> GrantedAuthorityImpl.getGrantedAuthority(type, e)).collect(Collectors.toList());
     }
 

@@ -22,10 +22,11 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.security.KeyPair;
+import java.util.Objects;
 
 @Component
 public class BeanFactory {
-    private final Integer STRENGTH = 12;
+    private static final Integer STRENGTH = 12;
     @Autowired
     ClientDetailsService clientDetailsService;
 
@@ -55,7 +56,7 @@ public class BeanFactory {
     }
 
     @Bean
-    public ApprovalStore approvalStore(TokenStore tokenStore) throws Exception {
+    public ApprovalStore approvalStore(TokenStore tokenStore) {
 
         TokenApprovalStore store = new TokenApprovalStore();
 
@@ -85,7 +86,7 @@ public class BeanFactory {
     public KeyPair getKeyPair() {
 
         KeyStoreKeyFactory keyStoreKeyFactory =
-                new KeyStoreKeyFactory(new ClassPathResource(env.getProperty("jwt.key-store")), env.getProperty("jwt.password").toCharArray());
+                new KeyStoreKeyFactory(new ClassPathResource(Objects.requireNonNull(env.getProperty("jwt.key-store"))), Objects.requireNonNull(env.getProperty("jwt.password")).toCharArray());
 
         return keyStoreKeyFactory.getKeyPair(env.getProperty("jwt.alias"));
     }
