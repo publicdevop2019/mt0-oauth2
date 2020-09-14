@@ -1,10 +1,10 @@
 package com.hw.aggregate.client.model;
 
 public enum GrantTypeEnum {
-    client_credentials,
-    password,
-    refresh_token,
-    authorization_code;
+    CLIENT_CREDENTIALS,
+    PASSWORD,
+    REFRESH_TOKEN,
+    AUTHORIZATION_CODE;
 
     public static class GrantTypeSetConverter extends EnumSetConverter<GrantTypeEnum> {
         public GrantTypeSetConverter() {

@@ -25,6 +25,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table
 @Data
-public class BizClient extends Auditable implements ClientDetails, IdBasedEntity {
+public class BizClient extends Auditable implements IdBasedEntity {
     public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
     public static final String ENTITY_NAME = "name";
@@ -131,7 +132,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         BizClient client = new BizClient(id, command);
         validateResourceId(client, appBizClientApplicationService);
         validateResourceIndicator(client);
-        SumPagedRep<AppBizClientCardRep> appBizClientCardRepSumPagedRep = appBizClientApplicationService.readByQuery("id:" + client.getClientId(), null, null);
+        SumPagedRep<AppBizClientCardRep> appBizClientCardRepSumPagedRep = appBizClientApplicationService.readByQuery("id:" + client.getId(), null, null);
         if (appBizClientCardRepSumPagedRep.getData().isEmpty()) {
             if (null == client.getClientSecret()) {
                 client.setClientSecret(encoder.encode(""));
@@ -167,55 +168,6 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
             throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
     }
 
-    @Override
-    public String getClientId() {
-        return id.toString();
-    }
-
-    /**
-     * JsonIgnore make sure filed does not get print two times
-     */
-    @Override
-    @JsonIgnore
-    public boolean isSecretRequired() {
-        return hasSecret;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isScoped() {
-        return true;
-    }
-
-    @Override
-    @JsonIgnore
-    public Set<String> getScope() {
-        return scopeEnums.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
-    }
-
-    @Override
-    @JsonIgnore
-    public Set<String> getAuthorizedGrantTypes() {
-        return grantTypeEnums.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
-    }
-
-    @Override
-    @JsonIgnore
-    public Collection<GrantedAuthority> getAuthorities() {
-        return grantedAuthorities.stream().map(GrantedAuthorityImpl::new).collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean isAutoApprove(String scope) {
-        return false;
-    }
-
-    @Override
-    @JsonIgnore
-    public Map<String, Object> getAdditionalInformation() {
-        return null;
-    }
-
     public BizClient replace(UpdateClientCommand command, RevokeBizClientTokenService tokenRevocationService, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder) {
         shouldRevoke(command, tokenRevocationService);
         validateResourceId(this, appBizClientApplicationService);
@@ -242,7 +194,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
      * root client can not be deleted
      */
     public void validateDelete() {
-        if (this.getAuthorities().stream().anyMatch(e -> "ROLE_ROOT".equals(e.getAuthority())))
+        if (this.getGrantedAuthorities().stream().anyMatch(BizClientAuthorityEnum.ROLE_ROOT::equals))
             throw new RootClientDeleteException();
     }
 

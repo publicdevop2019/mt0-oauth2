@@ -1,9 +1,9 @@
 package com.hw.aggregate.client.model;
 
 public enum ScopeEnum {
-    write,
-    read,
-    trust;
+    WRITE,
+    READ,
+    TRUST;
 
     public static class ScopeSetConverter extends EnumSetConverter<ScopeEnum> {
         public ScopeSetConverter() {

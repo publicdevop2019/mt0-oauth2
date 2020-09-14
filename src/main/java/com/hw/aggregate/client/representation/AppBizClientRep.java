@@ -64,12 +64,12 @@ public class AppBizClientRep implements ClientDetails {
 
     @Override
     public Set<String> getScope() {
-        return scopeEnums.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
+        return scopeEnums.stream().map(Enum::name).collect(Collectors.toSet());
     }
 
     @Override
     public Set<String> getAuthorizedGrantTypes() {
-        return grantTypeEnums.stream().map(e -> e.toString().toLowerCase()).collect(Collectors.toSet());
+        return grantTypeEnums.stream().map(e -> e.name().toLowerCase()).collect(Collectors.toSet());
     }
 
     @Override
