@@ -8,7 +8,6 @@ import com.hw.aggregate.pending_user.representation.AppPendingUserCardRep;
 import com.hw.aggregate.user.AppBizUserApplicationService;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.AppChangeRecordApplicationService;
-import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -48,7 +47,7 @@ public class AppPendingUserApplicationService extends DefaultRoleBasedRestfulSer
 
     @Override
     public PendingUser replaceEntity(PendingUser pendingBizUser, Object command) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -58,7 +57,7 @@ public class AppPendingUserApplicationService extends DefaultRoleBasedRestfulSer
 
     @Override
     public Void getEntityRepresentation(PendingUser pendingBizUser) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -70,22 +69,22 @@ public class AppPendingUserApplicationService extends DefaultRoleBasedRestfulSer
 
     @Override
     public void preDelete(PendingUser pendingUser) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void postDelete(PendingUser pendingUser) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     protected void prePatch(PendingUser pendingUser, Map<String, Object> params, VoidTypedClass middleLayer) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     protected void postPatch(PendingUser pendingUser, Map<String, Object> params, VoidTypedClass middleLayer) {
-
+        throw new UnsupportedOperationException();
     }
 
 

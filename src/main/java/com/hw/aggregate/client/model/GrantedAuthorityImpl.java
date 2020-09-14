@@ -26,8 +26,8 @@ public class GrantedAuthorityImpl<T extends Enum<T>> implements GrantedAuthority
     public GrantedAuthorityImpl() {
     }
 
-    public static <T extends Enum> GrantedAuthorityImpl getGrantedAuthority(Class<T> enumType, String string) {
-        return new GrantedAuthorityImpl(T.valueOf(enumType, string));
+    public static <T extends Enum<T>> GrantedAuthorityImpl<T> getGrantedAuthority(Class<T> enumType, String string) {
+        return new GrantedAuthorityImpl<>(T.valueOf(enumType, string));
     }
 
     @Override

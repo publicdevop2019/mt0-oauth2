@@ -4,7 +4,6 @@ import com.hw.aggregate.client.AppBizClientApplicationService;
 import com.hw.misc.ServiceUtilityExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.common.exceptions.RedirectMismatchException;
@@ -79,8 +78,7 @@ public class AuthorizeCodeApplicationService {
 
     }
 
-    private String generateCode(AuthorizationRequest authorizationRequest, Authentication authentication)
-            throws AuthenticationException {
+    private String generateCode(AuthorizationRequest authorizationRequest, Authentication authentication) {
 
         try {
 

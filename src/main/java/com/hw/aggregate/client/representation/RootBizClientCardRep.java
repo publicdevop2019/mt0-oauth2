@@ -5,35 +5,37 @@ import com.hw.aggregate.client.model.BizClientAuthorityEnum;
 import com.hw.aggregate.client.model.GrantTypeEnum;
 import com.hw.aggregate.client.model.ScopeEnum;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
 @Data
+@NoArgsConstructor
 public class RootBizClientCardRep {
 
-    private Long id;
+    protected Long id;
 
-    private String name;
+    protected String name;
 
-    private String description;
+    protected String description;
 
-    private Set<GrantTypeEnum> grantTypeEnums;
+    protected Set<GrantTypeEnum> grantTypeEnums;
 
-    private Set<BizClientAuthorityEnum> grantedAuthorities;
+    protected Set<BizClientAuthorityEnum> grantedAuthorities;
 
-    private Set<ScopeEnum> scopeEnums;
+    protected Set<ScopeEnum> scopeEnums;
 
-    private Integer accessTokenValiditySeconds;
+    protected Integer accessTokenValiditySeconds;
 
-    private Set<String> registeredRedirectUri;
+    protected Set<String> registeredRedirectUri;
 
-    private Integer refreshTokenValiditySeconds;
+    protected Integer refreshTokenValiditySeconds;
 
-    private Set<String> resourceIds;
+    protected Set<String> resourceIds;
 
-    private Boolean resourceIndicator;
+    protected Boolean resourceIndicator;
 
-    private Boolean autoApprove;
+    protected Boolean autoApprove;
 
     public RootBizClientCardRep(BizClient client) {
         this.id = client.getId();

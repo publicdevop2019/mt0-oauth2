@@ -132,7 +132,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
         validateResourceId(client, appBizClientApplicationService);
         validateResourceIndicator(client);
         SumPagedRep<AppBizClientCardRep> appBizClientCardRepSumPagedRep = appBizClientApplicationService.readByQuery("id:" + client.getClientId(), null, null);
-        if (appBizClientCardRepSumPagedRep.getData().size() == 0) {
+        if (appBizClientCardRepSumPagedRep.getData().isEmpty()) {
             if (null == client.getClientSecret()) {
                 client.setClientSecret(encoder.encode(""));
             } else {
@@ -147,8 +147,8 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     /**
      * selected resource ids should be eligible resource, nullable
      */
-    public static void validateResourceId(BizClient client, AppBizClientApplicationService appBizClientApplicationService) throws IllegalArgumentException {
-        if (client.getResourceIds() != null && client.getResourceIds().size() != 0) {
+    public static void validateResourceId(BizClient client, AppBizClientApplicationService appBizClientApplicationService) {
+        if (client.getResourceIds() != null && !client.getResourceIds().isEmpty()) {
             String join = String.join(".", client.getResourceIds());
             SumPagedRep<AppBizClientCardRep> appBizClientCardRepSumPagedRep = appBizClientApplicationService.readByQuery("id:" + join, null, null);
             if (appBizClientCardRepSumPagedRep.getData().size() != client.getResourceIds().size())
@@ -161,11 +161,10 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
     /**
      * if client is marked as resource then it must be a backend and first party application
      */
-    public static void validateResourceIndicator(BizClient client) throws IllegalArgumentException {
-        if (client.getResourceIndicator())
-            if (client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_BACKEND))
-                    || client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY)))
-                throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
+    public static void validateResourceIndicator(BizClient client) {
+        if (client.getResourceIndicator() && (client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_BACKEND))
+                || client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY))))
+            throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
     }
 
     @Override
@@ -287,11 +286,7 @@ public class BizClient extends Auditable implements ClientDetails, IdBasedEntity
             return false;
         } else if (oldClient.getRefreshTokenValiditySeconds() != null && oldClient.getRefreshTokenValiditySeconds().equals(newClient.getRefreshTokenValiditySeconds())) {
             return false;
-        } else if (newClient.getRefreshTokenValiditySeconds() != null && newClient.getRefreshTokenValiditySeconds().equals(oldClient.getRefreshTokenValiditySeconds())) {
-            return false;
-        } else {
-            return true;
-        }
+        } else return newClient.getRefreshTokenValiditySeconds() == null || !newClient.getRefreshTokenValiditySeconds().equals(oldClient.getRefreshTokenValiditySeconds());
     }
 
     private boolean grantTypeChanged(BizClient oldClient, UpdateClientCommand newClient) {

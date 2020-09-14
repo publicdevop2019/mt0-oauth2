@@ -10,7 +10,6 @@ import com.hw.aggregate.user.representation.AdminBizUserCardRep;
 import com.hw.aggregate.user.representation.AdminBizUserRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.AppChangeRecordApplicationService;
-import com.hw.shared.idempotent.ChangeRepository;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -76,7 +75,7 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
 
     @Override
     protected BizUser createEntity(long id, Object command) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

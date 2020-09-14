@@ -6,7 +6,7 @@ public enum GrantTypeEnum {
     refresh_token,
     authorization_code;
 
-    public static class GrantTypeSetConverter extends EnumSetConverter {
+    public static class GrantTypeSetConverter extends EnumSetConverter<GrantTypeEnum> {
         public GrantTypeSetConverter() {
             super(GrantTypeEnum.class);
         }

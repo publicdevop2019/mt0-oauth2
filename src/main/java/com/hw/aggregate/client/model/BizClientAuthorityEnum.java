@@ -11,7 +11,7 @@ public enum BizClientAuthorityEnum {
      */
     ROLE_ROOT;
 
-    public static class ClientAuthorityConverter extends EnumSetConverter {
+    public static class ClientAuthorityConverter extends EnumSetConverter<BizClientAuthorityEnum> {
         public ClientAuthorityConverter() {
             super(BizClientAuthorityEnum.class);
         }

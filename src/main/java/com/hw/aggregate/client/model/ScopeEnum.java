@@ -5,7 +5,7 @@ public enum ScopeEnum {
     read,
     trust;
 
-    public static class ScopeSetConverter extends EnumSetConverter {
+    public static class ScopeSetConverter extends EnumSetConverter<ScopeEnum> {
         public ScopeSetConverter() {
             super(ScopeEnum.class);
         }

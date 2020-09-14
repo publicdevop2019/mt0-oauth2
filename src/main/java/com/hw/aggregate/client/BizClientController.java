@@ -3,6 +3,10 @@ package com.hw.aggregate.client;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.client.command.CreateClientCommand;
 import com.hw.aggregate.client.command.UpdateClientCommand;
+import com.hw.aggregate.client.representation.AppBizClientCardRep;
+import com.hw.aggregate.client.representation.RootBizClientCardRep;
+import com.hw.aggregate.client.representation.RootBizClientRep;
+import com.hw.shared.sql.SumPagedRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,61 +20,55 @@ import static com.hw.shared.AppConstant.*;
 public class BizClientController {
 
     @Autowired
-    private RootBIzClientApplicationService rootClientApplicationService;
+    private RootBizClientApplicationService rootClientApplicationService;
 
     @Autowired
     private AppBizClientApplicationService appBizClientApplicationService;
 
     @PostMapping("root")
-    public ResponseEntity<?> createForRoot(@RequestBody CreateClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> createForRoot(@RequestBody CreateClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         return ResponseEntity.ok().header("Location", String.valueOf(rootClientApplicationService.create(command, changeId).getId())).build();
     }
 
     @GetMapping("root")
-    public ResponseEntity<?> readForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                                @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
+    public ResponseEntity<SumPagedRep<RootBizClientCardRep>> readForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                                @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                                @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
         return ResponseEntity.ok(rootClientApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
     @GetMapping("root/{id}")
-    public ResponseEntity<?> readForRootById(@PathVariable Long id) {
+    public ResponseEntity<RootBizClientRep> readForRootById(@PathVariable Long id) {
         return ResponseEntity.ok(rootClientApplicationService.readById(id));
     }
 
     @PutMapping("root/{id}")
-    public ResponseEntity<?> replaceForRootById(@PathVariable(name = "id") Long id, @RequestBody UpdateClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") Long id, @RequestBody UpdateClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         rootClientApplicationService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("root/{id}")
-    public ResponseEntity<?> deleteForRootById(@PathVariable Long id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> deleteForRootById(@PathVariable Long id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         rootClientApplicationService.deleteById(id, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("change/root/{id}")
-    public ResponseEntity<?> rollbackChangeForRootById(@PathVariable String id) {
-        rootClientApplicationService.rollback(id);
-        return ResponseEntity.ok().build();
-    }
-
     @DeleteMapping("root")
-    public ResponseEntity<?> deleteForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> deleteForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         rootClientApplicationService.deleteByQuery(queryParam, changeId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("app")
-    public ResponseEntity<?> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                               @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                               @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
+    public ResponseEntity<SumPagedRep<AppBizClientCardRep>> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                 @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                 @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
         return ResponseEntity.ok(appBizClientApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
     @PatchMapping(path = "root/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<?> patchForRootById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(HTTP_HEADER_CHANGE_ID, changeId);
         rootClientApplicationService.patchById(id, patch, params);

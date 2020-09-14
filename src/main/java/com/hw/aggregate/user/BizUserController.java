@@ -2,9 +2,13 @@ package com.hw.aggregate.user;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.user.command.*;
+import com.hw.aggregate.user.representation.AdminBizUserCardRep;
+import com.hw.aggregate.user.representation.AdminBizUserRep;
+import com.hw.aggregate.user.representation.AppBizUserCardRep;
 import com.hw.shared.ServiceUtility;
 import com.hw.shared.rest.CreatedEntityRep;
 import com.hw.shared.sql.PatchCommand;
+import com.hw.shared.sql.SumPagedRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,65 +32,65 @@ public class BizUserController {
     private UserBizUserApplicationService userBizUserApplicationService;
 
     @PostMapping("public")
-    public ResponseEntity<?> createForPublic(@RequestBody PublicCreateBizUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> createForPublic(@RequestBody PublicCreateBizUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         CreatedEntityRep createdEntityRep = publicBizUserApplicationService.create(command, changeId);
         return ResponseEntity.ok().header("Location", String.valueOf(createdEntityRep.getId())).build();
     }
 
     @GetMapping("admin")
-    public ResponseEntity<?> readForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                                 @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                 @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+    public ResponseEntity<SumPagedRep<AdminBizUserCardRep>> readForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                                @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                                @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
         return ResponseEntity.ok(adminResourceOwnerService.readByQuery(queryParam, pageParam, config));
     }
 
     @GetMapping("admin/{id}")
-    public ResponseEntity<?> readForAdminById(@PathVariable Long id) {
+    public ResponseEntity<AdminBizUserRep> readForAdminById(@PathVariable Long id) {
         return ResponseEntity.ok(adminResourceOwnerService.readById(id));
     }
 
 
     @PutMapping("admin/{id}")
-    public ResponseEntity<?> updateForAdmin(@RequestBody AdminUpdateBizUserCommand command, @PathVariable Long id, @RequestHeader("authorization") String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> updateForAdmin(@RequestBody AdminUpdateBizUserCommand command, @PathVariable Long id, @RequestHeader("authorization") String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         command.setAuthorization(authorization);
         adminResourceOwnerService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("admin/{id}")
-    public ResponseEntity<?> deleteForAdminById(@PathVariable Long id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> deleteForAdminById(@PathVariable Long id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         adminResourceOwnerService.deleteById(id, changeId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("app")
-    public ResponseEntity<?> getForAppByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                              @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                              @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+    public ResponseEntity<SumPagedRep<AppBizUserCardRep>> getForAppByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                           @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                           @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
         return ResponseEntity.ok(appBizUserApplicationService.readByQuery(queryParam, pageParam, config));
     }
 
 
     @PutMapping("user/pwd")
-    public ResponseEntity<?> updateForUser(@RequestBody UserUpdateBizUserCommand command, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> updateForUser(@RequestBody UserUpdateBizUserCommand command, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         userBizUserApplicationService.replaceById(Long.parseLong(ServiceUtility.getUserId(authorization)), command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("public/forgetPwd")
-    public ResponseEntity<?> forgetPwd(@RequestBody PublicForgetPasswordCommand command) {
+    public ResponseEntity<Void> forgetPwd(@RequestBody PublicForgetPasswordCommand command) {
         publicBizUserApplicationService.sendForgetPassword(command);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("public/resetPwd")
-    public ResponseEntity<?> resetPwd(@RequestBody PublicResetPwdCommand forgetPasswordRequest) {
+    public ResponseEntity<Void> resetPwd(@RequestBody PublicResetPwdCommand forgetPasswordRequest) {
         publicBizUserApplicationService.resetPassword(forgetPasswordRequest);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<?> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String authorization) {
+    public ResponseEntity<Void> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String authorization) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(HTTP_HEADER_CHANGE_ID, changeId);
         params.put(HTTP_HEADER_AUTHORIZATION, authorization);
@@ -95,7 +99,7 @@ public class BizUserController {
     }
 
     @PatchMapping(path = "admin")
-    public ResponseEntity<?> patchForAdminBatch(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> patchForAdminBatch(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         adminResourceOwnerService.patchBatch(patch, changeId);
         return ResponseEntity.ok().build();
     }

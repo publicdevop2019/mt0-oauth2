@@ -1,40 +1,12 @@
 package com.hw.aggregate.client.representation;
 
 import com.hw.aggregate.client.model.BizClient;
-import com.hw.aggregate.client.model.BizClientAuthorityEnum;
-import com.hw.aggregate.client.model.GrantTypeEnum;
-import com.hw.aggregate.client.model.ScopeEnum;
 import lombok.Data;
 
-import java.util.Set;
-
 @Data
-public class RootBizClientRep {
-    private Long id;
-
-    private String name;
+public class RootBizClientRep extends RootBizClientCardRep {
 
     private String clientSecret;
-
-    private String description;
-
-    private Set<GrantTypeEnum> grantTypeEnums;
-
-    private Set<BizClientAuthorityEnum> grantedAuthorities;
-
-    private Set<ScopeEnum> scopeEnums;
-
-    private Integer accessTokenValiditySeconds;
-
-    private Set<String> registeredRedirectUri;
-
-    private Integer refreshTokenValiditySeconds;
-
-    private Set<String> resourceIds;
-
-    private Boolean resourceIndicator;
-
-    private Boolean autoApprove;
 
     private Boolean hasSecret;
 

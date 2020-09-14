@@ -49,7 +49,7 @@ public class PendingUser extends Auditable implements IdBasedEntity {
         if (!StringUtils.hasText(email))
             throw new IllegalArgumentException("email is empty");
         SumPagedRep<AppBizUserCardRep> appBizUserCardRepSumPagedRep = bizUserApplicationService.readByQuery("email:" + email, null, null);
-        if (appBizUserCardRepSumPagedRep.getData().size() != 0)
+        if (!appBizUserCardRepSumPagedRep.getData().isEmpty())
             throw new IllegalArgumentException("already an user " + email);
     }
 

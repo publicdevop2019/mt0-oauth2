@@ -10,7 +10,6 @@ import com.hw.shared.sql.RestfulQueryRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -33,27 +32,27 @@ public class AppBizClientApplicationService extends DefaultRoleBasedRestfulServi
 
     @Override
     public BizClient replaceEntity(BizClient stored, Object command) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void preDelete(BizClient bizClient) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void postDelete(BizClient bizClient) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     protected void prePatch(BizClient bizClient, Map<String, Object> params, VoidTypedClass middleLayer) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     protected void postPatch(BizClient bizClient, Map<String, Object> params, VoidTypedClass middleLayer) {
-
+        throw new UnsupportedOperationException();
     }
 
 
@@ -69,12 +68,11 @@ public class AppBizClientApplicationService extends DefaultRoleBasedRestfulServi
 
     @Override
     protected BizClient createEntity(long id, Object command) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
-        AppBizClientRep appBizClientRep = readById(Long.parseLong(clientId));
-        return appBizClientRep;
+    public ClientDetails loadClientByClientId(String clientId) {
+        return readById(Long.parseLong(clientId));
     }
 }

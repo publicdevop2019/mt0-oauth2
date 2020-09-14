@@ -14,7 +14,7 @@ public class PendingUserController {
     PublicPendingUserApplicationService resourceOwnerService;
 
     @PostMapping("/public")
-    public ResponseEntity<?> createForPublic(@RequestBody CreatePendingUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> createForPublic(@RequestBody CreatePendingUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         resourceOwnerService.create(command, changeId);
         return ResponseEntity.ok().build();
     }
