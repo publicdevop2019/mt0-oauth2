@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 @Data
 public class AppBizClientRep implements ClientDetails {
     private Long id;

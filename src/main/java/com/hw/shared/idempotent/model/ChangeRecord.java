@@ -16,15 +16,14 @@ import java.util.ArrayList;
 @Data
 @NoArgsConstructor
 public class ChangeRecord extends Auditable implements IdBasedEntity {
+    public static final String CHANGE_ID = "changeId";
+    public static final String ENTITY_TYPE = "entityType";
     @Id
     private Long id;
-
     @Column(nullable = false)
     private String changeId;
-    public static final String CHANGE_ID = "changeId";
     @Column(nullable = false)
     private String entityType;
-    public static final String ENTITY_TYPE = "entityType";
     @Column(nullable = false)
     private String serviceBeanName;
 
@@ -34,10 +33,6 @@ public class ChangeRecord extends Auditable implements IdBasedEntity {
     private OperationType operationType;
     private String query;
 
-    public static ChangeRecord create(Long id, AppCreateChangeRecordCommand command) {
-        return new ChangeRecord(id, command);
-    }
-
     private ChangeRecord(Long id, AppCreateChangeRecordCommand command) {
         this.id = id;
         this.changeId = command.getChangeId();
@@ -46,5 +41,9 @@ public class ChangeRecord extends Auditable implements IdBasedEntity {
         this.patchCommands = command.getPatchCommands();
         this.operationType = command.getOperationType();
         this.query = command.getQuery();
+    }
+
+    public static ChangeRecord create(Long id, AppCreateChangeRecordCommand command) {
+        return new ChangeRecord(id, command);
     }
 }

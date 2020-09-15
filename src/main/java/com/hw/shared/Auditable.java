@@ -19,41 +19,33 @@ import java.util.Date;
 @Data
 public class Auditable {
 
+    public static final String ENTITY_MODIFIED_BY = "modifiedBy";
+    public static final String ENTITY_MODIFIED_AT = "modifiedAt";
+    public static final String ENTITY_DELETED = "deleted";
+    public static final String ENTITY_DELETED_BY = "deletedBy";
+    public static final String ENTITY_DELETED_AT = "deletedAt";
+    public static final String ENTITY_RESTORED_BY = "restoredBy";
+    public static final String ENTITY_RESTORED_AT = "restoredAt";
     @JsonIgnore
     @CreatedBy
     private String createdBy;
-
     @JsonIgnore
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
-
     @JsonIgnore
     @LastModifiedBy
     private String modifiedBy;
-    public static final String ENTITY_MODIFIED_BY = "modifiedBy";
-
     @JsonIgnore
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedAt;
-    public static final String ENTITY_MODIFIED_AT = "modifiedAt";
-
     private Boolean deleted;
-    public static final String ENTITY_DELETED = "deleted";
-
     private String deletedBy;
-    public static final String ENTITY_DELETED_BY = "deletedBy";
-
     @Temporal(TemporalType.TIMESTAMP)
     private Date deletedAt;
-    public static final String ENTITY_DELETED_AT = "deletedAt";
-
     private String restoredBy;
-    public static final String ENTITY_RESTORED_BY = "restoredBy";
-
     @Temporal(TemporalType.TIMESTAMP)
     private Date restoredAt;
-    public static final String ENTITY_RESTORED_AT = "restoredAt";
 
 }

@@ -30,9 +30,9 @@ public class AuthorizeCodeApplicationService {
     @Autowired
     private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory;
 
-    private OAuth2RequestValidator oauth2RequestValidator = new DefaultOAuth2RequestValidator();
+    private final OAuth2RequestValidator oauth2RequestValidator = new DefaultOAuth2RequestValidator();
 
-    private RedirectResolver redirectResolver = new DefaultRedirectResolver();
+    private final RedirectResolver redirectResolver = new DefaultRedirectResolver();
 
     @Autowired
     private InMemoryAuthorizationCodeServices authorizationCodeServices;

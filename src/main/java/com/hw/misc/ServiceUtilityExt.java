@@ -13,12 +13,7 @@ public class ServiceUtilityExt {
 
     public static Authentication getAuthentication(String bearerHeader) {
         try {
-            Collection<? extends GrantedAuthority> au = ServiceUtility.getAuthority(bearerHeader).stream().map(e -> new GrantedAuthority() {
-                @Override
-                public String getAuthority() {
-                    return e;
-                }
-            }).collect(Collectors.toList());
+            Collection<? extends GrantedAuthority> au = ServiceUtility.getAuthority(bearerHeader).stream().map(e -> (GrantedAuthority) () -> e).collect(Collectors.toList());
             String userId = ServiceUtility.getUserId(bearerHeader);
             return new Authentication() {
                 @Override
@@ -49,7 +44,7 @@ public class ServiceUtilityExt {
 
                 @Override
                 public void setAuthenticated(boolean b) {
-
+                    // not used
                 }
 
                 @Override

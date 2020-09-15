@@ -8,5 +8,5 @@ public enum OperationType {
     RESTORE_DELETE,
     CANCEL_CREATE,
     DELETE_BY_ID,
-    DELETE_BY_QUERY;
+    DELETE_BY_QUERY
 }

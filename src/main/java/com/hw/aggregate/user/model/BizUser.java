@@ -46,7 +46,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     public static final String ENTITY_SUBSCRIPTION = "subscription";
     public static final String ENTITY_LOCKED = "locked";
     public static final String ENTITY_GRANTED_AUTHORITIES = "grantedAuthorities";
-    private final String role_root = "ROLE_ROOT";
+    private static final String ROLE_ROOT = "ROLE_ROOT";
     @Id
     private Long id;
     @Column(nullable = false)
@@ -91,7 +91,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
         return new BizUser(command, id);
     }
 
-    private static void validateBeforeCreate(PublicCreateBizUserCommand command, AppPendingUserApplicationService pendingUserApplicationService, AppBizUserApplicationService bizUserApplicationService) throws IllegalArgumentException {
+    private static void validateBeforeCreate(PublicCreateBizUserCommand command, AppPendingUserApplicationService pendingUserApplicationService, AppBizUserApplicationService bizUserApplicationService) {
         if (!StringUtils.hasText(command.getEmail()))
             throw new IllegalArgumentException("email is empty");
         if (!StringUtils.hasText(command.getPassword()))
@@ -151,7 +151,7 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     }
 
     public void validateBeforeDelete() {
-        if (getGrantedAuthorities().stream().anyMatch(e -> role_root.equals(e.name())))
+        if (getGrantedAuthorities().stream().anyMatch(e -> ROLE_ROOT.equals(e.name())))
             throw new IllegalArgumentException("root account can not be modified");
     }
 
@@ -225,14 +225,14 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
     }
 
     public void validateBeforeUpdate(AdminUpdateBizUserCommand command) {
-        if (getGrantedAuthorities().stream().anyMatch(e -> role_root.equals(e.name())))
+        if (getGrantedAuthorities().stream().anyMatch(e -> ROLE_ROOT.equals(e.name())))
             throw new IllegalArgumentException("root account can not be modified");
         List<String> currentAuthorities = ServiceUtility.getAuthority(command.getAuthorization());
-        if (command.getGrantedAuthorities().stream().anyMatch(e -> role_root.equals(e.name())))
+        if (command.getGrantedAuthorities().stream().anyMatch(e -> ROLE_ROOT.equals(e.name())))
             throw new IllegalArgumentException("assign root grantedAuthorities is prohibited");
-        if (currentAuthorities.stream().noneMatch(role_root::equals) && getGrantedAuthorities().equals(command.getGrantedAuthorities()))
+        if (currentAuthorities.stream().noneMatch(ROLE_ROOT::equals) && getGrantedAuthorities().equals(command.getGrantedAuthorities()))
             throw new IllegalArgumentException("only root user can change grantedAuthorities");
-        if (currentAuthorities.stream().noneMatch(role_root::equals) && isSubscription() != command.isSubscription())
+        if (currentAuthorities.stream().noneMatch(ROLE_ROOT::equals) && isSubscription() != command.isSubscription())
             throw new IllegalArgumentException("only root user can change subscription");
     }
 

@@ -31,6 +31,7 @@ public class AppChangeRecordApplicationService extends DefaultRoleBasedRestfulSe
     private ChangeRecordQueryRegistry changeRecordQueryRegistry;
     @Autowired
     private ApplicationContext context;
+
     @Override
     public ChangeRecord replaceEntity(ChangeRecord changeRecord, Object command) {
         return null;
@@ -88,6 +89,7 @@ public class AppChangeRecordApplicationService extends DefaultRoleBasedRestfulSe
         ChangeRecord saved = repo.save(changeRecord);
         return new CreatedEntityRep(saved);
     }
+
     @Transactional
     public void deleteByQuery(String queryParam) {
         List<AppChangeRecordCardRep> allByQuery = getAllByQuery(queryParam);

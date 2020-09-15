@@ -8,8 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 public class AuditorAwareImpl implements AuditorAware<String> {
-    @Override
-    public Optional<String> getCurrentAuditor() {
+    public static Optional<String> getAuditor() {
         Optional<HttpServletRequest> httpServletRequest = Optional.ofNullable(RequestContextHolder.getRequestAttributes())
                 .filter(requestAttributes -> ServletRequestAttributes.class.isAssignableFrom(requestAttributes.getClass()))
                 .map(requestAttributes -> ((ServletRequestAttributes) requestAttributes))
@@ -24,7 +23,8 @@ public class AuditorAwareImpl implements AuditorAware<String> {
                         ServiceUtility.getClientId(authorization) : ServiceUtility.getUserId(authorization));
     }
 
-    public static Optional<String> getAuditor() {
+    @Override
+    public Optional<String> getCurrentAuditor() {
         Optional<HttpServletRequest> httpServletRequest = Optional.ofNullable(RequestContextHolder.getRequestAttributes())
                 .filter(requestAttributes -> ServletRequestAttributes.class.isAssignableFrom(requestAttributes.getClass()))
                 .map(requestAttributes -> ((ServletRequestAttributes) requestAttributes))

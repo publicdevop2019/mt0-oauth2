@@ -59,6 +59,7 @@ public class PublicBizUserApplicationService extends DefaultRoleBasedRestfulServ
         appChangeRecordApplicationService = changeRepository2;
         om = objectMapper;
     }
+
     @Transactional
     public void sendForgetPassword(PublicForgetPasswordCommand command) {
         BizUser.createForgetPwdToken(command, userRepo, emailService);

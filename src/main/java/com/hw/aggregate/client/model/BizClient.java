@@ -1,6 +1,5 @@
 package com.hw.aggregate.client.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.aggregate.client.AppBizClientApplicationService;
 import com.hw.aggregate.client.RevokeBizClientTokenService;
@@ -15,20 +14,14 @@ import com.hw.shared.rest.IdBasedEntity;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
 import org.springframework.lang.Nullable;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * use different field name to make it more flexible also avoid copy properties type mismatch
@@ -238,7 +231,8 @@ public class BizClient extends Auditable implements IdBasedEntity {
             return false;
         } else if (oldClient.getRefreshTokenValiditySeconds() != null && oldClient.getRefreshTokenValiditySeconds().equals(newClient.getRefreshTokenValiditySeconds())) {
             return false;
-        } else return newClient.getRefreshTokenValiditySeconds() == null || !newClient.getRefreshTokenValiditySeconds().equals(oldClient.getRefreshTokenValiditySeconds());
+        } else
+            return newClient.getRefreshTokenValiditySeconds() == null || !newClient.getRefreshTokenValiditySeconds().equals(oldClient.getRefreshTokenValiditySeconds());
     }
 
     private boolean grantTypeChanged(BizClient oldClient, UpdateClientCommand newClient) {
@@ -251,7 +245,8 @@ public class BizClient extends Auditable implements IdBasedEntity {
             return false;
         } else if (oldClient.getRegisteredRedirectUri() != null && oldClient.getRegisteredRedirectUri().equals(newClient.getRegisteredRedirectUri())) {
             return false;
-        } else return newClient.getRegisteredRedirectUri() == null || !newClient.getRegisteredRedirectUri().equals(oldClient.getRegisteredRedirectUri());
+        } else
+            return newClient.getRegisteredRedirectUri() == null || !newClient.getRegisteredRedirectUri().equals(oldClient.getRegisteredRedirectUri());
     }
 
     private boolean resourceIdChanged(BizClient oldClient, UpdateClientCommand newClient) {

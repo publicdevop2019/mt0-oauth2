@@ -30,6 +30,7 @@ public class RootChangeRecordApplicationService extends DefaultRoleBasedRestfulS
     private ChangeRecordQueryRegistry changeRecordQueryRegistry;
     @Autowired
     private ObjectMapper om2;
+
     @PostConstruct
     private void setUp() {
         repo = changeRepository;

@@ -62,8 +62,8 @@ public class BizClientController {
 
     @GetMapping("app")
     public ResponseEntity<SumPagedRep<AppBizClientCardRep>> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                                                 @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                                 @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
+                                                                              @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                              @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
         return ResponseEntity.ok(appBizClientApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
