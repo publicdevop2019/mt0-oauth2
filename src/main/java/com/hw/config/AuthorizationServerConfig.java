@@ -1,7 +1,7 @@
 package com.hw.config;
 
 import com.hw.aggregate.client.AppBizClientApplicationService;
-import com.hw.aggregate.user.model.BizUserDetailsService;
+import com.hw.aggregate.user.AppBizUserApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,7 +29,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     JwtAccessTokenConverter jwtAccessTokenConverter;
 
     @Autowired
-    BizUserDetailsService userDetailsService;
+    AppBizUserApplicationService userDetailsService;
 
     @Autowired
     SelfSignedTokenConfig authTokenHelper;

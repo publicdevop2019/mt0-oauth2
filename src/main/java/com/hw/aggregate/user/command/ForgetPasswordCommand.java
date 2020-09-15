@@ -3,6 +3,6 @@ package com.hw.aggregate.user.command;
 import lombok.Data;
 
 @Data
-public class PublicForgetPasswordCommand {
+public class ForgetPasswordCommand {
     private String email;
 }

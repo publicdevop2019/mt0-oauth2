@@ -16,7 +16,7 @@ public class AppBizUserSelectQueryBuilder extends SelectQueryBuilder<BizUser> {
     AppBizUserSelectQueryBuilder() {
         DEFAULT_PAGE_SIZE = 1;
         MAX_PAGE_SIZE = 1;
-        supportedWhereField.put("email", new SelectFieldStringEqualClause<>(ENTITY_EMAIL));
+        supportedWhereField.put("email", new SelectFieldEmailEqualClause<>(ENTITY_EMAIL));
         supportedWhereField.put("subscription", new SelectFieldBooleanEqualClause<>(ENTITY_SUBSCRIPTION));
     }
 

@@ -1,6 +1,7 @@
 package com.hw.aggregate.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hw.aggregate.user.representation.AppBizUserRep;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserQueryRegistry;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
@@ -9,8 +10,11 @@ import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
+import com.hw.shared.sql.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -18,9 +22,9 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, AppBizUserCardRep, Void, VoidTypedClass> {
+public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, AppBizUserCardRep, AppBizUserRep, VoidTypedClass> implements UserDetailsService {
     @Autowired
-    private BizUserRepo resourceOwnerRepo;
+    private BizUserRepo bizUserRepo;
 
     @Autowired
     private BizUserQueryRegistry bizUserQueryRegistry;
@@ -35,7 +39,7 @@ public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService
 
     @PostConstruct
     private void setUp() {
-        repo = resourceOwnerRepo;
+        repo = bizUserRepo;
         queryRegistry = bizUserQueryRegistry;
         entityClass = BizUser.class;
         role = RestfulQueryRegistry.RoleEnum.APP;
@@ -55,8 +59,8 @@ public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService
     }
 
     @Override
-    public Void getEntityRepresentation(BizUser bizUser) {
-        throw new UnsupportedOperationException();
+    public AppBizUserRep getEntityRepresentation(BizUser bizUser) {
+        return new AppBizUserRep(bizUser);
     }
 
     @Override
@@ -85,4 +89,13 @@ public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService
     }
 
 
+    @Override
+    public UserDetails loadUserByUsername(String usernameOrId) {
+        try {
+            return readById(Long.parseLong(usernameOrId));
+        } catch (NumberFormatException ex) {
+            SumPagedRep<AppBizUserCardRep> appBizUserCardRepSumPagedRep = readByQuery("email:" + usernameOrId, null, null);
+            return readById(appBizUserCardRepSumPagedRep.getData().get(0).getId());
+        }
+    }
 }

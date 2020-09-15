@@ -70,25 +70,6 @@ public class BizUserController {
         return ResponseEntity.ok(appBizUserApplicationService.readByQuery(queryParam, pageParam, config));
     }
 
-
-    @PutMapping("user/pwd")
-    public ResponseEntity<Void> updateForUser(@RequestBody UserUpdateBizUserCommand command, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        userBizUserApplicationService.replaceById(Long.parseLong(ServiceUtility.getUserId(authorization)), command, changeId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("public/forgetPwd")
-    public ResponseEntity<Void> forgetPwd(@RequestBody PublicForgetPasswordCommand command) {
-        publicBizUserApplicationService.sendForgetPassword(command);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("public/resetPwd")
-    public ResponseEntity<Void> resetPwd(@RequestBody PublicResetPwdCommand forgetPasswordRequest) {
-        publicBizUserApplicationService.resetPassword(forgetPasswordRequest);
-        return ResponseEntity.ok().build();
-    }
-
     @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<Void> patchForAdminById(@PathVariable(name = "id") Long id, @RequestBody JsonPatch patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String authorization) {
         HashMap<String, Object> params = new HashMap<>();
@@ -101,6 +82,24 @@ public class BizUserController {
     @PatchMapping(path = "admin")
     public ResponseEntity<Void> patchForAdminBatch(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         adminResourceOwnerService.patchBatch(patch, changeId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("user/pwd")
+    public ResponseEntity<Void> updateForUser(@RequestBody UserUpdateBizUserCommand command, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        userBizUserApplicationService.replaceById(Long.parseLong(ServiceUtility.getUserId(authorization)), command, changeId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("public/forgetPwd")
+    public ResponseEntity<Void> forgetPwd(@RequestBody ForgetPasswordCommand command) {
+        publicBizUserApplicationService.sendForgetPassword(command);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("public/resetPwd")
+    public ResponseEntity<Void> resetPwd(@RequestBody PublicResetPwdCommand forgetPasswordRequest) {
+        publicBizUserApplicationService.resetPassword(forgetPasswordRequest);
         return ResponseEntity.ok().build();
     }
 }

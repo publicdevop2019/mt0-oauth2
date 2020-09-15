@@ -1,23 +1,20 @@
 package com.hw.aggregate.user.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hw.aggregate.client.model.GrantedAuthorityImpl;
 import com.hw.aggregate.pending_user.AppPendingUserApplicationService;
 import com.hw.aggregate.pending_user.representation.AppPendingUserCardRep;
 import com.hw.aggregate.user.AppBizUserApplicationService;
-import com.hw.aggregate.user.BizUserRepo;
+import com.hw.aggregate.user.PublicBizUserApplicationService;
 import com.hw.aggregate.user.PwdResetEmailService;
 import com.hw.aggregate.user.RevokeBizUserTokenService;
 import com.hw.aggregate.user.command.*;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
+import com.hw.aggregate.user.representation.PublicBizUserCardRep;
 import com.hw.shared.Auditable;
 import com.hw.shared.ServiceUtility;
 import com.hw.shared.rest.IdBasedEntity;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.Data;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
@@ -27,11 +24,10 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 /**
  * root has ROLE_ROOT, ROLE_ADMIN, ROLE_USER
@@ -41,11 +37,13 @@ import java.util.stream.Collectors;
 @Entity
 @Table
 @Data
-public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
+public class BizUser extends Auditable implements IdBasedEntity {
     public static final String ENTITY_EMAIL = "email";
     public static final String ENTITY_SUBSCRIPTION = "subscription";
     public static final String ENTITY_LOCKED = "locked";
     public static final String ENTITY_GRANTED_AUTHORITIES = "grantedAuthorities";
+    public static final String ENTITY_PWD_RESET_TOKEN = "pwdResetToken";
+    public static final String ENTITY_PWD = "password";
     private static final String ROLE_ROOT = "ROLE_ROOT";
     @Id
     private Long id;
@@ -109,16 +107,13 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
             throw new IllegalArgumentException("activation code mismatch");
     }
 
-    public static BizUser createForgetPwdToken(PublicForgetPasswordCommand command, BizUserRepo resourceOwnerRepo, PwdResetEmailService emailService) {
-        if (!StringUtils.hasText(command.getEmail()))
-            throw new IllegalArgumentException("empty email");
-        BizUser bizUser = resourceOwnerRepo.findOneByEmail(command.getEmail());
-        if (bizUser == null)
+    public static void createForgetPwdToken(ForgetPasswordCommand command,
+                                            PublicBizUserApplicationService publicBizUserApplicationService) {
+        SumPagedRep<PublicBizUserCardRep> $ = publicBizUserApplicationService.readByQuery("email:" + command.getEmail(), null, null);
+        if ($.getData().isEmpty())
             throw new IllegalArgumentException("user does not exist");
-        bizUser.setPwdResetToken(generateToken());
-        BizUser save = resourceOwnerRepo.save(bizUser);
-        emailService.sendPasswordResetLink(save.getPwdResetToken(), save.getEmail());
-        return bizUser;
+        Long id = $.getData().get(0).getId();
+        publicBizUserApplicationService.replaceById(id, command, UUID.randomUUID().toString());
     }
 
     private static String generateToken() {
@@ -126,28 +121,13 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
 //        return UUID.randomUUID().toString().replace("-", "");
     }
 
-    public static void resetPwd(PublicResetPwdCommand command, BizUserRepo resourceOwnerRepo, RevokeBizUserTokenService service, BCryptPasswordEncoder encoder) {
-        if (!StringUtils.hasText(command.getEmail()))
-            throw new IllegalArgumentException("empty email");
-        if (!StringUtils.hasText(command.getToken()))
-            throw new IllegalArgumentException("empty token");
-        if (!StringUtils.hasText(command.getNewPassword()))
-            throw new IllegalArgumentException("empty new password");
-        BizUser oneByEmail = resourceOwnerRepo.findOneByEmail(command.getEmail());
-        if (oneByEmail == null)
-            throw new IllegalArgumentException("not an user");
-        BizUser oneByEmail2 = resourceOwnerRepo.findOneByEmail(command.getEmail());
-        if (oneByEmail2 == null)
+    public static void resetPwd(PublicResetPwdCommand command, PublicBizUserApplicationService publicBizUserApplicationService,
+                                RevokeBizUserTokenService service, BCryptPasswordEncoder encoder, AppBizUserApplicationService appBizUserApplicationService) {
+        SumPagedRep<PublicBizUserCardRep> $ = publicBizUserApplicationService.readByQuery("email:" + command.getEmail(), null, null);
+        if ($.getData().isEmpty())
             throw new IllegalArgumentException("user does not exist");
-        if (oneByEmail.getPwdResetToken() == null)
-            throw new IllegalArgumentException("token not exist");
-        if (!oneByEmail.getPwdResetToken().equals(command.getToken()))
-            throw new IllegalArgumentException("token mismatch");
-        // reset password
-        oneByEmail.setPassword(encoder.encode(command.getNewPassword()));
-        resourceOwnerRepo.save(oneByEmail);
-        oneByEmail.setPwdResetToken(null);
-        service.blacklist(oneByEmail.getId());
+        PublicBizUserCardRep oneByEmail = $.getData().get(0);
+        publicBizUserApplicationService.replaceById(oneByEmail.getId(), command, UUID.randomUUID().toString());
     }
 
     public void validateBeforeDelete() {
@@ -169,44 +149,6 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
         return this;
     }
 
-    /**
-     * make sure grantedAuthorities only get serialized once
-     */
-    @JsonIgnore
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return grantedAuthorities.stream().map(GrantedAuthorityImpl::new).collect(Collectors.toList());
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return id.toString();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return locked == null || !locked;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 
     public BizUser replace(AdminUpdateBizUserCommand command, RevokeBizUserTokenService tokenRevocationService) {
         validateBeforeUpdate(command);
@@ -255,5 +197,28 @@ public class BizUser extends Auditable implements UserDetails, IdBasedEntity {
 
     private boolean authorityChanged(Set<BizUserAuthorityEnum> old, Set<BizUserAuthorityEnum> next) {
         return !old.equals(next);
+    }
+
+    public void replace(Object command, PwdResetEmailService emailService, RevokeBizUserTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
+        if (command instanceof ForgetPasswordCommand) {
+            replace((ForgetPasswordCommand) command, emailService);
+        } else if (command instanceof PublicResetPwdCommand) {
+            replace((PublicResetPwdCommand) command, tokenRevocationService, encoder);
+        }
+    }
+
+    private void replace(ForgetPasswordCommand command, PwdResetEmailService emailService) {
+        String s = generateToken();
+        this.setPwdResetToken(s);
+        emailService.sendPasswordResetLink(s, command.getEmail());
+    }
+
+    private void replace(PublicResetPwdCommand command, RevokeBizUserTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
+        if (this.getPwdResetToken() == null)
+            throw new IllegalArgumentException("token not exist");
+        if (!this.getPwdResetToken().equals(command.getToken()))
+            throw new IllegalArgumentException("token mismatch");
+        this.setPassword(encoder.encode(command.getNewPassword()));
+        tokenRevocationService.blacklist(this.getId());
     }
 }
