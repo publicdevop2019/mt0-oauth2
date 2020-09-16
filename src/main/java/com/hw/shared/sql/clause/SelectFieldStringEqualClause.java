@@ -11,7 +11,7 @@ public class SelectFieldStringEqualClause<T> extends SelectFieldStringLikeClause
 
     @Override
     protected Predicate getExpression(String input, CriteriaBuilder cb, Root<T> root) {
-        return cb.equal(root.get(entityFieldName), input);
+        return cb.equal(root.get(entityFieldName).as(String.class), input);
     }
 
 }

@@ -45,6 +45,7 @@ public class BizUser extends Auditable implements IdBasedEntity {
     public static final String ENTITY_PWD_RESET_TOKEN = "pwdResetToken";
     public static final String ENTITY_PWD = "password";
     private static final String ROLE_ROOT = "ROLE_ROOT";
+    private static final String QUERY_EMAIL = "email:";
     @Id
     private Long id;
     @Column(nullable = false)
@@ -97,10 +98,10 @@ public class BizUser extends Auditable implements IdBasedEntity {
         if (!StringUtils.hasText(command.getActivationCode()))
             throw new IllegalArgumentException("activationCode is empty");
 
-        SumPagedRep<AppBizUserCardRep> appBizUserCardRepSumPagedRep = bizUserApplicationService.readByQuery("email:" + command.getEmail(), null, null);
+        SumPagedRep<AppBizUserCardRep> appBizUserCardRepSumPagedRep = bizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
         if (!appBizUserCardRepSumPagedRep.getData().isEmpty())
             throw new IllegalArgumentException("already an user " + command.getEmail());
-        SumPagedRep<AppPendingUserCardRep> appPendingUserCardRepSumPagedRep = pendingUserApplicationService.readByQuery("email:" + command.getEmail(), null, null);
+        SumPagedRep<AppPendingUserCardRep> appPendingUserCardRepSumPagedRep = pendingUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
         if (appPendingUserCardRepSumPagedRep.getData().isEmpty())
             throw new IllegalArgumentException("please get activation code first");
         if (!appPendingUserCardRepSumPagedRep.getData().get(0).getActivationCode().equals(command.getActivationCode()))
@@ -109,10 +110,10 @@ public class BizUser extends Auditable implements IdBasedEntity {
 
     public static void createForgetPwdToken(ForgetPasswordCommand command,
                                             PublicBizUserApplicationService publicBizUserApplicationService) {
-        SumPagedRep<PublicBizUserCardRep> $ = publicBizUserApplicationService.readByQuery("email:" + command.getEmail(), null, null);
-        if ($.getData().isEmpty())
+        SumPagedRep<PublicBizUserCardRep> byQuery = publicBizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
+        if (byQuery.getData().isEmpty())
             throw new IllegalArgumentException("user does not exist");
-        Long id = $.getData().get(0).getId();
+        Long id = byQuery.getData().get(0).getId();
         publicBizUserApplicationService.replaceById(id, command, UUID.randomUUID().toString());
     }
 
@@ -121,12 +122,11 @@ public class BizUser extends Auditable implements IdBasedEntity {
 //        return UUID.randomUUID().toString().replace("-", "");
     }
 
-    public static void resetPwd(PublicResetPwdCommand command, PublicBizUserApplicationService publicBizUserApplicationService,
-                                RevokeBizUserTokenService service, BCryptPasswordEncoder encoder, AppBizUserApplicationService appBizUserApplicationService) {
-        SumPagedRep<PublicBizUserCardRep> $ = publicBizUserApplicationService.readByQuery("email:" + command.getEmail(), null, null);
-        if ($.getData().isEmpty())
+    public static void resetPwd(PublicResetPwdCommand command, PublicBizUserApplicationService publicBizUserApplicationService) {
+        SumPagedRep<PublicBizUserCardRep> var0 = publicBizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
+        if (var0.getData().isEmpty())
             throw new IllegalArgumentException("user does not exist");
-        PublicBizUserCardRep oneByEmail = $.getData().get(0);
+        PublicBizUserCardRep oneByEmail = var0.getData().get(0);
         publicBizUserApplicationService.replaceById(oneByEmail.getId(), command, UUID.randomUUID().toString());
     }
 

@@ -68,7 +68,7 @@ public class PublicBizUserApplicationService extends DefaultRoleBasedRestfulServ
 
     @Transactional
     public void resetPassword(PublicResetPwdCommand command) {
-        BizUser.resetPwd(command, this, tokenRevocationService, encoder, appBizUserApplicationService);
+        BizUser.resetPwd(command, this);
     }
 
 
