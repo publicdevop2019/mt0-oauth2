@@ -26,6 +26,8 @@ public class Auditable {
     public static final String ENTITY_DELETED_AT = "deletedAt";
     public static final String ENTITY_RESTORED_BY = "restoredBy";
     public static final String ENTITY_RESTORED_AT = "restoredAt";
+    public static final String ENTITY_CREATED_BY = "createdBy";
+    public static final String ENTITY_CREATED_AT = "createdAt";
     @JsonIgnore
     @CreatedBy
     private String createdBy;

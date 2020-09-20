@@ -44,22 +44,22 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
     public Integer update(List<PatchCommand> commands, Class<T> clazz) {
         Map<PatchCommand, List<String>> jsonPatchCommandListHashMap = optimizePatchCommands(commands);
         Map<PatchCommand, CriteriaUpdate<T>> patchCommandCriteriaUpdateHashMap = new LinkedHashMap<>();
-        jsonPatchCommandListHashMap.keySet().forEach(comm -> {
+        jsonPatchCommandListHashMap.keySet().forEach(key -> {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaUpdate<T> criteriaUpdate = cb.createCriteriaUpdate(clazz);
             Root<T> root = criteriaUpdate.from(clazz);
-            Predicate predicate = getWhereClause(root, jsonPatchCommandListHashMap.get(comm), comm);
+            Predicate predicate = getWhereClause(root, jsonPatchCommandListHashMap.get(key), key);
             //force to select only not deleted entity
             Predicate notSoftDeleted = new SelectNotDeletedClause<T>().getWhereClause(cb, root);
             Predicate and = cb.and(notSoftDeleted, predicate);
             if (and != null)
                 criteriaUpdate.where(and);
-            setUpdateValue(root, criteriaUpdate, comm);
+            setUpdateValue(root, criteriaUpdate, key);
             //manually set updateAt updateBy bcz criteria api bypass hibernate session
             Optional<String> currentAuditor = AuditorAwareImpl.getAuditor();
             criteriaUpdate.set(ENTITY_MODIFIED_BY, currentAuditor.orElse(""));
             criteriaUpdate.set(ENTITY_MODIFIED_AT, new Date());
-            patchCommandCriteriaUpdateHashMap.put(comm, criteriaUpdate);
+            patchCommandCriteriaUpdateHashMap.put(key, criteriaUpdate);
         });
         AtomicInteger count = new AtomicInteger(0);
         patchCommandCriteriaUpdateHashMap.forEach((key, value) -> {
@@ -98,6 +98,7 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
         Set<PatchCommand> patchCommands = jsonPatchCommandCount.keySet();
 
         Map<PatchCommand, List<String>> jsonPatchCommandListHashMap = new LinkedHashMap<>();
+        Map<PatchCommand, List<String>> jsonPatchCommandListHashMapMerged = new LinkedHashMap<>();
 
         // sort key so deadlock will not happen
         patchCommands.stream().sorted(PatchCommand::compareTo).forEach(e -> {
@@ -112,7 +113,13 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
                 jsonPatchCommandListHashMap.put(e, strings);
             }
         });
-        return jsonPatchCommandListHashMap;
+        // key in hashmap is final, hence create new hashmap
+        jsonPatchCommandListHashMap.forEach((key, value) -> {
+            //update expect
+            key.setExpect(key.getExpect() * value.size());
+            jsonPatchCommandListHashMapMerged.put(key, value);
+        });
+        return jsonPatchCommandListHashMapMerged;
     }
 
     private String removeId(String path) {
