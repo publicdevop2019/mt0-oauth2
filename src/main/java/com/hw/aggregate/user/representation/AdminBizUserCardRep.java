@@ -13,7 +13,7 @@ public class AdminBizUserCardRep {
     private String email;
 
     private Boolean locked;
-    private long createAt;
+    private long createdAt;
 
     private Set<BizUserAuthorityEnum> grantedAuthorities;
 
@@ -22,7 +22,7 @@ public class AdminBizUserCardRep {
         this.email = bizUser.getEmail();
         this.locked = bizUser.getLocked();
         this.grantedAuthorities = bizUser.getGrantedAuthorities();
-        this.createAt = bizUser.getCreatedAt().getTime();
+        this.createdAt = bizUser.getCreatedAt().getTime();
 
     }
 

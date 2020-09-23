@@ -16,7 +16,7 @@ public class AdminBizUserSelectQueryBuilder extends SelectQueryBuilder<BizUser> 
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 50;
         mappedSortBy.put(ENTITY_EMAIL, ENTITY_EMAIL);
-        mappedSortBy.put("createAt", "createdAt");
+        mappedSortBy.put("createdAt", "createdAt");
         supportedWhereField.put(ENTITY_EMAIL, new SelectFieldStringLikeClause<>(ENTITY_EMAIL));
         supportedWhereField.put(ENTITY_SUBSCRIPTION, new SelectFieldBooleanEqualClause<>(ENTITY_SUBSCRIPTION));
         supportedWhereField.put(ENTITY_GRANTED_AUTHORITIES, new SelectFieldStringLikeClause<>(ENTITY_GRANTED_AUTHORITIES));
