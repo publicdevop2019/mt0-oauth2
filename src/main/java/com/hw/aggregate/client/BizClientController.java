@@ -6,6 +6,7 @@ import com.hw.aggregate.client.command.UpdateClientCommand;
 import com.hw.aggregate.client.representation.AppBizClientCardRep;
 import com.hw.aggregate.client.representation.RootBizClientCardRep;
 import com.hw.aggregate.client.representation.RootBizClientRep;
+import com.hw.aggregate.client.representation.UserBizClientCardRep;
 import com.hw.shared.sql.SumPagedRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,9 @@ public class BizClientController {
 
     @Autowired
     private AppBizClientApplicationService appBizClientApplicationService;
+
+    @Autowired
+    private UserBizClientApplicationService userBizClientApplicationService;
 
     @PostMapping("root")
     public ResponseEntity<Void> createForRoot(@RequestBody CreateClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
@@ -60,11 +64,11 @@ public class BizClientController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("app")
-    public ResponseEntity<SumPagedRep<AppBizClientCardRep>> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                                                              @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                                              @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
-        return ResponseEntity.ok(appBizClientApplicationService.readByQuery(queryParam, pageParam, skipCount));
+    @GetMapping("user")
+    public ResponseEntity<SumPagedRep<UserBizClientCardRep>> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                               @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                               @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
+        return ResponseEntity.ok(userBizClientApplicationService.readByQuery(queryParam, pageParam, skipCount));
     }
 
     @PatchMapping(path = "root/{id}", consumes = "application/json-patch+json")
