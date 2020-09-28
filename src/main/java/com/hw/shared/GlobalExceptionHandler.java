@@ -1,6 +1,7 @@
 package com.hw.shared;
 
 import com.hw.shared.idempotent.exception.ChangeNotFoundException;
+import com.hw.shared.idempotent.exception.CustomByteArraySerializationException;
 import com.hw.shared.idempotent.exception.HangingTransactionException;
 import com.hw.shared.idempotent.exception.RollbackNotSupportedException;
 import com.hw.shared.rest.exception.EntityNotExistException;
@@ -44,6 +45,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             EmptyQueryValueException.class,
             UnknownWhereClauseException.class,
             ChangeNotFoundException.class,
+            UserIdNotFoundException.class
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
@@ -55,7 +57,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {
             RuntimeException.class,
             JwtTokenRetrievalException.class,
-            DeepCopyException.class
+            DeepCopyException.class,
+            CustomByteArraySerializationException.class
     })
     protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

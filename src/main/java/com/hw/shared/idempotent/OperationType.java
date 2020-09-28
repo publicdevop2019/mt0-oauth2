@@ -5,6 +5,7 @@ public enum OperationType {
     PATCH_BATCH,
     PATCH_BY_ID,
     PUT,
+    RESTORE_LAST_VERSION,
     RESTORE_DELETE,
     CANCEL_CREATE,
     DELETE_BY_ID,

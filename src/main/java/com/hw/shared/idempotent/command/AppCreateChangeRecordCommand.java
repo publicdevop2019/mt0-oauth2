@@ -5,6 +5,7 @@ import com.hw.shared.sql.PatchCommand;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class AppCreateChangeRecordCommand {
@@ -17,4 +18,6 @@ public class AppCreateChangeRecordCommand {
 
     private OperationType operationType;
     private String query;
+    private Object replacedVersion;
+    private List<Long> deletedIds;
 }
