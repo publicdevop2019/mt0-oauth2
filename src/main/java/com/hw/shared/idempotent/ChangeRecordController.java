@@ -1,11 +1,13 @@
 package com.hw.shared.idempotent;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.hw.shared.AppConstant.*;
 
+@Slf4j
 @RestController
 @RequestMapping(produces = "application/json", path = "changes")
 public class ChangeRecordController {

@@ -12,12 +12,13 @@ import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.io.Serializable;
 import java.util.Date;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 @Data
-public class Auditable {
+public class Auditable implements Serializable {
 
     public static final String ENTITY_MODIFIED_BY = "modifiedBy";
     public static final String ENTITY_MODIFIED_AT = "modifiedAt";

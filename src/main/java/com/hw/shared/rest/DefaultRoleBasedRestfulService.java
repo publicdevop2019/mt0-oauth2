@@ -56,7 +56,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     @Transactional
     public CreatedEntityRep create(Object command, String changeId) {
         long id = idGenerator.getId();
-        saveChangeRecord(null, changeId, OperationType.POST, "id:" + id, null,null);
+        saveChangeRecord(null, changeId, OperationType.POST, "id:" + id, null, null);
         T created = createEntity(id, command);
         T save = repo.save(created);
         return getCreatedEntityRepresentation(save);
@@ -65,7 +65,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     @Transactional
     public void replaceById(Long id, Object command, String changeId) {
         SumPagedRep<T> tSumPagedRep = getEntityById(id);
-        saveChangeRecord(null, changeId, OperationType.PUT, "id:" + id.toString(),null, tSumPagedRep.getData().get(0));
+        saveChangeRecord(null, changeId, OperationType.PUT, "id:" + id.toString(), null, tSumPagedRep.getData().get(0));
         T after = replaceEntity(tSumPagedRep.getData().get(0), command);
         repo.save(after);
     }
@@ -73,7 +73,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
 
     @Transactional
     public void patchById(Long id, JsonPatch patch, Map<String, Object> params) {
-        saveChangeRecord(null, (String) params.get(HTTP_HEADER_CHANGE_ID), OperationType.PATCH_BY_ID, "id:" + id.toString(), null,null);
+        saveChangeRecord(null, (String) params.get(HTTP_HEADER_CHANGE_ID), OperationType.PATCH_BY_ID, "id:" + id.toString(), null, null);
         SumPagedRep<T> entityById = getEntityById(id);
         T original = entityById.getData().get(0);
         Z command = entityPatchSupplier.apply(original);
@@ -93,14 +93,14 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
 
     @Transactional
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
-        saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null, null,null);
+        saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null, null, null);
         List<PatchCommand> deepCopy = getDeepCopy(commands);
         return queryRegistry.update(role, deepCopy, entityClass);
     }
 
     @Transactional
     public Integer deleteById(Long id, String changeId) {
-        saveChangeRecord(null, changeId, OperationType.DELETE_BY_ID, "id:" + id.toString(), null,null);
+        saveChangeRecord(null, changeId, OperationType.DELETE_BY_ID, "id:" + id.toString(), null, null);
         return doDelete("id:" + id);
     }
 
@@ -108,7 +108,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     public Integer deleteByQuery(String query, String changeId) {
         List<T> data = getTs(query);
         List<Long> collect = data.stream().map(IdBasedEntity::getId).collect(Collectors.toList());
-        saveChangeRecord(null, changeId, OperationType.DELETE_BY_QUERY, query, collect,null);
+        saveChangeRecord(null, changeId, OperationType.DELETE_BY_QUERY, query, collect, null);
         return doDelete(query);
 
     }
@@ -119,9 +119,9 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             data.forEach(this::preDelete);
             Set<String> collect = data.stream().map(e -> e.getId().toString()).collect(Collectors.toSet());
             String join = "id:" + String.join(".", collect);
-            queryRegistry.deleteByQuery(role, join, entityClass);//delete only checked entity
+            Integer integer = queryRegistry.deleteByQuery(role, join, entityClass);//delete only checked entity
             data.forEach(this::postDelete);
-            return data.size();
+            return integer;
         } else {
             return queryRegistry.deleteByQuery(role, query, entityClass);
         }
@@ -170,8 +170,8 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
                 || data.get(0).getOperationType().equals(OperationType.POST)
         )) {
             if (data.get(0).getOperationType().equals(OperationType.POST)) {
-                saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.CANCEL_CREATE, data.get(0).getQuery(), null,null);
-                doDelete(data.get(0).getQuery());
+                saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.CANCEL_CREATE, data.get(0).getQuery(), null, null);
+                restoreCreate(data.get(0).getQuery().replace("id:", ""));
             } else {
                 if (data.get(0).getOperationType().equals(OperationType.DELETE_BY_ID)) {
                     restoreDelete(data.get(0).getQuery().replace("id:", ""), changeId + CHANGE_REVOKED);
@@ -184,7 +184,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             List<PatchCommand> rollbackCmd = buildRollbackCommand(data.get(0).getPatchCommands());
             patchBatch(rollbackCmd, changeId + CHANGE_REVOKED);
         } else if (data.get(0).getOperationType().equals(OperationType.PUT)) {
-            saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.RESTORE_LAST_VERSION, data.get(0).getQuery(), null,null);
+            saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.RESTORE_LAST_VERSION, data.get(0).getQuery(), null, null);
             T previous = (T) data.get(0).getReplacedVersion();
             T stored = getEntityById(previous.getId()).getData().get(0);
             if (!(previous instanceof VersionBasedEntity)) {
@@ -220,7 +220,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     }
 
     protected void restoreDelete(String ids, String changeId) {
-        saveChangeRecord(null, changeId, OperationType.RESTORE_DELETE, "id:" + ids, null,null);
+        saveChangeRecord(null, changeId, OperationType.RESTORE_DELETE, "id:" + ids, null, null);
         String[] split = ids.split("\\.");
         for (String str : split) {
             Optional<T> byId = repo.findById(Long.parseLong(str));//use repo instead of common readyBy
@@ -231,6 +231,20 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             t.setRestoredAt(new Date());
             Optional<String> currentAuditor = AuditorAwareImpl.getAuditor();
             t.setRestoredBy(currentAuditor.orElse(""));
+            repo.save(byId.get());
+        }
+    }
+    protected void restoreCreate(String ids) {
+        String[] split = ids.split("\\.");
+        for (String str : split) {
+            Optional<T> byId = repo.findById(Long.parseLong(str));//use repo instead of common readyBy
+            if (byId.isEmpty())
+                throw new EntityNotExistException();
+            T t = byId.get();
+            t.setDeleted(true);
+            t.setDeletedAt(new Date());
+            Optional<String> currentAuditor = AuditorAwareImpl.getAuditor();
+            t.setDeletedBy(currentAuditor.orElse(""));
             repo.save(byId.get());
         }
     }
