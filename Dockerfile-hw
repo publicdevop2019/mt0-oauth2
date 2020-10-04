@@ -5,7 +5,7 @@ COPY ./src ./src
 COPY ./pom.xml ./pom.xml
 
 COPY ./shared/parent-pom.xml ./shared/parent-pom.xml
-COPY ./settings.xml /root/.m2/settings.xml
+
 #replace default property file
 COPY ./build/hw/application-shared-hw.properties ./src/main/resources/application-shared.properties
 

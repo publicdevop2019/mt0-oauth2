@@ -6,8 +6,6 @@ COPY ./pom.xml ./pom.xml
 
 COPY ./shared/parent-pom.xml ./shared/parent-pom.xml
 
-COPY ./settings.xml /root/.m2/settings.xml
-
 # build all dependencies for offline use
 RUN mvn dependency:go-offline -B
 
