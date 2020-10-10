@@ -56,7 +56,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     @Transactional
     public CreatedEntityRep create(Object command, String changeId) {
         long id = idGenerator.getId();
-        saveChangeRecord(null, changeId, OperationType.POST, "id:" + id, null, null);
+        saveChangeRecord(command, changeId, OperationType.POST, "id:" + id, null, null);
         T created = createEntity(id, command);
         T save = repo.save(created);
         return getCreatedEntityRepresentation(save);
@@ -65,7 +65,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     @Transactional
     public void replaceById(Long id, Object command, String changeId) {
         SumPagedRep<T> tSumPagedRep = getEntityById(id);
-        saveChangeRecord(null, changeId, OperationType.PUT, "id:" + id.toString(), null, tSumPagedRep.getData().get(0));
+        saveChangeRecord(command, changeId, OperationType.PUT, "id:" + id.toString(), null, tSumPagedRep.getData().get(0));
         T after = replaceEntity(tSumPagedRep.getData().get(0), command);
         repo.save(after);
     }
@@ -73,7 +73,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
 
     @Transactional
     public void patchById(Long id, JsonPatch patch, Map<String, Object> params) {
-        saveChangeRecord(null, (String) params.get(HTTP_HEADER_CHANGE_ID), OperationType.PATCH_BY_ID, "id:" + id.toString(), null, null);
+        saveChangeRecord(patch, (String) params.get(HTTP_HEADER_CHANGE_ID), OperationType.PATCH_BY_ID, "id:" + id.toString(), null, null);
         SumPagedRep<T> entityById = getEntityById(id);
         T original = entityById.getData().get(0);
         Z command = entityPatchSupplier.apply(original);
@@ -181,7 +181,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
                 }
             }
         } else if (data.get(0).getOperationType().equals(OperationType.PATCH_BATCH)) {
-            List<PatchCommand> rollbackCmd = buildRollbackCommand(data.get(0).getPatchCommands());
+            List<PatchCommand> rollbackCmd = buildRollbackCommand((List<PatchCommand>) data.get(0).getRequestBody());
             patchBatch(rollbackCmd, changeId + CHANGE_REVOKED);
         } else if (data.get(0).getOperationType().equals(OperationType.PUT)) {
             saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.RESTORE_LAST_VERSION, data.get(0).getQuery(), null, null);
@@ -234,6 +234,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             repo.save(byId.get());
         }
     }
+
     protected void restoreCreate(String ids) {
         String[] split = ids.split("\\.");
         for (String str : split) {
@@ -268,9 +269,8 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         return deepCopy;
     }
 
-    protected void saveChangeRecord(List<PatchCommand> patchCommands, String changeId, OperationType operationType, String query, List<Long> deletedIds, Object toBeReplaced) {
+    protected void saveChangeRecord(Object requestBody, String changeId, OperationType operationType, String query, List<Long> deletedIds, Object toBeReplaced) {
         AppCreateChangeRecordCommand changeRecord = new AppCreateChangeRecordCommand();
-        changeRecord.setPatchCommands((ArrayList<PatchCommand>) patchCommands);
         changeRecord.setChangeId(changeId);
         String[] split = entityClass.getName().split("\\.");
         changeRecord.setEntityType(split[split.length - 1]);
@@ -279,6 +279,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         changeRecord.setQuery(query);
         changeRecord.setReplacedVersion(toBeReplaced);
         changeRecord.setDeletedIds(deletedIds);
+        changeRecord.setRequestBody(requestBody);
         appChangeRecordApplicationService.create(changeRecord);
     }
 

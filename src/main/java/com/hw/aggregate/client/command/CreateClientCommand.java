@@ -5,10 +5,12 @@ import com.hw.aggregate.client.model.GrantTypeEnum;
 import com.hw.aggregate.client.model.ScopeEnum;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Set;
 
 @Data
-public class CreateClientCommand {
+public class CreateClientCommand implements Serializable {
+    private static final long serialVersionUID = 1;
     private String clientSecret;
     private String description;
     private String name;
