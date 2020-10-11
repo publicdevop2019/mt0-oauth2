@@ -1,5 +1,7 @@
 package com.hw.shared.idempotent.model;
 
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.shared.Auditable;
 import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.command.AppCreateChangeRecordCommand;
@@ -8,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 @Entity
@@ -39,12 +43,22 @@ public class ChangeRecord extends Auditable implements IdBasedEntity {
     private OperationType operationType;
     private String query;
 
-    private ChangeRecord(Long id, AppCreateChangeRecordCommand command) {
+    private ChangeRecord(Long id, AppCreateChangeRecordCommand command, ObjectMapper om) {
         this.id = id;
         this.changeId = command.getChangeId();
         this.entityType = command.getEntityType();
         this.serviceBeanName = command.getServiceBeanName();
-        this.requestBody = CustomByteArraySerializer.convertToDatabaseColumn(command.getRequestBody());
+        if (command.getRequestBody() instanceof JsonSerializable) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                om.writeValue(baos, command.getRequestBody());
+                this.requestBody = baos.toByteArray();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            this.requestBody = CustomByteArraySerializer.convertToDatabaseColumn(command.getRequestBody());
+        }
         this.operationType = command.getOperationType();
         this.query = command.getQuery();
         this.replacedVersion = CustomByteArraySerializer.convertToDatabaseColumn(command.getReplacedVersion());
@@ -52,7 +66,7 @@ public class ChangeRecord extends Auditable implements IdBasedEntity {
             this.deletedIds = new ArrayList<>(command.getDeletedIds());
     }
 
-    public static ChangeRecord create(Long id, AppCreateChangeRecordCommand command) {
-        return new ChangeRecord(id, command);
+    public static ChangeRecord create(Long id, AppCreateChangeRecordCommand command, ObjectMapper om) {
+        return new ChangeRecord(id, command, om);
     }
 }

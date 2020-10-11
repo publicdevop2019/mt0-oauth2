@@ -39,7 +39,7 @@ public class AppChangeRecordApplicationService extends DefaultRoleBasedRestfulSe
 
     @Override
     public AppChangeRecordCardRep getEntitySumRepresentation(ChangeRecord changeRecord) {
-        return new AppChangeRecordCardRep(changeRecord);
+        return new AppChangeRecordCardRep(changeRecord,om2);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class AppChangeRecordApplicationService extends DefaultRoleBasedRestfulSe
     @Transactional
     public CreatedEntityRep create(AppCreateChangeRecordCommand command) {
         long id = idGenerator.getId();
-        ChangeRecord changeRecord = ChangeRecord.create(id, command);
+        ChangeRecord changeRecord = ChangeRecord.create(id, command,om2);
         ChangeRecord saved = repo.save(changeRecord);
         return new CreatedEntityRep(saved);
     }

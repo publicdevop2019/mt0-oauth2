@@ -61,7 +61,7 @@ public class RootChangeRecordApplicationService extends DefaultRoleBasedRestfulS
 
     @Override
     public RootChangeRecordCardRep getEntitySumRepresentation(ChangeRecord changeRecord) {
-        return new RootChangeRecordCardRep(changeRecord);
+        return new RootChangeRecordCardRep(changeRecord,om2);
     }
 
     @Override
