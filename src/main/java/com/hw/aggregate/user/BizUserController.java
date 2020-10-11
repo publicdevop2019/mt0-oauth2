@@ -23,7 +23,7 @@ import static com.hw.shared.AppConstant.*;
 public class BizUserController {
 
     @Autowired
-    private AdminBizUserApplicationService adminResourceOwnerService;
+    private AdminBizUserApplicationService adminBizUserApplicationService;
     @Autowired
     private PublicBizUserApplicationService publicBizUserApplicationService;
     @Autowired
@@ -41,25 +41,25 @@ public class BizUserController {
     public ResponseEntity<SumPagedRep<AdminBizUserCardRep>> readForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
                                                                                 @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
                                                                                 @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
-        return ResponseEntity.ok(adminResourceOwnerService.readByQuery(queryParam, pageParam, config));
+        return ResponseEntity.ok(adminBizUserApplicationService.readByQuery(queryParam, pageParam, config));
     }
 
     @GetMapping("admin/{id}")
     public ResponseEntity<AdminBizUserRep> readForAdminById(@PathVariable Long id) {
-        return ResponseEntity.ok(adminResourceOwnerService.readById(id));
+        return ResponseEntity.ok(adminBizUserApplicationService.readById(id));
     }
 
 
     @PutMapping("admin/{id}")
     public ResponseEntity<Void> updateForAdmin(@RequestBody AdminUpdateBizUserCommand command, @PathVariable Long id, @RequestHeader("authorization") String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         command.setAuthorization(authorization);
-        adminResourceOwnerService.replaceById(id, command, changeId);
+        adminBizUserApplicationService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("admin/{id}")
     public ResponseEntity<Void> deleteForAdminById(@PathVariable Long id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        adminResourceOwnerService.deleteById(id, changeId);
+        adminBizUserApplicationService.deleteById(id, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -75,13 +75,13 @@ public class BizUserController {
         HashMap<String, Object> params = new HashMap<>();
         params.put(HTTP_HEADER_CHANGE_ID, changeId);
         params.put(HTTP_HEADER_AUTHORIZATION, authorization);
-        adminResourceOwnerService.patchById(id, patch, params);
+        adminBizUserApplicationService.patchById(id, patch, params);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "admin")
     public ResponseEntity<Void> patchForAdminBatch(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        adminResourceOwnerService.patchBatch(patch, changeId);
+        adminBizUserApplicationService.patchBatch(patch, changeId);
         return ResponseEntity.ok().build();
     }
 

@@ -41,7 +41,8 @@ public class BizClient extends Auditable implements IdBasedEntity {
     @Id
     private Long id;
     private String description;
-    @Column(nullable = false)
+    @Column
+    @Nullable
     private String name;
     @Nullable
     @Column
@@ -83,7 +84,7 @@ public class BizClient extends Auditable implements IdBasedEntity {
      * indicates if a client is a resource, if true resource id will default to client id
      */
     @Column
-    @NotNull
+    @Nullable
     private Boolean resourceIndicator;
     /**
      * indicates if a authorization_code client can be auto approved
@@ -156,7 +157,7 @@ public class BizClient extends Auditable implements IdBasedEntity {
      * if client is marked as resource then it must be a backend and first party application
      */
     public static void validateResourceIndicator(BizClient client) {
-        if (client.getResourceIndicator() && (client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_BACKEND))
+        if (Boolean.TRUE.equals(client.getResourceIndicator()) && (client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_BACKEND))
                 || client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY))))
             throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
     }

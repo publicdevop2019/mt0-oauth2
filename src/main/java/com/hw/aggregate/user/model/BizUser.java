@@ -56,11 +56,10 @@ public class BizUser extends Auditable implements IdBasedEntity {
     @NotEmpty
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
-    @Column(nullable = false)
-    @NotNull
+    @Column
     private Boolean locked;
     private String pwdResetToken;
-    @Column(nullable = false)
+    @Column
     @NotNull
     @NotEmpty
     @Convert(converter = BizUserAuthorityEnum.ResourceOwnerAuthorityConverter.class)
@@ -172,7 +171,7 @@ public class BizUser extends Auditable implements IdBasedEntity {
         List<String> currentAuthorities = ServiceUtility.getAuthority(command.getAuthorization());
         if (command.getGrantedAuthorities().stream().anyMatch(e -> ROLE_ROOT.equals(e.name())))
             throw new IllegalArgumentException("assign root grantedAuthorities is prohibited");
-        if (currentAuthorities.stream().noneMatch(ROLE_ROOT::equals) && getGrantedAuthorities().equals(command.getGrantedAuthorities()))
+        if (currentAuthorities.stream().noneMatch(ROLE_ROOT::equals) && !getGrantedAuthorities().equals(command.getGrantedAuthorities()))
             throw new IllegalArgumentException("only root user can change grantedAuthorities");
         if (currentAuthorities.stream().noneMatch(ROLE_ROOT::equals) && isSubscription() != command.isSubscription())
             throw new IllegalArgumentException("only root user can change subscription");

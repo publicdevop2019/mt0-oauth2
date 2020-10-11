@@ -1,10 +1,10 @@
 package com.hw.aggregate.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hw.aggregate.user.representation.AppBizUserRep;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserQueryRegistry;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
+import com.hw.aggregate.user.representation.AppBizUserRep;
 import com.hw.shared.IdGenerator;
 import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
@@ -95,6 +95,8 @@ public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService
             return readById(Long.parseLong(usernameOrId));
         } catch (NumberFormatException ex) {
             SumPagedRep<AppBizUserCardRep> appBizUserCardRepSumPagedRep = readByQuery("email:" + usernameOrId, null, null);
+            if (appBizUserCardRepSumPagedRep.getData().isEmpty())
+                return null;
             return readById(appBizUserCardRepSumPagedRep.getData().get(0).getId());
         }
     }
