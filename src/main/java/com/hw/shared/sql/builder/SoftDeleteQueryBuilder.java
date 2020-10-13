@@ -27,7 +27,6 @@ public abstract class SoftDeleteQueryBuilder<T> {
     protected SoftDeleteQueryBuilder(){
         supportedWhereField.put(COMMON_ENTITY_ID, new SelectFieldIdWhereClause<>());
     }
-    protected abstract Predicate getWhereClause(Root<T> root, String fieldName);//remove after remove all DeleteById
 
     public Integer delete(String search, Class<T> clazz) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
