@@ -205,6 +205,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         } else {
             throw new RollbackNotSupportedException();
         }
+        log.info("end of rollback change /w id {}", changeId);
     }
 
     protected List<PatchCommand> buildRollbackCommand(List<PatchCommand> patchCommands) {

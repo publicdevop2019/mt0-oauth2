@@ -40,10 +40,5 @@ public class ChangeRecordController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("app")
-    public ResponseEntity<?> deleteForAppByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam) {
-        appChangeRecordApplicationService.deleteByQuery(queryParam);
-        return ResponseEntity.ok().build();
-    }
 
 }
