@@ -50,6 +50,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
 
     protected RestfulQueryRegistry.RoleEnum role;
     protected ObjectMapper om;
+    protected boolean rollbackSupported = true;
     protected AppChangeRecordApplicationService appChangeRecordApplicationService;
     protected boolean deleteHook = false;
 
@@ -156,6 +157,10 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
 
     @Transactional
     public void rollback(String changeId) {
+        if(!rollbackSupported){
+            log.info("rollback not supported, ignoring rollback operation");
+            return;
+        }
         log.info("start of rollback change /w id {}", changeId);
         String[] split = entityClass.getName().split("\\.");
         SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + CHANGE_REVOKED + "," + ENTITY_TYPE + ":" + split[split.length - 1], null, "sc:1");

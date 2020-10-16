@@ -6,6 +6,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -22,6 +23,10 @@ public class ChangeRecordSub {
     private RootChangeRecordApplicationService rootChangeRecordApplicationService;
     @Autowired
     private AppChangeRecordApplicationService appChangeRecordApplicationService;
+    @Value("${mq.queueName}")
+    private String appQueueName;
+    @Value("${mq.routingKey}")
+    private String appRoutingKey;
 
     @PostConstruct
     public void initMQ() {
@@ -30,9 +35,9 @@ public class ChangeRecordSub {
         try {
             Connection connection = factory.newConnection();
             Channel channel = connection.createChannel();
-            channel.exchangeDeclare(EXCHANGE_ROLLBACK, "fanout");
-            String queueName = channel.queueDeclare().getQueue();
-            channel.queueBind(queueName, EXCHANGE_ROLLBACK, "");
+            channel.exchangeDeclare(EXCHANGE_ROLLBACK, "direct");
+            String queueName = channel.queueDeclare(appQueueName, true, false, false, null).getQueue();
+            channel.queueBind(queueName, EXCHANGE_ROLLBACK, appRoutingKey);
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
                 log.info("message received from mq");

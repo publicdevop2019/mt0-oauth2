@@ -14,7 +14,7 @@ public class EurekaRegistryHelper {
 
     public String getProxyHomePageUrl() {
         InstanceInfo proxy = eurekaClient.getNextServerFromEureka("PROXY", false);
-        log.info("proxy url retrieved from eureka client {}", proxy.getHomePageUrl());
+        log.debug("proxy url retrieved from eureka client {}", proxy.getHomePageUrl());
         return proxy.getHomePageUrl();
     }
 }
