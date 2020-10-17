@@ -31,7 +31,7 @@ public class BizUserController {
     @Autowired
     private UserBizUserApplicationService userBizUserApplicationService;
 
-    @PostMapping("public")
+    @PostMapping("app")
     public ResponseEntity<Void> createForPublic(@RequestBody PublicCreateBizUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         CreatedEntityRep createdEntityRep = publicBizUserApplicationService.create(command, changeId);
         return ResponseEntity.ok().header("Location", String.valueOf(createdEntityRep.getId())).build();
@@ -91,13 +91,13 @@ public class BizUserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("public/forgetPwd")
+    @PostMapping("app/forgetPwd")
     public ResponseEntity<Void> forgetPwd(@RequestBody ForgetPasswordCommand command) {
         publicBizUserApplicationService.sendForgetPassword(command);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("public/resetPwd")
+    @PostMapping("app/resetPwd")
     public ResponseEntity<Void> resetPwd(@RequestBody PublicResetPwdCommand forgetPasswordRequest) {
         publicBizUserApplicationService.resetPassword(forgetPasswordRequest);
         return ResponseEntity.ok().build();

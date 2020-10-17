@@ -17,8 +17,4 @@ public class PublicBizUserSelectQueryBuilder extends SelectQueryBuilder<BizUser>
         supportedWhereField.put("email", new SelectFieldEmailEqualClause<>(ENTITY_EMAIL));
     }
 
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 }

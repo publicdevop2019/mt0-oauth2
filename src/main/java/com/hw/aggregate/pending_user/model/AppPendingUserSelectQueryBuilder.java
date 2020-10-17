@@ -16,9 +16,4 @@ public class AppPendingUserSelectQueryBuilder extends SelectQueryBuilder<Pending
         MAX_PAGE_SIZE = 1;
         supportedWhereField.put("email", new SelectFieldEmailEqualClause<>(ENTITY_EMAIL));
     }
-
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 }

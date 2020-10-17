@@ -11,9 +11,9 @@ import static com.hw.shared.AppConstant.HTTP_HEADER_CHANGE_ID;
 @RequestMapping(produces = "application/json", path = "pending-users")
 public class PendingUserController {
     @Autowired
-    PublicPendingUserApplicationService resourceOwnerService;
+    AppPendingUserApplicationService resourceOwnerService;
 
-    @PostMapping("/public")
+    @PostMapping("/app")
     public ResponseEntity<Void> createForPublic(@RequestBody CreatePendingUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         resourceOwnerService.create(command, changeId);
         return ResponseEntity.ok().build();

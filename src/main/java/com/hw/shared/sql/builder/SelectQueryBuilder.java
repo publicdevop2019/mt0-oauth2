@@ -5,6 +5,7 @@ import com.hw.shared.sql.clause.SelectFieldIdWhereClause;
 import com.hw.shared.sql.clause.SelectNotDeletedClause;
 import com.hw.shared.sql.clause.WhereClause;
 import com.hw.shared.sql.exception.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
@@ -26,6 +27,7 @@ public abstract class SelectQueryBuilder<T extends Auditable> {
     protected Map<String, WhereClause<T>> supportedWhereField = new HashMap<>();
     protected Set<WhereClause<T>> defaultWhereField = new HashSet<>();
     protected Sort.Direction DEFAULT_SORT_ORDER = Sort.Direction.ASC;
+    @Autowired
     protected EntityManager em;
     protected boolean allowEmptyClause = false;
 

@@ -20,8 +20,4 @@ public class AppBizUserSelectQueryBuilder extends SelectQueryBuilder<BizUser> {
         supportedWhereField.put("subscription", new SelectFieldBooleanEqualClause<>(ENTITY_SUBSCRIPTION));
     }
 
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 }

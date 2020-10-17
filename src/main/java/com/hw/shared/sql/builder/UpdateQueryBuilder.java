@@ -5,6 +5,7 @@ import com.hw.shared.AuditorAwareImpl;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.clause.SelectNotDeletedClause;
 import com.hw.shared.sql.exception.PatchCommandExpectNotMatchException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -21,6 +22,7 @@ import static com.hw.shared.Auditable.ENTITY_MODIFIED_AT;
 import static com.hw.shared.Auditable.ENTITY_MODIFIED_BY;
 
 public abstract class UpdateQueryBuilder<T extends Auditable> {
+    @Autowired
     protected EntityManager em;
 
     /**

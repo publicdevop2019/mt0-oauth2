@@ -1,6 +1,7 @@
 package com.hw.shared.sql.builder;
 
 import com.hw.shared.sql.clause.WhereClause;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -14,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class HardDeleteQueryBuilder<T> {
+    @Autowired
     protected EntityManager em;
     protected Set<WhereClause<T>> defaultWhereField = new HashSet<>();
     protected boolean allowEmptyClause = false;

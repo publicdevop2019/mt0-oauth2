@@ -14,10 +14,4 @@ public class UserBizClientSelectQueryBuilder extends SelectQueryBuilder<BizClien
     UserBizClientSelectQueryBuilder() {
         supportedWhereField.put("clientId", new SelectFieldLongEqualClause<>(COMMON_ENTITY_ID));
     }
-
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
-
 }

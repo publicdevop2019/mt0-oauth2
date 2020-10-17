@@ -6,6 +6,7 @@ import com.hw.shared.sql.clause.WhereClause;
 import com.hw.shared.sql.exception.EmptyQueryValueException;
 import com.hw.shared.sql.exception.EmptyWhereClauseException;
 import com.hw.shared.sql.exception.UnknownWhereClauseException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -19,7 +20,7 @@ import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 import static com.hw.shared.Auditable.*;
 
 public abstract class SoftDeleteQueryBuilder<T> {
-
+    @Autowired
     protected EntityManager em;
     protected Set<WhereClause<T>> defaultWhereField = new HashSet<>();
     protected boolean allowEmptyClause = false;

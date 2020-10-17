@@ -13,10 +13,6 @@ import static com.hw.aggregate.user.model.BizUser.ENTITY_LOCKED;
 
 @Component
 public class AdminBizUserUpdateQueryBuilder extends UpdateByIdQueryBuilder<BizUser> {
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 
     @PostConstruct
     private void setUp() {

@@ -28,9 +28,4 @@ public class RootBizClientSelectQueryBuilder extends SelectQueryBuilder<BizClien
         supportedWhereField.put(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS, new SelectFieldNumberRangeClause<>(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS));
         allowEmptyClause = true;
     }
-
-    @Autowired
-    private void setEntityManager(EntityManager entityManager) {
-        em = entityManager;
-    }
 }

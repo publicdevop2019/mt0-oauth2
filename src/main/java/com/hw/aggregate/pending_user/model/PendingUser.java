@@ -27,8 +27,8 @@ public class PendingUser extends Auditable implements IdBasedEntity {
     @Column
     private String activationCode;
 
-    public static PendingUser create(String email, PendingUserRepo pendingRORepo, AppBizUserApplicationService resourceOwnerRepo, IdGenerator idGenerator) {
-        validateOnCreate(email, resourceOwnerRepo);
+    public static PendingUser create(String email, PendingUserRepo pendingRORepo, AppBizUserApplicationService appBizUserApplicationService, IdGenerator idGenerator) {
+        validateOnCreate(email, appBizUserApplicationService);
         PendingUser pendingResourceOwner = pendingRORepo.findOneByEmail(email);
         if (pendingResourceOwner == null) {
             pendingResourceOwner = new PendingUser();
