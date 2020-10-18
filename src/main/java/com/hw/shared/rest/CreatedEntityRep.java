@@ -9,4 +9,8 @@ public class CreatedEntityRep extends CreatedRep {
     public CreatedEntityRep(IdBasedEntity entity) {
         this.id = entity.getId();
     }
+
+    public CreatedEntityRep() {
+
+    }
 }

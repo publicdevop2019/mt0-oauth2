@@ -14,7 +14,6 @@ import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.command.AppCreateChangeRecordCommand;
 import com.hw.shared.idempotent.exception.ChangeNotFoundException;
-import com.hw.shared.idempotent.exception.HangingTransactionException;
 import com.hw.shared.idempotent.exception.RollbackNotSupportedException;
 import com.hw.shared.idempotent.representation.AppChangeRecordCardRep;
 import com.hw.shared.rest.exception.EntityNotExistException;
@@ -61,61 +60,115 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
 
     @Transactional
     public CreatedEntityRep create(Object command, String changeId) {
-        long id = idGenerator.getId();
-        saveChangeRecord(command, changeId, OperationType.POST, "id:" + id, null, null);
-        T created = createEntity(id, command);
-        T save = repo.save(created);
-        return getCreatedEntityRepresentation(save);
+        if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+            return new CreatedEntityRep();
+        } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
+            String entityType = getEntityName();
+            SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + entityType, null, "sc:1");
+            CreatedEntityRep createdEntityRep = new CreatedEntityRep();
+            long l = Long.parseLong(appChangeRecordCardRepSumPagedRep.getData().get(0).getQuery().replace("id:", ""));
+            createdEntityRep.setId(l);
+            return createdEntityRep;
+        } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+            saveChangeRecord(command, changeId, OperationType.POST, "id:", null, null);
+            return new CreatedEntityRep();
+        } else {
+            long id = idGenerator.getId();
+            saveChangeRecord(command, changeId, OperationType.POST, "id:" + id, null, null);
+            T created = createEntity(id, command);
+            T save = repo.save(created);
+            return getCreatedEntityRepresentation(save);
+        }
     }
 
     @Transactional
     public void replaceById(Long id, Object command, String changeId) {
-        SumPagedRep<T> tSumPagedRep = getEntityById(id);
-        saveChangeRecord(command, changeId, OperationType.PUT, "id:" + id.toString(), null, tSumPagedRep.getData().get(0));
-        T after = replaceEntity(tSumPagedRep.getData().get(0), command);
-        repo.save(after);
+        if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+        } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
+        } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+            saveChangeRecord(command, changeId, OperationType.PUT, "id:" + id.toString(), null, null);
+        } else {
+            SumPagedRep<T> tSumPagedRep = getEntityById(id);
+            saveChangeRecord(command, changeId, OperationType.PUT, "id:" + id.toString(), null, tSumPagedRep.getData().get(0));
+            T after = replaceEntity(tSumPagedRep.getData().get(0), command);
+            repo.save(after);
+        }
     }
 
 
     @Transactional
     public void patchById(Long id, JsonPatch patch, Map<String, Object> params) {
-        saveChangeRecord(patch, (String) params.get(HTTP_HEADER_CHANGE_ID), OperationType.PATCH_BY_ID, "id:" + id.toString(), null, null);
-        SumPagedRep<T> entityById = getEntityById(id);
-        T original = entityById.getData().get(0);
-        Z command = entityPatchSupplier.apply(original);
-        try {
-            JsonNode jsonNode = om.convertValue(command, JsonNode.class);
-            JsonNode patchedNode = patch.apply(jsonNode);
-            command = om.treeToValue(patchedNode, command.getClazz());
-        } catch (JsonPatchException | JsonProcessingException e) {
-            e.printStackTrace();
-            throw new EntityPatchException();
+        String changeId = (String) params.get(HTTP_HEADER_CHANGE_ID);
+        if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+        } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
+        } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+            saveChangeRecord(patch, (String) params.get(HTTP_HEADER_CHANGE_ID), OperationType.PATCH_BY_ID, "id:" + id.toString(), null, null);
+        } else {
+            saveChangeRecord(patch, (String) params.get(HTTP_HEADER_CHANGE_ID), OperationType.PATCH_BY_ID, "id:" + id.toString(), null, null);
+            SumPagedRep<T> entityById = getEntityById(id);
+            T original = entityById.getData().get(0);
+            Z command = entityPatchSupplier.apply(original);
+            try {
+                JsonNode jsonNode = om.convertValue(command, JsonNode.class);
+                JsonNode patchedNode = patch.apply(jsonNode);
+                command = om.treeToValue(patchedNode, command.getClazz());
+            } catch (JsonPatchException | JsonProcessingException e) {
+                e.printStackTrace();
+                throw new EntityPatchException();
+            }
+            prePatch(original, params, command);
+            BeanUtils.copyProperties(command, original);
+            repo.save(original);
+            postPatch(original, params, command);
         }
-        prePatch(original, params, command);
-        BeanUtils.copyProperties(command, original);
-        repo.save(original);
-        postPatch(original, params, command);
     }
 
     @Transactional
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
-        saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null, null, null);
-        List<PatchCommand> deepCopy = getDeepCopy(commands);
-        return queryRegistry.update(role, deepCopy, entityClass);
+        if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+            return 0;
+        } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
+            return 0;
+        } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+            saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null, null, null);
+            return 0;
+        } else {
+            saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null, null, null);
+            List<PatchCommand> deepCopy = getDeepCopy(commands);
+            return queryRegistry.update(role, deepCopy, entityClass);
+        }
     }
 
     @Transactional
     public Integer deleteById(Long id, String changeId) {
-        saveChangeRecord(null, changeId, OperationType.DELETE_BY_ID, "id:" + id.toString(), null, null);
-        return doDelete("id:" + id);
+        if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+            return 0;
+        } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
+            return 0;
+        } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+            saveChangeRecord(null, changeId, OperationType.DELETE_BY_ID, "id:" + id.toString(), null, null);
+            return 0;
+        } else {
+            saveChangeRecord(null, changeId, OperationType.DELETE_BY_ID, "id:" + id.toString(), null, null);
+            return doDelete("id:" + id);
+        }
     }
 
     @Transactional
     public Integer deleteByQuery(String query, String changeId) {
-        List<T> data = getTs(query);
-        List<Long> collect = data.stream().map(IdBasedEntity::getId).collect(Collectors.toList());
-        saveChangeRecord(null, changeId, OperationType.DELETE_BY_QUERY, query, collect, null);
-        return doDelete(query);
+        if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+            return 0;
+        } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
+            return 0;
+        } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+            saveChangeRecord(null, changeId, OperationType.DELETE_BY_QUERY, query, Collections.EMPTY_LIST, null);
+            return 0;
+        } else {
+            List<T> data = getTs(query);
+            List<Long> collect = data.stream().map(IdBasedEntity::getId).collect(Collectors.toList());
+            saveChangeRecord(null, changeId, OperationType.DELETE_BY_QUERY, query, collect, null);
+            return doDelete(query);
+        }
 
     }
 
@@ -160,62 +213,82 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         return getEntityRepresentation(tSumPagedRep.getData().get(0));
     }
 
+    protected boolean changeAlreadyRevoked(String changeId) {
+        String entityType = getEntityName();
+        SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + CHANGE_REVOKED + "," + ENTITY_TYPE + ":" + entityType, null, "sc:1");
+        return (appChangeRecordCardRepSumPagedRep.getData() != null && appChangeRecordCardRepSumPagedRep.getData().size() > 0);
+    }
+
+    protected boolean changeAlreadyExist(String changeId) {
+        String entityType = getEntityName();
+        SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + entityType, null, "sc:1");
+        return (appChangeRecordCardRepSumPagedRep.getData() != null && appChangeRecordCardRepSumPagedRep.getData().size() > 0);
+    }
+
+    protected String getEntityName() {
+        String[] split = entityClass.getName().split("\\.");
+        return split[split.length - 1];
+    }
+
     @Transactional
     public void rollback(String changeId) {
-        if(!rollbackSupported){
+        if (!rollbackSupported) {
             log.info("rollback not supported, ignoring rollback operation");
             return;
         }
-        log.info("start of rollback change /w id {}", changeId);
-        String[] split = entityClass.getName().split("\\.");
-        SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + CHANGE_REVOKED + "," + ENTITY_TYPE + ":" + split[split.length - 1], null, "sc:1");
-        if (appChangeRecordCardRepSumPagedRep.getData() != null && appChangeRecordCardRepSumPagedRep.getData().size() > 0) {
-            throw new HangingTransactionException();
-        }
-        SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep1 = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + split[split.length - 1], null, "sc:1");
-        List<AppChangeRecordCardRep> data = appChangeRecordCardRepSumPagedRep1.getData();
-        if (data == null || data.size() == 0) {
-            throw new ChangeNotFoundException();
-        }
-        if ((data.get(0).getOperationType().equals(OperationType.DELETE_BY_ID)
-                || data.get(0).getOperationType().equals(OperationType.DELETE_BY_QUERY)
-                || data.get(0).getOperationType().equals(OperationType.POST)
-        )) {
-            if (data.get(0).getOperationType().equals(OperationType.POST)) {
-                saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.CANCEL_CREATE, data.get(0).getQuery(), null, null);
-                restoreCreate(data.get(0).getQuery().replace("id:", ""));
-            } else {
-                if (data.get(0).getOperationType().equals(OperationType.DELETE_BY_ID)) {
-                    restoreDelete(data.get(0).getQuery().replace("id:", ""), changeId + CHANGE_REVOKED);
-                } else {
-                    String collect = data.get(0).getDeletedIds().stream().map(Object::toString).collect(Collectors.joining("."));
-                    restoreDelete(collect, changeId + CHANGE_REVOKED);
-                }
+        if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
+            return;
+        } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
+            String entityType = getEntityName();
+            log.info("start of rollback change /w id {}", changeId);
+            SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep1 = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + entityType, null, "sc:1");
+            List<AppChangeRecordCardRep> data = appChangeRecordCardRepSumPagedRep1.getData();
+            if (data == null || data.size() == 0) {
+                throw new ChangeNotFoundException();
             }
-        } else if (data.get(0).getOperationType().equals(OperationType.PATCH_BATCH)) {
-            List<PatchCommand> rollbackCmd = buildRollbackCommand((List<PatchCommand>) data.get(0).getRequestBody());
-            patchBatch(rollbackCmd, changeId + CHANGE_REVOKED);
-        } else if (data.get(0).getOperationType().equals(OperationType.PUT)) {
-            saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.RESTORE_LAST_VERSION, data.get(0).getQuery(), null, null);
-            T previous = (T) data.get(0).getReplacedVersion();
-            T stored = getEntityById(previous.getId()).getData().get(0);
-            if (!(previous instanceof VersionBasedEntity)) {
-                log.warn("target does not have version number, your data may get lost");
-            } else {
-                Integer version = ((VersionBasedEntity) stored).getVersion();
-                Integer version1 = ((VersionBasedEntity) previous).getVersion();
-                if (version - 1 == version1) {
-                    log.info("restore to previous entity version");
+            if ((data.get(0).getOperationType().equals(OperationType.DELETE_BY_ID)
+                    || data.get(0).getOperationType().equals(OperationType.DELETE_BY_QUERY)
+                    || data.get(0).getOperationType().equals(OperationType.POST)
+            )) {
+                if (data.get(0).getOperationType().equals(OperationType.POST)) {
+                    saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.CANCEL_CREATE, data.get(0).getQuery(), null, null);
+                    restoreCreate(data.get(0).getQuery().replace("id:", ""));
                 } else {
-                    log.warn("stored previous version is out dated, your data may get lost");
+                    if (data.get(0).getOperationType().equals(OperationType.DELETE_BY_ID)) {
+                        restoreDelete(data.get(0).getQuery().replace("id:", ""), changeId + CHANGE_REVOKED);
+                    } else {
+                        String collect = data.get(0).getDeletedIds().stream().map(Object::toString).collect(Collectors.joining("."));
+                        restoreDelete(collect, changeId + CHANGE_REVOKED);
+                    }
                 }
+            } else if (data.get(0).getOperationType().equals(OperationType.PATCH_BATCH)) {
+                List<PatchCommand> rollbackCmd = buildRollbackCommand((List<PatchCommand>) data.get(0).getRequestBody());
+                patchBatch(rollbackCmd, changeId + CHANGE_REVOKED);
+            } else if (data.get(0).getOperationType().equals(OperationType.PUT)) {
+                saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.RESTORE_LAST_VERSION, data.get(0).getQuery(), null, null);
+                T previous = (T) data.get(0).getReplacedVersion();
+                T stored = getEntityById(previous.getId()).getData().get(0);
+                if (!(previous instanceof VersionBasedEntity)) {
+                    log.warn("target does not have version number, your data may get lost");
+                } else {
+                    Integer version = ((VersionBasedEntity) stored).getVersion();
+                    Integer version1 = ((VersionBasedEntity) previous).getVersion();
+                    if (version - 1 == version1) {
+                        log.info("restore to previous entity version");
+                    } else {
+                        log.warn("stored previous version is out dated, your data may get lost");
+                    }
+                }
+                BeanUtils.copyProperties(previous, stored);
+                repo.save(stored);
+            } else {
+                throw new RollbackNotSupportedException();
             }
-            BeanUtils.copyProperties(previous, stored);
-            repo.save(stored);
+            log.info("end of rollback change /w id {}", changeId);
+        } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
         } else {
-            throw new RollbackNotSupportedException();
+            saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.EMPTY_OPT, null, null, null);
         }
-        log.info("end of rollback change /w id {}", changeId);
     }
 
     protected List<PatchCommand> buildRollbackCommand(List<PatchCommand> patchCommands) {

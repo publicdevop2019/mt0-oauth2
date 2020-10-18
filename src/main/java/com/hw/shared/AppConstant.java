@@ -1,7 +1,9 @@
 package com.hw.shared;
 
 public class AppConstant {
-    public static final String HTTP_HEADER_ERROR_ID = "Error-Id";
+    public static final String HTTP_HEADER_ERROR_ID = "errorId";
+    public static final String HTTP_HEADER_SUPPRESS = "suppressEx";
+    public static final String HTTP_HEADER_SUPPRESS_REASON_CHANGE_ID_EXIST = "changeIdExist";
     public static final String HTTP_PARAM_QUERY = "query";
     public static final String HTTP_PARAM_PAGE = "page";
     public static final String HTTP_PARAM_SKIP_COUNT = "config";

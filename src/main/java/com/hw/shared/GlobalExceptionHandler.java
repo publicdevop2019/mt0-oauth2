@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import static com.hw.shared.AppConstant.HTTP_HEADER_ERROR_ID;
+import static com.hw.shared.AppConstant.*;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -28,7 +28,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {
             TransactionSystemException.class,
             IllegalArgumentException.class,
-            DataIntegrityViolationException.class,
             ObjectOptimisticLockingFailureException.class,
             JwtTokenExtractException.class,
             UnsupportedQueryException.class,
@@ -65,5 +64,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set(HTTP_HEADER_ERROR_ID, errorMessage.getErrorId());
         return handleExceptionInternal(ex, errorMessage, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+    @ExceptionHandler(value = {
+            DataIntegrityViolationException.class,
+    })
+    protected ResponseEntity<Object> handle200Exception(RuntimeException ex, WebRequest request) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set(HTTP_HEADER_SUPPRESS, HTTP_HEADER_SUPPRESS_REASON_CHANGE_ID_EXIST);
+        return handleExceptionInternal(ex, null, httpHeaders, HttpStatus.OK, request);
     }
 }
