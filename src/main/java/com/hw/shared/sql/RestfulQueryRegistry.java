@@ -5,17 +5,65 @@ import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.builder.SoftDeleteQueryBuilder;
 import com.hw.shared.sql.builder.UpdateQueryBuilder;
 import com.hw.shared.sql.exception.QueryBuilderNotFoundException;
+import com.hw.shared.sql.exception.UnknownRoleException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.ResolvableType;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class RestfulQueryRegistry<T extends Auditable> {
+    @Autowired
+    ApplicationContext applicationContext;
     protected Map<RoleEnum, SelectQueryBuilder<T>> selectQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, UpdateQueryBuilder<T>> updateQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, SoftDeleteQueryBuilder<T>> deleteQueryBuilder = new HashMap<>();
 
-    protected abstract void configQueryBuilder();
+    public abstract Class<T> getEntityClass();
+
+    @PostConstruct
+    protected void configQueryBuilder() {
+
+        String[] beanNamesForType = applicationContext.getBeanNamesForType(ResolvableType.forClassWithGenerics(SelectQueryBuilder.class, getEntityClass()));
+        for (String name : beanNamesForType) {
+            RoleEnum roleEnum = getRoleEnum(name);
+            SelectQueryBuilder<T> builder = (SelectQueryBuilder<T>) applicationContext.getBean(name);
+            selectQueryBuilder.put(roleEnum, builder);
+        }
+        String[] beanNamesForType2 = applicationContext.getBeanNamesForType(ResolvableType.forClassWithGenerics(SoftDeleteQueryBuilder.class, getEntityClass()));
+        for (String name : beanNamesForType2) {
+            RoleEnum roleEnum = getRoleEnum(name);
+            SoftDeleteQueryBuilder<T> builder = (SoftDeleteQueryBuilder<T>) applicationContext.getBean(name);
+            deleteQueryBuilder.put(roleEnum, builder);
+        }
+        String[] beanNamesForType3 = applicationContext.getBeanNamesForType(ResolvableType.forClassWithGenerics(UpdateQueryBuilder.class, getEntityClass()));
+        for (String name : beanNamesForType3) {
+            RoleEnum roleEnum = getRoleEnum(name);
+            UpdateQueryBuilder<T> builder = (UpdateQueryBuilder<T>) applicationContext.getBean(name);
+            updateQueryBuilder.put(roleEnum, builder);
+        }
+    }
+
+    private RoleEnum getRoleEnum(String name) {
+        RoleEnum roleEnum;
+        if (name.indexOf("app") == 0) {
+            roleEnum = RoleEnum.APP;
+        } else if (name.indexOf("root") == 0) {
+            roleEnum = RoleEnum.ROOT;
+        } else if (name.indexOf("user") == 0) {
+            roleEnum = RoleEnum.USER;
+        } else if (name.indexOf("public") == 0) {
+            roleEnum = RoleEnum.PUBLIC;
+        } else if (name.indexOf("admin") == 0) {
+            roleEnum = RoleEnum.ADMIN;
+        } else {
+            throw new UnknownRoleException();
+        }
+        return roleEnum;
+    }
 
     //GET service-name/role-name/entity-collection - read object collection with pagination
     //GET service-name/role-name/object-collection?query={condition-clause}
