@@ -3,10 +3,7 @@ package com.hw.aggregate.user.model;
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.clause.SelectFieldBooleanEqualClause;
 import com.hw.shared.sql.clause.SelectFieldEmailEqualClause;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.persistence.EntityManager;
 
 import static com.hw.aggregate.user.model.BizUser.ENTITY_EMAIL;
 import static com.hw.aggregate.user.model.BizUser.ENTITY_SUBSCRIPTION;

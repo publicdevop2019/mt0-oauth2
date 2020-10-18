@@ -1,15 +1,11 @@
 package com.hw.aggregate.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.client.command.CreateClientCommand;
 import com.hw.aggregate.client.command.UpdateClientCommand;
 import com.hw.aggregate.client.model.BizClient;
-import com.hw.aggregate.client.model.BizClientQueryRegistry;
 import com.hw.aggregate.client.model.RootBizClientPatchMiddleLayer;
 import com.hw.aggregate.client.representation.RootBizClientCardRep;
 import com.hw.aggregate.client.representation.RootBizClientRep;
-import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +23,6 @@ import java.util.Map;
 public class RootBizClientApplicationService extends DefaultRoleBasedRestfulService<BizClient, RootBizClientCardRep, RootBizClientRep, RootBizClientPatchMiddleLayer> {
 
     @Autowired
-    BizClientRepo clientRepo;
-
-    @Autowired
     BCryptPasswordEncoder encoder;
 
     @Autowired
@@ -37,27 +30,11 @@ public class RootBizClientApplicationService extends DefaultRoleBasedRestfulServ
     @Autowired
     AppBizClientApplicationService appBizClientApplicationService;
 
-    @Autowired
-    private BizClientQueryRegistry clientQueryRegistry;
-
-    @Autowired
-    private IdGenerator idGenerator2;
-    @Autowired
-    private AppChangeRecordApplicationService changeHistoryRepository;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @PostConstruct
     private void setUp() {
-        repo = clientRepo;
-        queryRegistry = clientQueryRegistry;
         entityClass = BizClient.class;
         role = RestfulQueryRegistry.RoleEnum.ROOT;
-        idGenerator = idGenerator2;
-        appChangeRecordApplicationService = changeHistoryRepository;
         entityPatchSupplier = RootBizClientPatchMiddleLayer::new;
-        om = objectMapper;
         deleteHook = true;
     }
 

@@ -3,7 +3,6 @@ package com.hw.aggregate.client;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.aggregate.client.command.CreateClientCommand;
 import com.hw.aggregate.client.command.UpdateClientCommand;
-import com.hw.aggregate.client.representation.AppBizClientCardRep;
 import com.hw.aggregate.client.representation.RootBizClientCardRep;
 import com.hw.aggregate.client.representation.RootBizClientRep;
 import com.hw.aggregate.client.representation.UserBizClientCardRep;

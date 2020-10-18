@@ -1,18 +1,13 @@
 package com.hw.aggregate.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.user.model.BizUser;
-import com.hw.aggregate.user.model.BizUserQueryRegistry;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
 import com.hw.aggregate.user.representation.AppBizUserRep;
-import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -23,29 +18,11 @@ import java.util.Map;
 @Service
 @Slf4j
 public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, AppBizUserCardRep, AppBizUserRep, VoidTypedClass> implements UserDetailsService {
-    @Autowired
-    private BizUserRepo bizUserRepo;
-
-    @Autowired
-    private BizUserQueryRegistry bizUserQueryRegistry;
-
-    @Autowired
-    private IdGenerator idGenerator2;
-    @Autowired
-    private AppChangeRecordApplicationService changeRepository2;
-    @Autowired
-    private ObjectMapper objectMapper;
-
 
     @PostConstruct
     private void setUp() {
-        repo = bizUserRepo;
-        queryRegistry = bizUserQueryRegistry;
         entityClass = BizUser.class;
         role = RestfulQueryRegistry.RoleEnum.APP;
-        idGenerator = idGenerator2;
-        appChangeRecordApplicationService = changeRepository2;
-        om = objectMapper;
     }
 
     @Override

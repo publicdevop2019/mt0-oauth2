@@ -1,15 +1,11 @@
 package com.hw.aggregate.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.pending_user.AppPendingUserApplicationService;
 import com.hw.aggregate.user.command.ForgetPasswordCommand;
 import com.hw.aggregate.user.command.PublicCreateBizUserCommand;
 import com.hw.aggregate.user.command.PublicResetPwdCommand;
 import com.hw.aggregate.user.model.BizUser;
-import com.hw.aggregate.user.model.BizUserQueryRegistry;
 import com.hw.aggregate.user.representation.PublicBizUserCardRep;
-import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -26,9 +22,6 @@ import java.util.Map;
 @Slf4j
 public class PublicBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, PublicBizUserCardRep, Void, VoidTypedClass> {
     @Autowired
-    private BizUserRepo userRepo;
-
-    @Autowired
     private BCryptPasswordEncoder encoder;
 
     @Autowired
@@ -37,14 +30,6 @@ public class PublicBizUserApplicationService extends DefaultRoleBasedRestfulServ
     @Autowired
     private PwdResetEmailService emailService;
     @Autowired
-    private BizUserQueryRegistry bizUserQueryRegistry;
-    @Autowired
-    private IdGenerator idGenerator2;
-    @Autowired
-    private AppChangeRecordApplicationService changeRepository2;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
     private AppPendingUserApplicationService pendingUserApplicationService;
     @Autowired
     private AppBizUserApplicationService appBizUserApplicationService;
@@ -52,13 +37,8 @@ public class PublicBizUserApplicationService extends DefaultRoleBasedRestfulServ
 
     @PostConstruct
     private void setUp() {
-        repo = userRepo;
-        queryRegistry = bizUserQueryRegistry;
         entityClass = BizUser.class;
         role = RestfulQueryRegistry.RoleEnum.PUBLIC;
-        idGenerator = idGenerator2;
-        appChangeRecordApplicationService = changeRepository2;
-        om = objectMapper;
     }
 
     @Transactional

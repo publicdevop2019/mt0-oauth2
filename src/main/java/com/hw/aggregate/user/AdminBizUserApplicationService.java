@@ -1,15 +1,10 @@
 package com.hw.aggregate.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hw.aggregate.pending_user.AppPendingUserApplicationService;
 import com.hw.aggregate.user.command.AdminUpdateBizUserCommand;
 import com.hw.aggregate.user.model.AdminBizUserPatchMiddleLayer;
 import com.hw.aggregate.user.model.BizUser;
-import com.hw.aggregate.user.model.BizUserQueryRegistry;
 import com.hw.aggregate.user.representation.AdminBizUserCardRep;
 import com.hw.aggregate.user.representation.AdminBizUserRep;
-import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -25,35 +20,14 @@ import static com.hw.shared.AppConstant.HTTP_HEADER_AUTHORIZATION;
 @Service
 @Slf4j
 public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, AdminBizUserCardRep, AdminBizUserRep, AdminBizUserPatchMiddleLayer> {
-    @Autowired
-    private BizUserRepo resourceOwnerRepo;
 
     @Autowired
     private RevokeBizUserTokenService tokenRevocationService;
 
-    @Autowired
-    private BizUserQueryRegistry bizUserQueryRegistry;
-    @Autowired
-    private IdGenerator idGenerator2;
-    @Autowired
-    private AppChangeRecordApplicationService changeRepository2;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private AppPendingUserApplicationService pendingUserApplicationService;
-    @Autowired
-    private AppBizUserApplicationService bizUserApplicationService;
-
-
     @PostConstruct
     private void setUp() {
-        repo = resourceOwnerRepo;
-        queryRegistry = bizUserQueryRegistry;
         entityClass = BizUser.class;
         role = RestfulQueryRegistry.RoleEnum.ADMIN;
-        idGenerator = idGenerator2;
-        appChangeRecordApplicationService = changeRepository2;
-        om = objectMapper;
         entityPatchSupplier = AdminBizUserPatchMiddleLayer::new;
         deleteHook = true;
     }

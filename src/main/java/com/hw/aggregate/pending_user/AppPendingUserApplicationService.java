@@ -1,13 +1,9 @@
 package com.hw.aggregate.pending_user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.aggregate.pending_user.command.CreatePendingUserCommand;
 import com.hw.aggregate.pending_user.model.PendingUser;
-import com.hw.aggregate.pending_user.model.PendingUserQueryRegistry;
 import com.hw.aggregate.pending_user.representation.AppPendingUserCardRep;
 import com.hw.aggregate.user.AppBizUserApplicationService;
-import com.hw.shared.IdGenerator;
-import com.hw.shared.idempotent.AppChangeRecordApplicationService;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -25,24 +21,11 @@ public class AppPendingUserApplicationService extends DefaultRoleBasedRestfulSer
     private PendingUserRepo pendingBizUserRepo;
     @Autowired
     private AppBizUserApplicationService bizUserApplicationService;
-    @Autowired
-    private IdGenerator idGenerator2;
-    @Autowired
-    private AppChangeRecordApplicationService changeRepository2;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private PendingUserQueryRegistry pendingUserQueryRegistry;
 
     @PostConstruct
     private void setUp() {
-        repo = pendingBizUserRepo;
-        queryRegistry = pendingUserQueryRegistry;
         entityClass = PendingUser.class;
         role = RestfulQueryRegistry.RoleEnum.APP;
-        idGenerator = idGenerator2;
-        appChangeRecordApplicationService = changeRepository2;
-        om = objectMapper;
     }
 
     @Override

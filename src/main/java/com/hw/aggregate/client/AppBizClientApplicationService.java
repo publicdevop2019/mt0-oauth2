@@ -1,13 +1,11 @@
 package com.hw.aggregate.client;
 
 import com.hw.aggregate.client.model.BizClient;
-import com.hw.aggregate.client.model.BizClientQueryRegistry;
 import com.hw.aggregate.client.representation.AppBizClientCardRep;
 import com.hw.aggregate.client.representation.AppBizClientRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.stereotype.Service;
@@ -17,15 +15,9 @@ import java.util.Map;
 
 @Service
 public class AppBizClientApplicationService extends DefaultRoleBasedRestfulService<BizClient, AppBizClientCardRep, AppBizClientRep, VoidTypedClass> implements ClientDetailsService {
-    @Autowired
-    private BizClientRepo clientRepo;
-    @Autowired
-    private BizClientQueryRegistry clientQueryRegistry;
 
     @PostConstruct
     private void setUp() {
-        repo = clientRepo;
-        queryRegistry = clientQueryRegistry;
         entityClass = BizClient.class;
         role = RestfulQueryRegistry.RoleEnum.APP;
     }

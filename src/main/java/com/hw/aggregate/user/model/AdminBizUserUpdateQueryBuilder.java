@@ -2,12 +2,10 @@ package com.hw.aggregate.user.model;
 
 import com.hw.shared.rest.exception.UpdateFiledValueException;
 import com.hw.shared.sql.builder.UpdateByIdQueryBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
 
 import static com.hw.aggregate.user.model.BizUser.ENTITY_LOCKED;
 

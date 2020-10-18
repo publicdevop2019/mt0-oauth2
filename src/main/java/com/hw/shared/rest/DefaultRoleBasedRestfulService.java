@@ -24,6 +24,7 @@ import com.hw.shared.sql.RestfulQueryRegistry;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,9 +40,11 @@ import static com.hw.shared.idempotent.model.ChangeRecord.ENTITY_TYPE;
 
 @Slf4j
 public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBasedEntity, X, Y, Z extends TypedClass<Z>> {
-
+    @Autowired
     protected JpaRepository<T, Long> repo;
+    @Autowired
     protected IdGenerator idGenerator;
+    @Autowired
     protected RestfulQueryRegistry<T> queryRegistry;
 
     protected Class<T> entityClass;
@@ -49,8 +52,10 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     protected Function<T, Z> entityPatchSupplier;
 
     protected RestfulQueryRegistry.RoleEnum role;
+    @Autowired
     protected ObjectMapper om;
     protected boolean rollbackSupported = true;
+    @Autowired
     protected AppChangeRecordApplicationService appChangeRecordApplicationService;
     protected boolean deleteHook = false;
 
