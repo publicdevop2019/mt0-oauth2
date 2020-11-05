@@ -3,8 +3,8 @@ package com.hw.aggregate.client.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.aggregate.client.AppBizClientApplicationService;
 import com.hw.aggregate.client.RevokeBizClientTokenService;
-import com.hw.aggregate.client.command.CreateClientCommand;
-import com.hw.aggregate.client.command.UpdateClientCommand;
+import com.hw.aggregate.client.command.RootCreateBizClientCommand;
+import com.hw.aggregate.client.command.RootUpdateBizClientCommand;
 import com.hw.aggregate.client.exception.ClientAlreadyExistException;
 import com.hw.aggregate.client.exception.RootClientDeleteException;
 import com.hw.aggregate.client.representation.AppBizClientCardRep;
@@ -105,7 +105,7 @@ public class BizClient extends Auditable implements IdBasedEntity {
     public BizClient() {
     }
 
-    private BizClient(long id, CreateClientCommand command) {
+    private BizClient(long id, RootCreateBizClientCommand command) {
         this.id = id;
         this.clientSecret = command.getClientSecret();
         this.description = command.getDescription();
@@ -118,11 +118,11 @@ public class BizClient extends Auditable implements IdBasedEntity {
         this.resourceIds = command.getResourceIds();
         this.resourceIndicator = command.getResourceIndicator();
         this.autoApprove = command.getAutoApprove();
-        this.hasSecret = command.getClientSecret() != null;
+        this.hasSecret = command.isHasSecret();
         this.name = command.getName();
     }
 
-    public static BizClient create(long id, CreateClientCommand command, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder) {
+    public static BizClient create(long id, RootCreateBizClientCommand command, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder) {
         BizClient client = new BizClient(id, command);
         validateResourceId(client, appBizClientApplicationService);
         validateResourceIndicator(client);
@@ -162,7 +162,7 @@ public class BizClient extends Auditable implements IdBasedEntity {
             throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
     }
 
-    public BizClient replace(UpdateClientCommand command, RevokeBizClientTokenService tokenRevocationService, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder) {
+    public BizClient replace(RootUpdateBizClientCommand command, RevokeBizClientTokenService tokenRevocationService, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder) {
         shouldRevoke(command, tokenRevocationService);
         validateResourceId(this, appBizClientApplicationService);
         if (StringUtils.hasText(command.getClientSecret())) {
@@ -178,7 +178,7 @@ public class BizClient extends Auditable implements IdBasedEntity {
         this.resourceIds = command.getResourceIds();
         this.resourceIndicator = command.getResourceIndicator();
         this.autoApprove = command.getAutoApprove();
-        this.hasSecret = command.getClientSecret() != null;
+        this.hasSecret = command.isHasSecret();
         this.name = command.getName();
         validateResourceIndicator(this);
         return this;
@@ -192,7 +192,7 @@ public class BizClient extends Auditable implements IdBasedEntity {
             throw new RootClientDeleteException();
     }
 
-    public void shouldRevoke(UpdateClientCommand newClient, RevokeBizClientTokenService tokenRevocationService) {
+    public void shouldRevoke(RootUpdateBizClientCommand newClient, RevokeBizClientTokenService tokenRevocationService) {
 
         if (StringUtils.hasText(newClient.getClientSecret())
                 || authorityChanged(this, newClient)
@@ -208,11 +208,11 @@ public class BizClient extends Auditable implements IdBasedEntity {
         }
     }
 
-    private boolean authorityChanged(BizClient oldClient, UpdateClientCommand newClient) {
+    private boolean authorityChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
         return !oldClient.getGrantedAuthorities().equals(newClient.getGrantedAuthorities());
     }
 
-    private boolean scopeChanged(BizClient oldClient, UpdateClientCommand newClient) {
+    private boolean scopeChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
         return !oldClient.getScopeEnums().equals(newClient.getScopeEnums());
     }
 
@@ -223,11 +223,11 @@ public class BizClient extends Auditable implements IdBasedEntity {
      * @param newClient
      * @return
      */
-    private boolean accessTokenChanged(BizClient oldClient, UpdateClientCommand newClient) {
+    private boolean accessTokenChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
         return !oldClient.getAccessTokenValiditySeconds().equals(newClient.getAccessTokenValiditySeconds());
     }
 
-    private boolean refreshTokenChanged(BizClient oldClient, UpdateClientCommand newClient) {
+    private boolean refreshTokenChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
         if (oldClient.getRefreshTokenValiditySeconds() == null && newClient.getRefreshTokenValiditySeconds() == null) {
             return false;
         } else if (oldClient.getRefreshTokenValiditySeconds() != null && oldClient.getRefreshTokenValiditySeconds().equals(newClient.getRefreshTokenValiditySeconds())) {
@@ -236,11 +236,11 @@ public class BizClient extends Auditable implements IdBasedEntity {
             return newClient.getRefreshTokenValiditySeconds() == null || !newClient.getRefreshTokenValiditySeconds().equals(oldClient.getRefreshTokenValiditySeconds());
     }
 
-    private boolean grantTypeChanged(BizClient oldClient, UpdateClientCommand newClient) {
+    private boolean grantTypeChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
         return !oldClient.getGrantTypeEnums().equals(newClient.getGrantTypeEnums());
     }
 
-    private boolean redirectUrlChanged(BizClient oldClient, UpdateClientCommand newClient) {
+    private boolean redirectUrlChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
         if ((oldClient.getRegisteredRedirectUri() == null || oldClient.getRegisteredRedirectUri().isEmpty())
                 && (newClient.getRegisteredRedirectUri() == null || newClient.getRegisteredRedirectUri().isEmpty())) {
             return false;
@@ -250,7 +250,7 @@ public class BizClient extends Auditable implements IdBasedEntity {
             return newClient.getRegisteredRedirectUri() == null || !newClient.getRegisteredRedirectUri().equals(oldClient.getRegisteredRedirectUri());
     }
 
-    private boolean resourceIdChanged(BizClient oldClient, UpdateClientCommand newClient) {
+    private boolean resourceIdChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
         return !oldClient.getResourceIds().equals(newClient.getResourceIds());
     }
 

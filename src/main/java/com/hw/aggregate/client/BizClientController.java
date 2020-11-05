@@ -1,12 +1,13 @@
 package com.hw.aggregate.client;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.hw.aggregate.client.command.CreateClientCommand;
-import com.hw.aggregate.client.command.UpdateClientCommand;
+import com.hw.aggregate.client.command.RootCreateBizClientCommand;
+import com.hw.aggregate.client.command.RootUpdateBizClientCommand;
 import com.hw.aggregate.client.representation.RootBizClientCardRep;
 import com.hw.aggregate.client.representation.RootBizClientRep;
 import com.hw.aggregate.client.representation.UserBizClientCardRep;
 import com.hw.shared.sql.SumPagedRep;
+import com.hw.shared.validation.BizValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +28,12 @@ public class BizClientController {
 
     @Autowired
     private UserBizClientApplicationService userBizClientApplicationService;
+    @Autowired
+    BizValidator validator;
 
     @PostMapping("root")
-    public ResponseEntity<Void> createForRoot(@RequestBody CreateClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> createForRoot(@RequestBody RootCreateBizClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        validator.validate("rootCreateBizClientCommand", command);
         return ResponseEntity.ok().header("Location", String.valueOf(rootClientApplicationService.create(command, changeId).getId())).build();
     }
 
@@ -46,7 +50,8 @@ public class BizClientController {
     }
 
     @PutMapping("root/{id}")
-    public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") Long id, @RequestBody UpdateClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") Long id, @RequestBody RootUpdateBizClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        validator.validate("rootUpdateBizClientCommand", command);
         rootClientApplicationService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();
     }

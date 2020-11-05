@@ -1,7 +1,7 @@
 package com.hw.aggregate.client;
 
-import com.hw.aggregate.client.command.CreateClientCommand;
-import com.hw.aggregate.client.command.UpdateClientCommand;
+import com.hw.aggregate.client.command.RootCreateBizClientCommand;
+import com.hw.aggregate.client.command.RootUpdateBizClientCommand;
 import com.hw.aggregate.client.model.BizClient;
 import com.hw.aggregate.client.model.RootBizClientPatchMiddleLayer;
 import com.hw.aggregate.client.representation.RootBizClientCardRep;
@@ -40,7 +40,7 @@ public class RootBizClientApplicationService extends DefaultRoleBasedRestfulServ
 
     @Override
     public BizClient replaceEntity(BizClient stored, Object command) {
-        return stored.replace((UpdateClientCommand) command, tokenRevocationService, appBizClientApplicationService, encoder);
+        return stored.replace((RootUpdateBizClientCommand) command, tokenRevocationService, appBizClientApplicationService, encoder);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class RootBizClientApplicationService extends DefaultRoleBasedRestfulServ
 
     @Override
     protected void prePatch(BizClient bizClient, Map<String, Object> params, RootBizClientPatchMiddleLayer middleLayer) {
-        UpdateClientCommand updateClientCommand = new UpdateClientCommand();
+        RootUpdateBizClientCommand updateClientCommand = new RootUpdateBizClientCommand();
         BeanUtils.copyProperties(bizClient, updateClientCommand);//copy old values so shouldRevoke will work
         BeanUtils.copyProperties(middleLayer, updateClientCommand);
         BizClient.validateResourceId(bizClient, appBizClientApplicationService);
@@ -79,7 +79,7 @@ public class RootBizClientApplicationService extends DefaultRoleBasedRestfulServ
 
     @Override
     protected BizClient createEntity(long id, Object command) {
-        return BizClient.create(id, (CreateClientCommand) command, appBizClientApplicationService, encoder);
+        return BizClient.create(id, (RootCreateBizClientCommand) command, appBizClientApplicationService, encoder);
     }
 
 }
