@@ -1,6 +1,6 @@
 package com.hw.aggregate.pending_user;
 
-import com.hw.aggregate.pending_user.command.CreatePendingUserCommand;
+import com.hw.aggregate.pending_user.command.AppCreatePendingUserCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ public class PendingUserController {
     AppPendingUserApplicationService resourceOwnerService;
 
     @PostMapping("/app")
-    public ResponseEntity<Void> createForPublic(@RequestBody CreatePendingUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> createForPublic(@RequestBody AppCreatePendingUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         resourceOwnerService.create(command, changeId);
         return ResponseEntity.ok().build();
     }

@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.aggregate.pending_user.AppPendingUserApplicationService;
 import com.hw.aggregate.pending_user.representation.AppPendingUserCardRep;
 import com.hw.aggregate.user.AppBizUserApplicationService;
-import com.hw.aggregate.user.PublicBizUserApplicationService;
 import com.hw.aggregate.user.PwdResetEmailService;
 import com.hw.aggregate.user.RevokeBizUserTokenService;
 import com.hw.aggregate.user.command.*;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
-import com.hw.aggregate.user.representation.PublicBizUserCardRep;
 import com.hw.shared.Auditable;
 import com.hw.shared.ServiceUtility;
 import com.hw.shared.rest.IdBasedEntity;
@@ -74,7 +72,7 @@ public class BizUser extends Auditable implements IdBasedEntity {
      * create user, grantedAuthorities is overwritten to ROLE_USER
      * if id present it will used instead generated
      */
-    private BizUser(PublicCreateBizUserCommand command, Long id) {
+    private BizUser(AppCreateBizUserCommand command, Long id) {
         this.id = id;
         this.email = command.getEmail();
         this.password = command.getPassword();
@@ -83,13 +81,13 @@ public class BizUser extends Auditable implements IdBasedEntity {
         this.subscription = false;
     }
 
-    public static BizUser create(Long id, PublicCreateBizUserCommand command, PasswordEncoder encoder, AppPendingUserApplicationService pendingResourceOwnerRepo, AppBizUserApplicationService service) {
+    public static BizUser create(Long id, AppCreateBizUserCommand command, PasswordEncoder encoder, AppPendingUserApplicationService pendingResourceOwnerRepo, AppBizUserApplicationService service) {
         validateBeforeCreate(command, pendingResourceOwnerRepo, service);
         command.setPassword(encoder.encode(command.getPassword()));
         return new BizUser(command, id);
     }
 
-    private static void validateBeforeCreate(PublicCreateBizUserCommand command, AppPendingUserApplicationService pendingUserApplicationService, AppBizUserApplicationService bizUserApplicationService) {
+    private static void validateBeforeCreate(AppCreateBizUserCommand command, AppPendingUserApplicationService pendingUserApplicationService, AppBizUserApplicationService bizUserApplicationService) {
         if (!StringUtils.hasText(command.getEmail()))
             throw new IllegalArgumentException("email is empty");
         if (!StringUtils.hasText(command.getPassword()))
@@ -107,13 +105,13 @@ public class BizUser extends Auditable implements IdBasedEntity {
             throw new IllegalArgumentException("activation code mismatch");
     }
 
-    public static void createForgetPwdToken(ForgetPasswordCommand command,
-                                            PublicBizUserApplicationService publicBizUserApplicationService) {
-        SumPagedRep<PublicBizUserCardRep> byQuery = publicBizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
+    public static void createForgetPwdToken(AppForgetBizUserPasswordCommand command,
+                                            AppBizUserApplicationService appBizUserApplicationService) {
+        SumPagedRep<AppBizUserCardRep> byQuery = appBizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
         if (byQuery.getData().isEmpty())
             throw new IllegalArgumentException("user does not exist");
         Long id = byQuery.getData().get(0).getId();
-        publicBizUserApplicationService.replaceById(id, command, UUID.randomUUID().toString());
+        appBizUserApplicationService.replaceById(id, command, UUID.randomUUID().toString());
     }
 
     private static String generateToken() {
@@ -121,12 +119,12 @@ public class BizUser extends Auditable implements IdBasedEntity {
 //        return UUID.randomUUID().toString().replace("-", "");
     }
 
-    public static void resetPwd(PublicResetPwdCommand command, PublicBizUserApplicationService publicBizUserApplicationService) {
-        SumPagedRep<PublicBizUserCardRep> var0 = publicBizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
+    public static void resetPwd(AppResetBizUserPasswordCommand command, AppBizUserApplicationService appBizUserApplicationService) {
+        SumPagedRep<AppBizUserCardRep> var0 = appBizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
         if (var0.getData().isEmpty())
             throw new IllegalArgumentException("user does not exist");
-        PublicBizUserCardRep oneByEmail = var0.getData().get(0);
-        publicBizUserApplicationService.replaceById(oneByEmail.getId(), command, UUID.randomUUID().toString());
+        AppBizUserCardRep oneByEmail = var0.getData().get(0);
+        appBizUserApplicationService.replaceById(oneByEmail.getId(), command, UUID.randomUUID().toString());
     }
 
     public void validateBeforeDelete() {
@@ -138,7 +136,7 @@ public class BizUser extends Auditable implements IdBasedEntity {
      * update pwd, id is part of bearer token,
      * must revoke issued token if pwd changed
      */
-    public BizUser replace(UserUpdateBizUserCommand command, RevokeBizUserTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
+    public BizUser replace(UserUpdateBizUserPasswordCommand command, RevokeBizUserTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
         if (!StringUtils.hasText(command.getPassword()) || !StringUtils.hasText(command.getCurrentPwd()))
             throw new IllegalArgumentException("password(s)");
         if (!encoder.matches(command.getCurrentPwd(), this.getPassword()))
@@ -199,20 +197,20 @@ public class BizUser extends Auditable implements IdBasedEntity {
     }
 
     public void replace(Object command, PwdResetEmailService emailService, RevokeBizUserTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
-        if (command instanceof ForgetPasswordCommand) {
-            replace((ForgetPasswordCommand) command, emailService);
-        } else if (command instanceof PublicResetPwdCommand) {
-            replace((PublicResetPwdCommand) command, tokenRevocationService, encoder);
+        if (command instanceof AppForgetBizUserPasswordCommand) {
+            replace((AppForgetBizUserPasswordCommand) command, emailService);
+        } else if (command instanceof AppResetBizUserPasswordCommand) {
+            replace((AppResetBizUserPasswordCommand) command, tokenRevocationService, encoder);
         }
     }
 
-    private void replace(ForgetPasswordCommand command, PwdResetEmailService emailService) {
+    private void replace(AppForgetBizUserPasswordCommand command, PwdResetEmailService emailService) {
         String s = generateToken();
         this.setPwdResetToken(s);
         emailService.sendPasswordResetLink(s, command.getEmail());
     }
 
-    private void replace(PublicResetPwdCommand command, RevokeBizUserTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
+    private void replace(AppResetBizUserPasswordCommand command, RevokeBizUserTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
         if (this.getPwdResetToken() == null)
             throw new IllegalArgumentException("token not exist");
         if (!this.getPwdResetToken().equals(command.getToken()))

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class CreatePendingUserCommand implements Serializable {
+public class AppCreatePendingUserCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private String email;
 

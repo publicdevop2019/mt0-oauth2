@@ -25,15 +25,13 @@ public class BizUserController {
     @Autowired
     private AdminBizUserApplicationService adminBizUserApplicationService;
     @Autowired
-    private PublicBizUserApplicationService publicBizUserApplicationService;
-    @Autowired
     private AppBizUserApplicationService appBizUserApplicationService;
     @Autowired
     private UserBizUserApplicationService userBizUserApplicationService;
 
     @PostMapping("app")
-    public ResponseEntity<Void> createForPublic(@RequestBody PublicCreateBizUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        CreatedEntityRep createdEntityRep = publicBizUserApplicationService.create(command, changeId);
+    public ResponseEntity<Void> createForApp(@RequestBody AppCreateBizUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        CreatedEntityRep createdEntityRep = appBizUserApplicationService.create(command, changeId);
         return ResponseEntity.ok().header("Location", String.valueOf(createdEntityRep.getId())).build();
     }
 
@@ -86,20 +84,20 @@ public class BizUserController {
     }
 
     @PutMapping("user/pwd")
-    public ResponseEntity<Void> updateForUser(@RequestBody UserUpdateBizUserCommand command, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> updateForUser(@RequestBody UserUpdateBizUserPasswordCommand command, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         userBizUserApplicationService.replaceById(Long.parseLong(ServiceUtility.getUserId(authorization)), command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("app/forgetPwd")
-    public ResponseEntity<Void> forgetPwd(@RequestBody ForgetPasswordCommand command) {
-        publicBizUserApplicationService.sendForgetPassword(command);
+    public ResponseEntity<Void> forgetPwd(@RequestBody AppForgetBizUserPasswordCommand command) {
+        appBizUserApplicationService.sendForgetPassword(command);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("app/resetPwd")
-    public ResponseEntity<Void> resetPwd(@RequestBody PublicResetPwdCommand forgetPasswordRequest) {
-        publicBizUserApplicationService.resetPassword(forgetPasswordRequest);
+    public ResponseEntity<Void> resetPwd(@RequestBody AppResetBizUserPasswordCommand forgetPasswordRequest) {
+        appBizUserApplicationService.resetPassword(forgetPasswordRequest);
         return ResponseEntity.ok().build();
     }
 }

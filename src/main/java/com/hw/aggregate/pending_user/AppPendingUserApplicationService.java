@@ -1,6 +1,6 @@
 package com.hw.aggregate.pending_user;
 
-import com.hw.aggregate.pending_user.command.CreatePendingUserCommand;
+import com.hw.aggregate.pending_user.command.AppCreatePendingUserCommand;
 import com.hw.aggregate.pending_user.model.PendingUser;
 import com.hw.aggregate.pending_user.representation.AppPendingUserCardRep;
 import com.hw.aggregate.user.AppBizUserApplicationService;
@@ -45,7 +45,7 @@ public class AppPendingUserApplicationService extends DefaultRoleBasedRestfulSer
 
     @Override
     protected PendingUser createEntity(long id, Object command) {
-        PendingUser pendingBizUser = PendingUser.create(((CreatePendingUserCommand) command).getEmail(), pendingBizUserRepo, bizUserApplicationService, idGenerator);
+        PendingUser pendingBizUser = PendingUser.create(((AppCreatePendingUserCommand) command).getEmail(), pendingBizUserRepo, bizUserApplicationService, idGenerator);
         activationCodeEmailService.sendActivationCode(pendingBizUser.getActivationCode(), pendingBizUser.getEmail());
         return pendingBizUser;
     }

@@ -1,6 +1,6 @@
 package com.hw.aggregate.user;
 
-import com.hw.aggregate.user.command.UserUpdateBizUserCommand;
+import com.hw.aggregate.user.command.UserUpdateBizUserPasswordCommand;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
@@ -31,7 +31,7 @@ public class UserBizUserApplicationService extends DefaultRoleBasedRestfulServic
 
     @Override
     public BizUser replaceEntity(BizUser storedBizUser, Object command) {
-        return storedBizUser.replace((UserUpdateBizUserCommand) command, tokenRevocationService, encoder);
+        return storedBizUser.replace((UserUpdateBizUserPasswordCommand) command, tokenRevocationService, encoder);
     }
 
     @Override

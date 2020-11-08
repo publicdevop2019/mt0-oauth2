@@ -1,5 +1,9 @@
 package com.hw.aggregate.user;
 
+import com.hw.aggregate.pending_user.AppPendingUserApplicationService;
+import com.hw.aggregate.user.command.AppForgetBizUserPasswordCommand;
+import com.hw.aggregate.user.command.AppCreateBizUserCommand;
+import com.hw.aggregate.user.command.AppResetBizUserPasswordCommand;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
 import com.hw.aggregate.user.representation.AppBizUserRep;
@@ -8,9 +12,12 @@ import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
@@ -18,7 +25,17 @@ import java.util.Map;
 @Service
 @Slf4j
 public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, AppBizUserCardRep, AppBizUserRep, VoidTypedClass> implements UserDetailsService {
+    @Autowired
+    private BCryptPasswordEncoder encoder;
 
+    @Autowired
+    private RevokeBizUserTokenService tokenRevocationService;
+
+    @Autowired
+    private PwdResetEmailService emailService;
+
+    @Autowired
+    private AppPendingUserApplicationService pendingUserApplicationService;
     @PostConstruct
     private void setUp() {
         entityClass = BizUser.class;
@@ -27,7 +44,8 @@ public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService
 
     @Override
     public BizUser replaceEntity(BizUser bizUser, Object command) {
-        throw new UnsupportedOperationException();
+        bizUser.replace(command, emailService, tokenRevocationService, encoder);
+        return bizUser;
     }
 
     @Override
@@ -38,11 +56,6 @@ public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService
     @Override
     public AppBizUserRep getEntityRepresentation(BizUser bizUser) {
         return new AppBizUserRep(bizUser);
-    }
-
-    @Override
-    protected BizUser createEntity(long id, Object command) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -65,7 +78,21 @@ public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService
         throw new UnsupportedOperationException();
     }
 
+    @Transactional
+    public void sendForgetPassword(AppForgetBizUserPasswordCommand command) {
+        BizUser.createForgetPwdToken(command, this);
+    }
 
+    @Transactional
+    public void resetPassword(AppResetBizUserPasswordCommand command) {
+        BizUser.resetPwd(command, this);
+    }
+
+    @Override
+    protected BizUser createEntity(long id, Object command) {
+        return BizUser.create(id, (AppCreateBizUserCommand) command, encoder, pendingUserApplicationService, this);
+
+    }
     @Override
     public UserDetails loadUserByUsername(String usernameOrId) {
         try {

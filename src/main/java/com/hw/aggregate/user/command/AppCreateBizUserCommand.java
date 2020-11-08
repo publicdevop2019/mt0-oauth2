@@ -5,11 +5,13 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class PublicResetPwdCommand implements Serializable {
+public class AppCreateBizUserCommand implements Serializable {
     private static final long serialVersionUID = 1;
+    private Long id;
+
     private String email;
 
-    private String token;
+    private String activationCode;
 
-    private String newPassword;
+    private String password;
 }
