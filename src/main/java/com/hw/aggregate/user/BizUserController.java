@@ -90,14 +90,14 @@ public class BizUserController {
     }
 
     @PostMapping("app/forgetPwd")
-    public ResponseEntity<Void> forgetPwd(@RequestBody AppForgetBizUserPasswordCommand command) {
-        appBizUserApplicationService.sendForgetPassword(command);
+    public ResponseEntity<Void> forgetPwd(@RequestBody AppForgetBizUserPasswordCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        appBizUserApplicationService.sendForgetPassword(command,changeId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("app/resetPwd")
-    public ResponseEntity<Void> resetPwd(@RequestBody AppResetBizUserPasswordCommand forgetPasswordRequest) {
-        appBizUserApplicationService.resetPassword(forgetPasswordRequest);
+    public ResponseEntity<Void> resetPwd(@RequestBody AppResetBizUserPasswordCommand forgetPasswordRequest, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        appBizUserApplicationService.resetPassword(forgetPasswordRequest,changeId);
         return ResponseEntity.ok().build();
     }
 }
