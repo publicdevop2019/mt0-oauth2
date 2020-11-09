@@ -15,13 +15,13 @@ import java.util.stream.Collectors;
 public class AppBizUserRep implements UserDetails {
     private Long id;
     private String password;
-    private Boolean locked;
+    private boolean locked;
     private Set<BizUserAuthorityEnum> grantedAuthorities;
 
     public AppBizUserRep(BizUser bizUser) {
         this.id = bizUser.getId();
         this.password = bizUser.getPassword();
-        this.locked = bizUser.getLocked();
+        this.locked = bizUser.isLocked();
         this.grantedAuthorities = bizUser.getGrantedAuthorities();
     }
 
@@ -47,7 +47,7 @@ public class AppBizUserRep implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return locked == null || !locked;
+        return !locked;
     }
 
     @Override

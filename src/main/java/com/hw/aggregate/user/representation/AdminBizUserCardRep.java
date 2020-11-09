@@ -12,7 +12,7 @@ public class AdminBizUserCardRep {
 
     private String email;
 
-    private Boolean locked;
+    private boolean locked;
     private long createdAt;
 
     private Set<BizUserAuthorityEnum> grantedAuthorities;
@@ -20,7 +20,7 @@ public class AdminBizUserCardRep {
     public AdminBizUserCardRep(BizUser bizUser) {
         this.id = bizUser.getId();
         this.email = bizUser.getEmail();
-        this.locked = bizUser.getLocked();
+        this.locked = bizUser.isLocked();
         this.grantedAuthorities = bizUser.getGrantedAuthorities();
         this.createdAt = bizUser.getCreatedAt().getTime();
 

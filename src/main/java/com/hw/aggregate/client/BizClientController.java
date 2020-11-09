@@ -33,7 +33,7 @@ public class BizClientController {
 
     @PostMapping("root")
     public ResponseEntity<Void> createForRoot(@RequestBody RootCreateBizClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-//        validator.validate("rootCreateBizClientCommand", command);
+        validator.validate("rootCreateBizClientCommand", command);
         return ResponseEntity.ok().header("Location", String.valueOf(rootClientApplicationService.create(command, changeId).getId())).build();
     }
 
@@ -51,7 +51,7 @@ public class BizClientController {
 
     @PutMapping("root/{id}")
     public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") Long id, @RequestBody RootUpdateBizClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-//        validator.validate("rootUpdateBizClientCommand", command);
+        validator.validate("rootUpdateBizClientCommand", command);
         rootClientApplicationService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();
     }

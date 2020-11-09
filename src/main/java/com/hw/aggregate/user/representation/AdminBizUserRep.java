@@ -11,7 +11,7 @@ public class AdminBizUserRep {
     private Long id;
 
     private String email;
-    private Boolean locked;
+    private boolean locked;
     private Set<BizUserAuthorityEnum> grantedAuthorities;
     private String createdBy;
 
@@ -25,7 +25,7 @@ public class AdminBizUserRep {
     public AdminBizUserRep(BizUser bizUser) {
         this.id = bizUser.getId();
         this.email = bizUser.getEmail();
-        this.locked = bizUser.getLocked();
+        this.locked = bizUser.isLocked();
         this.grantedAuthorities = bizUser.getGrantedAuthorities();
         this.createdAt = bizUser.getCreatedAt().getTime();
         this.modifiedAt = bizUser.getModifiedAt().getTime();

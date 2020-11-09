@@ -9,6 +9,7 @@ import com.hw.shared.ServiceUtility;
 import com.hw.shared.rest.CreatedEntityRep;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.SumPagedRep;
+import com.hw.shared.validation.BizValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +29,11 @@ public class BizUserController {
     private AppBizUserApplicationService appBizUserApplicationService;
     @Autowired
     private UserBizUserApplicationService userBizUserApplicationService;
-
+    @Autowired
+    BizValidator validator;
     @PostMapping("app")
     public ResponseEntity<Void> createForApp(@RequestBody AppCreateBizUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        validator.validate("appCreateUserCommand", command);
         CreatedEntityRep createdEntityRep = appBizUserApplicationService.create(command, changeId);
         return ResponseEntity.ok().header("Location", String.valueOf(createdEntityRep.getId())).build();
     }
@@ -50,6 +53,7 @@ public class BizUserController {
 
     @PutMapping("admin/{id}")
     public ResponseEntity<Void> updateForAdmin(@RequestBody AdminUpdateBizUserCommand command, @PathVariable Long id, @RequestHeader("authorization") String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        validator.validate("adminUpdateUserCommand", command);
         command.setAuthorization(authorization);
         adminBizUserApplicationService.replaceById(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -85,19 +89,22 @@ public class BizUserController {
 
     @PutMapping("user/pwd")
     public ResponseEntity<Void> updateForUser(@RequestBody UserUpdateBizUserPasswordCommand command, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String authorization, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        validator.validate("userUpdatePwdCommand", command);
         userBizUserApplicationService.replaceById(Long.parseLong(ServiceUtility.getUserId(authorization)), command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("app/forgetPwd")
     public ResponseEntity<Void> forgetPwd(@RequestBody AppForgetBizUserPasswordCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        validator.validate("appForgetUserPasswordCommand", command);
         appBizUserApplicationService.sendForgetPassword(command,changeId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("app/resetPwd")
-    public ResponseEntity<Void> resetPwd(@RequestBody AppResetBizUserPasswordCommand forgetPasswordRequest, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        appBizUserApplicationService.resetPassword(forgetPasswordRequest,changeId);
+    public ResponseEntity<Void> resetPwd(@RequestBody AppResetBizUserPasswordCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        validator.validate("appResetUserPasswordCommand", command);
+        appBizUserApplicationService.resetPassword(command,changeId);
         return ResponseEntity.ok().build();
     }
 }

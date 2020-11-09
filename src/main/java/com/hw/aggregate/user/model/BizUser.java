@@ -55,7 +55,7 @@ public class BizUser extends Auditable implements IdBasedEntity {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @Column
-    private Boolean locked;
+    private boolean locked = false;
     private String pwdResetToken;
     @Column
     @NotNull
@@ -151,7 +151,7 @@ public class BizUser extends Auditable implements IdBasedEntity {
         validateBeforeUpdate(command);
         shouldRevoke(command, tokenRevocationService);
         this.setGrantedAuthorities(command.getGrantedAuthorities());
-        this.setLocked(command.getLocked());
+        this.setLocked(command.isLocked());
         this.setSubscription(command.isSubscription());
         validateAfterUpdate();
         return this;
@@ -186,7 +186,7 @@ public class BizUser extends Auditable implements IdBasedEntity {
         if (authorityChanged(getGrantedAuthorities(), command.getGrantedAuthorities())) {
             tokenRevocationService.blacklist(this.getId());
         } else {
-            if (Boolean.TRUE.equals(command.getLocked()))
+            if (Boolean.TRUE.equals(command.isLocked()))
                 tokenRevocationService.blacklist(this.getId());
         }
     }

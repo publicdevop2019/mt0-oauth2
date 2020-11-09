@@ -9,7 +9,7 @@ import java.util.Set;
 @Data
 public class AdminUpdateBizUserCommand implements Serializable {
     private static final long serialVersionUID = 1;
-    private Boolean locked;
+    private boolean locked;
 
     private Set<BizUserAuthorityEnum> grantedAuthorities;
 

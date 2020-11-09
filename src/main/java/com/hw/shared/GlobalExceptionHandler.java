@@ -9,6 +9,8 @@ import com.hw.shared.rest.exception.EntityPatchException;
 import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
 import com.hw.shared.rest.exception.UpdateFiledValueException;
 import com.hw.shared.sql.exception.*;
+import com.hw.shared.validation.ValidationErrorException;
+import com.hw.shared.validation.ValidationFailedException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -44,7 +46,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             EmptyQueryValueException.class,
             UnknownWhereClauseException.class,
             ChangeNotFoundException.class,
-            UserIdNotFoundException.class
+            UserIdNotFoundException.class,
+            ValidationFailedException.class
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
@@ -57,7 +60,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             RuntimeException.class,
             JwtTokenRetrievalException.class,
             DeepCopyException.class,
-            CustomByteArraySerializationException.class
+            CustomByteArraySerializationException.class,
+            ValidationErrorException.class
     })
     protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

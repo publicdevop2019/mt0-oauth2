@@ -7,12 +7,12 @@ import java.util.Set;
 
 @Data
 public class AdminBizUserPatchMiddleLayer extends TypedClass<AdminBizUserPatchMiddleLayer> {
-    private Boolean locked;
+    private boolean locked;
     private Set<BizUserAuthorityEnum> grantedAuthorities;
 
     public AdminBizUserPatchMiddleLayer(BizUser bizUser) {
         super(AdminBizUserPatchMiddleLayer.class);
-        this.locked = bizUser.getLocked();
+        this.locked = bizUser.isLocked();
         this.grantedAuthorities = bizUser.getGrantedAuthorities();
     }
 
