@@ -1,5 +1,6 @@
 package com.hw.shared.sql.clause;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -22,7 +23,7 @@ public class SelectFieldStringLikeClause<T> extends WhereClause<T> {
     // type:PROD.SALES.GENERAL
     // type:PROD$SALES$GENERAL
     @Override
-    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root) {
+    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root, AbstractQuery<?> abstractQuery) {
         //sort before search
         if (query.contains(".")) {
             Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\.")));

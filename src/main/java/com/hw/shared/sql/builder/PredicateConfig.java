@@ -5,6 +5,7 @@ import com.hw.shared.sql.exception.EmptyQueryValueException;
 import com.hw.shared.sql.exception.EmptyWhereClauseException;
 import com.hw.shared.sql.exception.UnknownWhereClauseException;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -16,7 +17,7 @@ public class PredicateConfig<T> {
     protected Set<WhereClause<T>> defaultWhereField = new HashSet<>();
     protected Map<String, WhereClause<T>> supportedWhereField = new HashMap<>();
 
-    protected Predicate getPredicate(String search, CriteriaBuilder cb, Root<T> root) {
+    protected Predicate getPredicate(String search, CriteriaBuilder cb, Root<T> root, AbstractQuery<?> query) {
         List<Predicate> results = new ArrayList<>();
         if (search == null) {
             if (!allowEmptyClause)
@@ -30,7 +31,7 @@ public class PredicateConfig<T> {
                         throw new UnknownWhereClauseException();
                     if (supportedWhereField.get(split[0]) != null && !split[1].isBlank()) {
                         WhereClause<T> tWhereClause = supportedWhereField.get(split[0]);
-                        Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root);
+                        Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root, query);
                         results.add(whereClause);
                     }
                 } else {
@@ -39,7 +40,7 @@ public class PredicateConfig<T> {
             }
         }
         if (defaultWhereField.size() != 0) {
-            Set<Predicate> collect = defaultWhereField.stream().map(e -> e.getWhereClause(null, cb, root)).collect(Collectors.toSet());
+            Set<Predicate> collect = defaultWhereField.stream().map(e -> e.getWhereClause(null, cb, root, query)).collect(Collectors.toSet());
             results.addAll(collect);
         }
         return cb.and(results.toArray(new Predicate[0]));

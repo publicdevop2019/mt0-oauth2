@@ -28,7 +28,7 @@ public abstract class HardDeleteQueryBuilder<T> {
         Root<T> root = criteriaDeleteSku.from(clazz);
         Predicate predicate = getWhereClause(root, search);
         if (!defaultWhereField.isEmpty()) {
-            Set<Predicate> collect = defaultWhereField.stream().map(e -> e.getWhereClause(null, cb, root)).collect(Collectors.toSet());
+            Set<Predicate> collect = defaultWhereField.stream().map(e -> e.getWhereClause(null, cb, root,null)).collect(Collectors.toSet());
             results.addAll(collect);
         }
         if (predicate != null)

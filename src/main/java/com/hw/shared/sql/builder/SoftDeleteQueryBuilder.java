@@ -27,7 +27,7 @@ public abstract class SoftDeleteQueryBuilder<T> extends PredicateConfig<T> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaUpdate<T> criteriaUpdate = cb.createCriteriaUpdate(clazz);
         Root<T> root = criteriaUpdate.from(clazz);
-        Predicate and = getPredicate(search, cb, root);
+        Predicate and = getPredicate(search, cb, root, null);
         criteriaUpdate.where(and);
         criteriaUpdate.set(ENTITY_DELETED, true);
         Optional<String> currentAuditor = AuditorAwareImpl.getAuditor();

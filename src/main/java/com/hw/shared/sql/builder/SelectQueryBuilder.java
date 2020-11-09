@@ -42,7 +42,7 @@ public abstract class SelectQueryBuilder<T extends Auditable> extends PredicateC
         Root<T> root = query.from(clazz);
         query.select(root);
         PageRequest pageRequest = getPageRequest(page);
-        Predicate and = getPredicateEx(search, cb, root);
+        Predicate and = getPredicateEx(search, cb, root, query);
 
         if (and != null)
             query.where(and);
@@ -61,10 +61,10 @@ public abstract class SelectQueryBuilder<T extends Auditable> extends PredicateC
         return query1.getResultList();
     }
 
-    private Predicate getPredicateEx(String search, CriteriaBuilder cb, Root<T> root) {
-        Predicate predicateEx = super.getPredicate(search, cb, root);
+    private Predicate getPredicateEx(String search, CriteriaBuilder cb, Root<T> root, AbstractQuery<?> query) {
+        Predicate predicateEx = super.getPredicate(search, cb, root, query);
         //force to select only not deleted entity
-        Predicate notSoftDeleted = new SelectNotDeletedClause<T>().getWhereClause(cb, root);
+        Predicate notSoftDeleted = new SelectNotDeletedClause<T>().getWhereClause(cb, root, query);
         return cb.and(predicateEx, notSoftDeleted);
     }
 
@@ -73,7 +73,7 @@ public abstract class SelectQueryBuilder<T extends Auditable> extends PredicateC
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(clazz);
         query.select(cb.count(root));
-        Predicate and = getPredicateEx(search, cb, root);
+        Predicate and = getPredicateEx(search, cb, root, query);
         if (and != null)
             query.where(and);
         return em.createQuery(query).getSingleResult();

@@ -52,7 +52,7 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
             Root<T> root = criteriaUpdate.from(clazz);
             Predicate predicate = getWhereClause(root, jsonPatchCommandListHashMap.get(key), key);
             //force to select only not deleted entity
-            Predicate notSoftDeleted = new SelectNotDeletedClause<T>().getWhereClause(cb, root);
+            Predicate notSoftDeleted = new SelectNotDeletedClause<T>().getWhereClause(cb, root, null);
             Predicate and = cb.and(notSoftDeleted, predicate);
             if (and != null)
                 criteriaUpdate.where(and);
