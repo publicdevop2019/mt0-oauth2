@@ -8,6 +8,7 @@ import com.hw.shared.idempotent.command.AppCreateChangeRecordCommand;
 import com.hw.shared.rest.IdBasedEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.io.ByteArrayOutputStream;
@@ -57,7 +58,11 @@ public class ChangeRecord extends Auditable implements IdBasedEntity {
                 e.printStackTrace();
             }
         } else {
-            this.requestBody = CustomByteArraySerializer.convertToDatabaseColumn(command.getRequestBody());
+            if (command.getRequestBody() instanceof MultipartFile) {
+                this.requestBody = "MultipartFile skipped".getBytes();
+            } else {
+                this.requestBody = CustomByteArraySerializer.convertToDatabaseColumn(command.getRequestBody());
+            }
         }
         this.operationType = command.getOperationType();
         this.query = command.getQuery();
