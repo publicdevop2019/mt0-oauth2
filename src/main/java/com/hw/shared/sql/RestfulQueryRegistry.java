@@ -33,6 +33,7 @@ public abstract class RestfulQueryRegistry<T extends Auditable> {
     ObjectMapper om = new ObjectMapper();
     @Autowired
     StringRedisTemplate redisTemplate;
+    public Map<RoleEnum, Boolean> cacheable = new HashMap<>();
     protected Map<RoleEnum, SelectQueryBuilder<T>> selectQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, UpdateQueryBuilder<T>> updateQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, SoftDeleteQueryBuilder<T>> deleteQueryBuilder = new HashMap<>();
@@ -92,7 +93,7 @@ public abstract class RestfulQueryRegistry<T extends Auditable> {
     //GET service-name/role-name/object-collection?query={condition-clause}
     public SumPagedRep<T> readByQuery(RoleEnum roleEnum, String query, String page, String config, Class<T> clazz) {
         //skip change aggregate as it is present in all services
-        if (!clazz.equals(ChangeRecord.class)) {
+        if (!clazz.equals(ChangeRecord.class) && Boolean.TRUE.equals(cacheable.get(roleEnum))) {
             CacheCriteria cacheCriteria = new CacheCriteria(roleEnum, query, page, config);
             String cache = redisTemplate.opsForValue().get(getQueryCacheKey(cacheCriteria));
             if (cache == null) {
@@ -182,7 +183,7 @@ public abstract class RestfulQueryRegistry<T extends Auditable> {
             if (Arrays.stream(split1).anyMatch(e -> e.contains("id:"))) {
                 String minId;
                 String maxId;
-                String s = Arrays.stream(split1).filter(e -> e.contains("id:")).findFirst().get().replace("id:","");
+                String s = Arrays.stream(split1).filter(e -> e.contains("id:")).findFirst().get().replace("id:", "");
                 if (s.contains(".")) {
                     String[] split2 = s.split("\\.");
                     OptionalLong min = Arrays.stream(split2).mapToLong(Long::parseLong).min();

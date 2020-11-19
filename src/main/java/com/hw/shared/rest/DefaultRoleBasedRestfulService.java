@@ -386,40 +386,44 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     }
 
     private void cleanUpCache(Set<Long> ids) {
-        String entityName = getEntityName();
-        Set<String> keys = redisTemplate.keys(entityName + CACHE_QUERY_PREFIX + ":*");
-        if (!CollectionUtils.isEmpty(keys)) {
-            redisTemplate.delete(keys);
-        }
-        ids.forEach(id -> {
-            Set<String> keys1 = redisTemplate.keys(entityName + CACHE_ID_PREFIX + ":*");
-            if (!CollectionUtils.isEmpty(keys1)) {
-                Set<String> collect = keys1.stream().filter(e -> {
-                    String[] split1 = e.split(":");
-                    String[] split2 = split1[1].split("\\[");
-                    String s = split2[split2.length - 1];
-                    String replace = s.replace("]", "");
-                    String[] split3 = replace.split("-");
-                    long min = Long.parseLong(split3[0]);
-                    long max = Long.parseLong(split3[1]);
-                    return id <= max && id >= min;
-                }).collect(Collectors.toSet());
-                if (!CollectionUtils.isEmpty(collect)) {
-                    redisTemplate.delete(collect);
-                }
+        if (Boolean.TRUE.equals(queryRegistry.cacheable.get(role))) {
+            String entityName = getEntityName();
+            Set<String> keys = redisTemplate.keys(entityName + CACHE_QUERY_PREFIX + ":*");
+            if (!CollectionUtils.isEmpty(keys)) {
+                redisTemplate.delete(keys);
             }
-        });
+            ids.forEach(id -> {
+                Set<String> keys1 = redisTemplate.keys(entityName + CACHE_ID_PREFIX + ":*");
+                if (!CollectionUtils.isEmpty(keys1)) {
+                    Set<String> collect = keys1.stream().filter(e -> {
+                        String[] split1 = e.split(":");
+                        String[] split2 = split1[1].split("\\[");
+                        String s = split2[split2.length - 1];
+                        String replace = s.replace("]", "");
+                        String[] split3 = replace.split("-");
+                        long min = Long.parseLong(split3[0]);
+                        long max = Long.parseLong(split3[1]);
+                        return id <= max && id >= min;
+                    }).collect(Collectors.toSet());
+                    if (!CollectionUtils.isEmpty(collect)) {
+                        redisTemplate.delete(collect);
+                    }
+                }
+            });
+        }
     }
 
     private void cleanUpAllCache() {
-        String entityName = getEntityName();
-        Set<String> keys = redisTemplate.keys(entityName + CACHE_QUERY_PREFIX + ":*");
-        if (!CollectionUtils.isEmpty(keys)) {
-            redisTemplate.delete(keys);
-        }
-        Set<String> keys1 = redisTemplate.keys(entityName + CACHE_ID_PREFIX + ":*");
-        if (!CollectionUtils.isEmpty(keys1)) {
-            redisTemplate.delete(keys1);
+        if (Boolean.TRUE.equals(queryRegistry.cacheable.get(role))) {
+            String entityName = getEntityName();
+            Set<String> keys = redisTemplate.keys(entityName + CACHE_QUERY_PREFIX + ":*");
+            if (!CollectionUtils.isEmpty(keys)) {
+                redisTemplate.delete(keys);
+            }
+            Set<String> keys1 = redisTemplate.keys(entityName + CACHE_ID_PREFIX + ":*");
+            if (!CollectionUtils.isEmpty(keys1)) {
+                redisTemplate.delete(keys1);
+            }
         }
     }
 
