@@ -18,6 +18,6 @@ public class BizClientQueryRegistry extends RestfulQueryRegistry<BizClient> {
         cacheable.put(RoleEnum.ADMIN, true);
         cacheable.put(RoleEnum.APP, true);
         cacheable.put(RoleEnum.PUBLIC, true);
-        cacheable.put(RoleEnum.ROOT, false);
+        cacheable.put(RoleEnum.ROOT, true);
     }
 }

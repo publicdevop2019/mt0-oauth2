@@ -386,7 +386,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     }
 
     private void cleanUpCache(Set<Long> ids) {
-        if (Boolean.TRUE.equals(queryRegistry.cacheable.get(role))) {
+        if (hasCachedAggregates()) {
             String entityName = getEntityName();
             Set<String> keys = redisTemplate.keys(entityName + CACHE_QUERY_PREFIX + ":*");
             if (!CollectionUtils.isEmpty(keys)) {
@@ -413,8 +413,13 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         }
     }
 
+    private boolean hasCachedAggregates() {
+        return queryRegistry.cacheable.keySet().stream().anyMatch(e -> queryRegistry.cacheable.get(e));
+
+    }
+
     private void cleanUpAllCache() {
-        if (Boolean.TRUE.equals(queryRegistry.cacheable.get(role))) {
+        if (hasCachedAggregates()) {
             String entityName = getEntityName();
             Set<String> keys = redisTemplate.keys(entityName + CACHE_QUERY_PREFIX + ":*");
             if (!CollectionUtils.isEmpty(keys)) {
