@@ -17,6 +17,8 @@ public class AppConstant {
     public static final String COMMON_ENTITY_ID = "id";
     public static final String CHANGE_REVOKED = "_REVOKED";
     public static final String EXCHANGE_ROLLBACK = "rollback";
+    public static final String CACHE_QUERY_PREFIX = "-query";
+    public static final String CACHE_ID_PREFIX = "-id";
     private AppConstant() {
     }
 }

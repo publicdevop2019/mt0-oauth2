@@ -9,6 +9,5 @@ public enum OperationType {
     EMPTY_OPT,
     RESTORE_DELETE,
     CANCEL_CREATE,
-    DELETE_BY_ID,
     DELETE_BY_QUERY
 }

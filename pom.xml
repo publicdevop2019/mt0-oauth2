@@ -23,6 +23,10 @@
             <version>2.1.4.RELEASE</version>
         </dependency>
         <!--end of spring security-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

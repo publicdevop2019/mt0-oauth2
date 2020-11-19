@@ -46,7 +46,6 @@ public class BizClient extends Auditable implements IdBasedEntity {
     private String name;
     @Nullable
     @Column
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String clientSecret;
     @NotNull
     @NotEmpty

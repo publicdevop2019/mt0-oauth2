@@ -52,7 +52,6 @@ public class BizUser extends Auditable implements IdBasedEntity {
     private String email;
     @Column(nullable = false)
     @NotEmpty
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @Column
     private boolean locked = false;
