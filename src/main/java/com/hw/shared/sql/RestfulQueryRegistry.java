@@ -188,14 +188,14 @@ public abstract class RestfulQueryRegistry<T extends Auditable> {
                     String[] split2 = s.split("\\.");
                     OptionalLong min = Arrays.stream(split2).mapToLong(Long::parseLong).min();
                     OptionalLong max = Arrays.stream(split2).mapToLong(Long::parseLong).max();
-                    minId = String.valueOf(min.toString());
-                    maxId = String.valueOf(max.toString());
+                    minId = String.valueOf(min.getAsLong());
+                    maxId = String.valueOf(max.getAsLong());
                 } else if (s.contains("$")) {
                     String[] split2 = s.split("\\$");
                     OptionalLong min = Arrays.stream(split2).mapToLong(Long::parseLong).min();
                     OptionalLong max = Arrays.stream(split2).mapToLong(Long::parseLong).max();
-                    minId = String.valueOf(min.toString());
-                    maxId = String.valueOf(max.toString());
+                    minId = String.valueOf(min.getAsLong());
+                    maxId = String.valueOf(max.getAsLong());
                 } else {
                     minId = s;
                     maxId = s;
