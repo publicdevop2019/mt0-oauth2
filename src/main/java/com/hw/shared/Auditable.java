@@ -29,17 +29,13 @@ public class Auditable implements Serializable {
     public static final String ENTITY_RESTORED_AT = "restoredAt";
     public static final String ENTITY_CREATED_BY = "createdBy";
     public static final String ENTITY_CREATED_AT = "createdAt";
-    @JsonIgnore
     @CreatedBy
     private String createdBy;
-    @JsonIgnore
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
-    @JsonIgnore
     @LastModifiedBy
     private String modifiedBy;
-    @JsonIgnore
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedAt;

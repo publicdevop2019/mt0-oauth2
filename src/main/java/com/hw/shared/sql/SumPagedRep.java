@@ -2,11 +2,12 @@ package com.hw.shared.sql;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class SumPagedRep<T> {
+public class SumPagedRep<T> implements Serializable {
     protected List<T> data = new ArrayList<>();
     protected Long totalItemCount;
 

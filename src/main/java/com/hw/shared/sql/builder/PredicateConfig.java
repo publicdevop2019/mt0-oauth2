@@ -23,19 +23,16 @@ public class PredicateConfig<T> {
             if (!allowEmptyClause)
                 throw new EmptyWhereClauseException();
         } else {
+            validateQuery(search);
             String[] queryParams = search.split(",");
             for (String param : queryParams) {
                 String[] split = param.split(":");
-                if (split.length == 2) {
-                    if (supportedWhereField.get(split[0]) == null)
-                        throw new UnknownWhereClauseException();
-                    if (supportedWhereField.get(split[0]) != null && !split[1].isBlank()) {
-                        WhereClause<T> tWhereClause = supportedWhereField.get(split[0]);
-                        Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root, query);
-                        results.add(whereClause);
-                    }
-                } else {
-                    throw new EmptyQueryValueException();
+                if (supportedWhereField.get(split[0]) == null)
+                    throw new UnknownWhereClauseException();
+                if (supportedWhereField.get(split[0]) != null && !split[1].isBlank()) {
+                    WhereClause<T> tWhereClause = supportedWhereField.get(split[0]);
+                    Predicate whereClause = tWhereClause.getWhereClause(split[1], cb, root, query);
+                    results.add(whereClause);
                 }
             }
         }
@@ -44,5 +41,15 @@ public class PredicateConfig<T> {
             results.addAll(collect);
         }
         return cb.and(results.toArray(new Predicate[0]));
+    }
+
+    public static void validateQuery(String query) {
+        String[] queryParams = query.split(",");
+        for (String param : queryParams) {
+            String[] split = param.split(":");
+            if (split.length != 2) {
+                throw new EmptyQueryValueException();
+            }
+        }
     }
 }

@@ -1,28 +1,52 @@
 package com.hw.shared.sql;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.shared.Auditable;
+import com.hw.shared.cache.CacheCriteria;
+import com.hw.shared.idempotent.model.ChangeRecord;
+import com.hw.shared.sql.builder.PredicateConfig;
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.builder.SoftDeleteQueryBuilder;
 import com.hw.shared.sql.builder.UpdateQueryBuilder;
 import com.hw.shared.sql.exception.QueryBuilderNotFoundException;
 import com.hw.shared.sql.exception.UnknownRoleException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static com.hw.shared.AppConstant.CACHE_ID_PREFIX;
+import static com.hw.shared.AppConstant.CACHE_QUERY_PREFIX;
+
+@Slf4j
 public abstract class RestfulQueryRegistry<T extends Auditable> {
     @Autowired
     ApplicationContext applicationContext;
+    ObjectMapper om = new ObjectMapper();
+    @Autowired
+    StringRedisTemplate redisTemplate;
+    public Map<RoleEnum, Boolean> cacheable = new HashMap<>();
     protected Map<RoleEnum, SelectQueryBuilder<T>> selectQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, UpdateQueryBuilder<T>> updateQueryBuilder = new HashMap<>();
     protected Map<RoleEnum, SoftDeleteQueryBuilder<T>> deleteQueryBuilder = new HashMap<>();
 
     public abstract Class<T> getEntityClass();
+
+    public enum RoleEnum {
+        ROOT,
+        ADMIN,
+        USER,
+        APP,
+        PUBLIC
+    }
 
     @PostConstruct
     protected void configQueryBuilder() {
@@ -68,18 +92,33 @@ public abstract class RestfulQueryRegistry<T extends Auditable> {
     //GET service-name/role-name/entity-collection - read object collection with pagination
     //GET service-name/role-name/object-collection?query={condition-clause}
     public SumPagedRep<T> readByQuery(RoleEnum roleEnum, String query, String page, String config, Class<T> clazz) {
-        SelectQueryBuilder<T> selectQueryBuilder = this.selectQueryBuilder.get(roleEnum);
-        if (selectQueryBuilder == null)
-            throw new QueryBuilderNotFoundException();
-        List<T> select = selectQueryBuilder.select(query, page, clazz);
-        Long aLong = null;
-        if (!skipCount(config)) {
-            aLong = selectQueryBuilder.selectCount(query, clazz);
+        //skip change aggregate as it is present in all services
+        if (!clazz.equals(ChangeRecord.class) && Boolean.TRUE.equals(cacheable.get(roleEnum))) {
+            CacheCriteria cacheCriteria = new CacheCriteria(roleEnum, query, page, config);
+            String cache = redisTemplate.opsForValue().get(getQueryCacheKey(cacheCriteria));
+            if (cache == null) {
+                SumPagedRep<T> tSumPagedRep = getSumPagedRep(roleEnum, query, page, config, clazz);
+                try {
+                    String s = om.writeValueAsString(tSumPagedRep);
+                    redisTemplate.opsForValue().set(getQueryCacheKey(cacheCriteria), s);
+                } catch (JsonProcessingException e) {
+                    log.error("error during cache update", e);
+                }
+                return tSumPagedRep;
+            } else {
+                try {
+                    JavaType type = om.getTypeFactory().constructParametricType(SumPagedRep.class, clazz);
+                    return om.readValue(cache, type);
+                } catch (IOException e) {
+                    log.error("error during read from redis cache", e);
+                    return new SumPagedRep<T>(Collections.emptyList(), 0L);
+                }
+            }
+        } else {
+            SumPagedRep<T> tSumPagedRep = getSumPagedRep(roleEnum, query, page, config, clazz);
+            return tSumPagedRep;
         }
-        return new SumPagedRep<>(select, aLong);
     }
-
-    //    abstract <S> T create(S command);
 
     // convert GET service-name/role-name/entity-collection/{entity-id} to ByQuery
     public SumPagedRep<T> readById(RoleEnum roleEnum, String id, Class<T> clazz) {
@@ -117,12 +156,71 @@ public abstract class RestfulQueryRegistry<T extends Auditable> {
         return "id:" + id;
     }
 
-    public enum RoleEnum {
-        ROOT,
-        ADMIN,
-        USER,
-        APP,
-        PUBLIC
+    private String getQueryCacheKey(CacheCriteria cacheCriteria) {
+        //sort query param in fixed order
+        if (cacheCriteria.getQuery() != null) {
+            String[] split1 = cacheCriteria.getQuery().split(",");
+            PredicateConfig.validateQuery(cacheCriteria.getQuery());
+            String collect = Arrays.stream(split1).map(e -> {
+                String[] split = e.split(":");
+                String key = split[0];
+                String value = split[1];
+                if (value.contains(".")) {
+                    String[] split2 = value.split("\\.");
+                    TreeSet<String> strings = new TreeSet<>(Arrays.asList(split2));
+                    String join = String.join(".", strings);
+                    return key + ":" + join;
+                } else if (value.contains("$")) {
+                    String[] split2 = value.split("\\$");
+                    TreeSet<String> strings = new TreeSet<>(Arrays.asList(split2));
+                    String join = String.join("$", strings);
+                    return key + ":" + join;
+                } else {
+                    return e;
+                }
+            }).collect(Collectors.joining(","));
+            cacheCriteria.setQuery(collect);
+            if (Arrays.stream(split1).anyMatch(e -> e.contains("id:"))) {
+                String minId;
+                String maxId;
+                String s = Arrays.stream(split1).filter(e -> e.contains("id:")).findFirst().get().replace("id:", "");
+                if (s.contains(".")) {
+                    String[] split2 = s.split("\\.");
+                    OptionalLong min = Arrays.stream(split2).mapToLong(Long::parseLong).min();
+                    OptionalLong max = Arrays.stream(split2).mapToLong(Long::parseLong).max();
+                    minId = String.valueOf(min.getAsLong());
+                    maxId = String.valueOf(max.getAsLong());
+                } else if (s.contains("$")) {
+                    String[] split2 = s.split("\\$");
+                    OptionalLong min = Arrays.stream(split2).mapToLong(Long::parseLong).min();
+                    OptionalLong max = Arrays.stream(split2).mapToLong(Long::parseLong).max();
+                    minId = String.valueOf(min.getAsLong());
+                    maxId = String.valueOf(max.getAsLong());
+                } else {
+                    minId = s;
+                    maxId = s;
+                }
+                return getEntityName() + CACHE_ID_PREFIX + ":" + cacheCriteria.hashCode() + "[" + minId + "-" + maxId + "]";
+            }
+        }
+        return getEntityName() + CACHE_QUERY_PREFIX + ":" + cacheCriteria.hashCode();
+    }
+
+    private SumPagedRep<T> getSumPagedRep(RoleEnum roleEnum, String query, String page, String config, Class<T> clazz) {
+        SelectQueryBuilder<T> selectQueryBuilder = this.selectQueryBuilder.get(roleEnum);
+        if (selectQueryBuilder == null)
+            throw new QueryBuilderNotFoundException();
+        List<T> select = selectQueryBuilder.select(query, page, clazz);
+        Long aLong = null;
+        if (!skipCount(config)) {
+            aLong = selectQueryBuilder.selectCount(query, clazz);
+        }
+        return new SumPagedRep<>(select, aLong);
+    }
+
+    protected String getEntityName() {
+        String[] split = getEntityClass().getName().split("\\.");
+        return split[split.length - 1];
     }
 
 }
