@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
 
 @Data
 public class AppChangeRecordCardRep {
@@ -18,7 +19,7 @@ public class AppChangeRecordCardRep {
     private String entityType;
     private String serviceBeanName;
 
-    private ArrayList<Long> deletedIds;
+    private Set<Long> deletedIds;
     private OperationType operationType;
     private String query;
     private Object replacedVersion;

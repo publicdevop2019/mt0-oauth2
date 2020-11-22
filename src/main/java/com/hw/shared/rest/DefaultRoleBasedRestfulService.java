@@ -26,7 +26,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
@@ -40,7 +42,7 @@ import static com.hw.shared.idempotent.model.ChangeRecord.CHANGE_ID;
 import static com.hw.shared.idempotent.model.ChangeRecord.ENTITY_TYPE;
 
 @Slf4j
-public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBasedEntity, X, Y, Z extends TypedClass<Z>> {
+public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBasedEntity, X, Y, Z extends TypedClass<Z>> implements AfterWriteCompleteHook<T> {
     @Autowired
     protected JpaRepository<T, Long> repo;
     @Autowired
@@ -57,12 +59,13 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     protected RestfulQueryRegistry.RoleEnum role;
     @Autowired
     protected ObjectMapper om;
+    @Autowired
+    protected TransactionTemplate transactionTemplate;
     protected boolean rollbackSupported = true;
     @Autowired
     protected AppChangeRecordApplicationService appChangeRecordApplicationService;
     protected boolean deleteHook = false;
 
-    @Transactional
     public CreatedEntityRep create(Object command, String changeId) {
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             return new CreatedEntityRep();
@@ -78,15 +81,18 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             return new CreatedEntityRep();
         } else {
             long id = idGenerator.getId();
-            saveChangeRecord(command, changeId, OperationType.POST, "id:" + id, null, null);
-            T created = createEntity(id, command);
-            T save = repo.save(created);
+            T execute = transactionTemplate.execute(transactionStatus -> {
+                saveChangeRecord(command, changeId, OperationType.POST, "id:" + id, null, null);
+                T created = createEntity(id, command);
+                return repo.save(created);
+            });
             cleanUpCache(Collections.singleton(id));
-            return getCreatedEntityRepresentation(save);
+            afterWriteComplete();
+            afterCreateComplete(execute);
+            return getCreatedEntityRepresentation(execute);
         }
     }
 
-    @Transactional
     public void replaceById(Long id, Object command, String changeId) {
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
         } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
@@ -94,15 +100,20 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             saveChangeRecord(command, changeId, OperationType.PUT, "id:" + id.toString(), null, null);
         } else {
             SumPagedRep<T> tSumPagedRep = getEntityById(id);
-            saveChangeRecord(command, changeId, OperationType.PUT, "id:" + id.toString(), null, tSumPagedRep.getData().get(0));
-            T after = replaceEntity(tSumPagedRep.getData().get(0), command);
-            repo.save(after);
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                    saveChangeRecord(command, changeId, OperationType.PUT, "id:" + id.toString(), null, tSumPagedRep.getData().get(0));
+                    T after = replaceEntity(tSumPagedRep.getData().get(0), command);
+                    repo.save(after);
+                }
+            });
             cleanUpCache(Collections.singleton(id));
+            afterWriteComplete();
+            afterReplaceByIdComplete(id);
         }
     }
 
-
-    @Transactional
     public void patchById(Long id, JsonPatch patch, Map<String, Object> params) {
         String changeId = (String) params.get(HTTP_HEADER_CHANGE_ID);
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
@@ -110,7 +121,6 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             saveChangeRecord(patch, (String) params.get(HTTP_HEADER_CHANGE_ID), OperationType.PATCH_BY_ID, "id:" + id.toString(), null, null);
         } else {
-            saveChangeRecord(patch, (String) params.get(HTTP_HEADER_CHANGE_ID), OperationType.PATCH_BY_ID, "id:" + id.toString(), null, null);
             SumPagedRep<T> entityById = getEntityById(id);
             T original = entityById.getData().get(0);
             Z command = entityPatchSupplier.apply(original);
@@ -124,13 +134,20 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             }
             prePatch(original, params, command);
             BeanUtils.copyProperties(command, original);
-            repo.save(original);
-            cleanUpCache(Collections.singleton(id));
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                    saveChangeRecord(patch, (String) params.get(HTTP_HEADER_CHANGE_ID), OperationType.PATCH_BY_ID, "id:" + id.toString(), null, null);
+                    repo.save(original);
+                }
+            });
             postPatch(original, params, command);
+            cleanUpCache(Collections.singleton(id));
+            afterWriteComplete();
+            afterPatchByIdComplete(id);
         }
     }
 
-    @Transactional
     public Integer patchBatch(List<PatchCommand> commands, String changeId) {
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             return 0;
@@ -140,59 +157,61 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null, null, null);
             return 0;
         } else {
-            saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null, null, null);
             List<PatchCommand> deepCopy = getDeepCopy(commands);
+            Integer execute = transactionTemplate.execute(transactionStatus -> {
+                saveChangeRecord(commands, changeId, OperationType.PATCH_BATCH, null, null, null);
+                return queryRegistry.update(role, deepCopy, entityClass);
+            });
             cleanUpAllCache();
-            return queryRegistry.update(role, deepCopy, entityClass);
+            afterWriteComplete();
+            afterPatchBatchComplete();
+            return execute;
         }
     }
 
-    @Transactional
     public Integer deleteById(Long id, String changeId) {
         return deleteByQuery("id:" + id.toString(), changeId);
     }
 
-    @Transactional
     public Integer deleteByQuery(String query, String changeId) {
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             return 0;
         } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
             return 0;
         } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
-            saveChangeRecord(null, changeId, OperationType.DELETE_BY_QUERY, query, Collections.EMPTY_LIST, null);
+            saveChangeRecord(null, changeId, OperationType.DELETE_BY_QUERY, query, Collections.EMPTY_SET, null);
             return 0;
         } else {
             List<T> data = getTs(query);
-            List<Long> collect = data.stream().map(IdBasedEntity::getId).collect(Collectors.toList());
-            saveChangeRecord(null, changeId, OperationType.DELETE_BY_QUERY, query, collect, null);
-            return doDelete(data);
+            if (data.isEmpty())
+                return 0;
+            if (deleteHook) {
+                data.forEach(this::preDelete);
+            }
+            Set<Long> collect = data.stream().map(IdBasedEntity::getId).collect(Collectors.toSet());
+            String join = "id:" + String.join(".", collect.stream().map(Object::toString).collect(Collectors.toSet()));
+            Integer execute = transactionTemplate.execute(transactionStatus -> {
+                saveChangeRecord(null, changeId, OperationType.DELETE_BY_QUERY, query, collect, null);
+                return queryRegistry.deleteByQuery(role, join, entityClass);//delete only checked entity
+            });
+            if (deleteHook) {
+                data.forEach(this::postDelete);
+            }
+            cleanUpCache(collect);
+            afterWriteComplete();
+            afterDeleteComplete(collect);
+            return execute;
         }
 
     }
 
-    protected Integer doDelete(List<T> data) {
-        if (data.isEmpty())
-            return 0;
-        Set<Long> collect = data.stream().map(IdBasedEntity::getId).collect(Collectors.toSet());
-        String join = "id:" + String.join(".", collect.stream().map(Object::toString).collect(Collectors.toSet()));
-        Integer integer;
-        if (deleteHook) {
-            data.forEach(this::preDelete);
-            integer = queryRegistry.deleteByQuery(role, join, entityClass);//delete only checked entity
-            data.forEach(this::postDelete);
-        } else {
-            integer = queryRegistry.deleteByQuery(role, join, entityClass);
-        }
-        cleanUpCache(collect);
-        return integer;
-    }
 
     private List<T> getTs(String query) {
         int pageNum = 0;
         SumPagedRep<T> tSumPagedRep = queryRegistry.readByQuery(role, query, "num:" + pageNum, null, entityClass);
         if (tSumPagedRep.getData().size() == 0)
             return new ArrayList<>();
-        double l = (double)tSumPagedRep.getTotalItemCount() / tSumPagedRep.getData().size();//for accuracy
+        double l = (double) tSumPagedRep.getTotalItemCount() / tSumPagedRep.getData().size();//for accuracy
         double ceil = Math.ceil(l);
         int i = BigDecimal.valueOf(ceil).intValue();
         List<T> data = new ArrayList<>(tSumPagedRep.getData());
@@ -231,7 +250,6 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         return split[split.length - 1];
     }
 
-    @Transactional
     public void rollback(String changeId) {
         if (!rollbackSupported) {
             log.debug(getEntityName() + " rollback not supported, ignoring rollback operation");
@@ -250,17 +268,27 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
                     || data.get(0).getOperationType().equals(OperationType.POST)
             )) {
                 if (data.get(0).getOperationType().equals(OperationType.POST)) {
-                    saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.CANCEL_CREATE, data.get(0).getQuery(), null, null);
-                    restoreCreate(data.get(0).getQuery().replace("id:", ""));
+                    Set<Long> execute = transactionTemplate.execute(e -> {
+                        saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.CANCEL_CREATE, data.get(0).getQuery(), null, null);
+                        return restoreCreate(data.get(0).getQuery().replace("id:", ""));
+                    });
+                    afterWriteComplete();
+                    afterDeleteComplete(execute);
+                    cleanUpCache(execute);
                 } else {
                     String collect = data.get(0).getDeletedIds().stream().map(Object::toString).collect(Collectors.joining("."));
-                    restoreDelete(collect, changeId + CHANGE_REVOKED);
+                    Set<Long> execute = transactionTemplate.execute(e -> {
+                        saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.RESTORE_DELETE, "id:" + collect, null, null);
+                        return restoreDelete(collect);
+                    });
+                    afterWriteComplete();
+                    afterCreateComplete(null);
+                    cleanUpCache(execute);
                 }
             } else if (data.get(0).getOperationType().equals(OperationType.PATCH_BATCH)) {
                 List<PatchCommand> rollbackCmd = buildRollbackCommand((List<PatchCommand>) data.get(0).getRequestBody());
                 patchBatch(rollbackCmd, changeId + CHANGE_REVOKED);
             } else if (data.get(0).getOperationType().equals(OperationType.PUT)) {
-                saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.RESTORE_LAST_VERSION, data.get(0).getQuery(), null, null);
                 T previous = (T) data.get(0).getReplacedVersion();
                 T stored = getEntityById(previous.getId()).getData().get(0);
                 if (!(previous instanceof VersionBasedEntity)) {
@@ -275,8 +303,14 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
                     }
                 }
                 BeanUtils.copyProperties(previous, stored);
-                repo.save(stored);
-                cleanUpCache(Collections.singleton(stored.getId()));
+                Set<Long> execute = transactionTemplate.execute(e -> {
+                    saveChangeRecord(null, changeId + CHANGE_REVOKED, OperationType.RESTORE_LAST_VERSION, data.get(0).getQuery(), null, null);
+                    repo.save(stored);
+                    return Collections.singleton(stored.getId());
+                });
+                afterWriteComplete();
+                afterReplaceByIdComplete(stored.getId());
+                cleanUpCache(execute);
             } else {
                 throw new RollbackNotSupportedException();
             }
@@ -301,8 +335,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         return deepCopy;
     }
 
-    protected void restoreDelete(String ids, String changeId) {
-        saveChangeRecord(null, changeId, OperationType.RESTORE_DELETE, "id:" + ids, null, null);
+    protected Set<Long> restoreDelete(String ids) {
         Set<Long> collect = Arrays.stream(ids.split("\\.")).map(Long::parseLong).collect(Collectors.toSet());
         for (Long l : collect) {
             Optional<T> byId = repo.findById(l);//use repo instead of common readyBy
@@ -315,10 +348,10 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             t.setRestoredBy(currentAuditor.orElse(""));
             repo.save(byId.get());
         }
-        cleanUpCache(collect);
+        return collect;
     }
 
-    protected void restoreCreate(String ids) {
+    protected Set<Long> restoreCreate(String ids) {
         Set<Long> collect = Arrays.stream(ids.split("\\.")).map(Long::parseLong).collect(Collectors.toSet());
         for (Long l : collect) {
             Optional<T> byId = repo.findById(l);//use repo instead of common readyBy
@@ -331,7 +364,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             t.setDeletedBy(currentAuditor.orElse(""));
             repo.save(byId.get());
         }
-        cleanUpCache(collect);
+        return collect;
     }
 
     protected SumPagedRep<T> getEntityById(Long id) {
@@ -353,7 +386,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         return deepCopy;
     }
 
-    protected void saveChangeRecord(Object requestBody, String changeId, OperationType operationType, String query, List<Long> deletedIds, Object toBeReplaced) {
+    protected void saveChangeRecord(Object requestBody, String changeId, OperationType operationType, String query, Set<Long> deletedIds, Object toBeReplaced) {
         AppCreateChangeRecordCommand changeRecord = new AppCreateChangeRecordCommand();
         changeRecord.setChangeId(changeId);
         changeRecord.setEntityType(getEntityName());
@@ -386,6 +419,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     }
 
     private void cleanUpCache(Set<Long> ids) {
+        log.info("clean up cache");
         if (hasCachedAggregates()) {
             String entityName = getEntityName();
             Set<String> keys = redisTemplate.keys(entityName + CACHE_QUERY_PREFIX + ":*");
@@ -433,7 +467,6 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     }
 
     public abstract T replaceEntity(T t, Object command);
-
 
     public abstract X getEntitySumRepresentation(T t);
 

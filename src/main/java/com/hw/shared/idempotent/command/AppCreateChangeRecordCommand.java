@@ -3,7 +3,7 @@ package com.hw.shared.idempotent.command;
 import com.hw.shared.idempotent.OperationType;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class AppCreateChangeRecordCommand {
@@ -15,5 +15,5 @@ public class AppCreateChangeRecordCommand {
     private String query;
     private Object replacedVersion;
     private Object requestBody;
-    private List<Long> deletedIds;
+    private Set<Long> deletedIds;
 }

@@ -2,6 +2,7 @@ package com.hw.shared.sql.builder;
 
 import com.hw.shared.AuditorAwareImpl;
 import com.hw.shared.sql.clause.SelectFieldIdWhereClause;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 import static com.hw.shared.Auditable.*;
 
+@Slf4j
 public abstract class SoftDeleteQueryBuilder<T> extends PredicateConfig<T> {
     @Autowired
     protected EntityManager em;
@@ -33,7 +35,9 @@ public abstract class SoftDeleteQueryBuilder<T> extends PredicateConfig<T> {
         Optional<String> currentAuditor = AuditorAwareImpl.getAuditor();
         criteriaUpdate.set(ENTITY_DELETED_BY, currentAuditor.orElse(""));
         criteriaUpdate.set(ENTITY_DELETED_AT, new Date());
-        return em.createQuery(criteriaUpdate).executeUpdate();
+        int i = em.createQuery(criteriaUpdate).executeUpdate();
+        log.info("after sql executed");
+        return i;
     }
 
 

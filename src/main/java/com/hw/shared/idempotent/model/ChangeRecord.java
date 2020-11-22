@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"changeId", "entityType"}))
@@ -40,7 +40,7 @@ public class ChangeRecord extends Auditable implements IdBasedEntity {
     @Column(columnDefinition = "BLOB")
     private byte[] requestBody;
 
-    private ArrayList<Long> deletedIds;
+    private HashSet<Long> deletedIds;
     private OperationType operationType;
     private String query;
 
@@ -68,7 +68,7 @@ public class ChangeRecord extends Auditable implements IdBasedEntity {
         this.query = command.getQuery();
         this.replacedVersion = CustomByteArraySerializer.convertToDatabaseColumn(command.getReplacedVersion());
         if (command.getDeletedIds() != null)
-            this.deletedIds = new ArrayList<>(command.getDeletedIds());
+            this.deletedIds = new HashSet<>(command.getDeletedIds());
     }
 
     public static ChangeRecord create(Long id, AppCreateChangeRecordCommand command, ObjectMapper om) {
