@@ -192,12 +192,12 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         SumPagedRep<T> tSumPagedRep = queryRegistry.readByQuery(role, query, "num:" + pageNum, null, entityClass);
         if (tSumPagedRep.getData().size() == 0)
             return new ArrayList<>();
-        long l = tSumPagedRep.getTotalItemCount() / tSumPagedRep.getData().size();
+        double l = (double)tSumPagedRep.getTotalItemCount() / tSumPagedRep.getData().size();//for accuracy
         double ceil = Math.ceil(l);
         int i = BigDecimal.valueOf(ceil).intValue();
         List<T> data = new ArrayList<>(tSumPagedRep.getData());
         for (int a = 1; a < i; a++) {
-            data = queryRegistry.readByQuery(role, query, "num:" + a, null, entityClass).getData();
+            data.addAll(queryRegistry.readByQuery(role, query, "num:" + a, null, entityClass).getData());
         }
         return data;
     }
