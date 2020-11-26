@@ -86,7 +86,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & Aggre
             saveChangeRecord(command, changeId, OperationType.POST, "id:", null, null);
             return new CreatedAggregateRep();
         } else {
-            long id = getAggregateId(null);
+            long id = getAggregateId(command);
             T execute = transactionTemplate.execute(transactionStatus -> {
                 saveChangeRecord(command, changeId, OperationType.POST, "id:" + id, null, null);
                 T created = createEntity(id, command);
