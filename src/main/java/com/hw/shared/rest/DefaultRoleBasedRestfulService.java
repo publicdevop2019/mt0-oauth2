@@ -32,6 +32,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -67,6 +68,10 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & Aggre
     protected AppChangeRecordApplicationService appChangeRecordApplicationService;
     protected boolean deleteHook = false;
 
+    protected Long getAggregateId(Object object) {
+        return idGenerator.getId();
+    }
+
     public CreatedAggregateRep create(Object command, String changeId) {
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             return new CreatedAggregateRep();
@@ -81,7 +86,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & Aggre
             saveChangeRecord(command, changeId, OperationType.POST, "id:", null, null);
             return new CreatedAggregateRep();
         } else {
-            long id = idGenerator.getId();
+            long id = getAggregateId(null);
             T execute = transactionTemplate.execute(transactionStatus -> {
                 saveChangeRecord(command, changeId, OperationType.POST, "id:" + id, null, null);
                 T created = createEntity(id, command);
