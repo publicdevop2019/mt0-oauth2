@@ -6,7 +6,7 @@ import com.hw.aggregate.user.representation.AdminBizUserCardRep;
 import com.hw.aggregate.user.representation.AdminBizUserRep;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
 import com.hw.shared.ServiceUtility;
-import com.hw.shared.rest.CreatedEntityRep;
+import com.hw.shared.rest.CreatedAggregateRep;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.SumPagedRep;
 import com.hw.shared.validation.BizValidator;
@@ -34,7 +34,7 @@ public class BizUserController {
     @PostMapping("app")
     public ResponseEntity<Void> createForApp(@RequestBody AppCreateBizUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         validator.validate("appCreateUserCommand", command);
-        CreatedEntityRep createdEntityRep = appBizUserApplicationService.create(command, changeId);
+        CreatedAggregateRep createdEntityRep = appBizUserApplicationService.create(command, changeId);
         return ResponseEntity.ok().header("Location", String.valueOf(createdEntityRep.getId())).build();
     }
 

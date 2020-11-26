@@ -1,6 +1,5 @@
 package com.hw.aggregate.client.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.aggregate.client.AppBizClientApplicationService;
 import com.hw.aggregate.client.RevokeBizClientTokenService;
 import com.hw.aggregate.client.command.RootCreateBizClientCommand;
@@ -10,9 +9,11 @@ import com.hw.aggregate.client.exception.RootClientDeleteException;
 import com.hw.aggregate.client.representation.AppBizClientCardRep;
 import com.hw.shared.Auditable;
 import com.hw.shared.StringSetConverter;
-import com.hw.shared.rest.IdBasedEntity;
+import com.hw.shared.rest.Aggregate;
 import com.hw.shared.sql.SumPagedRep;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
@@ -30,7 +31,7 @@ import java.util.Set;
 @Entity
 @Table
 @Data
-public class BizClient extends Auditable implements IdBasedEntity {
+public class BizClient extends Auditable implements Aggregate {
     public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
     public static final String ENTITY_NAME = "name";
@@ -100,6 +101,9 @@ public class BizClient extends Auditable implements IdBasedEntity {
     @Column
     @NotNull
     private Boolean hasSecret;
+    @Version
+    @Setter(AccessLevel.NONE)
+    private Integer version;
 
     public BizClient() {
     }

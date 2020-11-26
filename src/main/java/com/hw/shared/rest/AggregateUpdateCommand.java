@@ -1,5 +1,5 @@
 package com.hw.shared.rest;
 
-public interface VersionBasedEntity {
+public interface AggregateUpdateCommand {
     Integer getVersion();
 }

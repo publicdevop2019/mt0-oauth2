@@ -6,7 +6,7 @@ import com.hw.shared.idempotent.command.AppCreateChangeRecordCommand;
 import com.hw.shared.idempotent.model.ChangeRecord;
 import com.hw.shared.idempotent.model.ChangeRecordQueryRegistry;
 import com.hw.shared.idempotent.representation.AppChangeRecordCardRep;
-import com.hw.shared.rest.CreatedEntityRep;
+import com.hw.shared.rest.CreatedAggregateRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -83,11 +83,11 @@ public class AppChangeRecordApplicationService extends DefaultRoleBasedRestfulSe
     }
 
     @Transactional
-    public CreatedEntityRep create(AppCreateChangeRecordCommand command) {
+    public CreatedAggregateRep create(AppCreateChangeRecordCommand command) {
         long id = idGenerator.getId();
         ChangeRecord changeRecord = ChangeRecord.create(id, command,om2);
         ChangeRecord saved = repo.save(changeRecord);
-        return new CreatedEntityRep(saved);
+        return new CreatedAggregateRep(saved);
     }
 
     @Transactional

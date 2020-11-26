@@ -5,9 +5,11 @@ import com.hw.aggregate.user.AppBizUserApplicationService;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
 import com.hw.shared.Auditable;
 import com.hw.shared.IdGenerator;
-import com.hw.shared.rest.IdBasedEntity;
+import com.hw.shared.rest.Aggregate;
 import com.hw.shared.sql.SumPagedRep;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
@@ -16,7 +18,7 @@ import javax.validation.constraints.Email;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"email"}))
 @Data
-public class PendingUser extends Auditable implements IdBasedEntity {
+public class PendingUser extends Auditable implements Aggregate {
     @Id
     private Long id;
 
@@ -26,6 +28,10 @@ public class PendingUser extends Auditable implements IdBasedEntity {
 
     @Column
     private String activationCode;
+
+    @Version
+    @Setter(AccessLevel.NONE)
+    private Integer version;
 
     public static PendingUser create(String email, PendingUserRepo pendingRORepo, AppBizUserApplicationService appBizUserApplicationService, IdGenerator idGenerator) {
         validateOnCreate(email, appBizUserApplicationService);

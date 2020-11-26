@@ -7,7 +7,7 @@ import com.hw.shared.idempotent.model.ChangeRecordQueryRegistry;
 import com.hw.shared.idempotent.representation.RootChangeRecordCardRep;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
-import com.hw.shared.rest.exception.EntityNotExistException;
+import com.hw.shared.rest.exception.AggregateNotExistException;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -43,7 +43,7 @@ public class RootChangeRecordApplicationService extends DefaultRoleBasedRestfulS
 
     @Transactional
     public void deleteById(Long id) {
-        ChangeRecord changeRecord = changeRepository.findById(id).orElseThrow(EntityNotExistException::new);
+        ChangeRecord changeRecord = changeRepository.findById(id).orElseThrow(AggregateNotExistException::new);
         Class<?> aClass = null;
         try {
             aClass = Class.forName(changeRecord.getServiceBeanName());

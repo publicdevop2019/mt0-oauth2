@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hw.shared.Auditable;
 import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.idempotent.command.AppCreateChangeRecordCommand;
-import com.hw.shared.rest.IdBasedEntity;
+import com.hw.shared.rest.Aggregate;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +19,7 @@ import java.util.HashSet;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"changeId", "entityType"}))
 @Data
 @NoArgsConstructor
-public class ChangeRecord extends Auditable implements IdBasedEntity {
+public class ChangeRecord extends Auditable implements Aggregate {
     public static final String CHANGE_ID = "changeId";
     public static final String ENTITY_TYPE = "entityType";
     @Id
@@ -39,7 +39,8 @@ public class ChangeRecord extends Auditable implements IdBasedEntity {
     @Lob
     @Column(columnDefinition = "BLOB")
     private byte[] requestBody;
-
+    @Version
+    private Integer version;
     private HashSet<Long> deletedIds;
     private OperationType operationType;
     private String query;

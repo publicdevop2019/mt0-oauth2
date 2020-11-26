@@ -16,8 +16,9 @@ import com.hw.shared.idempotent.command.AppCreateChangeRecordCommand;
 import com.hw.shared.idempotent.exception.ChangeNotFoundException;
 import com.hw.shared.idempotent.exception.RollbackNotSupportedException;
 import com.hw.shared.idempotent.representation.AppChangeRecordCardRep;
-import com.hw.shared.rest.exception.EntityNotExistException;
-import com.hw.shared.rest.exception.EntityPatchException;
+import com.hw.shared.rest.exception.AggregateNotExistException;
+import com.hw.shared.rest.exception.AggregateOutdatedException;
+import com.hw.shared.rest.exception.AggregatePatchException;
 import com.hw.shared.sql.PatchCommand;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import com.hw.shared.sql.SumPagedRep;
@@ -42,7 +43,7 @@ import static com.hw.shared.idempotent.model.ChangeRecord.CHANGE_ID;
 import static com.hw.shared.idempotent.model.ChangeRecord.ENTITY_TYPE;
 
 @Slf4j
-public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBasedEntity, X, Y, Z extends TypedClass<Z>> implements AfterWriteCompleteHook<T> {
+public abstract class DefaultRoleBasedRestfulService<T extends Auditable & Aggregate, X, Y, Z extends TypedClass<Z>> implements AfterWriteCompleteHook<T> {
     @Autowired
     protected JpaRepository<T, Long> repo;
     @Autowired
@@ -66,19 +67,19 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     protected AppChangeRecordApplicationService appChangeRecordApplicationService;
     protected boolean deleteHook = false;
 
-    public CreatedEntityRep create(Object command, String changeId) {
+    public CreatedAggregateRep create(Object command, String changeId) {
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
-            return new CreatedEntityRep();
+            return new CreatedAggregateRep();
         } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
             String entityType = getEntityName();
             SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + entityType, null, "sc:1");
-            CreatedEntityRep createdEntityRep = new CreatedEntityRep();
+            CreatedAggregateRep createdEntityRep = new CreatedAggregateRep();
             long l = Long.parseLong(appChangeRecordCardRepSumPagedRep.getData().get(0).getQuery().replace("id:", ""));
             createdEntityRep.setId(l);
             return createdEntityRep;
         } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             saveChangeRecord(command, changeId, OperationType.POST, "id:", null, null);
-            return new CreatedEntityRep();
+            return new CreatedAggregateRep();
         } else {
             long id = idGenerator.getId();
             T execute = transactionTemplate.execute(transactionStatus -> {
@@ -100,6 +101,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             saveChangeRecord(command, changeId, OperationType.PUT, "id:" + id.toString(), null, null);
         } else {
             SumPagedRep<T> tSumPagedRep = getEntityById(id);
+            checkVersion(tSumPagedRep.getData().get(0), command);
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
@@ -130,7 +132,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
                 command = om.treeToValue(patchedNode, command.getClazz());
             } catch (JsonPatchException | JsonProcessingException e) {
                 e.printStackTrace();
-                throw new EntityPatchException();
+                throw new AggregatePatchException();
             }
             prePatch(original, params, command);
             BeanUtils.copyProperties(command, original);
@@ -188,7 +190,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             if (deleteHook) {
                 data.forEach(this::preDelete);
             }
-            Set<Long> collect = data.stream().map(IdBasedEntity::getId).collect(Collectors.toSet());
+            Set<Long> collect = data.stream().map(Aggregate::getId).collect(Collectors.toSet());
             String join = "id:" + String.join(".", collect.stream().map(Object::toString).collect(Collectors.toSet()));
             Integer execute = transactionTemplate.execute(transactionStatus -> {
                 saveChangeRecord(null, changeId, OperationType.DELETE_BY_QUERY, query, collect, null);
@@ -291,16 +293,12 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             } else if (data.get(0).getOperationType().equals(OperationType.PUT)) {
                 T previous = (T) data.get(0).getReplacedVersion();
                 T stored = getEntityById(previous.getId()).getData().get(0);
-                if (!(previous instanceof VersionBasedEntity)) {
-                    log.warn("target does not have version number, your data may get lost");
+                Integer version = stored.getVersion();
+                Integer version1 = previous.getVersion();
+                if (version - 1 == version1) {
+                    log.info("restore to previous entity version");
                 } else {
-                    Integer version = ((VersionBasedEntity) stored).getVersion();
-                    Integer version1 = ((VersionBasedEntity) previous).getVersion();
-                    if (version - 1 == version1) {
-                        log.info("restore to previous entity version");
-                    } else {
-                        log.warn("stored previous version is out dated, your data may get lost");
-                    }
+                    log.warn("stored previous version is out dated, your data may get lost");
                 }
                 BeanUtils.copyProperties(previous, stored);
                 Set<Long> execute = transactionTemplate.execute(e -> {
@@ -340,7 +338,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         for (Long l : collect) {
             Optional<T> byId = repo.findById(l);//use repo instead of common readyBy
             if (byId.isEmpty())
-                throw new EntityNotExistException();
+                throw new AggregateNotExistException();
             T t = byId.get();
             t.setDeleted(false);
             t.setRestoredAt(new Date());
@@ -356,7 +354,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         for (Long l : collect) {
             Optional<T> byId = repo.findById(l);//use repo instead of common readyBy
             if (byId.isEmpty())
-                throw new EntityNotExistException();
+                throw new AggregateNotExistException();
             T t = byId.get();
             t.setDeleted(true);
             t.setDeletedAt(new Date());
@@ -370,7 +368,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
     protected SumPagedRep<T> getEntityById(Long id) {
         SumPagedRep<T> tSumPagedRep = queryRegistry.readById(role, id.toString(), entityClass);
         if (tSumPagedRep.getData().size() == 0)
-            throw new EntityNotExistException();
+            throw new AggregateNotExistException();
         return tSumPagedRep;
     }
 
@@ -414,8 +412,8 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
         return data;
     }
 
-    private CreatedEntityRep getCreatedEntityRepresentation(T created) {
-        return new CreatedEntityRep(created);
+    private CreatedAggregateRep getCreatedEntityRepresentation(T created) {
+        return new CreatedAggregateRep(created);
     }
 
     private void cleanUpCache(Set<Long> ids) {
@@ -462,6 +460,14 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & IdBas
             Set<String> keys1 = redisTemplate.keys(entityName + CACHE_ID_PREFIX + ":*");
             if (!CollectionUtils.isEmpty(keys1)) {
                 redisTemplate.delete(keys1);
+            }
+        }
+    }
+
+    private void checkVersion(T t, Object command) {
+        if (command instanceof AggregateUpdateCommand) {
+            if (!t.getVersion().equals(((AggregateUpdateCommand) command).getVersion())) {
+                throw new AggregateOutdatedException();
             }
         }
     }

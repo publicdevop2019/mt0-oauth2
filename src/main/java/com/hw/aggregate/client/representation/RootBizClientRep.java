@@ -25,5 +25,6 @@ public class RootBizClientRep extends RootBizClientCardRep {
         this.resourceIndicator = client.getResourceIndicator();
         this.autoApprove = client.getAutoApprove();
         this.hasSecret = client.getHasSecret();
+        this.version = client.getVersion();
     }
 }

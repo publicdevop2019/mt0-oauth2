@@ -37,6 +37,8 @@ public class RootBizClientCardRep {
 
     protected Boolean autoApprove;
 
+    protected Integer version;
+
     public RootBizClientCardRep(BizClient client) {
         this.id = client.getId();
         this.name = client.getName();
@@ -50,5 +52,6 @@ public class RootBizClientCardRep {
         this.resourceIds = client.getResourceIds();
         this.resourceIndicator = client.getResourceIndicator();
         this.autoApprove = client.getAutoApprove();
+        this.version = client.getVersion();
     }
 }

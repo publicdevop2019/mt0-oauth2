@@ -1,6 +1,5 @@
 package com.hw.aggregate.user.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hw.aggregate.pending_user.AppPendingUserApplicationService;
 import com.hw.aggregate.pending_user.representation.AppPendingUserCardRep;
 import com.hw.aggregate.user.AppBizUserApplicationService;
@@ -10,9 +9,11 @@ import com.hw.aggregate.user.command.*;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
 import com.hw.shared.Auditable;
 import com.hw.shared.ServiceUtility;
-import com.hw.shared.rest.IdBasedEntity;
+import com.hw.shared.rest.Aggregate;
 import com.hw.shared.sql.SumPagedRep;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
@@ -35,7 +36,7 @@ import java.util.UUID;
 @Entity
 @Table
 @Data
-public class BizUser extends Auditable implements IdBasedEntity {
+public class BizUser extends Auditable implements Aggregate {
     public static final String ENTITY_EMAIL = "email";
     public static final String ENTITY_SUBSCRIPTION = "subscription";
     public static final String ENTITY_LOCKED = "locked";
@@ -63,7 +64,9 @@ public class BizUser extends Auditable implements IdBasedEntity {
     private Set<BizUserAuthorityEnum> grantedAuthorities;
     @Column
     private boolean subscription;
-
+    @Version
+    @Setter(AccessLevel.NONE)
+    private Integer version;
     public BizUser() {
     }
 
@@ -117,8 +120,8 @@ public class BizUser extends Auditable implements IdBasedEntity {
         return "123456789";
 //        return UUID.randomUUID().toString().replace("-", "");
     }
-
     public static void resetPwd(AppResetBizUserPasswordCommand command, AppBizUserApplicationService appBizUserApplicationService) {
+
         SumPagedRep<AppBizUserCardRep> var0 = appBizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
         if (var0.getData().isEmpty())
             throw new IllegalArgumentException("user does not exist");

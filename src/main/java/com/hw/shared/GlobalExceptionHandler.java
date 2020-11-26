@@ -4,10 +4,7 @@ import com.hw.shared.idempotent.exception.ChangeNotFoundException;
 import com.hw.shared.idempotent.exception.CustomByteArraySerializationException;
 import com.hw.shared.idempotent.exception.HangingTransactionException;
 import com.hw.shared.idempotent.exception.RollbackNotSupportedException;
-import com.hw.shared.rest.exception.EntityNotExistException;
-import com.hw.shared.rest.exception.EntityPatchException;
-import com.hw.shared.rest.exception.UnsupportedPatchOperationException;
-import com.hw.shared.rest.exception.UpdateFiledValueException;
+import com.hw.shared.rest.exception.*;
 import com.hw.shared.sql.exception.*;
 import com.hw.shared.validation.ValidationErrorException;
 import com.hw.shared.validation.ValidationFailedException;
@@ -40,14 +37,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HangingTransactionException.class,
             RollbackNotSupportedException.class,
             PatchCommandExpectNotMatchException.class,
-            EntityNotExistException.class,
-            EntityPatchException.class,
+            AggregateNotExistException.class,
+            AggregatePatchException.class,
             QueryBuilderNotFoundException.class,
             EmptyQueryValueException.class,
             UnknownWhereClauseException.class,
             ChangeNotFoundException.class,
             UserIdNotFoundException.class,
-            ValidationFailedException.class
+            ValidationFailedException.class,
+            AggregateOutdatedException.class
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
