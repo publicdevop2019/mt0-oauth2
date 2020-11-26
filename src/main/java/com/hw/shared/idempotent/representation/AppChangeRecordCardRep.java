@@ -8,7 +8,6 @@ import com.hw.shared.idempotent.model.CustomByteArraySerializer;
 import lombok.Data;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Set;
 
 @Data
