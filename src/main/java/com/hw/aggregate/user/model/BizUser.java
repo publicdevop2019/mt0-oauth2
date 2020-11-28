@@ -26,7 +26,6 @@ import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * root has ROLE_ROOT, ROLE_ADMIN, ROLE_USER
@@ -67,6 +66,7 @@ public class BizUser extends Auditable implements Aggregate {
     @Version
     @Setter(AccessLevel.NONE)
     private Integer version;
+
     public BizUser() {
     }
 
@@ -108,25 +108,26 @@ public class BizUser extends Auditable implements Aggregate {
     }
 
     public static void createForgetPwdToken(AppForgetBizUserPasswordCommand command,
-                                            AppBizUserApplicationService appBizUserApplicationService) {
+                                            AppBizUserApplicationService appBizUserApplicationService, String changeId) {
         SumPagedRep<AppBizUserCardRep> byQuery = appBizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
         if (byQuery.getData().isEmpty())
             throw new IllegalArgumentException("user does not exist");
         Long id = byQuery.getData().get(0).getId();
-        appBizUserApplicationService.replaceById(id, command, UUID.randomUUID().toString());
+        appBizUserApplicationService.replaceById(id, command, changeId);
     }
 
     private static String generateToken() {
         return "123456789";
 //        return UUID.randomUUID().toString().replace("-", "");
     }
-    public static void resetPwd(AppResetBizUserPasswordCommand command, AppBizUserApplicationService appBizUserApplicationService) {
+
+    public static void resetPwd(AppResetBizUserPasswordCommand command, AppBizUserApplicationService appBizUserApplicationService, String changeId) {
 
         SumPagedRep<AppBizUserCardRep> var0 = appBizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
         if (var0.getData().isEmpty())
             throw new IllegalArgumentException("user does not exist");
         AppBizUserCardRep oneByEmail = var0.getData().get(0);
-        appBizUserApplicationService.replaceById(oneByEmail.getId(), command, UUID.randomUUID().toString());
+        appBizUserApplicationService.replaceById(oneByEmail.getId(), command, changeId);
     }
 
     public void validateBeforeDelete() {
@@ -218,6 +219,7 @@ public class BizUser extends Auditable implements Aggregate {
         if (!this.getPwdResetToken().equals(command.getToken()))
             throw new IllegalArgumentException("token mismatch");
         this.setPassword(encoder.encode(command.getNewPassword()));
+        this.setPwdResetToken(null);
         tokenRevocationService.blacklist(this.getId());
     }
 }

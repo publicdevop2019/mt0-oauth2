@@ -7,7 +7,6 @@ import com.hw.aggregate.user.command.AppResetBizUserPasswordCommand;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
 import com.hw.aggregate.user.representation.AppBizUserRep;
-import com.hw.shared.idempotent.OperationType;
 import com.hw.shared.rest.DefaultRoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
@@ -80,28 +79,12 @@ public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService
         throw new UnsupportedOperationException();
     }
 
-    @Transactional
     public void sendForgetPassword(AppForgetBizUserPasswordCommand command, String changeId) {
-        if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
-        } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
-        } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
-            saveChangeRecord(command, changeId, OperationType.POST, "email:" + command.getEmail(), null, null);
-        } else {
-            saveChangeRecord(command, changeId, OperationType.POST, "email:" + command.getEmail(), null, null);
-            BizUser.createForgetPwdToken(command, this);
-        }
+        BizUser.createForgetPwdToken(command, this, changeId);
     }
 
-    @Transactional
     public void resetPassword(AppResetBizUserPasswordCommand command, String changeId) {
-        if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
-        } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
-        } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
-            saveChangeRecord(command, changeId, OperationType.POST, "email:" + command.getEmail(), null, null);
-        } else {
-            saveChangeRecord(command, changeId, OperationType.POST, "email:" + command.getEmail(), null, null);
-            BizUser.resetPwd(command, this);
-        }
+        BizUser.resetPwd(command, this, changeId);
     }
 
     @Override

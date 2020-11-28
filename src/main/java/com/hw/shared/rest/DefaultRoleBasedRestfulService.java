@@ -421,8 +421,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & Aggre
         return new CreatedAggregateRep(created);
     }
 
-    private void cleanUpCache(Set<Long> ids) {
-        log.info("clean up cache");
+    public void cleanUpCache(Set<Long> ids) {
         if (hasCachedAggregates()) {
             String entityName = getEntityName();
             Set<String> keys = redisTemplate.keys(entityName + CACHE_QUERY_PREFIX + ":*");
@@ -455,7 +454,7 @@ public abstract class DefaultRoleBasedRestfulService<T extends Auditable & Aggre
 
     }
 
-    private void cleanUpAllCache() {
+    public void cleanUpAllCache() {
         if (hasCachedAggregates()) {
             String entityName = getEntityName();
             Set<String> keys = redisTemplate.keys(entityName + CACHE_QUERY_PREFIX + ":*");
