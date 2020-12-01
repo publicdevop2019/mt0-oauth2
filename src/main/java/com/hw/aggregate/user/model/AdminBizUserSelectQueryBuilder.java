@@ -9,7 +9,7 @@ import static com.hw.aggregate.user.model.BizUser.*;
 
 @Component
 public class AdminBizUserSelectQueryBuilder extends SelectQueryBuilder<BizUser> {
-    AdminBizUserSelectQueryBuilder() {
+    {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 50;
         mappedSortBy.put(ENTITY_EMAIL, ENTITY_EMAIL);

@@ -6,7 +6,7 @@ import com.hw.aggregate.client.model.BizClient;
 import com.hw.aggregate.client.model.RootBizClientPatchMiddleLayer;
 import com.hw.aggregate.client.representation.RootBizClientCardRep;
 import com.hw.aggregate.client.representation.RootBizClientRep;
-import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -14,13 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @SuppressWarnings("unused")
 @Service
 @Slf4j
-public class RootBizClientApplicationService extends DefaultRoleBasedRestfulService<BizClient, RootBizClientCardRep, RootBizClientRep, RootBizClientPatchMiddleLayer> {
+public class RootBizClientApplicationService extends RoleBasedRestfulService<BizClient, RootBizClientCardRep, RootBizClientRep, RootBizClientPatchMiddleLayer> {
+    {
+        entityClass = BizClient.class;
+        role = RestfulQueryRegistry.RoleEnum.ROOT;
+        entityPatchSupplier = RootBizClientPatchMiddleLayer::new;
+    }
 
     @Autowired
     BCryptPasswordEncoder encoder;
@@ -30,26 +34,18 @@ public class RootBizClientApplicationService extends DefaultRoleBasedRestfulServ
     @Autowired
     AppBizClientApplicationService appBizClientApplicationService;
 
-    @PostConstruct
-    private void setUp() {
-        entityClass = BizClient.class;
-        role = RestfulQueryRegistry.RoleEnum.ROOT;
-        entityPatchSupplier = RootBizClientPatchMiddleLayer::new;
-        deleteHook = true;
-    }
-
     @Override
     public BizClient replaceEntity(BizClient stored, Object command) {
         return stored.replace((RootUpdateBizClientCommand) command, tokenRevocationService, appBizClientApplicationService, encoder);
     }
 
     @Override
-    public void preDelete(BizClient bizClient) {
+    protected void preDelete(BizClient bizClient) {
         bizClient.validateDelete();
     }
 
     @Override
-    public void postDelete(BizClient bizClient) {
+    protected void postDelete(BizClient bizClient) {
         tokenRevocationService.blacklist(bizClient.getId());
     }
 

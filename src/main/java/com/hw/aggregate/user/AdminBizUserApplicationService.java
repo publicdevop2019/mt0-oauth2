@@ -5,7 +5,7 @@ import com.hw.aggregate.user.model.AdminBizUserPatchMiddleLayer;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.representation.AdminBizUserCardRep;
 import com.hw.aggregate.user.representation.AdminBizUserRep;
-import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -17,20 +17,16 @@ import java.util.Map;
 
 import static com.hw.shared.AppConstant.HTTP_HEADER_AUTHORIZATION;
 
-@Service
 @Slf4j
-public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, AdminBizUserCardRep, AdminBizUserRep, AdminBizUserPatchMiddleLayer> {
-
-    @Autowired
-    private RevokeBizUserTokenService tokenRevocationService;
-
-    @PostConstruct
-    private void setUp() {
+@Service
+public class AdminBizUserApplicationService extends RoleBasedRestfulService<BizUser, AdminBizUserCardRep, AdminBizUserRep, AdminBizUserPatchMiddleLayer> {
+    {
         entityClass = BizUser.class;
         role = RestfulQueryRegistry.RoleEnum.ADMIN;
         entityPatchSupplier = AdminBizUserPatchMiddleLayer::new;
-        deleteHook = true;
     }
+    @Autowired
+    RevokeBizUserTokenService tokenRevocationService;
 
     @Override
     public BizUser replaceEntity(BizUser storedBizUser, Object command) {
@@ -47,18 +43,14 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
         return new AdminBizUserRep(bizUser);
     }
 
-    @Override
-    protected BizUser createEntity(long id, Object command) {
-        throw new UnsupportedOperationException();
-    }
 
     @Override
-    public void preDelete(BizUser bizUser) {
+    protected void preDelete(BizUser bizUser) {
         bizUser.validateBeforeDelete();
     }
 
     @Override
-    public void postDelete(BizUser bizUser) {
+    protected void postDelete(BizUser bizUser) {
         tokenRevocationService.blacklist(bizUser.getId());
     }
 
@@ -72,7 +64,6 @@ public class AdminBizUserApplicationService extends DefaultRoleBasedRestfulServi
         bizUser.shouldRevoke(adminUpdateBizUserCommand, tokenRevocationService);//make sure validation execute before revoke
 
     }
-
     @Override
     protected void postPatch(BizUser bizUser, Map<String, Object> params, AdminBizUserPatchMiddleLayer middleLayer) {
         bizUser.validateAfterUpdate();

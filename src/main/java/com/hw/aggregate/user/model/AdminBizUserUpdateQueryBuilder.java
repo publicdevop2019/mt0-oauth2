@@ -11,9 +11,7 @@ import static com.hw.aggregate.user.model.BizUser.ENTITY_LOCKED;
 
 @Component
 public class AdminBizUserUpdateQueryBuilder extends UpdateByIdQueryBuilder<BizUser> {
-
-    @PostConstruct
-    private void setUp() {
+    {
         filedMap.put(ENTITY_LOCKED, ENTITY_LOCKED);
         filedTypeMap.put(ENTITY_LOCKED, this::parseBoolean);
     }

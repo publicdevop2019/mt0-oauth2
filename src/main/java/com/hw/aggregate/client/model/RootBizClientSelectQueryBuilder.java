@@ -10,7 +10,7 @@ import static com.hw.aggregate.client.model.BizClient.*;
 
 @Component
 public class RootBizClientSelectQueryBuilder extends SelectQueryBuilder<BizClient> {
-    RootBizClientSelectQueryBuilder() {
+    {
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 2000;
         mappedSortBy.put(ENTITY_NAME, ENTITY_NAME);

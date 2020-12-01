@@ -8,7 +8,7 @@ import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
 @Component
 public class UserBizClientSelectQueryBuilder extends SelectQueryBuilder<BizClient> {
-    UserBizClientSelectQueryBuilder() {
+    {
         supportedWhereField.put("clientId", new SelectFieldLongEqualClause<>(COMMON_ENTITY_ID));
     }
 }

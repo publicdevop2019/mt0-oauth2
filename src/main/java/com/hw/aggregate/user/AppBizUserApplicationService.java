@@ -7,7 +7,7 @@ import com.hw.aggregate.user.command.AppResetBizUserPasswordCommand;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.representation.AppBizUserCardRep;
 import com.hw.aggregate.user.representation.AppBizUserRep;
-import com.hw.shared.rest.DefaultRoleBasedRestfulService;
+import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import com.hw.shared.sql.SumPagedRep;
@@ -17,14 +17,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
 
-@Service
 @Slf4j
-public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService<BizUser, AppBizUserCardRep, AppBizUserRep, VoidTypedClass> implements UserDetailsService {
+@Service
+public class AppBizUserApplicationService extends RoleBasedRestfulService<BizUser, AppBizUserCardRep, AppBizUserRep, VoidTypedClass> implements UserDetailsService {
+    {
+        entityClass = BizUser.class;
+        role = RestfulQueryRegistry.RoleEnum.APP;
+    }
     @Autowired
     private BCryptPasswordEncoder encoder;
 
@@ -37,11 +40,6 @@ public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService
     @Autowired
     private AppPendingUserApplicationService pendingUserApplicationService;
 
-    @PostConstruct
-    private void setUp() {
-        entityClass = BizUser.class;
-        role = RestfulQueryRegistry.RoleEnum.APP;
-    }
 
     @Override
     public BizUser replaceEntity(BizUser bizUser, Object command) {
@@ -57,26 +55,6 @@ public class AppBizUserApplicationService extends DefaultRoleBasedRestfulService
     @Override
     public AppBizUserRep getEntityRepresentation(BizUser bizUser) {
         return new AppBizUserRep(bizUser);
-    }
-
-    @Override
-    public void preDelete(BizUser bizUser) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void postDelete(BizUser bizUser) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected void prePatch(BizUser bizUser, Map<String, Object> params, VoidTypedClass middleLayer) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected void postPatch(BizUser bizUser, Map<String, Object> params, VoidTypedClass middleLayer) {
-        throw new UnsupportedOperationException();
     }
 
     public void sendForgetPassword(AppForgetBizUserPasswordCommand command, String changeId) {
