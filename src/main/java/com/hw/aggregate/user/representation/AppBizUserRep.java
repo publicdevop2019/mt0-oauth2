@@ -4,6 +4,7 @@ import com.hw.aggregate.client.model.GrantedAuthorityImpl;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserAuthorityEnum;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -19,10 +20,7 @@ public class AppBizUserRep implements UserDetails {
     private Set<BizUserAuthorityEnum> grantedAuthorities;
 
     public AppBizUserRep(BizUser bizUser) {
-        this.id = bizUser.getId();
-        this.password = bizUser.getPassword();
-        this.locked = bizUser.isLocked();
-        this.grantedAuthorities = bizUser.getGrantedAuthorities();
+        BeanUtils.copyProperties(bizUser, this);
     }
 
     @Override

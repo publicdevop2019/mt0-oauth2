@@ -3,6 +3,7 @@ package com.hw.aggregate.user.representation;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserAuthorityEnum;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
@@ -23,14 +24,8 @@ public class AdminBizUserRep {
     private boolean subscription;
 
     public AdminBizUserRep(BizUser bizUser) {
-        this.id = bizUser.getId();
-        this.email = bizUser.getEmail();
-        this.locked = bizUser.isLocked();
-        this.grantedAuthorities = bizUser.getGrantedAuthorities();
+        BeanUtils.copyProperties(bizUser, this);
         this.createdAt = bizUser.getCreatedAt().getTime();
         this.modifiedAt = bizUser.getModifiedAt().getTime();
-        this.createdBy = bizUser.getCreatedBy();
-        this.modifiedBy = bizUser.getModifiedBy();
-        this.subscription = bizUser.isSubscription();
     }
 }

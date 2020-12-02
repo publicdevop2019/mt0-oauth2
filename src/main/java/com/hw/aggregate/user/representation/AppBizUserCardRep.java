@@ -2,6 +2,7 @@ package com.hw.aggregate.user.representation;
 
 import com.hw.aggregate.user.model.BizUser;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 @Data
 public class AppBizUserCardRep {
@@ -10,7 +11,6 @@ public class AppBizUserCardRep {
     private String email;
 
     public AppBizUserCardRep(BizUser bizUser) {
-        this.id = bizUser.getId();
-        this.email = bizUser.getEmail();
+        BeanUtils.copyProperties(bizUser, this);
     }
 }

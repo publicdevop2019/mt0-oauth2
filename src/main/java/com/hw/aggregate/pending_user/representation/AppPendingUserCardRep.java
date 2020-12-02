@@ -2,6 +2,7 @@ package com.hw.aggregate.pending_user.representation;
 
 import com.hw.aggregate.pending_user.model.PendingUser;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 @Data
 public class AppPendingUserCardRep {
@@ -10,8 +11,7 @@ public class AppPendingUserCardRep {
     private String activationCode;
 
     public AppPendingUserCardRep(PendingUser pendingBizUser) {
-        this.email = pendingBizUser.getEmail();
-        this.activationCode = pendingBizUser.getActivationCode();
+        BeanUtils.copyProperties(pendingBizUser, this);
 
     }
 

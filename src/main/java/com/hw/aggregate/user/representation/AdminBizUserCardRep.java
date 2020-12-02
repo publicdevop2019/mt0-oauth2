@@ -3,6 +3,7 @@ package com.hw.aggregate.user.representation;
 import com.hw.aggregate.user.model.BizUser;
 import com.hw.aggregate.user.model.BizUserAuthorityEnum;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
@@ -18,10 +19,7 @@ public class AdminBizUserCardRep {
     private Set<BizUserAuthorityEnum> grantedAuthorities;
 
     public AdminBizUserCardRep(BizUser bizUser) {
-        this.id = bizUser.getId();
-        this.email = bizUser.getEmail();
-        this.locked = bizUser.isLocked();
-        this.grantedAuthorities = bizUser.getGrantedAuthorities();
+        BeanUtils.copyProperties(bizUser, this);
         this.createdAt = bizUser.getCreatedAt().getTime();
 
     }

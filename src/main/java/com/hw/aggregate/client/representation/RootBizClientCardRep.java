@@ -6,6 +6,7 @@ import com.hw.aggregate.client.model.GrantTypeEnum;
 import com.hw.aggregate.client.model.ScopeEnum;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
@@ -40,18 +41,6 @@ public class RootBizClientCardRep {
     protected Integer version;
 
     public RootBizClientCardRep(BizClient client) {
-        this.id = client.getId();
-        this.name = client.getName();
-        this.description = client.getDescription();
-        this.grantTypeEnums = client.getGrantTypeEnums();
-        this.grantedAuthorities = client.getGrantedAuthorities();
-        this.scopeEnums = client.getScopeEnums();
-        this.accessTokenValiditySeconds = client.getAccessTokenValiditySeconds();
-        this.registeredRedirectUri = client.getRegisteredRedirectUri();
-        this.refreshTokenValiditySeconds = client.getRefreshTokenValiditySeconds();
-        this.resourceIds = client.getResourceIds();
-        this.resourceIndicator = client.getResourceIndicator();
-        this.autoApprove = client.getAutoApprove();
-        this.version = client.getVersion();
+        BeanUtils.copyProperties(client, this);
     }
 }

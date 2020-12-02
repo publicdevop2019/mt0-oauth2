@@ -2,6 +2,7 @@ package com.hw.aggregate.client.representation;
 
 import com.hw.aggregate.client.model.BizClient;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 @Data
 public class AppBizClientCardRep {
@@ -9,7 +10,6 @@ public class AppBizClientCardRep {
     private Boolean resourceIndicator;
 
     public AppBizClientCardRep(BizClient client) {
-        this.id = client.getId();
-        this.resourceIndicator = client.getResourceIndicator();
+        BeanUtils.copyProperties(client, this);
     }
 }

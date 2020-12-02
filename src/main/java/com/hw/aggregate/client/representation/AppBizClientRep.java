@@ -2,6 +2,7 @@ package com.hw.aggregate.client.representation;
 
 import com.hw.aggregate.client.model.*;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
 
@@ -25,17 +26,7 @@ public class AppBizClientRep implements ClientDetails {
     private Boolean hasSecret;
 
     public AppBizClientRep(BizClient bizClient) {
-        this.id = bizClient.getId();
-        this.clientSecret = bizClient.getClientSecret();
-        this.grantTypeEnums = bizClient.getGrantTypeEnums();
-        this.grantedAuthorities = bizClient.getGrantedAuthorities();
-        this.scopeEnums = bizClient.getScopeEnums();
-        this.accessTokenValiditySeconds = bizClient.getAccessTokenValiditySeconds();
-        this.registeredRedirectUri = bizClient.getRegisteredRedirectUri();
-        this.refreshTokenValiditySeconds = bizClient.getRefreshTokenValiditySeconds();
-        this.resourceIds = bizClient.getResourceIds();
-        this.autoApprove = bizClient.getAutoApprove();
-        this.hasSecret = bizClient.getHasSecret();
+        BeanUtils.copyProperties(bizClient, this);
     }
 
     @Override
