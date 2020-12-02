@@ -3,11 +3,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>OAuth2Service</artifactId>
+    <artifactId>mt0-oauth2</artifactId>
     <version>0.0.0a</version>
     <packaging>jar</packaging>
 
-    <name>OAuth2Service</name>
     <parent>
         <groupId>com.hw</groupId>
         <artifactId>config-center</artifactId>
