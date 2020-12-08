@@ -11,4 +11,8 @@ public class BizClientQueryRegistry extends RestfulQueryRegistry<BizClient> {
     public Class<BizClient> getEntityClass() {
         return BizClient.class;
     }
+
+    public BizClientQueryRegistry() {
+        cacheable.put(RoleEnum.ROOT, false);
+    }
 }

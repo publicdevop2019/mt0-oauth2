@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -42,5 +43,6 @@ public class RootBizClientCardRep {
 
     public RootBizClientCardRep(BizClient client) {
         BeanUtils.copyProperties(client, this);
+        resourceIds = client.getFollowing().stream().map(e -> e.getId().toString()).collect(Collectors.toSet());
     }
 }

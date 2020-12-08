@@ -36,7 +36,7 @@ public class RootBizClientApplicationService extends RoleBasedRestfulService<Biz
 
     @Override
     public BizClient replaceEntity(BizClient stored, Object command) {
-        return stored.replace((RootUpdateBizClientCommand) command, tokenRevocationService, appBizClientApplicationService, encoder);
+        return stored.replace((RootUpdateBizClientCommand) command, tokenRevocationService, encoder,repo);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class RootBizClientApplicationService extends RoleBasedRestfulService<Biz
         RootUpdateBizClientCommand updateClientCommand = new RootUpdateBizClientCommand();
         BeanUtils.copyProperties(bizClient, updateClientCommand);//copy old values so shouldRevoke will work
         BeanUtils.copyProperties(middleLayer, updateClientCommand);
-        BizClient.validateResourceId(bizClient, appBizClientApplicationService);
+        BizClient.validateResourceId(bizClient);
         bizClient.shouldRevoke(updateClientCommand, tokenRevocationService);//make sure validation execute before revoke
     }
 
@@ -75,7 +75,6 @@ public class RootBizClientApplicationService extends RoleBasedRestfulService<Biz
 
     @Override
     protected BizClient createEntity(long id, Object command) {
-        return BizClient.create(id, (RootCreateBizClientCommand) command, appBizClientApplicationService, encoder);
+        return BizClient.create(id, (RootCreateBizClientCommand) command, appBizClientApplicationService, encoder, repo);
     }
-
 }

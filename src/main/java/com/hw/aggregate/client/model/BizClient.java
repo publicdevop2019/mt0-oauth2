@@ -1,5 +1,7 @@
 package com.hw.aggregate.client.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Objects;
 import com.hw.aggregate.client.AppBizClientApplicationService;
 import com.hw.aggregate.client.RevokeBizClientTokenService;
 import com.hw.aggregate.client.command.RootCreateBizClientCommand;
@@ -13,7 +15,10 @@ import com.hw.shared.rest.Aggregate;
 import com.hw.shared.sql.SumPagedRep;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
@@ -22,7 +27,9 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * use different field name to make it more flexible also avoid copy properties type mismatch
@@ -31,6 +38,8 @@ import java.util.Set;
 @Entity
 @Table
 @Data
+@NoArgsConstructor
+@Where(clause = "deleted = false")
 public class BizClient extends Auditable implements Aggregate {
     public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
@@ -75,23 +84,24 @@ public class BizClient extends Auditable implements Aggregate {
     @Nullable
     private Integer refreshTokenValiditySeconds;
 
-    @Column
-    @NotNull
-    @Convert(converter = StringSetConverter.class)
-    private Set<String> resourceIds;
+    @JsonIgnore
+    @ManyToMany(mappedBy = "following")
+    private Set<BizClient> followers = new HashSet<>();
 
+    @ManyToMany
+    private Set<BizClient> following = new HashSet<>();
     /**
      * indicates if a client is a resource, if true resource id will default to client id
      */
     @Column
     @Nullable
-    private Boolean resourceIndicator;
+    private boolean resourceIndicator = false;
     /**
      * indicates if a authorization_code client can be auto approved
      */
     @Column
     @Nullable
-    private Boolean autoApprove;
+    private boolean autoApprove = false;
     /**
      * this field is not used in spring oauth2,
      * client with no secret requires empty secret (mostly encoded)
@@ -100,15 +110,12 @@ public class BizClient extends Auditable implements Aggregate {
      */
     @Column
     @NotNull
-    private Boolean hasSecret;
+    private boolean hasSecret = false;
     @Version
     @Setter(AccessLevel.NONE)
     private Integer version;
 
-    public BizClient() {
-    }
-
-    private BizClient(long id, RootCreateBizClientCommand command) {
+    private BizClient(long id, RootCreateBizClientCommand command, CrudRepository<BizClient, Long> repo) {
         this.id = id;
         this.clientSecret = command.getClientSecret();
         this.description = command.getDescription();
@@ -118,16 +125,19 @@ public class BizClient extends Auditable implements Aggregate {
         this.accessTokenValiditySeconds = command.getAccessTokenValiditySeconds();
         this.registeredRedirectUri = command.getRegisteredRedirectUri();
         this.refreshTokenValiditySeconds = command.getRefreshTokenValiditySeconds();
-        this.resourceIds = command.getResourceIds();
+        this.following = new HashSet<>();
+        repo.findAllById(command.getResourceIds().stream().map(Long::parseLong).collect(Collectors.toSet())).forEach(e -> {
+            this.following.add(e);
+        });
         this.resourceIndicator = command.getResourceIndicator();
         this.autoApprove = command.getAutoApprove();
         this.hasSecret = command.isHasSecret();
         this.name = command.getName();
     }
 
-    public static BizClient create(long id, RootCreateBizClientCommand command, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder) {
-        BizClient client = new BizClient(id, command);
-        validateResourceId(client, appBizClientApplicationService);
+    public static BizClient create(long id, RootCreateBizClientCommand command, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder, CrudRepository<BizClient, Long> repo) {
+        BizClient client = new BizClient(id, command, repo);
+        validateResourceId(client);
         validateResourceIndicator(client);
         SumPagedRep<AppBizClientCardRep> appBizClientCardRepSumPagedRep = appBizClientApplicationService.readByQuery("id:" + client.getId(), null, null);
         if (appBizClientCardRepSumPagedRep.getData().isEmpty()) {
@@ -145,13 +155,9 @@ public class BizClient extends Auditable implements Aggregate {
     /**
      * selected resource ids should be eligible resource, nullable
      */
-    public static void validateResourceId(BizClient client, AppBizClientApplicationService appBizClientApplicationService) {
-        if (client.getResourceIds() != null && !client.getResourceIds().isEmpty()) {
-            String join = String.join(".", client.getResourceIds());
-            SumPagedRep<AppBizClientCardRep> appBizClientCardRepSumPagedRep = appBizClientApplicationService.readByQuery("id:" + join, null, null);
-            if (appBizClientCardRepSumPagedRep.getData().size() != client.getResourceIds().size())
-                throw new IllegalArgumentException("unable to find resourceId listed");
-            if (appBizClientCardRepSumPagedRep.getData().stream().anyMatch(e -> !e.getResourceIndicator()))
+    public static void validateResourceId(BizClient client) {
+        if (client.getFollowing() != null && !client.getFollowing().isEmpty()) {
+            if (client.getFollowing().stream().anyMatch(e -> !e.isResourceIndicator()))
                 throw new IllegalArgumentException("invalid resourceId found");
         }
     }
@@ -160,14 +166,14 @@ public class BizClient extends Auditable implements Aggregate {
      * if client is marked as resource then it must be a backend and first party application
      */
     public static void validateResourceIndicator(BizClient client) {
-        if (Boolean.TRUE.equals(client.getResourceIndicator()) && (client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_BACKEND))
+        if (Boolean.TRUE.equals(client.isResourceIndicator()) && (client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_BACKEND))
                 || client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY))))
             throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
     }
 
-    public BizClient replace(RootUpdateBizClientCommand command, RevokeBizClientTokenService tokenRevocationService, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder) {
+    public BizClient replace(RootUpdateBizClientCommand command, RevokeBizClientTokenService tokenRevocationService, BCryptPasswordEncoder encoder, CrudRepository<BizClient, Long> repo) {
         shouldRevoke(command, tokenRevocationService);
-        validateResourceId(this, appBizClientApplicationService);
+        validateResourceId(this);
         if (StringUtils.hasText(command.getClientSecret())) {
             this.setClientSecret(encoder.encode(command.getClientSecret()));
         }
@@ -178,7 +184,10 @@ public class BizClient extends Auditable implements Aggregate {
         this.accessTokenValiditySeconds = command.getAccessTokenValiditySeconds();
         this.registeredRedirectUri = command.getRegisteredRedirectUri();
         this.refreshTokenValiditySeconds = command.getRefreshTokenValiditySeconds();
-        this.resourceIds = command.getResourceIds();
+        this.following = new HashSet<>();
+        repo.findAllById(command.getResourceIds().stream().map(Long::parseLong).collect(Collectors.toSet())).forEach(e -> {
+            this.following.add(e);
+        });
         this.resourceIndicator = command.getResourceIndicator();
         this.autoApprove = command.getAutoApprove();
         this.hasSecret = command.isHasSecret();
@@ -254,7 +263,19 @@ public class BizClient extends Auditable implements Aggregate {
     }
 
     private boolean resourceIdChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
-        return !oldClient.getResourceIds().equals(newClient.getResourceIds());
+        return !oldClient.getFollowing().stream().map(e -> e.getId().toString()).collect(Collectors.toSet()).equals(newClient.getResourceIds());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BizClient)) return false;
+        BizClient bizClient = (BizClient) o;
+        return Objects.equal(id, bizClient.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

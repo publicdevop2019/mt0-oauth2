@@ -4,12 +4,13 @@ import com.hw.shared.rest.TypedClass;
 import lombok.Data;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class RootBizClientPatchMiddleLayer extends TypedClass<RootBizClientPatchMiddleLayer> {
     private String description;
     private String name;
-    private Boolean resourceIndicator;
+    private boolean resourceIndicator;
     private Set<ScopeEnum> scopeEnums;
     private Set<GrantTypeEnum> grantTypeEnums;
     private Set<BizClientAuthorityEnum> grantedAuthorities;
@@ -20,11 +21,11 @@ public class RootBizClientPatchMiddleLayer extends TypedClass<RootBizClientPatch
         super(RootBizClientPatchMiddleLayer.class);
         this.description = bizClient.getDescription();
         this.name = bizClient.getName();
-        this.resourceIndicator = bizClient.getResourceIndicator();
+        this.resourceIndicator = bizClient.isResourceIndicator();
         this.scopeEnums = bizClient.getScopeEnums();
         this.grantTypeEnums = bizClient.getGrantTypeEnums();
         this.accessTokenValiditySeconds = bizClient.getAccessTokenValiditySeconds();
-        this.resourceIds = bizClient.getResourceIds();
+        this.resourceIds = bizClient.getFollowing().stream().map(e -> e.getId().toString()).collect(Collectors.toSet());
         this.grantedAuthorities = bizClient.getGrantedAuthorities();
     }
 
