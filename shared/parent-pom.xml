@@ -25,11 +25,11 @@
         <sonar.exclusions>**/shared/**/*,**/exception/**/*,**/config/**/*</sonar.exclusions>
     </properties>
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>com.github.publicdevop2019</groupId>-->
-<!--            <artifactId>mt-common</artifactId>-->
-<!--            <version>[0.0.0,)</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.github.publicdevop2019</groupId>
+            <artifactId>mt-common</artifactId>
+            <version>[0.0.0,)</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
