@@ -1,6 +1,9 @@
 package com.mt.identityaccess.domain.model.user;
 
-import com.mt.identityaccess.domain.model.pending_user.AppPendingUserApplicationService;
+import com.mt.identityaccess.application.AppBizUserApplicationService;
+import com.mt.identityaccess.application.AppPendingUserApplicationService;
+import com.mt.identityaccess.port.adapter.service.HttpPasswordResetAdapter;
+import com.mt.identityaccess.port.adapter.service.HttpRevokeBizUserTokenAdapter;
 import com.mt.identityaccess.application.representation.AppPendingUserCardRep;
 import com.mt.identityaccess.application.command.*;
 import com.mt.identityaccess.application.representation.AppBizUserCardRep;
@@ -136,7 +139,7 @@ public class BizUser extends Auditable implements Aggregate {
      * update pwd, id is part of bearer token,
      * must revoke issued token if pwd changed
      */
-    public BizUser replace(UserUpdateBizUserPasswordCommand command, RevokeBizUserTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
+    public BizUser replace(UserUpdateBizUserPasswordCommand command, HttpRevokeBizUserTokenAdapter tokenRevocationService, BCryptPasswordEncoder encoder) {
         if (!StringUtils.hasText(command.getPassword()) || !StringUtils.hasText(command.getCurrentPwd()))
             throw new IllegalArgumentException("password(s)");
         if (!encoder.matches(command.getCurrentPwd(), this.getPassword()))
@@ -147,7 +150,7 @@ public class BizUser extends Auditable implements Aggregate {
     }
 
 
-    public BizUser replace(AdminUpdateBizUserCommand command, RevokeBizUserTokenService tokenRevocationService) {
+    public BizUser replace(AdminUpdateBizUserCommand command, HttpRevokeBizUserTokenAdapter tokenRevocationService) {
         validateBeforeUpdate(command);
         shouldRevoke(command, tokenRevocationService);
         this.setGrantedAuthorities(command.getGrantedAuthorities());
@@ -182,7 +185,7 @@ public class BizUser extends Auditable implements Aggregate {
      * @param tokenRevocationService
      * @return
      */
-    public void shouldRevoke(AdminUpdateBizUserCommand command, RevokeBizUserTokenService tokenRevocationService) {
+    public void shouldRevoke(AdminUpdateBizUserCommand command, HttpRevokeBizUserTokenAdapter tokenRevocationService) {
         if (authorityChanged(getGrantedAuthorities(), command.getGrantedAuthorities())) {
             tokenRevocationService.blacklist(this.getId());
         } else {
@@ -196,7 +199,7 @@ public class BizUser extends Auditable implements Aggregate {
         return !old.equals(next);
     }
 
-    public void replace(Object command, PwdResetEmailService emailService, RevokeBizUserTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
+    public void replace(Object command, HttpPasswordResetAdapter emailService, HttpRevokeBizUserTokenAdapter tokenRevocationService, BCryptPasswordEncoder encoder) {
         if (command instanceof AppForgetBizUserPasswordCommand) {
             replace((AppForgetBizUserPasswordCommand) command, emailService);
         } else if (command instanceof AppResetBizUserPasswordCommand) {
@@ -204,13 +207,13 @@ public class BizUser extends Auditable implements Aggregate {
         }
     }
 
-    private void replace(AppForgetBizUserPasswordCommand command, PwdResetEmailService emailService) {
+    private void replace(AppForgetBizUserPasswordCommand command, HttpPasswordResetAdapter emailService) {
         String s = generateToken();
         this.setPwdResetToken(s);
         emailService.sendPasswordResetLink(s, command.getEmail());
     }
 
-    private void replace(AppResetBizUserPasswordCommand command, RevokeBizUserTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
+    private void replace(AppResetBizUserPasswordCommand command, HttpRevokeBizUserTokenAdapter tokenRevocationService, BCryptPasswordEncoder encoder) {
         if (this.getPwdResetToken() == null)
             throw new IllegalArgumentException("token not exist");
         if (!this.getPwdResetToken().equals(command.getToken()))

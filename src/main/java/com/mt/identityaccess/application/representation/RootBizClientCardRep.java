@@ -1,9 +1,9 @@
 package com.mt.identityaccess.application.representation;
 
-import com.mt.identityaccess.domain.model.app.BizClient;
-import com.mt.identityaccess.domain.model.app.BizClientAuthorityEnum;
-import com.mt.identityaccess.domain.model.app.GrantTypeEnum;
-import com.mt.identityaccess.domain.model.app.ScopeEnum;
+import com.mt.identityaccess.domain.model.client.BizClient;
+import com.mt.identityaccess.domain.model.client.BizClientAuthorityEnum;
+import com.mt.identityaccess.domain.model.client.GrantTypeEnum;
+import com.mt.identityaccess.domain.model.client.ScopeEnum;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;

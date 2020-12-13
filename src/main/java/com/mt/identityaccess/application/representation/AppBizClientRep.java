@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.representation;
 
-import com.mt.identityaccess.domain.model.app.*;
+import com.mt.identityaccess.domain.model.client.*;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.GrantedAuthority;

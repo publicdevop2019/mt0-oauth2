@@ -1,8 +1,8 @@
 package com.mt.identityaccess.application.command;
 
-import com.mt.identityaccess.domain.model.app.BizClientAuthorityEnum;
-import com.mt.identityaccess.domain.model.app.GrantTypeEnum;
-import com.mt.identityaccess.domain.model.app.ScopeEnum;
+import com.mt.identityaccess.domain.model.client.BizClientAuthorityEnum;
+import com.mt.identityaccess.domain.model.client.GrantTypeEnum;
+import com.mt.identityaccess.domain.model.client.ScopeEnum;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,7 +1,8 @@
 package com.hw.config;
 
-import com.mt.identityaccess.domain.model.app.AppBizClientApplicationService;
-import com.mt.identityaccess.domain.model.user.AppBizUserApplicationService;
+import com.mt.identityaccess.application.AppBizClientApplicationService;
+import com.mt.identityaccess.application.AppBizUserApplicationService;
+import com.mt.identityaccess.infrastructure.service.SelfSignedJwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,7 +33,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     AppBizUserApplicationService userDetailsService;
 
     @Autowired
-    SelfSignedTokenConfig authTokenHelper;
+    SelfSignedJwtTokenService authTokenHelper;
 
     @Autowired
     AppBizClientApplicationService clientDetailsService;

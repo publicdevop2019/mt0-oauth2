@@ -1,6 +1,6 @@
 package com.mt.identityaccess.resource;
 
-import com.mt.identityaccess.domain.model.authorize_code.AuthorizeCodeApplicationService;
+import com.mt.identityaccess.application.AuthorizeCodeApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;

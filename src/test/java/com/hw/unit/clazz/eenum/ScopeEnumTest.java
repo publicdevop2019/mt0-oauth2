@@ -1,6 +1,6 @@
 package com.hw.unit.clazz.eenum;
 
-import com.mt.identityaccess.domain.model.app.ScopeEnum;
+import com.mt.identityaccess.domain.model.client.ScopeEnum;
 import org.junit.Assert;
 import org.junit.Test;
 

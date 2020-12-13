@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.user;
 
-import com.mt.identityaccess.domain.model.app.EnumSetConverter;
+import com.mt.identityaccess.domain.model.client.EnumSetConverter;
 
 public enum BizUserAuthorityEnum {
     ROLE_ADMIN,

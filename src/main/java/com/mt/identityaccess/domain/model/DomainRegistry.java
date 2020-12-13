@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model;
 
-import com.mt.identityaccess.domain.model.app.BizClientRepository;
+import com.mt.identityaccess.domain.model.client.BizClientRepository;
 import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
 import com.mt.identityaccess.domain.model.user.BizUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

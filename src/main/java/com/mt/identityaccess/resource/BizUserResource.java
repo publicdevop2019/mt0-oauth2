@@ -1,9 +1,9 @@
 package com.mt.identityaccess.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.identityaccess.domain.model.user.AdminBizUserApplicationService;
-import com.mt.identityaccess.domain.model.user.AppBizUserApplicationService;
-import com.mt.identityaccess.domain.model.user.UserBizUserApplicationService;
+import com.mt.identityaccess.application.AdminBizUserApplicationService;
+import com.mt.identityaccess.application.AppBizUserApplicationService;
+import com.mt.identityaccess.application.UserBizUserApplicationService;
 import com.mt.identityaccess.application.command.*;
 import com.mt.identityaccess.application.representation.AdminBizUserCardRep;
 import com.mt.identityaccess.application.representation.AdminBizUserRep;

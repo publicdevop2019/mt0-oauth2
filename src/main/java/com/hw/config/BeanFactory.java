@@ -1,6 +1,6 @@
 package com.hw.config;
 
-import com.mt.identityaccess.domain.model.app.AppBizClientApplicationService;
+import com.mt.identityaccess.application.AppBizClientApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;

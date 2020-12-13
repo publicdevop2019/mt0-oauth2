@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.pending_user;
 
-import com.mt.identityaccess.domain.model.user.AppBizUserApplicationService;
+import com.mt.identityaccess.application.AppBizUserApplicationService;
 import com.mt.identityaccess.application.representation.AppBizUserCardRep;
 import com.hw.shared.Auditable;
 import com.hw.shared.IdGenerator;

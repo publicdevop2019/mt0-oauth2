@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.representation;
 
-import com.mt.identityaccess.domain.model.app.GrantedAuthorityImpl;
+import com.mt.identityaccess.domain.model.client.GrantedAuthorityImpl;
 import com.mt.identityaccess.domain.model.user.BizUser;
 import com.mt.identityaccess.domain.model.user.BizUserAuthorityEnum;
 import lombok.Data;

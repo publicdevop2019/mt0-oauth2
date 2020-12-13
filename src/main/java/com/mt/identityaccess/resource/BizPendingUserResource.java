@@ -1,6 +1,6 @@
 package com.mt.identityaccess.resource;
 
-import com.mt.identityaccess.domain.model.pending_user.AppPendingUserApplicationService;
+import com.mt.identityaccess.application.AppPendingUserApplicationService;
 import com.mt.identityaccess.application.command.AppCreatePendingUserCommand;
 import com.hw.shared.validation.BizValidator;
 import org.springframework.beans.factory.annotation.Autowired;

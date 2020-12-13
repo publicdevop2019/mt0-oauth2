@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.user;
 
-import com.mt.identityaccess.domain.model.app.GrantedAuthorityImpl;
+import com.mt.identityaccess.domain.model.client.GrantedAuthorityImpl;
 
 import javax.persistence.AttributeConverter;
 import java.util.Arrays;

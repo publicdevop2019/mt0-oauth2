@@ -1,7 +1,7 @@
 package com.hw.unit.clazz;
 
-import com.mt.identityaccess.domain.model.app.BizClientAuthorityEnum;
-import com.mt.identityaccess.domain.model.app.GrantedAuthorityImpl;
+import com.mt.identityaccess.domain.model.client.BizClientAuthorityEnum;
+import com.mt.identityaccess.domain.model.client.GrantedAuthorityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
