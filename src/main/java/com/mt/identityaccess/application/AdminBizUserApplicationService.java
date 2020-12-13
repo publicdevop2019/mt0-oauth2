@@ -6,7 +6,7 @@ import com.mt.identityaccess.application.representation.AdminBizUserRep;
 import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import com.mt.identityaccess.domain.model.user.AdminBizUserPatchMiddleLayer;
-import com.mt.identityaccess.domain.model.user.BizUser;
+import com.mt.identityaccess.domain.model.user.User;
 import com.mt.identityaccess.port.adapter.service.HttpRevokeBizUserTokenAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -19,9 +19,9 @@ import static com.hw.shared.AppConstant.HTTP_HEADER_AUTHORIZATION;
 
 @Slf4j
 @Service
-public class AdminBizUserApplicationService extends RoleBasedRestfulService<BizUser, AdminBizUserCardRep, AdminBizUserRep, AdminBizUserPatchMiddleLayer> {
+public class AdminBizUserApplicationService extends RoleBasedRestfulService<User, AdminBizUserCardRep, AdminBizUserRep, AdminBizUserPatchMiddleLayer> {
     {
-        entityClass = BizUser.class;
+        entityClass = User.class;
         role = RestfulQueryRegistry.RoleEnum.ADMIN;
         entityPatchSupplier = AdminBizUserPatchMiddleLayer::new;
     }
@@ -29,33 +29,33 @@ public class AdminBizUserApplicationService extends RoleBasedRestfulService<BizU
     HttpRevokeBizUserTokenAdapter tokenRevocationService;
 
     @Override
-    public BizUser replaceEntity(BizUser storedBizUser, Object command) {
+    public User replaceEntity(User storedBizUser, Object command) {
         return storedBizUser.replace((AdminUpdateBizUserCommand) command, tokenRevocationService);
     }
 
     @Override
-    public AdminBizUserCardRep getEntitySumRepresentation(BizUser bizUser) {
+    public AdminBizUserCardRep getEntitySumRepresentation(User bizUser) {
         return new AdminBizUserCardRep(bizUser);
     }
 
     @Override
-    public AdminBizUserRep getEntityRepresentation(BizUser bizUser) {
+    public AdminBizUserRep getEntityRepresentation(User bizUser) {
         return new AdminBizUserRep(bizUser);
     }
 
 
     @Override
-    protected void preDelete(BizUser bizUser) {
+    protected void preDelete(User bizUser) {
         bizUser.validateBeforeDelete();
     }
 
     @Override
-    protected void postDelete(BizUser bizUser) {
+    protected void postDelete(User bizUser) {
         tokenRevocationService.blacklist(bizUser.getId());
     }
 
     @Override
-    protected void prePatch(BizUser bizUser, Map<String, Object> params, AdminBizUserPatchMiddleLayer middleLayer) {
+    protected void prePatch(User bizUser, Map<String, Object> params, AdminBizUserPatchMiddleLayer middleLayer) {
         AdminUpdateBizUserCommand adminUpdateBizUserCommand = new AdminUpdateBizUserCommand();
         adminUpdateBizUserCommand.setAuthorization((String) params.get(HTTP_HEADER_AUTHORIZATION));
         BeanUtils.copyProperties(bizUser, adminUpdateBizUserCommand);
@@ -65,7 +65,7 @@ public class AdminBizUserApplicationService extends RoleBasedRestfulService<BizU
 
     }
     @Override
-    protected void postPatch(BizUser bizUser, Map<String, Object> params, AdminBizUserPatchMiddleLayer middleLayer) {
+    protected void postPatch(User bizUser, Map<String, Object> params, AdminBizUserPatchMiddleLayer middleLayer) {
         bizUser.validateAfterUpdate();
     }
 

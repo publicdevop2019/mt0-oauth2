@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.representation;
 
-import com.mt.identityaccess.domain.model.user.BizUser;
+import com.mt.identityaccess.domain.model.user.User;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -10,7 +10,7 @@ public class AppBizUserCardRep {
 
     private String email;
 
-    public AppBizUserCardRep(BizUser bizUser) {
+    public AppBizUserCardRep(User bizUser) {
         BeanUtils.copyProperties(bizUser, this);
     }
 }

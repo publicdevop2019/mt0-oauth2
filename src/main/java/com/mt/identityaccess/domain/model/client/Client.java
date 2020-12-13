@@ -2,15 +2,16 @@ package com.mt.identityaccess.domain.model.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
-import com.mt.identityaccess.application.AppBizClientApplicationService;
-import com.mt.identityaccess.application.command.RootCreateBizClientCommand;
-import com.mt.identityaccess.application.command.RootUpdateBizClientCommand;
-import com.mt.identityaccess.application.representation.AppBizClientCardRep;
+import com.hw.config.DomainEventPublisher;
 import com.hw.shared.Auditable;
 import com.hw.shared.StringSetConverter;
 import com.hw.shared.rest.Aggregate;
 import com.hw.shared.sql.SumPagedRep;
-import com.mt.identityaccess.port.adapter.service.HttpRevokeBizClientTokenAdapter;
+import com.mt.identityaccess.application.AppBizClientApplicationService;
+import com.mt.identityaccess.application.command.ProvisionClientCommand;
+import com.mt.identityaccess.application.command.ReplaceClientCommand;
+import com.mt.identityaccess.application.representation.AppBizClientCardRep;
+import com.mt.identityaccess.domain.model.RevokeTokenService;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @Where(clause = "deleted = false")
-public class BizClient extends Auditable implements Aggregate {
+public class Client extends Auditable implements Aggregate {
     public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
     public static final String ENTITY_NAME = "name";
@@ -48,6 +49,7 @@ public class BizClient extends Auditable implements Aggregate {
     public static final String ENTITY_RESOURCE_IDS = "resourceIds";
     @Id
     private Long id;
+    private ClientId clientId;
     private String description;
     @Column
     @Nullable
@@ -84,10 +86,10 @@ public class BizClient extends Auditable implements Aggregate {
 
     @JsonIgnore
     @ManyToMany(mappedBy = "following")
-    private Set<BizClient> followers = new HashSet<>();
+    private Set<Client> followers = new HashSet<>();
 
     @ManyToMany
-    private Set<BizClient> following = new HashSet<>();
+    private Set<Client> following = new HashSet<>();
     /**
      * indicates if a client is a resource, if true resource id will default to client id
      */
@@ -113,7 +115,7 @@ public class BizClient extends Auditable implements Aggregate {
     @Setter(AccessLevel.NONE)
     private Integer version;
 
-    private BizClient(long id, RootCreateBizClientCommand command, CrudRepository<BizClient, Long> repo) {
+    private Client(long id, ProvisionClientCommand command, CrudRepository<Client, Long> repo) {
         this.id = id;
         this.clientSecret = command.getClientSecret();
         this.description = command.getDescription();
@@ -133,8 +135,12 @@ public class BizClient extends Auditable implements Aggregate {
         this.name = command.getName();
     }
 
-    public static BizClient create(long id, RootCreateBizClientCommand command, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder, CrudRepository<BizClient, Long> repo) {
-        BizClient client = new BizClient(id, command, repo);
+    public Client(ClientId nextIdentity, BasicClientDetail basicClientDetail, ClientCredentialsGrantDetail clientRepository, PasswordGrantDetail passwordGrantDetail, RefreshTokenGrantDetail refreshTokenGrantDetail, AuthorizationCodeGrantDetail authorizationCodeGrantDetail) {
+
+    }
+
+    public static Client create(long id, ProvisionClientCommand command, AppBizClientApplicationService appBizClientApplicationService, BCryptPasswordEncoder encoder, CrudRepository<Client, Long> repo) {
+        Client client = new Client(id, command, repo);
         validateResourceId(client);
         validateResourceIndicator(client);
         SumPagedRep<AppBizClientCardRep> appBizClientCardRepSumPagedRep = appBizClientApplicationService.readByQuery("id:" + client.getId(), null, null);
@@ -153,7 +159,7 @@ public class BizClient extends Auditable implements Aggregate {
     /**
      * selected resource ids should be eligible resource, nullable
      */
-    public static void validateResourceId(BizClient client) {
+    public static void validateResourceId(Client client) {
         if (client.getFollowing() != null && !client.getFollowing().isEmpty()) {
             if (client.getFollowing().stream().anyMatch(e -> !e.isResourceIndicator()))
                 throw new IllegalArgumentException("invalid resourceId found");
@@ -163,13 +169,13 @@ public class BizClient extends Auditable implements Aggregate {
     /**
      * if client is marked as resource then it must be a backend and first party application
      */
-    public static void validateResourceIndicator(BizClient client) {
+    public static void validateResourceIndicator(Client client) {
         if (Boolean.TRUE.equals(client.isResourceIndicator()) && (client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_BACKEND))
                 || client.getGrantedAuthorities().stream().noneMatch(e -> e.equals(BizClientAuthorityEnum.ROLE_FIRST_PARTY))))
             throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
     }
 
-    public BizClient replace(RootUpdateBizClientCommand command, HttpRevokeBizClientTokenAdapter tokenRevocationService, BCryptPasswordEncoder encoder, CrudRepository<BizClient, Long> repo) {
+    public Client replace(ReplaceClientCommand command, RevokeTokenService tokenRevocationService, BCryptPasswordEncoder encoder, CrudRepository<Client, Long> repo) {
         shouldRevoke(command, tokenRevocationService);
         validateResourceId(this);
         if (StringUtils.hasText(command.getClientSecret())) {
@@ -202,7 +208,7 @@ public class BizClient extends Auditable implements Aggregate {
             throw new RootClientDeleteException();
     }
 
-    public void shouldRevoke(RootUpdateBizClientCommand newClient, HttpRevokeBizClientTokenAdapter tokenRevocationService) {
+    public void shouldRevoke(ReplaceClientCommand newClient, RevokeTokenService tokenRevocationService) {
 
         if (StringUtils.hasText(newClient.getClientSecret())
                 || authorityChanged(this, newClient)
@@ -214,15 +220,15 @@ public class BizClient extends Auditable implements Aggregate {
                 || redirectUrlChanged(this, newClient)
 
         ) {
-            tokenRevocationService.blacklist(this.getId());
+            tokenRevocationService.revokeClientToken(getClientId());
         }
     }
 
-    private boolean authorityChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
+    private boolean authorityChanged(Client oldClient, ReplaceClientCommand newClient) {
         return !oldClient.getGrantedAuthorities().equals(newClient.getGrantedAuthorities());
     }
 
-    private boolean scopeChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
+    private boolean scopeChanged(Client oldClient, ReplaceClientCommand newClient) {
         return !oldClient.getScopeEnums().equals(newClient.getScopeEnums());
     }
 
@@ -233,11 +239,11 @@ public class BizClient extends Auditable implements Aggregate {
      * @param newClient
      * @return
      */
-    private boolean accessTokenChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
+    private boolean accessTokenChanged(Client oldClient, ReplaceClientCommand newClient) {
         return !oldClient.getAccessTokenValiditySeconds().equals(newClient.getAccessTokenValiditySeconds());
     }
 
-    private boolean refreshTokenChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
+    private boolean refreshTokenChanged(Client oldClient, ReplaceClientCommand newClient) {
         if (oldClient.getRefreshTokenValiditySeconds() == null && newClient.getRefreshTokenValiditySeconds() == null) {
             return false;
         } else if (oldClient.getRefreshTokenValiditySeconds() != null && oldClient.getRefreshTokenValiditySeconds().equals(newClient.getRefreshTokenValiditySeconds())) {
@@ -246,11 +252,11 @@ public class BizClient extends Auditable implements Aggregate {
             return newClient.getRefreshTokenValiditySeconds() == null || !newClient.getRefreshTokenValiditySeconds().equals(oldClient.getRefreshTokenValiditySeconds());
     }
 
-    private boolean grantTypeChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
+    private boolean grantTypeChanged(Client oldClient, ReplaceClientCommand newClient) {
         return !oldClient.getGrantTypeEnums().equals(newClient.getGrantTypeEnums());
     }
 
-    private boolean redirectUrlChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
+    private boolean redirectUrlChanged(Client oldClient, ReplaceClientCommand newClient) {
         if ((oldClient.getRegisteredRedirectUri() == null || oldClient.getRegisteredRedirectUri().isEmpty())
                 && (newClient.getRegisteredRedirectUri() == null || newClient.getRegisteredRedirectUri().isEmpty())) {
             return false;
@@ -260,20 +266,36 @@ public class BizClient extends Auditable implements Aggregate {
             return newClient.getRegisteredRedirectUri() == null || !newClient.getRegisteredRedirectUri().equals(oldClient.getRegisteredRedirectUri());
     }
 
-    private boolean resourceIdChanged(BizClient oldClient, RootUpdateBizClientCommand newClient) {
+    private boolean resourceIdChanged(Client oldClient, ReplaceClientCommand newClient) {
         return !oldClient.getFollowing().stream().map(e -> e.getId().toString()).collect(Collectors.toSet()).equals(newClient.getResourceIds());
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BizClient)) return false;
-        BizClient bizClient = (BizClient) o;
+        if (!(o instanceof Client)) return false;
+        Client bizClient = (Client) o;
         return Objects.equal(id, bizClient.id);
     }
 
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    public ClientId clientId(){
+        return clientId;
+    }
+
+    public void replace(BasicClientDetail basicClientDetail, ClientCredentialsGrantDetail clientCredentialsGrantDetail, PasswordGrantDetail passwordGrantDetail, RefreshTokenGrantDetail refreshTokenGrantDetail, AuthorizationCodeGrantDetail authorizationCodeGrantDetail) {
+        DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
+    }
+
+    public boolean allowRemoval() {
+        return true;
+    }
+
+    public void replace(BasicClientDetail basicClientDetail, ClientCredentialsGrantDetail clientCredentialsGrantDetail, PasswordGrantDetail passwordGrantDetail) {
+        DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
     }
 }

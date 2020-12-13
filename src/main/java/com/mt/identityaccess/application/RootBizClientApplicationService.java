@@ -1,14 +1,14 @@
 package com.mt.identityaccess.application;
 
-import com.mt.identityaccess.application.command.RootCreateBizClientCommand;
-import com.mt.identityaccess.application.command.RootUpdateBizClientCommand;
-import com.mt.identityaccess.application.representation.RootBizClientCardRep;
-import com.mt.identityaccess.application.representation.RootBizClientRep;
+import com.mt.identityaccess.application.command.ProvisionClientCommand;
+import com.mt.identityaccess.application.command.ReplaceClientCommand;
+import com.mt.identityaccess.application.representation.RootClientCardRepresentation;
+import com.mt.identityaccess.application.representation.RootClientRepresentation;
 import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.sql.RestfulQueryRegistry;
-import com.mt.identityaccess.domain.model.client.BizClient;
+import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.port.adapter.service.HttpRevokeBizClientTokenAdapter;
-import com.mt.identityaccess.domain.model.client.RootBizClientPatchMiddleLayer;
+import com.mt.identityaccess.domain.model.client.ClientPatchingMiddleLayer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +20,11 @@ import java.util.Map;
 @SuppressWarnings("unused")
 @Service
 @Slf4j
-public class RootBizClientApplicationService extends RoleBasedRestfulService<BizClient, RootBizClientCardRep, RootBizClientRep, RootBizClientPatchMiddleLayer> {
+public class RootBizClientApplicationService extends RoleBasedRestfulService<Client, RootClientCardRepresentation, RootClientRepresentation, ClientPatchingMiddleLayer> {
     {
-        entityClass = BizClient.class;
+        entityClass = Client.class;
         role = RestfulQueryRegistry.RoleEnum.ROOT;
-        entityPatchSupplier = RootBizClientPatchMiddleLayer::new;
+        entityPatchSupplier = ClientPatchingMiddleLayer::new;
     }
 
     @Autowired
@@ -36,46 +36,46 @@ public class RootBizClientApplicationService extends RoleBasedRestfulService<Biz
     AppBizClientApplicationService appBizClientApplicationService;
 
     @Override
-    public BizClient replaceEntity(BizClient stored, Object command) {
-        return stored.replace((RootUpdateBizClientCommand) command, tokenRevocationService, encoder,repo);
+    public Client replaceEntity(Client stored, Object command) {
+        return stored.replace((ReplaceClientCommand) command, tokenRevocationService, encoder,repo);
     }
 
     @Override
-    protected void preDelete(BizClient bizClient) {
+    protected void preDelete(Client bizClient) {
         bizClient.validateDelete();
     }
 
     @Override
-    protected void postDelete(BizClient bizClient) {
+    protected void postDelete(Client bizClient) {
         tokenRevocationService.blacklist(bizClient.getId());
     }
 
     @Override
-    protected void prePatch(BizClient bizClient, Map<String, Object> params, RootBizClientPatchMiddleLayer middleLayer) {
-        RootUpdateBizClientCommand updateClientCommand = new RootUpdateBizClientCommand();
+    protected void prePatch(Client bizClient, Map<String, Object> params, ClientPatchingMiddleLayer middleLayer) {
+        ReplaceClientCommand updateClientCommand = new ReplaceClientCommand();
         BeanUtils.copyProperties(bizClient, updateClientCommand);//copy old values so shouldRevoke will work
         BeanUtils.copyProperties(middleLayer, updateClientCommand);
-        BizClient.validateResourceId(bizClient);
+        Client.validateResourceId(bizClient);
         bizClient.shouldRevoke(updateClientCommand, tokenRevocationService);//make sure validation execute before revoke
     }
 
     @Override
-    protected void postPatch(BizClient bizClient, Map<String, Object> params, RootBizClientPatchMiddleLayer middleLayer) {
-        BizClient.validateResourceIndicator(bizClient);
+    protected void postPatch(Client bizClient, Map<String, Object> params, ClientPatchingMiddleLayer middleLayer) {
+        Client.validateResourceIndicator(bizClient);
     }
 
     @Override
-    public RootBizClientCardRep getEntitySumRepresentation(BizClient client) {
-        return new RootBizClientCardRep(client);
+    public RootClientCardRepresentation getEntitySumRepresentation(Client client) {
+        return new RootClientCardRepresentation(client);
     }
 
     @Override
-    public RootBizClientRep getEntityRepresentation(BizClient client) {
-        return new RootBizClientRep(client);
+    public RootClientRepresentation getEntityRepresentation(Client client) {
+        return new RootClientRepresentation(client);
     }
 
     @Override
-    protected BizClient createEntity(long id, Object command) {
-        return BizClient.create(id, (RootCreateBizClientCommand) command, appBizClientApplicationService, encoder, repo);
+    protected Client createEntity(long id, Object command) {
+        return Client.create(id, (ProvisionClientCommand) command, appBizClientApplicationService, encoder, repo);
     }
 }

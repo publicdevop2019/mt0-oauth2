@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.representation;
 
-import com.mt.identityaccess.domain.model.client.BizClient;
+import com.mt.identityaccess.domain.model.client.Client;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -9,7 +9,7 @@ public class UserBizClientCardRep {
     private Long id;
     private Boolean autoApprove;
 
-    public UserBizClientCardRep(BizClient client) {
+    public UserBizClientCardRep(Object client) {
         BeanUtils.copyProperties(client, this);
     }
 }

@@ -1,7 +1,7 @@
 package com.mt.identityaccess.application.representation;
 
-import com.mt.identityaccess.domain.model.client.BizClient;
 import com.mt.identityaccess.domain.model.client.BizClientAuthorityEnum;
+import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.GrantTypeEnum;
 import com.mt.identityaccess.domain.model.client.ScopeEnum;
 import lombok.Data;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
-public class RootBizClientCardRep {
+public class RootClientCardRepresentation {
 
     protected Long id;
 
@@ -41,8 +41,8 @@ public class RootBizClientCardRep {
 
     protected Integer version;
 
-    public RootBizClientCardRep(BizClient client) {
+    public RootClientCardRepresentation(Object client) {
         BeanUtils.copyProperties(client, this);
-        resourceIds = client.getFollowing().stream().map(e -> e.getId().toString()).collect(Collectors.toSet());
+        resourceIds = ((Client) client).getFollowing().stream().map(e -> e.getId().toString()).collect(Collectors.toSet());
     }
 }

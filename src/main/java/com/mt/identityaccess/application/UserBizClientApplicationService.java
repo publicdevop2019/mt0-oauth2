@@ -4,18 +4,18 @@ import com.mt.identityaccess.application.representation.UserBizClientCardRep;
 import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
-import com.mt.identityaccess.domain.model.client.BizClient;
+import com.mt.identityaccess.domain.model.client.Client;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserBizClientApplicationService extends RoleBasedRestfulService<BizClient, UserBizClientCardRep, Void, VoidTypedClass> {
+public class UserBizClientApplicationService extends RoleBasedRestfulService<Client, UserBizClientCardRep, Void, VoidTypedClass> {
     {
-        entityClass = BizClient.class;
+        entityClass = Client.class;
         role = RestfulQueryRegistry.RoleEnum.USER;
     }
 
     @Override
-    public UserBizClientCardRep getEntitySumRepresentation(BizClient client) {
+    public UserBizClientCardRep getEntitySumRepresentation(Client client) {
         return new UserBizClientCardRep(client);
     }
 

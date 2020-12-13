@@ -4,16 +4,16 @@ import com.mt.identityaccess.application.command.UserUpdateBizUserPasswordComman
 import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
-import com.mt.identityaccess.domain.model.user.BizUser;
+import com.mt.identityaccess.domain.model.user.User;
 import com.mt.identityaccess.port.adapter.service.HttpRevokeBizUserTokenAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserBizUserApplicationService extends RoleBasedRestfulService<BizUser, Void, Void, VoidTypedClass> {
+public class UserBizUserApplicationService extends RoleBasedRestfulService<User, Void, Void, VoidTypedClass> {
     {
-        entityClass = BizUser.class;
+        entityClass = User.class;
         role = RestfulQueryRegistry.RoleEnum.USER;
     }
 
@@ -24,7 +24,7 @@ public class UserBizUserApplicationService extends RoleBasedRestfulService<BizUs
     HttpRevokeBizUserTokenAdapter tokenRevocationService;
 
     @Override
-    public BizUser replaceEntity(BizUser storedBizUser, Object command) {
+    public User replaceEntity(User storedBizUser, Object command) {
         return storedBizUser.replace((UserUpdateBizUserPasswordCommand) command, tokenRevocationService, encoder);
     }
 

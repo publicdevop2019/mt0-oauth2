@@ -6,10 +6,10 @@ import com.hw.shared.sql.clause.SelectFieldNumberRangeClause;
 import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
 import org.springframework.stereotype.Component;
 
-import static com.mt.identityaccess.domain.model.client.BizClient.*;
+import static com.mt.identityaccess.domain.model.client.Client.*;
 
 @Component
-public class RootBizClientSelectQueryBuilder extends SelectQueryBuilder<BizClient> {
+public class RootBizClientSelectQueryBuilder extends SelectQueryBuilder<Client> {
     {
         DEFAULT_PAGE_SIZE = 1000;
         MAX_PAGE_SIZE = 2000;

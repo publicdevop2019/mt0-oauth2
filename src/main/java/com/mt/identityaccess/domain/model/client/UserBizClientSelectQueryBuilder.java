@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import static com.hw.shared.AppConstant.COMMON_ENTITY_ID;
 
 @Component
-public class UserBizClientSelectQueryBuilder extends SelectQueryBuilder<BizClient> {
+public class UserBizClientSelectQueryBuilder extends SelectQueryBuilder<Client> {
     {
         supportedWhereField.put("clientId", new SelectFieldLongEqualClause<>(COMMON_ENTITY_ID));
     }

@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Data
 @Slf4j
-public class RootCreateBizClientCommand implements Serializable {
+public class ProvisionClientCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private String clientSecret;
     private boolean hasSecret;

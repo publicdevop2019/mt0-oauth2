@@ -1,7 +1,7 @@
 package com.mt.identityaccess.infrastructure.service;
 
 import com.mt.identityaccess.application.AppBizClientApplicationService;
-import com.mt.identityaccess.application.representation.AppBizClientRep;
+import com.mt.identityaccess.application.representation.ClientDetailsRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -27,7 +27,7 @@ public class SelfSignedJwtTokenService {
     }
 
     public OAuth2AccessToken getSelfSignedAccessToken() {
-        AppBizClientRep appBizClientRep = appBizClientApplicationService.readById(clientId);
+        ClientDetailsRepresentation appBizClientRep = appBizClientApplicationService.readById(clientId);
         TokenRequest tokenRequest = new TokenRequest(null, appBizClientRep.getClientId(), appBizClientRep.getScope(), CLIENT_CREDENTIALS.name().toLowerCase());
         return tokenGranter.grant(CLIENT_CREDENTIALS.name().toLowerCase(), tokenRequest);
     }

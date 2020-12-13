@@ -10,7 +10,7 @@ public class AdminBizUserPatchMiddleLayer extends TypedClass<AdminBizUserPatchMi
     private boolean locked;
     private Set<BizUserAuthorityEnum> grantedAuthorities;
 
-    public AdminBizUserPatchMiddleLayer(BizUser bizUser) {
+    public AdminBizUserPatchMiddleLayer(User bizUser) {
         super(AdminBizUserPatchMiddleLayer.class);
         this.locked = bizUser.isLocked();
         this.grantedAuthorities = bizUser.getGrantedAuthorities();

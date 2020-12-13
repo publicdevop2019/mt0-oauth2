@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.representation;
 
-import com.mt.identityaccess.domain.model.user.BizUser;
+import com.mt.identityaccess.domain.model.user.User;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -8,7 +8,7 @@ import org.springframework.beans.BeanUtils;
 public class PublicBizUserCardRep {
     private Long id;
 
-    public PublicBizUserCardRep(BizUser bizUser) {
+    public PublicBizUserCardRep(User bizUser) {
         BeanUtils.copyProperties(bizUser, this);
     }
 }

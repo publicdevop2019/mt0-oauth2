@@ -1,9 +1,7 @@
 package com.mt.identityaccess.domain.model.pending_user;
 
-import com.mt.identityaccess.domain.model.pending_user.PendingUser;
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
 
-public interface PendingUserRepository extends JpaRepository<PendingUser, Long> {
-
-    PendingUser findOneByEmail(String email);
+public interface PendingUserRepository {
+    Optional<PendingUser> registeredUsing(String email);
 }

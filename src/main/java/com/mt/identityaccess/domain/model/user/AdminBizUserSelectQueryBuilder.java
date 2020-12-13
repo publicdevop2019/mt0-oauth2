@@ -5,10 +5,10 @@ import com.hw.shared.sql.clause.SelectFieldBooleanEqualClause;
 import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
 import org.springframework.stereotype.Component;
 
-import static com.mt.identityaccess.domain.model.user.BizUser.*;
+import static com.mt.identityaccess.domain.model.user.User.*;
 
 @Component
-public class AdminBizUserSelectQueryBuilder extends SelectQueryBuilder<BizUser> {
+public class AdminBizUserSelectQueryBuilder extends SelectQueryBuilder<User> {
     {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 50;

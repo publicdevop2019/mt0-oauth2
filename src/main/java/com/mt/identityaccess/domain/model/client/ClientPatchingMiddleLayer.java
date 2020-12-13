@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class RootBizClientPatchMiddleLayer extends TypedClass<RootBizClientPatchMiddleLayer> {
+public class ClientPatchingMiddleLayer extends TypedClass<ClientPatchingMiddleLayer> {
     private String description;
     private String name;
     private boolean resourceIndicator;
@@ -17,8 +17,8 @@ public class RootBizClientPatchMiddleLayer extends TypedClass<RootBizClientPatch
     private Integer accessTokenValiditySeconds;
     private Set<String> resourceIds;
 
-    public RootBizClientPatchMiddleLayer(BizClient bizClient) {
-        super(RootBizClientPatchMiddleLayer.class);
+    public ClientPatchingMiddleLayer(Client bizClient) {
+        super(ClientPatchingMiddleLayer.class);
         this.description = bizClient.getDescription();
         this.name = bizClient.getName();
         this.resourceIndicator = bizClient.isResourceIndicator();
@@ -29,7 +29,7 @@ public class RootBizClientPatchMiddleLayer extends TypedClass<RootBizClientPatch
         this.grantedAuthorities = bizClient.getGrantedAuthorities();
     }
 
-    public RootBizClientPatchMiddleLayer() {
-        super(RootBizClientPatchMiddleLayer.class);
+    public ClientPatchingMiddleLayer() {
+        super(ClientPatchingMiddleLayer.class);
     }
 }

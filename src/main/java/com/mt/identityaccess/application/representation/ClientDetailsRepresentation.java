@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class AppBizClientRep implements ClientDetails {
+public class ClientDetailsRepresentation implements ClientDetails {
     private Long id;
     private String clientSecret;
     private Set<GrantTypeEnum> grantTypeEnums;
@@ -25,7 +25,7 @@ public class AppBizClientRep implements ClientDetails {
     private Boolean autoApprove;
     private Boolean hasSecret;
 
-    public AppBizClientRep(BizClient bizClient) {
+    public ClientDetailsRepresentation(Client bizClient) {
         BeanUtils.copyProperties(bizClient, this);
     }
 

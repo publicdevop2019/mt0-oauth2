@@ -9,7 +9,7 @@ import com.hw.shared.rest.RoleBasedRestfulService;
 import com.hw.shared.rest.VoidTypedClass;
 import com.hw.shared.sql.RestfulQueryRegistry;
 import com.hw.shared.sql.SumPagedRep;
-import com.mt.identityaccess.domain.model.user.BizUser;
+import com.mt.identityaccess.domain.model.user.User;
 import com.mt.identityaccess.port.adapter.service.HttpPasswordResetAdapter;
 import com.mt.identityaccess.port.adapter.service.HttpRevokeBizUserTokenAdapter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +21,9 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class AppBizUserApplicationService extends RoleBasedRestfulService<BizUser, AppBizUserCardRep, AppBizUserRep, VoidTypedClass> implements UserDetailsService {
+public class AppBizUserApplicationService extends RoleBasedRestfulService<User, AppBizUserCardRep, AppBizUserRep, VoidTypedClass> implements UserDetailsService {
     {
-        entityClass = BizUser.class;
+        entityClass = User.class;
         role = RestfulQueryRegistry.RoleEnum.APP;
     }
     @Autowired
@@ -40,32 +40,32 @@ public class AppBizUserApplicationService extends RoleBasedRestfulService<BizUse
 
 
     @Override
-    public BizUser replaceEntity(BizUser bizUser, Object command) {
+    public User replaceEntity(User bizUser, Object command) {
         bizUser.replace(command, emailService, tokenRevocationService, encoder);
         return bizUser;
     }
 
     @Override
-    public AppBizUserCardRep getEntitySumRepresentation(BizUser bizUser) {
+    public AppBizUserCardRep getEntitySumRepresentation(User bizUser) {
         return new AppBizUserCardRep(bizUser);
     }
 
     @Override
-    public AppBizUserRep getEntityRepresentation(BizUser bizUser) {
+    public AppBizUserRep getEntityRepresentation(User bizUser) {
         return new AppBizUserRep(bizUser);
     }
 
     public void sendForgetPassword(AppForgetBizUserPasswordCommand command, String changeId) {
-        BizUser.createForgetPwdToken(command, this, changeId);
+        User.createForgetPwdToken(command, this, changeId);
     }
 
     public void resetPassword(AppResetBizUserPasswordCommand command, String changeId) {
-        BizUser.resetPwd(command, this, changeId);
+        User.resetPwd(command, this, changeId);
     }
 
     @Override
-    protected BizUser createEntity(long id, Object command) {
-        return BizUser.create(id, (AppCreateBizUserCommand) command, encoder, pendingUserApplicationService, this);
+    protected User createEntity(long id, Object command) {
+        return User.create(id, (AppCreateBizUserCommand) command, encoder, pendingUserApplicationService, this);
 
     }
 

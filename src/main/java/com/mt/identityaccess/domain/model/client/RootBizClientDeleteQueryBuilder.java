@@ -4,5 +4,5 @@ import com.hw.shared.sql.builder.SoftDeleteQueryBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RootBizClientDeleteQueryBuilder extends SoftDeleteQueryBuilder<BizClient> {
+public class RootBizClientDeleteQueryBuilder extends SoftDeleteQueryBuilder<Client> {
 }

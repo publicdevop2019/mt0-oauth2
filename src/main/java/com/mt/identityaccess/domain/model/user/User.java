@@ -35,7 +35,7 @@ import java.util.Set;
 @Entity
 @Table
 @Data
-public class BizUser extends Auditable implements Aggregate {
+public class User extends Auditable implements Aggregate {
     public static final String ENTITY_EMAIL = "email";
     public static final String ENTITY_SUBSCRIPTION = "subscription";
     public static final String ENTITY_LOCKED = "locked";
@@ -67,14 +67,14 @@ public class BizUser extends Auditable implements Aggregate {
     @Setter(AccessLevel.NONE)
     private Integer version;
 
-    public BizUser() {
+    public User() {
     }
 
     /**
      * create user, grantedAuthorities is overwritten to ROLE_USER
      * if id present it will used instead generated
      */
-    private BizUser(AppCreateBizUserCommand command, Long id) {
+    private User(AppCreateBizUserCommand command, Long id) {
         this.id = id;
         this.email = command.getEmail();
         this.password = command.getPassword();
@@ -83,10 +83,10 @@ public class BizUser extends Auditable implements Aggregate {
         this.subscription = false;
     }
 
-    public static BizUser create(Long id, AppCreateBizUserCommand command, PasswordEncoder encoder, AppPendingUserApplicationService pendingResourceOwnerRepo, AppBizUserApplicationService service) {
+    public static User create(Long id, AppCreateBizUserCommand command, PasswordEncoder encoder, AppPendingUserApplicationService pendingResourceOwnerRepo, AppBizUserApplicationService service) {
         validateBeforeCreate(command, pendingResourceOwnerRepo, service);
         command.setPassword(encoder.encode(command.getPassword()));
-        return new BizUser(command, id);
+        return new User(command, id);
     }
 
     private static void validateBeforeCreate(AppCreateBizUserCommand command, AppPendingUserApplicationService pendingUserApplicationService, AppBizUserApplicationService bizUserApplicationService) {
@@ -139,7 +139,7 @@ public class BizUser extends Auditable implements Aggregate {
      * update pwd, id is part of bearer token,
      * must revoke issued token if pwd changed
      */
-    public BizUser replace(UserUpdateBizUserPasswordCommand command, HttpRevokeBizUserTokenAdapter tokenRevocationService, BCryptPasswordEncoder encoder) {
+    public User replace(UserUpdateBizUserPasswordCommand command, HttpRevokeBizUserTokenAdapter tokenRevocationService, BCryptPasswordEncoder encoder) {
         if (!StringUtils.hasText(command.getPassword()) || !StringUtils.hasText(command.getCurrentPwd()))
             throw new IllegalArgumentException("password(s)");
         if (!encoder.matches(command.getCurrentPwd(), this.getPassword()))
@@ -150,7 +150,7 @@ public class BizUser extends Auditable implements Aggregate {
     }
 
 
-    public BizUser replace(AdminUpdateBizUserCommand command, HttpRevokeBizUserTokenAdapter tokenRevocationService) {
+    public User replace(AdminUpdateBizUserCommand command, HttpRevokeBizUserTokenAdapter tokenRevocationService) {
         validateBeforeUpdate(command);
         shouldRevoke(command, tokenRevocationService);
         this.setGrantedAuthorities(command.getGrantedAuthorities());

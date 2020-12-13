@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 
-import static com.mt.identityaccess.domain.model.user.BizUser.ENTITY_LOCKED;
+import static com.mt.identityaccess.domain.model.user.User.ENTITY_LOCKED;
 
 @Component
-public class AdminBizUserUpdateQueryBuilder extends UpdateByIdQueryBuilder<BizUser> {
+public class AdminBizUserUpdateQueryBuilder extends UpdateByIdQueryBuilder<User> {
     {
         filedMap.put(ENTITY_LOCKED, ENTITY_LOCKED);
         filedTypeMap.put(ENTITY_LOCKED, this::parseBoolean);

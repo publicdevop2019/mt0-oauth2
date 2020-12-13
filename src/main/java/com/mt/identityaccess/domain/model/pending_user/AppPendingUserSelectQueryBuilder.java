@@ -4,7 +4,7 @@ import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.clause.SelectFieldEmailEqualClause;
 import org.springframework.stereotype.Component;
 
-import static com.mt.identityaccess.domain.model.user.BizUser.ENTITY_EMAIL;
+import static com.mt.identityaccess.domain.model.user.User.ENTITY_EMAIL;
 
 @Component
 public class AppPendingUserSelectQueryBuilder extends SelectQueryBuilder<PendingUser> {
