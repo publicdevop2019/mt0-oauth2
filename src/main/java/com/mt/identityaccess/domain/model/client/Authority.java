@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.client;
 
-public enum BizClientAuthorityEnum {
+public enum Authority {
     ROLE_FRONTEND,
     ROLE_BACKEND,
     ROLE_FIRST_PARTY,
@@ -11,9 +11,9 @@ public enum BizClientAuthorityEnum {
      */
     ROLE_ROOT;
 
-    public static class ClientAuthorityConverter extends EnumSetConverter<BizClientAuthorityEnum> {
+    public static class ClientAuthorityConverter extends EnumSetConverter<Authority> {
         public ClientAuthorityConverter() {
-            super(BizClientAuthorityEnum.class);
+            super(Authority.class);
         }
     }
 }

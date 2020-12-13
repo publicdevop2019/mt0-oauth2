@@ -1,6 +1,6 @@
 package com.mt.identityaccess.infrastructure.service;
 
-import com.mt.identityaccess.application.AppBizClientApplicationService;
+import com.mt.identityaccess.application.deprecated.AppBizClientApplicationService;
 import com.mt.identityaccess.application.representation.ClientDetailsRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.provider.TokenGranter;
 import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.stereotype.Component;
 
-import static com.mt.identityaccess.domain.model.client.GrantTypeEnum.CLIENT_CREDENTIALS;
+import static com.mt.identityaccess.domain.model.client.GrantType.CLIENT_CREDENTIALS;
 
 /**
  * this class is only for authentication server itself

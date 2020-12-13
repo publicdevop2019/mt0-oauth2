@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.model.user;
 
-import com.mt.identityaccess.application.AppBizUserApplicationService;
-import com.mt.identityaccess.application.AppPendingUserApplicationService;
+import com.mt.identityaccess.application.deprecated.AppBizUserApplicationService;
+import com.mt.identityaccess.application.deprecated.AppPendingUserApplicationService;
 import com.mt.identityaccess.port.adapter.service.HttpPasswordResetAdapter;
 import com.mt.identityaccess.port.adapter.service.HttpRevokeBizUserTokenAdapter;
 import com.mt.identityaccess.application.representation.AppPendingUserCardRep;

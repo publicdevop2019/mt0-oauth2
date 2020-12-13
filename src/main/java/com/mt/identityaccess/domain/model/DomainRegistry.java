@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model;
 
-import com.mt.identityaccess.domain.model.client.ClientProvisioningService;
+import com.mt.identityaccess.domain.model.client.ClientService;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
 import com.mt.identityaccess.domain.model.client.EncryptionService;
 import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
@@ -17,7 +17,7 @@ public class DomainRegistry {
     @Autowired
     private static EncryptionService encryptionService;
     @Autowired
-    private static ClientProvisioningService clientProvisioningService;
+    private static ClientService clientService;
 
     public static ClientRepository clientRepository() {
         return bizClientRepository;
@@ -26,7 +26,8 @@ public class DomainRegistry {
     public static EncryptionService encryptionService() {
         return encryptionService;
     }
-    public static ClientProvisioningService clientProvisioningService() {
-        return clientProvisioningService;
+
+    public static ClientService clientService() {
+        return clientService;
     }
 }

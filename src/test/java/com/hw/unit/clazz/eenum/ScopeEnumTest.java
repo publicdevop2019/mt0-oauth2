@@ -1,6 +1,6 @@
 package com.hw.unit.clazz.eenum;
 
-import com.mt.identityaccess.domain.model.client.ScopeEnum;
+import com.mt.identityaccess.domain.model.client.Scope;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,27 +11,27 @@ import java.util.Set;
 public class ScopeEnumTest {
     @Test
     public void ScopeEnumConverter_to_db_column() {
-        List<ScopeEnum> values = List.of(ScopeEnum.READ, ScopeEnum.WRITE);
-        ScopeEnum.ScopeSetConverter scopeConverter = new ScopeEnum.ScopeSetConverter();
+        List<Scope> values = List.of(Scope.READ, Scope.WRITE);
+        Scope.ScopeSetConverter scopeConverter = new Scope.ScopeSetConverter();
         String s = scopeConverter.convertToDatabaseColumn(new HashSet<>(values));
-        String collect = ScopeEnum.READ.toString() + "," + ScopeEnum.WRITE.toString();
+        String collect = Scope.READ.toString() + "," + Scope.WRITE.toString();
         Assert.assertEquals(collect, s);
     }
 
     @Test
     public void ScopeEnumConverter_to_db_column_swap_order() {
-        List<ScopeEnum> values = List.of(ScopeEnum.WRITE, ScopeEnum.READ);
-        ScopeEnum.ScopeSetConverter scopeConverter = new ScopeEnum.ScopeSetConverter();
+        List<Scope> values = List.of(Scope.WRITE, Scope.READ);
+        Scope.ScopeSetConverter scopeConverter = new Scope.ScopeSetConverter();
         String s = scopeConverter.convertToDatabaseColumn(new HashSet<>(values));
-        String collect = ScopeEnum.READ.toString() + "," + ScopeEnum.WRITE.toString();
+        String collect = Scope.READ.toString() + "," + Scope.WRITE.toString();
         Assert.assertEquals(collect, s);
     }
 
     @Test
     public void ScopeEnumConverter_to_entity_attribute() {
-        String collect = ScopeEnum.WRITE.toString() + "," + ScopeEnum.READ.toString();
-        ScopeEnum.ScopeSetConverter scopeConverter = new ScopeEnum.ScopeSetConverter();
-        Set<ScopeEnum> set = scopeConverter.convertToEntityAttribute(collect);
+        String collect = Scope.WRITE.toString() + "," + Scope.READ.toString();
+        Scope.ScopeSetConverter scopeConverter = new Scope.ScopeSetConverter();
+        Set<Scope> set = scopeConverter.convertToEntityAttribute(collect);
         Assert.assertEquals(2, set.size());
     }
 }

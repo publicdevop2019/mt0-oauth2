@@ -23,8 +23,6 @@ import java.util.Set;
 
 @Service
 public class AuthorizeCodeApplicationService {
-    @Autowired
-    private AppBizClientApplicationService clientDetailsService;
 
     @Autowired
     private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory;
@@ -40,7 +38,7 @@ public class AuthorizeCodeApplicationService {
 
         /**make sure authorize client exist*/
 
-        if (clientDetailsService.loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null)
+        if (ApplicationServiceRegistry.clientApplicationService().loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null)
             throw new IllegalArgumentException("unable to find authorize client");
 
         Authentication authentication = UtilityService.getAuthentication(authorization);
@@ -56,7 +54,7 @@ public class AuthorizeCodeApplicationService {
             throw new InvalidClientException("A client id must be provided");
 
 
-        ClientDetails client = clientDetailsService.loadClientByClientId(authorizationRequest.getClientId());
+        ClientDetails client = ApplicationServiceRegistry.clientApplicationService().loadClientByClientId(authorizationRequest.getClientId());
 
         String redirectUriParameter = authorizationRequest.getRequestParameters().get(OAuth2Utils.REDIRECT_URI);
         String resolvedRedirect = redirectResolver.resolveRedirect(redirectUriParameter, client);

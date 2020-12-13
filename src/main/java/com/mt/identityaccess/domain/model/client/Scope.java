@@ -1,13 +1,13 @@
 package com.mt.identityaccess.domain.model.client;
 
-public enum ScopeEnum {
+public enum Scope {
     WRITE,
     READ,
     TRUST;
 
-    public static class ScopeSetConverter extends EnumSetConverter<ScopeEnum> {
+    public static class ScopeSetConverter extends EnumSetConverter<Scope> {
         public ScopeSetConverter() {
-            super(ScopeEnum.class);
+            super(Scope.class);
         }
     }
 }

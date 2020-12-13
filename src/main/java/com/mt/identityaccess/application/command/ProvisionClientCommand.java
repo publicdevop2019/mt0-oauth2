@@ -1,8 +1,8 @@
 package com.mt.identityaccess.application.command;
 
-import com.mt.identityaccess.domain.model.client.BizClientAuthorityEnum;
-import com.mt.identityaccess.domain.model.client.GrantTypeEnum;
-import com.mt.identityaccess.domain.model.client.ScopeEnum;
+import com.mt.identityaccess.domain.model.client.Authority;
+import com.mt.identityaccess.domain.model.client.GrantType;
+import com.mt.identityaccess.domain.model.client.Scope;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,11 +18,11 @@ public class ProvisionClientCommand implements Serializable {
     private String description;
     private String name;
 
-    private Set<GrantTypeEnum> grantTypeEnums;
+    private Set<GrantType> grantTypeEnums;
 
-    private Set<BizClientAuthorityEnum> grantedAuthorities;
+    private Set<Authority> grantedAuthorities;
 
-    private Set<ScopeEnum> scopeEnums;
+    private Set<Scope> scopeEnums;
 
     private Integer accessTokenValiditySeconds;
 
@@ -32,7 +32,7 @@ public class ProvisionClientCommand implements Serializable {
 
     private Set<String> resourceIds;
 
-    private Boolean resourceIndicator;
+    private boolean resourceIndicator;
 
-    private Boolean autoApprove;
+    private boolean autoApprove;
 }

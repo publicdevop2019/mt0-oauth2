@@ -1,9 +1,9 @@
 package com.mt.identityaccess.application.representation;
 
-import com.mt.identityaccess.domain.model.client.BizClientAuthorityEnum;
+import com.mt.identityaccess.domain.model.client.Authority;
 import com.mt.identityaccess.domain.model.client.Client;
-import com.mt.identityaccess.domain.model.client.GrantTypeEnum;
-import com.mt.identityaccess.domain.model.client.ScopeEnum;
+import com.mt.identityaccess.domain.model.client.GrantType;
+import com.mt.identityaccess.domain.model.client.Scope;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -21,11 +21,11 @@ public class RootClientCardRepresentation {
 
     protected String description;
 
-    protected Set<GrantTypeEnum> grantTypeEnums;
+    protected Set<GrantType> grantTypeEnums;
 
-    protected Set<BizClientAuthorityEnum> grantedAuthorities;
+    protected Set<Authority> grantedAuthorities;
 
-    protected Set<ScopeEnum> scopeEnums;
+    protected Set<Scope> scopeEnums;
 
     protected Integer accessTokenValiditySeconds;
 

@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application;
+package com.mt.identityaccess.application.deprecated;
 
 import com.mt.identityaccess.application.command.AppCreatePendingUserCommand;
 import com.mt.identityaccess.application.representation.AppPendingUserCardRep;

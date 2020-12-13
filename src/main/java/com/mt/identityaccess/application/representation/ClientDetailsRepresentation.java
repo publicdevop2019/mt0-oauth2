@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 public class ClientDetailsRepresentation implements ClientDetails {
     private Long id;
     private String clientSecret;
-    private Set<GrantTypeEnum> grantTypeEnums;
-    private Set<BizClientAuthorityEnum> grantedAuthorities;
-    private Set<ScopeEnum> scopeEnums;
+    private Set<GrantType> grantTypeEnums;
+    private Set<Authority> grantedAuthorities;
+    private Set<Scope> scopeEnums;
     private Integer accessTokenValiditySeconds;
     private Set<String> registeredRedirectUri;
     private Integer refreshTokenValiditySeconds;
