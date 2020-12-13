@@ -1,7 +1,7 @@
 package com.hw.config;
 
-import com.hw.aggregate.client.AppBizClientApplicationService;
-import com.hw.aggregate.client.representation.AppBizClientRep;
+import com.mt.identityaccess.domain.model.app.AppBizClientApplicationService;
+import com.mt.identityaccess.application.representation.AppBizClientRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.provider.TokenGranter;
 import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.stereotype.Component;
 
-import static com.hw.aggregate.client.model.GrantTypeEnum.CLIENT_CREDENTIALS;
+import static com.mt.identityaccess.domain.model.app.GrantTypeEnum.CLIENT_CREDENTIALS;
 
 /**
  * this class is only for authentication server itself

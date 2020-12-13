@@ -1,6 +1,6 @@
 package com.hw.config;
 
-import com.hw.aggregate.user.BizUserRepo;
+import com.mt.identityaccess.domain.model.user.BizUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class CustomTokenEnhancer implements TokenEnhancer {
 
     @Autowired
-    BizUserRepo resourceOwnerRepo;
+    BizUserRepository resourceOwnerRepo;
 
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {

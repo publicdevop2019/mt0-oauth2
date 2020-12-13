@@ -1,7 +1,7 @@
 package com.hw.config;
 
-import com.hw.aggregate.client.AppBizClientApplicationService;
-import com.hw.aggregate.user.AppBizUserApplicationService;
+import com.mt.identityaccess.domain.model.app.AppBizClientApplicationService;
+import com.mt.identityaccess.domain.model.user.AppBizUserApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
