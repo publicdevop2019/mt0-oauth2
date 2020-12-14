@@ -38,7 +38,7 @@ public class PendingUser extends Auditable implements Aggregate {
         if (pendingResourceOwner == null) {
             pendingResourceOwner = new PendingUser();
             pendingResourceOwner.setEmail(email);
-            pendingResourceOwner.setId(idGenerator.getId());
+            pendingResourceOwner.setId(idGenerator.id());
         }
         pendingResourceOwner.setActivationCode(PendingUser.generateCode());
         return pendingResourceOwner;

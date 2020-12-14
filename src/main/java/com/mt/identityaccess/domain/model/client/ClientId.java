@@ -5,20 +5,27 @@ public class ClientId {
     private Long dbId;
 
     public ClientId(String id) {
-        this.id=id;
-        this.dbId=parseFrom(id);
+        this.id = id;
+        this.dbId = parseFrom(id);
     }
+
     public ClientId() {
     }
 
+    public ClientId(long id) {
+        this.id = String.valueOf(id);
+        this.dbId = id;
+    }
+
     private Long parseFrom(String id) {
-        return null;
+        return Long.parseLong(id);
     }
 
     public String id() {
         return id;
     }
-    public Long persistentId(){
+
+    public Long persistentId() {
         return dbId;
     }
 }

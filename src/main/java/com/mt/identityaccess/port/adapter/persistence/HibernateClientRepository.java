@@ -1,5 +1,6 @@
 package com.mt.identityaccess.port.adapter.persistence;
 
+import com.hw.shared.IdGenerator;
 import com.hw.shared.sql.SumPagedRep;
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.mt.identityaccess.domain.model.client.Client;
@@ -14,7 +15,7 @@ import java.util.Optional;
 @Repository
 public interface HibernateClientRepository extends JpaRepository<Client, Long>, ClientRepository {
     default ClientId nextIdentity() {
-        return new ClientId();
+        return new ClientId(IdGenerator.instance().id());
     }
 
     default Optional<Client> clientOfId(ClientId clientId) {

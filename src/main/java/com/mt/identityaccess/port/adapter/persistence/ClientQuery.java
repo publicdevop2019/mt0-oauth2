@@ -2,10 +2,7 @@ package com.mt.identityaccess.port.adapter.persistence;
 
 import com.hw.shared.sql.exception.EmptyQueryValueException;
 import com.mt.identityaccess.domain.model.DomainRegistry;
-import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.user.Role;
-
-import java.util.Set;
 
 public class ClientQuery {
     public String value;
@@ -13,10 +10,6 @@ public class ClientQuery {
     public ClientQuery(String queryParam) {
         this.value = queryParam;
         validate();
-    }
-
-    public ClientQuery(Set<ClientId> clientIdSet) {
-        this.value = "id:" + String.join("." + clientIdSet.stream().map(ClientId::id));
     }
 
     public void validate() {
