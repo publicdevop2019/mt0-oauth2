@@ -41,7 +41,7 @@ public class ClientSelectQueryBuilder extends SelectQueryBuilder<Client> {
         instance = new ClientSelectQueryBuilder();
     }
 
-    public ClientSelectQueryBuilder() {
+    private ClientSelectQueryBuilder() {
 
     }
 
