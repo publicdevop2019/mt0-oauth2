@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application;
+package com.mt.identityaccess.application.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -8,18 +8,11 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import com.hw.config.DomainEventPublisher;
 import com.hw.shared.rest.exception.AggregatePatchException;
 import com.hw.shared.sql.SumPagedRep;
-import com.mt.identityaccess.application.client.ClientPatchingCommand;
-import com.mt.identityaccess.application.client.ProvisionClientCommand;
-import com.mt.identityaccess.application.client.ReplaceClientCommand;
-import com.mt.identityaccess.application.client.RootClientDeleteException;
-import com.mt.identityaccess.application.client.ClientDetailsRepresentation;
+import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.ClientRemoved;
 import com.mt.identityaccess.domain.model.client.event.ClientsBatchRemoved;
-import com.mt.identityaccess.application.client.ClientPaging;
-import com.mt.identityaccess.application.client.ClientQuery;
-import com.mt.identityaccess.application.client.QueryConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
@@ -37,8 +30,8 @@ public class ClientApplicationService implements ClientDetailsService {
     private ObjectMapper om;
 
     @Transactional
-    public ClientId provisionClient(ProvisionClientCommand command, String changeId) {
-        return DomainRegistry.clientService().provisionClient(
+    public ClientId provisionClient(ProvisionClientCommand command, String operationId) {
+        return ApplicationServiceRegistry.clientIdempotentApplicationService().idempotentProvision(command, operationId, () -> DomainRegistry.clientService().provisionClient(
                 new BasicClientDetail(
                         command.getName(),
                         command.getDescription(),
@@ -56,7 +49,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.isAutoApprove()
                 ),
                 new AccessTokenDetail(command.getAccessTokenValiditySeconds())
-        );
+        ));
+
     }
 
     @Transactional(readOnly = true)
@@ -74,24 +68,26 @@ public class ClientApplicationService implements ClientDetailsService {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
         if (client.isPresent()) {
             Client client1 = client.get();
-            client1.replace(new BasicClientDetail(
-                            command.getName(),
-                            command.getDescription(),
-                            command.getScopeEnums(),
-                            command.getGrantedAuthorities(),
-                            command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()),
-                            command.isResourceIndicator()
-                    ),
-                    new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), command.getClientSecret()),
-                    new PasswordGrantDetail(command.getGrantTypeEnums()),
-                    new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds()),
-                    new AuthorizationCodeGrantDetail(
-                            command.getGrantTypeEnums(),
-                            command.getRegisteredRedirectUri(),
-                            command.isAutoApprove()
-                    ),
-                    new AccessTokenDetail(command.getAccessTokenValiditySeconds())
-            );
+            ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(command, changeId, (ignored) -> {
+                client1.replace(new BasicClientDetail(
+                                command.getName(),
+                                command.getDescription(),
+                                command.getScopeEnums(),
+                                command.getGrantedAuthorities(),
+                                command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()),
+                                command.isResourceIndicator()
+                        ),
+                        new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), command.getClientSecret()),
+                        new PasswordGrantDetail(command.getGrantTypeEnums()),
+                        new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds()),
+                        new AuthorizationCodeGrantDetail(
+                                command.getGrantTypeEnums(),
+                                command.getRegisteredRedirectUri(),
+                                command.isAutoApprove()
+                        ),
+                        new AccessTokenDetail(command.getAccessTokenValiditySeconds())
+                );
+            });
             DomainRegistry.clientRepository().add(client1);
         }
     }
@@ -103,7 +99,9 @@ public class ClientApplicationService implements ClientDetailsService {
         if (client.isPresent()) {
             Client client1 = client.get();
             if (client1.basicClientDetail().nonRoot()) {
-                DomainRegistry.clientRepository().remove(client1);
+                ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(null, changeId, (ignored) -> {
+                    DomainRegistry.clientRepository().remove(client1);
+                });
                 DomainEventPublisher.instance().publish(new ClientRemoved(clientId));
             } else {
                 throw new RootClientDeleteException();
@@ -116,7 +114,9 @@ public class ClientApplicationService implements ClientDetailsService {
         List<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
         boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.basicClientDetail().nonRoot());
         if (!b) {
-            DomainRegistry.clientRepository().remove(allClientsOfQuery);
+            ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(null, changeId, (ignored) -> {
+                DomainRegistry.clientRepository().remove(allClientsOfQuery);
+            });
             DomainEventPublisher.instance().publish(
                     new ClientsBatchRemoved(
                             allClientsOfQuery.stream().map(Client::clientId).collect(Collectors.toSet())
@@ -140,18 +140,21 @@ public class ClientApplicationService implements ClientDetailsService {
             } catch (JsonPatchException | JsonProcessingException e) {
                 throw new AggregatePatchException();
             }
+            ClientPatchingCommand finalMiddleLayer = middleLayer;
+            ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(command, changeId, (ignored) -> {
             original.replace(new BasicClientDetail(
-                            middleLayer.getName(),
-                            middleLayer.getDescription(),
-                            middleLayer.getScopeEnums(),
-                            middleLayer.getGrantedAuthorities(),
-                            middleLayer.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()),
-                            middleLayer.isResourceIndicator()
+                            finalMiddleLayer.getName(),
+                            finalMiddleLayer.getDescription(),
+                            finalMiddleLayer.getScopeEnums(),
+                            finalMiddleLayer.getGrantedAuthorities(),
+                            finalMiddleLayer.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()),
+                            finalMiddleLayer.isResourceIndicator()
                     ),
-                    new ClientCredentialsGrantDetail(middleLayer.getGrantTypeEnums()),
-                    new PasswordGrantDetail(middleLayer.getGrantTypeEnums()),
-                    new AccessTokenDetail(middleLayer.getAccessTokenValiditySeconds())
+                    new ClientCredentialsGrantDetail(finalMiddleLayer.getGrantTypeEnums()),
+                    new PasswordGrantDetail(finalMiddleLayer.getGrantTypeEnums()),
+                    new AccessTokenDetail(finalMiddleLayer.getAccessTokenValiditySeconds())
             );
+            });
         }
     }
 

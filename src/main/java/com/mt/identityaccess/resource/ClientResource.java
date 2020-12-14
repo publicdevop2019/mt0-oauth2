@@ -3,7 +3,7 @@ package com.mt.identityaccess.resource;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.shared.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.application.ClientApplicationService;
+import com.mt.identityaccess.application.client.ClientApplicationService;
 import com.mt.identityaccess.application.client.ProvisionClientCommand;
 import com.mt.identityaccess.application.client.ReplaceClientCommand;
 import com.mt.identityaccess.application.client.RootClientCardRepresentation;
