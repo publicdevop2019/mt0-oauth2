@@ -1,13 +1,13 @@
 package com.hw.config;
 
-import com.mt.identityaccess.application.deprecated.AppBizClientApplicationService;
+import com.hw.application.client.ClientApplicationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler;
@@ -24,11 +24,12 @@ import javax.annotation.Resource;
 import java.security.KeyPair;
 import java.util.Objects;
 
+@Slf4j
 @Component
 public class BeanFactory {
     private static final Integer STRENGTH = 12;
     @Autowired
-    ClientDetailsService clientDetailsService;
+    ClientApplicationService clientDetailsService;
 
     /**
      * use Resource annotation to solve invoked before spring load issue
@@ -111,8 +112,8 @@ public class BeanFactory {
     }
 
     @Bean
-    private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory(AppBizClientApplicationService clientDetailsService) {
-
+    private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory() {
+        log.info("loading DefaultOAuth2RequestFactory");
         return new DefaultOAuth2RequestFactory(clientDetailsService);
     }
 }

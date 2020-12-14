@@ -1,6 +1,6 @@
 package com.hw.config;
 
-import com.mt.identityaccess.domain.model.user.UserRepository;
+import com.hw.domain.model.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;

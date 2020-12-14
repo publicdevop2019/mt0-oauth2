@@ -1,8 +1,7 @@
 package com.hw.config;
 
-import com.mt.identityaccess.domain.model.client.ClientAlreadyExistException;
-import com.mt.identityaccess.application.client.RootClientDeleteException;
 import com.hw.shared.ErrorMessage;
+import com.hw.application.client.RootClientDeleteException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +22,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {
             RedirectMismatchException.class,
             AccessDeniedException.class,
-            ClientAlreadyExistException.class,
             RootClientDeleteException.class,
             IllegalArgumentException.class,
             OAuth2Exception.class

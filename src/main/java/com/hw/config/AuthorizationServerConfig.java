@@ -1,8 +1,8 @@
 package com.hw.config;
 
-import com.mt.identityaccess.application.deprecated.AppBizClientApplicationService;
-import com.mt.identityaccess.application.deprecated.AppBizUserApplicationService;
-import com.mt.identityaccess.infrastructure.service.SelfSignedJwtTokenService;
+import com.hw.application.ApplicationServiceRegistry;
+import com.hw.application.deprecated.AppBizUserApplicationService;
+import com.hw.infrastructure.service.SelfSignedJwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,9 +36,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     SelfSignedJwtTokenService authTokenHelper;
 
     @Autowired
-    AppBizClientApplicationService clientDetailsService;
-
-    @Autowired
     AuthenticationManager authenticationManager;
 
     @Autowired
@@ -49,7 +46,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.withClientDetails(clientDetailsService);
+        clients.withClientDetails(ApplicationServiceRegistry.clientApplicationService());
     }
 
     /**
