@@ -1,4 +1,4 @@
-package com.mt.identityaccess.infrastructure.persistence;
+package com.mt.identityaccess.port.adapter.persistence;
 
 import com.mt.identityaccess.domain.model.pending_user.PendingUser;
 import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;

@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.model.client;
 
 import com.hw.shared.sql.SumPagedRep;
-import com.mt.identityaccess.infrastructure.persistence.QueryConfig;
+import com.mt.identityaccess.port.adapter.persistence.QueryConfig;
 
 import java.util.Collection;
 import java.util.Optional;

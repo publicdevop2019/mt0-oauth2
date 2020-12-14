@@ -17,7 +17,7 @@ import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.ClientRemoved;
 import com.mt.identityaccess.domain.model.client.event.ClientsBatchRemoved;
-import com.mt.identityaccess.infrastructure.persistence.QueryConfig;
+import com.mt.identityaccess.port.adapter.persistence.QueryConfig;
 import com.mt.identityaccess.domain.model.client.ClientPaging;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;

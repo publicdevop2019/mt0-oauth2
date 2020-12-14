@@ -1,4 +1,4 @@
-package com.mt.identityaccess.infrastructure.persistence;
+package com.mt.identityaccess.port.adapter.persistence;
 
 public class QueryConfig {
     public String value;

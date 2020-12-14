@@ -1,7 +1,8 @@
-package com.mt.identityaccess.domain.model.client;
+package com.mt.identityaccess.port.adapter.persistence;
 
 import com.hw.shared.sql.exception.EmptyQueryValueException;
 import com.mt.identityaccess.domain.model.DomainRegistry;
+import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.user.Role;
 
 import java.util.Set;

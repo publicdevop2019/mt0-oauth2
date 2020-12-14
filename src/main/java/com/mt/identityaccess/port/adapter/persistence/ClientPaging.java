@@ -1,4 +1,4 @@
-package com.mt.identityaccess.domain.model.client;
+package com.mt.identityaccess.port.adapter.persistence;
 
 public class ClientPaging{
     private final long pageNumber;

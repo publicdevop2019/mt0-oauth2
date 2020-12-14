@@ -1,4 +1,6 @@
-package com.mt.identityaccess.domain.model.client;
+package com.mt.identityaccess.port.adapter.persistence;
+
+import com.mt.identityaccess.domain.model.client.ClientId;
 
 import java.util.Set;
 

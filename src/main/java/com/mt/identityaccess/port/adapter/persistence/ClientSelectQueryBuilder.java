@@ -1,4 +1,4 @@
-package com.mt.identityaccess.infrastructure.persistence;
+package com.mt.identityaccess.port.adapter.persistence;
 
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.clause.SelectFieldBooleanEqualClause;
@@ -6,7 +6,7 @@ import com.hw.shared.sql.clause.SelectFieldNumberRangeClause;
 import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
 import com.mt.identityaccess.domain.model.client.Client;
 
-public class ClientSelectQuery extends SelectQueryBuilder<Client> {
+public class ClientSelectQueryBuilder extends SelectQueryBuilder<Client> {
     public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
     public static final String ENTITY_NAME = "name";
@@ -31,17 +31,17 @@ public class ClientSelectQuery extends SelectQueryBuilder<Client> {
         allowEmptyClause = true;
     }
 
-    private static ClientSelectQuery instance;
+    private static final ClientSelectQueryBuilder instance;
 
-    public static ClientSelectQuery instance() {
+    public static ClientSelectQueryBuilder instance() {
         return instance;
     }
 
     static {
-        instance = new ClientSelectQuery();
+        instance = new ClientSelectQueryBuilder();
     }
 
-    private ClientSelectQuery() {
+    public ClientSelectQueryBuilder() {
 
     }
 

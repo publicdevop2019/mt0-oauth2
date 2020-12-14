@@ -1,8 +1,10 @@
-package com.mt.identityaccess.infrastructure.persistence;
+package com.mt.identityaccess.port.adapter.persistence;
 
 import com.hw.shared.sql.SumPagedRep;
 import com.hw.shared.sql.builder.SelectQueryBuilder;
-import com.mt.identityaccess.domain.model.client.*;
+import com.mt.identityaccess.domain.model.client.Client;
+import com.mt.identityaccess.domain.model.client.ClientId;
+import com.mt.identityaccess.domain.model.client.ClientRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -32,7 +34,7 @@ public interface HibernateClientRepository extends JpaRepository<Client, Long>, 
     }
 
     private SumPagedRep<Client> getSumPagedRep(String query, String page, String config) {
-        SelectQueryBuilder<Client> selectQueryBuilder = ClientSelectQuery.instance();
+        SelectQueryBuilder<Client> selectQueryBuilder = new ClientSelectQueryBuilder();
         List<Client> select = selectQueryBuilder.select(query, page, Client.class);
         Long aLong = null;
         if (!skipCount(config)) {
