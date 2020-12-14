@@ -2,14 +2,14 @@ package com.mt.identityaccess.domain.model.user;
 
 import com.mt.identityaccess.domain.model.client.EnumSetConverter;
 
-public enum BizUserAuthorityEnum {
+public enum Role {
     ROLE_ADMIN,
     ROLE_ROOT,
     ROLE_USER;
 
-    public static class ResourceOwnerAuthorityConverter extends EnumSetConverter<BizUserAuthorityEnum> {
+    public static class ResourceOwnerAuthorityConverter extends EnumSetConverter<Role> {
         public ResourceOwnerAuthorityConverter() {
-            super(BizUserAuthorityEnum.class);
+            super(Role.class);
         }
     }
 

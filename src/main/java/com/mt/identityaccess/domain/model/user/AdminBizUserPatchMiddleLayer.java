@@ -8,7 +8,7 @@ import java.util.Set;
 @Data
 public class AdminBizUserPatchMiddleLayer extends TypedClass<AdminBizUserPatchMiddleLayer> {
     private boolean locked;
-    private Set<BizUserAuthorityEnum> grantedAuthorities;
+    private Set<Role> grantedAuthorities;
 
     public AdminBizUserPatchMiddleLayer(User bizUser) {
         super(AdminBizUserPatchMiddleLayer.class);

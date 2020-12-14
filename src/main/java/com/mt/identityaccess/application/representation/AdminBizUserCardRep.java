@@ -1,7 +1,7 @@
 package com.mt.identityaccess.application.representation;
 
 import com.mt.identityaccess.domain.model.user.User;
-import com.mt.identityaccess.domain.model.user.BizUserAuthorityEnum;
+import com.mt.identityaccess.domain.model.user.Role;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -16,7 +16,7 @@ public class AdminBizUserCardRep {
     private boolean locked;
     private long createdAt;
 
-    private Set<BizUserAuthorityEnum> grantedAuthorities;
+    private Set<Role> grantedAuthorities;
 
     public AdminBizUserCardRep(User bizUser) {
         BeanUtils.copyProperties(bizUser, this);

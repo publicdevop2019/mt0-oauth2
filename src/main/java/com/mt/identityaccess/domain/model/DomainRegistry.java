@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.model;
 
-import com.mt.identityaccess.domain.model.client.ClientService;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
+import com.mt.identityaccess.domain.model.client.ClientService;
 import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
 import com.mt.identityaccess.domain.model.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,8 @@ public class DomainRegistry {
     @Autowired
     private static EncryptionService encryptionService;
     @Autowired
+    private static AuthenticationService authenticationService;
+    @Autowired
     private static ClientService clientService;
 
     public static ClientRepository clientRepository() {
@@ -28,5 +30,9 @@ public class DomainRegistry {
 
     public static ClientService clientService() {
         return clientService;
+    }
+
+    public static AuthenticationService authenticationService() {
+        return authenticationService;
     }
 }

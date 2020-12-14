@@ -18,6 +18,10 @@ public class RefreshTokenGrantDetail {
 
     private Integer refreshTokenValiditySeconds;
 
+    public Integer refreshTokenValiditySeconds() {
+        return refreshTokenValiditySeconds;
+    }
+
     public RefreshTokenGrantDetail(Set<GrantType> grantTypes, Integer refreshTokenValiditySeconds) {
         this.setGrantType(grantTypes.stream().filter(e -> e.equals(GrantType.REFRESH_TOKEN)).findFirst().orElse(null));
         this.setRefreshTokenValiditySeconds(refreshTokenValiditySeconds);

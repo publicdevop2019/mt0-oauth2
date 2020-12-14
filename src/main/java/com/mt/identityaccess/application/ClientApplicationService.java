@@ -134,7 +134,7 @@ public class ClientApplicationService implements ClientDetailsService {
             try {
                 JsonNode jsonNode = om.convertValue(middleLayer, JsonNode.class);
                 JsonNode patchedNode = command.apply(jsonNode);
-                middleLayer = om.treeToValue(patchedNode, middleLayer.getClazz());
+                middleLayer = om.treeToValue(patchedNode, ClientPatchingMiddleLayer.class);
             } catch (JsonPatchException | JsonProcessingException e) {
                 throw new AggregatePatchException();
             }

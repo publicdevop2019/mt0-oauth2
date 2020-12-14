@@ -1,20 +1,44 @@
 package com.mt.identityaccess.infrastructure.service;
 
 import com.hw.shared.ServiceUtility;
+import com.mt.identityaccess.domain.model.AuthenticationService;
+import com.mt.identityaccess.domain.model.user.Role;
+import com.mt.identityaccess.infrastructure.JwtThreadLocal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
-public class UtilityService {
-    private UtilityService() {
+@Service
+public class JwtAuthenticationService implements AuthenticationService {
+    @Override
+    public boolean userInRole(Role role) {
+        String jwt = JwtThreadLocal.get();
+        List<String> authorities = ServiceUtility.getAuthorities(jwt);
+        return authorities.stream().anyMatch(e -> role.toString().equals(e));
     }
 
-    public static Authentication getAuthentication(String bearerHeader) {
+    @Override
+    public boolean isClient() {
+        String jwt = JwtThreadLocal.get();
+        return ServiceUtility.getUserId(jwt) == null && ServiceUtility.getClientId(jwt) != null;
+    }
+
+    @Override
+    public boolean isUser() {
+        String jwt = JwtThreadLocal.get();
+        return ServiceUtility.getUserId(jwt) != null;
+    }
+
+    @Override
+    public Authentication getAuthentication() {
+        String jwt = JwtThreadLocal.get();
         try {
-            Collection<? extends GrantedAuthority> au = ServiceUtility.getAuthority(bearerHeader).stream().map(e -> (GrantedAuthority) () -> e).collect(Collectors.toList());
-            String userId = ServiceUtility.getUserId(bearerHeader);
+            Collection<? extends GrantedAuthority> au = ServiceUtility.getAuthorities(jwt).stream().map(e -> (GrantedAuthority) () -> e).collect(Collectors.toList());
+            String userId = ServiceUtility.getUserId(jwt);
             return new Authentication() {
                 @Override
                 public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -56,5 +80,4 @@ public class UtilityService {
             throw new IllegalArgumentException("unable to create authentication obj in authorization header");
         }
     }
-
 }

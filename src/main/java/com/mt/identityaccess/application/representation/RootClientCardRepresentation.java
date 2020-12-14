@@ -1,12 +1,8 @@
 package com.mt.identityaccess.application.representation;
 
-import com.mt.identityaccess.domain.model.client.Authority;
-import com.mt.identityaccess.domain.model.client.Client;
-import com.mt.identityaccess.domain.model.client.GrantType;
-import com.mt.identityaccess.domain.model.client.Scope;
+import com.mt.identityaccess.domain.model.client.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +38,16 @@ public class RootClientCardRepresentation {
     protected Integer version;
 
     public RootClientCardRepresentation(Object client) {
-        BeanUtils.copyProperties(client, this);
-        resourceIds = ((Client) client).getFollowing().stream().map(e -> e.getId().toString()).collect(Collectors.toSet());
+        Client client1 = (Client) client;
+        id = client1.basicClientDetail().getClientId().persistentId();
+        name = client1.basicClientDetail().name();
+        grantTypeEnums=client1.totalGrantTypes();
+        grantedAuthorities=client1.basicClientDetail().authorities();
+        scopeEnums=client1.basicClientDetail().scopes();
+        accessTokenValiditySeconds=client1.accessTokenDetail().getAccessTokenValiditySeconds();
+        registeredRedirectUri=client1.authorizationCodeGrantDetail().redirectUrls();
+        refreshTokenValiditySeconds=client1.refreshTokenGrantDetail().refreshTokenValiditySeconds();
+        resourceIds = client1.basicClientDetail().resources().stream().map(ClientId::id).collect(Collectors.toSet());
+        resourceIndicator=client1.basicClientDetail().isAccessible();
     }
 }

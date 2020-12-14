@@ -59,8 +59,8 @@ public class User extends Auditable implements Aggregate {
     @Column
     @NotNull
     @NotEmpty
-    @Convert(converter = BizUserAuthorityEnum.ResourceOwnerAuthorityConverter.class)
-    private Set<BizUserAuthorityEnum> grantedAuthorities;
+    @Convert(converter = Role.ResourceOwnerAuthorityConverter.class)
+    private Set<Role> grantedAuthorities;
     @Column
     private boolean subscription;
     @Version
@@ -79,7 +79,7 @@ public class User extends Auditable implements Aggregate {
         this.email = command.getEmail();
         this.password = command.getPassword();
         this.locked = false;
-        this.grantedAuthorities = Collections.singleton(BizUserAuthorityEnum.ROLE_USER);
+        this.grantedAuthorities = Collections.singleton(Role.ROLE_USER);
         this.subscription = false;
     }
 
@@ -169,7 +169,7 @@ public class User extends Auditable implements Aggregate {
     public void validateBeforeUpdate(AdminUpdateBizUserCommand command) {
         if (getGrantedAuthorities().stream().anyMatch(e -> ROLE_ROOT.equals(e.name())))
             throw new IllegalArgumentException("root account can not be modified");
-        List<String> currentAuthorities = ServiceUtility.getAuthority(command.getAuthorization());
+        List<String> currentAuthorities = ServiceUtility.getAuthorities(command.getAuthorization());
         if (command.getGrantedAuthorities().stream().anyMatch(e -> ROLE_ROOT.equals(e.name())))
             throw new IllegalArgumentException("assign root grantedAuthorities is prohibited");
         if (currentAuthorities.stream().noneMatch(ROLE_ROOT::equals) && !getGrantedAuthorities().equals(command.getGrantedAuthorities()))
@@ -195,7 +195,7 @@ public class User extends Auditable implements Aggregate {
     }
 
 
-    private boolean authorityChanged(Set<BizUserAuthorityEnum> old, Set<BizUserAuthorityEnum> next) {
+    private boolean authorityChanged(Set<Role> old, Set<Role> next) {
         return !old.equals(next);
     }
 

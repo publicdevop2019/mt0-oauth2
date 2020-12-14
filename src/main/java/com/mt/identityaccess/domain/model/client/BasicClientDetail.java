@@ -6,15 +6,11 @@ import com.mt.identityaccess.domain.model.client.event.ClientAccessibleChanged;
 import com.mt.identityaccess.domain.model.client.event.ClientAuthoritiesChanged;
 import com.mt.identityaccess.domain.model.client.event.ClientResourcesChanged;
 import com.mt.identityaccess.domain.model.client.event.ClientScopesChanged;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 
 import java.util.List;
 import java.util.Set;
 
-@Setter
-@Getter
 public class BasicClientDetail {
     private ClientId clientId;
     private String name;
@@ -31,6 +27,18 @@ public class BasicClientDetail {
         this.setAuthorities(authorities);
         this.setResources(resources);
         this.setAccessible(accessible);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setScopes(Set<Scope> scopes) {
+        this.scopes = scopes;
     }
 
     public void setAuthorities(Set<Authority> authorities) {
@@ -94,7 +102,31 @@ public class BasicClientDetail {
     }
 
     private boolean accessibleChanged(BasicClientDetail basicClientDetail) {
-        return isAccessible() != basicClientDetail.isAccessible();
+        return accessible() != basicClientDetail.accessible();
+    }
+
+    public boolean accessible() {
+        return accessible;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public String description() {
+        return description;
+    }
+
+    public Set<Authority> authorities() {
+        return authorities;
+    }
+
+    public Set<Scope> scopes() {
+        return scopes;
+    }
+
+    public Set<ClientId> resources() {
+        return resources;
     }
 
     private boolean authoritiesChanged(BasicClientDetail basicClientDetail) {

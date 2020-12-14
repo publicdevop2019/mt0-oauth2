@@ -76,6 +76,14 @@ public class Client extends Auditable implements Aggregate {
         return accessTokenDetail;
     }
 
+    public AuthorizationCodeGrantDetail authorizationCodeGrantDetail() {
+        return authorizationCodeGrantDetail;
+    }
+
+    public RefreshTokenGrantDetail refreshTokenGrantDetail() {
+        return refreshTokenGrantDetail;
+    }
+
     public ClientId clientId() {
         return clientId;
     }

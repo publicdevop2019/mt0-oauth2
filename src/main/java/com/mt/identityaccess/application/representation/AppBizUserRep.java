@@ -2,7 +2,7 @@ package com.mt.identityaccess.application.representation;
 
 import com.mt.identityaccess.domain.model.client.GrantedAuthorityImpl;
 import com.mt.identityaccess.domain.model.user.User;
-import com.mt.identityaccess.domain.model.user.BizUserAuthorityEnum;
+import com.mt.identityaccess.domain.model.user.Role;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,7 +17,7 @@ public class AppBizUserRep implements UserDetails {
     private Long id;
     private String password;
     private boolean locked;
-    private Set<BizUserAuthorityEnum> grantedAuthorities;
+    private Set<Role> grantedAuthorities;
 
     public AppBizUserRep(User bizUser) {
         BeanUtils.copyProperties(bizUser, this);

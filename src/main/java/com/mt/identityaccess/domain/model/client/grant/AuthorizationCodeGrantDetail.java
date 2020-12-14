@@ -27,6 +27,13 @@ public class AuthorizationCodeGrantDetail {
             this.autoApprove = autoApprove;
     }
 
+    public Set<String> redirectUrls() {
+        return redirectUrls;
+    }
+
+    public boolean autoApprove() {
+        return autoApprove;
+    }
 
     public void setRedirectUrls(Set<String> redirectUrls) {
         if (GrantType.AUTHORIZATION_CODE.equals(grantType))
