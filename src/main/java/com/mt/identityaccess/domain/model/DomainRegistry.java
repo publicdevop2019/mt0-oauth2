@@ -2,7 +2,6 @@ package com.mt.identityaccess.domain.model;
 
 import com.mt.identityaccess.domain.model.client.ClientService;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
-import com.mt.identityaccess.domain.model.client.EncryptionService;
 import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
 import com.mt.identityaccess.domain.model.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

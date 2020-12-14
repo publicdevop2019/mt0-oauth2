@@ -4,6 +4,7 @@ import com.hw.config.DomainEventPublisher;
 import com.hw.shared.sql.SumPagedRep;
 import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.event.ClientProvisioned;
+import com.mt.identityaccess.domain.model.client.grant.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,13 +24,13 @@ public class ClientService {
         ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
         Client client = new Client(clientId,
                 basicClientDetail, clientCredentialsGrantDetail, passwordGrantDetail, refreshTokenGrantDetail, authorizationCodeGrantDetail,accessTokenDetail);
-        DomainRegistry.clientRepository().save(client);
+        DomainRegistry.clientRepository().add(client);
         DomainEventPublisher.instance().publish(new ClientProvisioned(client.clientId()));
         return clientId;
     }
 
-    public List<Client> getClientsOfQuery(ClientQueryParam queryParam) {
-        QueryPagingParam queryPagingParam = new QueryPagingParam();
+    public List<Client> getClientsOfQuery(ClientQuery queryParam) {
+        ClientPaging queryPagingParam = new ClientPaging();
         SumPagedRep<Client> tSumPagedRep = DomainRegistry.clientRepository().clientsOfQuery(queryParam, queryPagingParam);
         if (tSumPagedRep.getData().size() == 0)
             return new ArrayList<>();

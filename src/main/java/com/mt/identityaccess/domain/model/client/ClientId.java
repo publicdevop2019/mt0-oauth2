@@ -8,6 +8,8 @@ public class ClientId {
         this.id=id;
         this.dbId=parseFrom(id);
     }
+    public ClientId() {
+    }
 
     private Long parseFrom(String id) {
         return null;

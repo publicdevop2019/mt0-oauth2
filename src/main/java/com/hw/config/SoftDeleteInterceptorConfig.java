@@ -1,4 +1,4 @@
-package com.mt.identityaccess.domain.model.client;
+package com.hw.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.EmptyInterceptor;

@@ -1,10 +1,9 @@
 package com.mt.identityaccess.infrastructure.service;
 
-import com.mt.identityaccess.application.deprecated.AppBizClientApplicationService;
-import com.mt.identityaccess.application.representation.ClientDetailsRepresentation;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.TokenGranter;
 import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.stereotype.Component;
@@ -17,9 +16,8 @@ import static com.mt.identityaccess.domain.model.client.GrantType.CLIENT_CREDENT
 @Component
 public class SelfSignedJwtTokenService {
     @Value("${security.oauth2.client.clientId:#{null}}")
-    private Long clientId;
-    @Autowired
-    private AppBizClientApplicationService appBizClientApplicationService;
+    private String id;
+
     private TokenGranter tokenGranter;
 
     public void setTokenGranter(TokenGranter tokenGranter) {
@@ -27,8 +25,8 @@ public class SelfSignedJwtTokenService {
     }
 
     public OAuth2AccessToken getSelfSignedAccessToken() {
-        ClientDetailsRepresentation appBizClientRep = appBizClientApplicationService.readById(clientId);
-        TokenRequest tokenRequest = new TokenRequest(null, appBizClientRep.getClientId(), appBizClientRep.getScope(), CLIENT_CREDENTIALS.name().toLowerCase());
+        ClientDetails clientDetails = ApplicationServiceRegistry.clientApplicationService().loadClientByClientId(id);
+        TokenRequest tokenRequest = new TokenRequest(null, clientDetails.getClientId(), clientDetails.getScope(), CLIENT_CREDENTIALS.name().toLowerCase());
         return tokenGranter.grant(CLIENT_CREDENTIALS.name().toLowerCase(), tokenRequest);
     }
 }

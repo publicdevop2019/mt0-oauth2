@@ -1,4 +1,9 @@
-package com.mt.identityaccess.domain.model.client;
+package com.mt.identityaccess.domain.model.client.grant;
+
+import com.hw.config.DomainEventPublisher;
+import com.mt.identityaccess.domain.model.client.ClientId;
+import com.mt.identityaccess.domain.model.client.GrantType;
+import com.mt.identityaccess.domain.model.client.event.ClientGrantTypeChanged;
 
 import java.util.Set;
 
@@ -10,7 +15,7 @@ public class AuthorizationCodeGrantDetail {
     private GrantType grantType;
     private Set<String> redirectUrls;
     private boolean autoApprove = false;
-
+    private ClientId clientId;
     public AuthorizationCodeGrantDetail(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove) {
         this.setGrantType(grantTypes.stream().filter(e -> e.equals(GrantType.AUTHORIZATION_CODE)).findFirst().orElse(null));
         this.setRedirectUrls(redirectUrls);
@@ -33,5 +38,18 @@ public class AuthorizationCodeGrantDetail {
             this.redirectUrls = null;
         }
         this.grantType = grantType;
+    }
+
+    public void replace(AuthorizationCodeGrantDetail authorizationCodeGrantDetail) {
+        if (grantTypeChanged(authorizationCodeGrantDetail)) {
+            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId));
+        }
+        this.setAutoApprove(authorizationCodeGrantDetail.autoApprove);
+        this.setGrantType(authorizationCodeGrantDetail.grantType);
+        this.setRedirectUrls(authorizationCodeGrantDetail.redirectUrls);
+
+    }
+    private boolean grantTypeChanged(AuthorizationCodeGrantDetail authorizationCodeGrantDetail) {
+        return !grantType.equals(authorizationCodeGrantDetail.grantType);
     }
 }

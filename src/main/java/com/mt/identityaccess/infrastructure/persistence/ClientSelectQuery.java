@@ -1,18 +1,23 @@
-package com.mt.identityaccess.domain.model.client;
+package com.mt.identityaccess.infrastructure.persistence;
 
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import com.hw.shared.sql.clause.SelectFieldBooleanEqualClause;
 import com.hw.shared.sql.clause.SelectFieldNumberRangeClause;
 import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
-import org.springframework.stereotype.Component;
+import com.mt.identityaccess.domain.model.client.Client;
 
-import static com.mt.identityaccess.domain.model.client.Client.*;
+public class ClientSelectQuery extends SelectQueryBuilder<Client> {
+    public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
+    public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
+    public static final String ENTITY_NAME = "name";
+    public static final String ENTITY_GRANT_TYPE_ENUMS = "grantTypeEnums";
+    public static final String ENTITY_GRANT_AUTHORITIES = "grantedAuthorities";
+    public static final String ENTITY_SCOPE_ENUMS = "scopeEnums";
+    public static final String ENTITY_RESOURCE_IDS = "resourceIds";
 
-@Component
-public class RootBizClientSelectQueryBuilder extends SelectQueryBuilder<Client> {
     {
-        DEFAULT_PAGE_SIZE = 1000;
-        MAX_PAGE_SIZE = 2000;
+        DEFAULT_PAGE_SIZE = 20;
+        MAX_PAGE_SIZE = 40;
         mappedSortBy.put(ENTITY_NAME, ENTITY_NAME);
         mappedSortBy.put(ENTITY_RESOURCE_INDICATOR, ENTITY_RESOURCE_INDICATOR);
         mappedSortBy.put(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS, ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS);
@@ -25,4 +30,19 @@ public class RootBizClientSelectQueryBuilder extends SelectQueryBuilder<Client> 
         supportedWhereField.put(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS, new SelectFieldNumberRangeClause<>(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS));
         allowEmptyClause = true;
     }
+
+    private static ClientSelectQuery instance;
+
+    public static ClientSelectQuery instance() {
+        return instance;
+    }
+
+    static {
+        instance = new ClientSelectQuery();
+    }
+
+    private ClientSelectQuery() {
+
+    }
+
 }

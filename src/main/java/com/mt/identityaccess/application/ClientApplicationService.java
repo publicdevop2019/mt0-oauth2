@@ -15,6 +15,9 @@ import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.ClientRemoved;
 import com.mt.identityaccess.domain.model.client.event.ClientsBatchRemoved;
+import com.mt.identityaccess.domain.model.client.grant.*;
+import com.mt.identityaccess.infrastructure.persistence.QueryConfig;
+import com.mt.identityaccess.domain.model.client.ClientPaging;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
@@ -36,14 +39,13 @@ public class ClientApplicationService implements ClientDetailsService {
         return DomainRegistry.clientService().provisionClient(
                 new BasicClientDetail(
                         command.getName(),
-                        command.getClientSecret(),
                         command.getDescription(),
                         command.getScopeEnums(),
                         command.getGrantedAuthorities(),
                         command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()),
                         command.isResourceIndicator()
                 ),
-                new ClientCredentialsGrantDetail(command.getGrantTypeEnums()),
+                new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), command.getClientSecret()),
                 new PasswordGrantDetail(command.getGrantTypeEnums()),
                 new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds()),
                 new AuthorizationCodeGrantDetail(
@@ -57,7 +59,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Transactional(readOnly = true)
     public SumPagedRep<Client> clients(String queryParam, String pagingParam, String configParam) {
-        return DomainRegistry.clientRepository().clientsOfQuery(new ClientQueryParam(queryParam), new QueryPagingParam(pagingParam), new QueryConfigParam(configParam));
+        return DomainRegistry.clientRepository().clientsOfQuery(new ClientQuery(queryParam), new ClientPaging(pagingParam), new QueryConfig(configParam));
     }
 
     @Transactional(readOnly = true)
@@ -72,14 +74,13 @@ public class ClientApplicationService implements ClientDetailsService {
             Client client1 = client.get();
             client1.replace(new BasicClientDetail(
                             command.getName(),
-                            command.getClientSecret(),
                             command.getDescription(),
                             command.getScopeEnums(),
                             command.getGrantedAuthorities(),
                             command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()),
                             command.isResourceIndicator()
                     ),
-                    new ClientCredentialsGrantDetail(command.getGrantTypeEnums()),
+                    new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), command.getClientSecret()),
                     new PasswordGrantDetail(command.getGrantTypeEnums()),
                     new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds()),
                     new AuthorizationCodeGrantDetail(
@@ -89,7 +90,7 @@ public class ClientApplicationService implements ClientDetailsService {
                     ),
                     new AccessTokenDetail(command.getAccessTokenValiditySeconds())
             );
-            DomainRegistry.clientRepository().save(client1);
+            DomainRegistry.clientRepository().add(client1);
         }
     }
 
@@ -102,13 +103,15 @@ public class ClientApplicationService implements ClientDetailsService {
             if (client1.basicClientDetail().nonRoot()) {
                 DomainRegistry.clientRepository().remove(client1);
                 DomainEventPublisher.instance().publish(new ClientRemoved(clientId));
+            } else {
+                throw new RootClientDeleteException();
             }
         }
     }
 
     @Transactional
     public void removeClients(String queryParam, String changeId) {
-        List<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQueryParam(queryParam));
+        List<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
         boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.basicClientDetail().nonRoot());
         if (!b) {
             DomainRegistry.clientRepository().remove(allClientsOfQuery);
@@ -117,6 +120,8 @@ public class ClientApplicationService implements ClientDetailsService {
                             allClientsOfQuery.stream().map(Client::clientId).collect(Collectors.toSet())
                     )
             );
+        } else {
+            throw new RootClientDeleteException();
         }
     }
 
