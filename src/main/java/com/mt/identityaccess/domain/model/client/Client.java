@@ -4,7 +4,6 @@ import com.hw.config.DomainEventPublisher;
 import com.hw.shared.Auditable;
 import com.hw.shared.rest.Aggregate;
 import com.mt.identityaccess.domain.model.client.event.ClientReplaced;
-import com.mt.identityaccess.domain.model.client.grant.*;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
 

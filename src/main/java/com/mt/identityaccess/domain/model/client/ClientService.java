@@ -4,7 +4,6 @@ import com.hw.config.DomainEventPublisher;
 import com.hw.shared.sql.SumPagedRep;
 import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.event.ClientProvisioned;
-import com.mt.identityaccess.domain.model.client.grant.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

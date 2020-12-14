@@ -8,14 +8,15 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import com.hw.config.DomainEventPublisher;
 import com.hw.shared.rest.exception.AggregatePatchException;
 import com.hw.shared.sql.SumPagedRep;
+import com.mt.identityaccess.application.command.ClientPatchingCommand;
 import com.mt.identityaccess.application.command.ProvisionClientCommand;
 import com.mt.identityaccess.application.command.ReplaceClientCommand;
+import com.mt.identityaccess.application.exception.RootClientDeleteException;
 import com.mt.identityaccess.application.representation.ClientDetailsRepresentation;
 import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.ClientRemoved;
 import com.mt.identityaccess.domain.model.client.event.ClientsBatchRemoved;
-import com.mt.identityaccess.domain.model.client.grant.*;
 import com.mt.identityaccess.infrastructure.persistence.QueryConfig;
 import com.mt.identityaccess.domain.model.client.ClientPaging;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,11 +131,11 @@ public class ClientApplicationService implements ClientDetailsService {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
         if (client.isPresent()) {
             Client original = client.get();
-            ClientPatchingMiddleLayer middleLayer = new ClientPatchingMiddleLayer(original);
+            ClientPatchingCommand middleLayer = new ClientPatchingCommand(original);
             try {
                 JsonNode jsonNode = om.convertValue(middleLayer, JsonNode.class);
                 JsonNode patchedNode = command.apply(jsonNode);
-                middleLayer = om.treeToValue(patchedNode, ClientPatchingMiddleLayer.class);
+                middleLayer = om.treeToValue(patchedNode, ClientPatchingCommand.class);
             } catch (JsonPatchException | JsonProcessingException e) {
                 throw new AggregatePatchException();
             }

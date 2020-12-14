@@ -1,9 +1,7 @@
-package com.mt.identityaccess.domain.model.client.grant;
+package com.mt.identityaccess.domain.model.client;
 
 import com.hw.config.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.DomainRegistry;
-import com.mt.identityaccess.domain.model.client.ClientId;
-import com.mt.identityaccess.domain.model.client.GrantType;
 import com.mt.identityaccess.domain.model.client.event.ClientGrantTypeChanged;
 import com.mt.identityaccess.domain.model.client.event.ClientSecretChanged;
 import org.springframework.util.StringUtils;

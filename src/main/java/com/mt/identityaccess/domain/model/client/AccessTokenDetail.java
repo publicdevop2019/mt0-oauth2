@@ -1,7 +1,6 @@
-package com.mt.identityaccess.domain.model.client.grant;
+package com.mt.identityaccess.domain.model.client;
 
 import com.hw.config.DomainEventPublisher;
-import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.client.event.ClientAccessTokenChanged;
 
 public class AccessTokenDetail {

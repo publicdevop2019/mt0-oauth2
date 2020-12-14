@@ -1,7 +1,7 @@
 package com.hw.config;
 
 import com.mt.identityaccess.domain.model.client.ClientAlreadyExistException;
-import com.mt.identityaccess.domain.model.client.RootClientDeleteException;
+import com.mt.identityaccess.application.exception.RootClientDeleteException;
 import com.hw.shared.ErrorMessage;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

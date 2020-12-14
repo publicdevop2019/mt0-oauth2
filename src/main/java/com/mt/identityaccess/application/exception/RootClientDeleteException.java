@@ -1,4 +1,4 @@
-package com.mt.identityaccess.domain.model.client;
+package com.mt.identityaccess.application.exception;
 
 public class RootClientDeleteException extends RuntimeException {
 }
