@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.command;
+package com.mt.identityaccess.application.client;
 
 import com.hw.shared.rest.AggregateUpdateCommand;
 import lombok.Data;

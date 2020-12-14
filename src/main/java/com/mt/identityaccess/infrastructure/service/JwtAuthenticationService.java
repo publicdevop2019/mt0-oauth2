@@ -1,7 +1,7 @@
 package com.mt.identityaccess.infrastructure.service;
 
 import com.hw.shared.ServiceUtility;
-import com.mt.identityaccess.domain.model.AuthenticationService;
+import com.mt.identityaccess.application.AuthenticationApplicationService;
 import com.mt.identityaccess.domain.model.user.Role;
 import com.mt.identityaccess.infrastructure.JwtThreadLocal;
 import org.springframework.security.core.Authentication;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class JwtAuthenticationService implements AuthenticationService {
+public class JwtAuthenticationService implements AuthenticationApplicationService {
     @Override
     public boolean userInRole(Role role) {
         String jwt = JwtThreadLocal.get();

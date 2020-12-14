@@ -4,8 +4,8 @@ import com.hw.config.DomainEventPublisher;
 import com.hw.shared.sql.SumPagedRep;
 import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.event.ClientProvisioned;
-import com.mt.identityaccess.port.adapter.persistence.ClientPaging;
-import com.mt.identityaccess.port.adapter.persistence.ClientQuery;
+import com.mt.identityaccess.application.client.ClientPaging;
+import com.mt.identityaccess.application.client.ClientQuery;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

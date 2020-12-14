@@ -7,11 +7,17 @@ public class ApplicationServiceRegistry {
     private static ClientApplicationService clientApplicationService;
     @Autowired
     private static AuthorizeCodeApplicationService authorizeCodeApplicationService;
+    @Autowired
+    private static AuthenticationApplicationService authenticationApplicationService;
 
     public static ClientApplicationService clientApplicationService() {
         return clientApplicationService;
     }
     public static AuthorizeCodeApplicationService authorizeCodeApplicationService() {
         return authorizeCodeApplicationService;
+    }
+
+    public static AuthenticationApplicationService authenticationApplicationService() {
+        return authenticationApplicationService;
     }
 }

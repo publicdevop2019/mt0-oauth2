@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.command;
+package com.mt.identityaccess.application.client;
 
 import com.mt.identityaccess.domain.model.client.*;
 import lombok.Getter;

@@ -1,7 +1,7 @@
-package com.mt.identityaccess.port.adapter.persistence;
+package com.mt.identityaccess.application.client;
 
 import com.hw.shared.sql.exception.EmptyQueryValueException;
-import com.mt.identityaccess.domain.model.DomainRegistry;
+import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.domain.model.user.Role;
 
 public class ClientQuery {
@@ -20,9 +20,9 @@ public class ClientQuery {
                 throw new EmptyQueryValueException();
             }
             //only root user and general user can query, general user can only query by id
-            if (DomainRegistry.authenticationService().isUser() && DomainRegistry.authenticationService().userInRole(Role.ROLE_ROOT)) {
+            if (ApplicationServiceRegistry.authenticationApplicationService().isUser() && ApplicationServiceRegistry.authenticationApplicationService().userInRole(Role.ROLE_ROOT)) {
 
-            } else if (DomainRegistry.authenticationService().isUser() && DomainRegistry.authenticationService().userInRole(Role.ROLE_USER)) {
+            } else if (ApplicationServiceRegistry.authenticationApplicationService().isUser() && ApplicationServiceRegistry.authenticationApplicationService().userInRole(Role.ROLE_USER)) {
                 if (!"id".equals(split[0]))
                     throw new IllegalArgumentException("user role can only query by id");
             } else {

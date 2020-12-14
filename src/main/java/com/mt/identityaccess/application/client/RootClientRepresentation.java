@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.representation;
+package com.mt.identityaccess.application.client;
 
 import com.mt.identityaccess.domain.model.client.Authority;
 import com.mt.identityaccess.domain.model.client.Client;

@@ -4,11 +4,11 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.hw.shared.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.ClientApplicationService;
-import com.mt.identityaccess.application.command.ProvisionClientCommand;
-import com.mt.identityaccess.application.command.ReplaceClientCommand;
-import com.mt.identityaccess.application.representation.RootClientCardRepresentation;
-import com.mt.identityaccess.application.representation.RootClientRepresentation;
-import com.mt.identityaccess.application.representation.UserBizClientCardRep;
+import com.mt.identityaccess.application.client.ProvisionClientCommand;
+import com.mt.identityaccess.application.client.ReplaceClientCommand;
+import com.mt.identityaccess.application.client.RootClientCardRepresentation;
+import com.mt.identityaccess.application.client.RootClientRepresentation;
+import com.mt.identityaccess.application.client.UserClientCardRepresentation;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.infrastructure.JwtThreadLocal;
@@ -84,14 +84,14 @@ public class ClientResource {
     }
 
     @GetMapping("user")
-    public ResponseEntity<SumPagedRep<UserBizClientCardRep>> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                                                               @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                                               @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
-                                                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<SumPagedRep<UserClientCardRepresentation>> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                                       @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                                       @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
+                                                                                       @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtThreadLocal.unset();
         JwtThreadLocal.set(jwt);
         SumPagedRep<Client> clients = clientApplicationService().clients(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep(clients, UserBizClientCardRep::new));
+        return ResponseEntity.ok(new SumPagedRep(clients, UserClientCardRepresentation::new));
     }
 
     private ClientApplicationService clientApplicationService() {

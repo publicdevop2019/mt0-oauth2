@@ -1,6 +1,5 @@
 package com.mt.identityaccess.application;
 
-import com.mt.identityaccess.domain.model.DomainRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
@@ -41,7 +40,7 @@ public class AuthorizeCodeApplicationService {
         if (ApplicationServiceRegistry.clientApplicationService().loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null)
             throw new IllegalArgumentException("unable to find authorize client");
 
-        Authentication authentication = DomainRegistry.authenticationService().getAuthentication();
+        Authentication authentication = ApplicationServiceRegistry.authenticationApplicationService().getAuthentication();
 
         AuthorizationRequest authorizationRequest = defaultOAuth2RequestFactory.createAuthorizationRequest(parameters);
 
