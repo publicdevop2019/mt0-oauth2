@@ -21,21 +21,31 @@ public class ClientQuery {
     }
 
     public void validate() {
-        String[] queryParams = value.split(",");
-        for (String param : queryParams) {
-            String[] split = param.split(":");
-            if (split.length != 2) {
-                throw new EmptyQueryValueException();
-            }
-            //only root user and general user can query, general user can only query by id
-            if (ApplicationServiceRegistry.authenticationApplicationService().isUser() && ApplicationServiceRegistry.authenticationApplicationService().userInRole(Role.ROLE_ROOT)) {
-
-            } else if (ApplicationServiceRegistry.authenticationApplicationService().isUser() && ApplicationServiceRegistry.authenticationApplicationService().userInRole(Role.ROLE_USER)) {
-                if (!"id".equals(split[0]))
-                    throw new IllegalArgumentException("user role can only query by id");
+        boolean isRoot = ApplicationServiceRegistry.authenticationApplicationService().isUser()
+                && ApplicationServiceRegistry.authenticationApplicationService().userInRole(Role.ROLE_ROOT);
+        boolean isUser = ApplicationServiceRegistry.authenticationApplicationService().isUser()
+                && ApplicationServiceRegistry.authenticationApplicationService().userInRole(Role.ROLE_USER);
+        if (isRoot || isUser) {
+            if (value == null) {
+                if (!isRoot) {
+                    throw new IllegalArgumentException("only root role allows empty query");
+                }
             } else {
-                throw new IllegalArgumentException("only root and user can query");
+                String[] queryParams = value.split(",");
+                for (String param : queryParams) {
+                    String[] split = param.split(":");
+                    if (split.length != 2) {
+                        throw new EmptyQueryValueException();
+                    }
+                    //only root user and general user can query, general user can only query by id
+                    if (isUser) {
+                        if (!"id".equals(split[0]))
+                            throw new IllegalArgumentException("user role can only query by id");
+                    }
+                }
             }
+        } else {
+            throw new IllegalArgumentException("only root/user role allows empty query");
         }
     }
 }

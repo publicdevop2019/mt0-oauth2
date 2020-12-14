@@ -2,15 +2,34 @@ package com.hw.application;
 
 import com.hw.application.client.ClientApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ApplicationServiceRegistry {
-    @Autowired
     private static ClientApplicationService clientApplicationService;
+
     @Autowired
+    public void setClientApplicationService(ClientApplicationService clientApplicationService) {
+        ApplicationServiceRegistry.clientApplicationService = clientApplicationService;
+    }
+
+    @Autowired
+    public void setAuthorizeCodeApplicationService(AuthorizeCodeApplicationService authorizeCodeApplicationService) {
+        ApplicationServiceRegistry.authorizeCodeApplicationService = authorizeCodeApplicationService;
+    }
+
+    @Autowired
+    public void setAuthenticationApplicationService(AuthenticationApplicationService authenticationApplicationService) {
+        ApplicationServiceRegistry.authenticationApplicationService = authenticationApplicationService;
+    }
+
+    @Autowired
+    public void setClientIdempotentApplicationService(ClientIdempotentApplicationService clientIdempotentApplicationService) {
+        ApplicationServiceRegistry.clientIdempotentApplicationService = clientIdempotentApplicationService;
+    }
+
     private static AuthorizeCodeApplicationService authorizeCodeApplicationService;
-    @Autowired
     private static AuthenticationApplicationService authenticationApplicationService;
-    @Autowired
     private static ClientIdempotentApplicationService clientIdempotentApplicationService;
 
     public static ClientApplicationService clientApplicationService() {

@@ -5,7 +5,11 @@ import com.hw.shared.sql.clause.SelectFieldBooleanEqualClause;
 import com.hw.shared.sql.clause.SelectFieldNumberRangeClause;
 import com.hw.shared.sql.clause.SelectFieldStringLikeClause;
 import com.hw.domain.model.client.Client;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+@Component
 public class ClientSelectQueryBuilder extends SelectQueryBuilder<Client> {
     public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
@@ -30,19 +34,4 @@ public class ClientSelectQueryBuilder extends SelectQueryBuilder<Client> {
         supportedWhereField.put(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS, new SelectFieldNumberRangeClause<>(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS));
         allowEmptyClause = true;
     }
-
-    private static final ClientSelectQueryBuilder instance;
-
-    public static ClientSelectQueryBuilder instance() {
-        return instance;
-    }
-
-    static {
-        instance = new ClientSelectQueryBuilder();
-    }
-
-    private ClientSelectQueryBuilder() {
-
-    }
-
 }

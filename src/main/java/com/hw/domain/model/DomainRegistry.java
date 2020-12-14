@@ -6,23 +6,50 @@ import com.hw.domain.model.user.UserRepository;
 import com.hw.application.AuthenticationApplicationService;
 import com.hw.domain.model.client.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DomainRegistry {
-    @Autowired
-    private static ClientRepository bizClientRepository;
-    @Autowired
+    private static ClientRepository clientRepository;
     private static UserRepository bizUserRepo;
-    @Autowired
     private static PendingUserRepository pendingUserRepo;
-    @Autowired
     private static EncryptionService encryptionService;
-    @Autowired
     private static AuthenticationApplicationService authenticationService;
-    @Autowired
     private static ClientService clientService;
 
+    @Autowired
+    public void setClientRepository(ClientRepository clientRepository) {
+        DomainRegistry.clientRepository = clientRepository;
+    }
+
+    @Autowired
+    public void setBizUserRepo(UserRepository bizUserRepo) {
+        DomainRegistry.bizUserRepo = bizUserRepo;
+    }
+
+    @Autowired
+    public void setPendingUserRepo(PendingUserRepository pendingUserRepo) {
+        DomainRegistry.pendingUserRepo = pendingUserRepo;
+    }
+
+    @Autowired
+    public void setEncryptionService(EncryptionService encryptionService) {
+        DomainRegistry.encryptionService = encryptionService;
+    }
+
+    @Autowired
+    public void setAuthenticationService(AuthenticationApplicationService authenticationService) {
+        DomainRegistry.authenticationService = authenticationService;
+    }
+
+    @Autowired
+    public void setClientService(ClientService clientService) {
+        DomainRegistry.clientService = clientService;
+    }
+
     public static ClientRepository clientRepository() {
-        return bizClientRepository;
+        return clientRepository;
     }
 
     public static EncryptionService encryptionService() {
