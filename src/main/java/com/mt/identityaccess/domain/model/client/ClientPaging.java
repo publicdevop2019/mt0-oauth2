@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.client;
 
-public class ClientPaging implements Cloneable {
+public class ClientPaging{
     private final long pageNumber;
     private final int pageSize;
     public String value;
@@ -8,6 +8,7 @@ public class ClientPaging implements Cloneable {
     public ClientPaging(String pagingParamStr) {
         pageNumber = 0;
         pageSize = 0;
+        value = pagingParamStr;
     }
 
     public ClientPaging() {

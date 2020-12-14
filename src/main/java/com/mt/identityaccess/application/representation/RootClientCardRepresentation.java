@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class RootClientCardRepresentation {
 
-    protected Long id;
+    protected long id;
 
     protected String name;
 
@@ -23,19 +23,19 @@ public class RootClientCardRepresentation {
 
     protected Set<Scope> scopeEnums;
 
-    protected Integer accessTokenValiditySeconds;
+    protected int accessTokenValiditySeconds;
 
     protected Set<String> registeredRedirectUri;
 
-    protected Integer refreshTokenValiditySeconds;
+    protected int refreshTokenValiditySeconds;
 
     protected Set<String> resourceIds;
 
-    protected Boolean resourceIndicator;
+    protected boolean resourceIndicator;
 
-    protected Boolean autoApprove;
+    protected boolean autoApprove;
 
-    protected Integer version;
+    protected int version;
 
     public RootClientCardRepresentation(Object client) {
         Client client1 = (Client) client;

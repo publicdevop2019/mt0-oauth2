@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SpringEncryptionService implements EncryptionService {
     @Autowired
-    BCryptPasswordEncoder encoder;
+    private BCryptPasswordEncoder encoder;
 
     public String encryptedValue(String secret) {
         return encoder.encode(secret);
