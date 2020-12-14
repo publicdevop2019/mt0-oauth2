@@ -39,15 +39,15 @@ public class RootClientCardRepresentation {
 
     public RootClientCardRepresentation(Object client) {
         Client client1 = (Client) client;
-        id = client1.basicClientDetail().getClientId().persistentId();
+        id = client1.clientId().persistentId();
         name = client1.basicClientDetail().name();
-        grantTypeEnums=client1.totalGrantTypes();
-        grantedAuthorities=client1.basicClientDetail().authorities();
-        scopeEnums=client1.basicClientDetail().scopes();
-        accessTokenValiditySeconds=client1.accessTokenDetail().getAccessTokenValiditySeconds();
-        registeredRedirectUri=client1.authorizationCodeGrantDetail().redirectUrls();
-        refreshTokenValiditySeconds=client1.refreshTokenGrantDetail().refreshTokenValiditySeconds();
+        grantTypeEnums = client1.totalGrantTypes();
+        grantedAuthorities = client1.basicClientDetail().authorities();
+        scopeEnums = client1.basicClientDetail().scopes();
+        accessTokenValiditySeconds = client1.accessTokenDetail().getAccessTokenValiditySeconds();
+        registeredRedirectUri = client1.authorizationCodeGrantDetail().redirectUrls();
+        refreshTokenValiditySeconds = client1.refreshTokenGrantDetail().refreshTokenValiditySeconds();
         resourceIds = client1.basicClientDetail().resources().stream().map(ClientId::id).collect(Collectors.toSet());
-        resourceIndicator=client1.basicClientDetail().isAccessible();
+        resourceIndicator = client1.basicClientDetail().accessible();
     }
 }
