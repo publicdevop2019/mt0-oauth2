@@ -37,7 +37,7 @@ public class Client extends Auditable {
     private ClientCredentialsGrantDetail clientCredentialsGrantDetail;
     @Embedded
     private PasswordGrantDetail passwordGrantDetail;
-    @Embedded
+    @OneToOne(mappedBy = "client")
     private AuthorizationCodeGrantDetail authorizationCodeGrantDetail;
     @Embedded
     private RefreshTokenGrantDetail refreshTokenGrantDetail;
@@ -190,8 +190,8 @@ public class Client extends Auditable {
         if (passwordGrantDetail != null) {
             grantTypes.add(passwordGrantDetail.getGrantType());
         }
-        if (authorizationCodeGrantDetail != null) {
-            grantTypes.add(authorizationCodeGrantDetail.getGrantType());
+        if (authorizationCodeGrantDetail != null && authorizationCodeGrantDetail.enabled()) {
+            grantTypes.add(AuthorizationCodeGrantDetail.NAME);
         }
         if (refreshTokenGrantDetail != null) {
             grantTypes.add(refreshTokenGrantDetail.getGrantType());

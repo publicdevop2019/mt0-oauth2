@@ -24,7 +24,7 @@ public class ClientCredentialsGrantDetail {
 
 
     public ClientCredentialsGrantDetail(Set<GrantType> grantTypes, ClientId clientId) {
-        enabled = grantTypes.stream().anyMatch(e -> e.equals(GrantType.CLIENT_CREDENTIALS));
+        enabled = grantTypes.stream().anyMatch(e -> e.equals(NAME));
         id = IdGenerator.instance().id();
     }
 
