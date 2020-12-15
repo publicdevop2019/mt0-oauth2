@@ -40,7 +40,6 @@ public class SoftDeleteInterceptorConfig implements HibernatePropertiesCustomize
                     String s = split1[0] + " and ( " + aliaName + DELETED_IS_FALSE;
                     sql = split[0] + INNER_JOIN_QUERY + s + WHERE_KEYWORD + split1[1];
                 }
-                System.out.println("sql " + sql);
                 return sql;
             }
         };

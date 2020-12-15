@@ -7,6 +7,7 @@ import com.hw.domain.model.client.event.*;
 import com.hw.shared.Auditable;
 import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -22,16 +23,17 @@ public class Client extends Auditable {
     @Embedded
     private ClientId clientId;
     private String name;
+    private String secret;
     private String description;
-    @Convert(converter = Authority.ClientAuthorityConverter.class)
-    private Set<Authority> authorities;
-    @Convert(converter = Scope.ScopeSetConverter.class)
-    private Set<Scope> scopes;
-    @Convert(converter = ClientId.Converter.class)
-    private Set<ClientId> resources;
+    //    @Convert(converter = Authority.ClientAuthorityConverter.class)
+    private HashSet<Authority> authorities = new HashSet<>();
+    //    @Convert(converter = Scope.ScopeSetConverter.class)
+    private HashSet<Scope> scopes = new HashSet<>();
+    //    @Convert(converter = ClientId.Converter.class)
+    private HashSet<ClientId> resources = new HashSet<>();
     @Column(name = "_accessible")
     private boolean accessible = false;
-    @Embedded
+    @OneToOne(mappedBy = "client")
     private ClientCredentialsGrantDetail clientCredentialsGrantDetail;
     @Embedded
     private PasswordGrantDetail passwordGrantDetail;
@@ -42,6 +44,22 @@ public class Client extends Auditable {
     @Embedded
     private AccessTokenDetail accessTokenDetail;
 
+//    public Client(ClientId clientId, String name, String description, Set<Scope> scopes, Set<Authority> authorities, Set<ClientId> resources, boolean accessible, Set<GrantType> grantTypes) {
+//        this.setClientId(clientId);
+//        setResources(resources);
+//        setScopes(scopes);
+//        setDescription(description);
+//        setAccessible(accessible);
+//        setAuthorities(authorities);
+//        setName(name);
+//        if (!org.springframework.util.ObjectUtils.isEmpty(grantTypes)) {
+//            if (grantTypes.stream().anyMatch(e -> e.equals(GrantType.CLIENT_CREDENTIALS))) {
+//                this.clientCredentialsGrantDetail = new ClientCredentialsGrantDetail();
+//            }
+//        }
+//
+//    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -51,7 +69,7 @@ public class Client extends Auditable {
     }
 
     public void setScopes(Set<Scope> scopes) {
-        this.scopes = scopes;
+        this.scopes = new HashSet<>(scopes);
     }
 
     public void setAuthorities(Set<Authority> authorities) {
@@ -62,7 +80,7 @@ public class Client extends Auditable {
             )
                 setAccessible(false);
         }
-        this.authorities = authorities;
+        this.authorities = new HashSet<>(authorities);
     }
 
     public void setAccessible(boolean accessible) {
@@ -77,12 +95,14 @@ public class Client extends Auditable {
     }
 
     public void setResources(Set<ClientId> resources) {
-        List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(resources));
-        boolean b = clientsOfQuery.stream().anyMatch(e -> !e.accessible);
-        if (b) {
-            throw new IllegalArgumentException("invalid resource(s) found");
+        if (!resources.isEmpty()) {
+            List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(resources));
+            boolean b = clientsOfQuery.stream().anyMatch(e -> !e.accessible);
+            if (b) {
+                throw new IllegalArgumentException("invalid resource(s) found");
+            }
+            this.resources = new HashSet<>(resources);
         }
-        this.resources = resources;
     }
 
     public boolean nonRoot() {
@@ -134,11 +154,12 @@ public class Client extends Auditable {
 
     public Client(ClientId nextIdentity,
                   String name,
+                  String secret,
                   String description,
+                  boolean accessible,
                   Set<Scope> scopes,
                   Set<Authority> authorities,
                   Set<ClientId> resources,
-                  boolean accessible,
                   ClientCredentialsGrantDetail clientCredentialsGrantDetail,
                   PasswordGrantDetail passwordGrantDetail,
                   RefreshTokenGrantDetail refreshTokenGrantDetail,
@@ -146,24 +167,25 @@ public class Client extends Auditable {
                   AccessTokenDetail accessTokenDetail
     ) {
 
-        this.setClientId(nextIdentity);
+        setClientId(nextIdentity);
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
         setAccessible(accessible);
         setAuthorities(authorities);
         setName(name);
-        this.setClientCredentialsGrantDetail(clientCredentialsGrantDetail);
-        this.setPasswordGrantDetail(passwordGrantDetail);
-        this.setRefreshTokenGrantDetail(refreshTokenGrantDetail);
-        this.setAuthorizationCodeGrantDetail(authorizationCodeGrantDetail);
-        this.setAccessTokenDetail(accessTokenDetail);
+        setSecret(secret);
+        setClientCredentialsGrantDetail(clientCredentialsGrantDetail);
+        setPasswordGrantDetail(passwordGrantDetail);
+        setRefreshTokenGrantDetail(refreshTokenGrantDetail);
+        setAuthorizationCodeGrantDetail(authorizationCodeGrantDetail);
+        setAccessTokenDetail(accessTokenDetail);
     }
 
     public Set<GrantType> totalGrantTypes() {
         HashSet<GrantType> grantTypes = new HashSet<>();
-        if (clientCredentialsGrantDetail != null) {
-            grantTypes.add(clientCredentialsGrantDetail.getGrantType());
+        if (clientCredentialsGrantDetail != null && clientCredentialsGrantDetail.enabled()) {
+            grantTypes.add(ClientCredentialsGrantDetail.NAME);
         }
         if (passwordGrantDetail != null) {
             grantTypes.add(passwordGrantDetail.getGrantType());
@@ -195,10 +217,10 @@ public class Client extends Auditable {
 
     public void replace(String name,
                         String description,
+                        boolean accessible,
                         Set<Scope> scopes,
                         Set<Authority> authorities,
                         Set<ClientId> resources,
-                        boolean accessible,
                         ClientCredentialsGrantDetail clientCredentialsGrantDetail,
                         PasswordGrantDetail passwordGrantDetail,
                         AccessTokenDetail accessTokenDetail
@@ -234,13 +256,16 @@ public class Client extends Auditable {
     }
 
     public void replace(String name,
+                        String secret,
                         String description,
+                        boolean accessible,
                         Set<Scope> scopes,
                         Set<Authority> authorities,
                         Set<ClientId> resources,
-                        boolean accessible,
-                        ClientCredentialsGrantDetail clientCredentialsGrantDetail, PasswordGrantDetail passwordGrantDetail,
-                        RefreshTokenGrantDetail refreshTokenGrantDetail, AuthorizationCodeGrantDetail authorizationCodeGrantDetail,
+                        ClientCredentialsGrantDetail clientCredentialsGrantDetail,
+                        PasswordGrantDetail passwordGrantDetail,
+                        RefreshTokenGrantDetail refreshTokenGrantDetail,
+                        AuthorizationCodeGrantDetail authorizationCodeGrantDetail,
                         AccessTokenDetail accessTokenDetail) {
         if (authoritiesChanged(authorities)) {
             DomainEventPublisher.instance().publish(new ClientAuthoritiesChanged(clientId));
@@ -254,17 +279,29 @@ public class Client extends Auditable {
         if (accessibleChanged(accessible)) {
             DomainEventPublisher.instance().publish(new ClientAccessibleChanged(clientId));
         }
+        if (secretChanged(secret)) {
+            DomainEventPublisher.instance().publish(new ClientSecretChanged(clientId));
+        }
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
         setAccessible(accessible);
         setAuthorities(authorities);
         setName(name);
+        setSecret(secret);
         this.clientCredentialsGrantDetail.replace(clientCredentialsGrantDetail);
         this.passwordGrantDetail.replace(passwordGrantDetail);
         this.refreshTokenGrantDetail.replace(refreshTokenGrantDetail);
         this.authorizationCodeGrantDetail.replace(authorizationCodeGrantDetail);
         this.accessTokenDetail.replace(accessTokenDetail);
         DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
+    }
+
+    public void setSecret(String secret) {
+        this.secret = DomainRegistry.encryptionService().encryptedValue(secret);
+    }
+
+    private boolean secretChanged(String secret) {
+        return StringUtils.hasText(secret);
     }
 }

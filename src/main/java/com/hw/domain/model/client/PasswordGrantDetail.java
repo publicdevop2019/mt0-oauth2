@@ -9,6 +9,9 @@ public class PasswordGrantDetail {
     private transient GrantType grantType;
     private transient ClientId clientId;
 
+    public PasswordGrantDetail(Set<GrantType> grantTypeEnums, ClientId clientId) {
+    }
+
     public GrantType getGrantType() {
         return grantType;
     }

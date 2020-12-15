@@ -29,4 +29,7 @@ public class AccessTokenDetail {
     private boolean accessTokenChanged(AccessTokenDetail accessTokenDetail) {
         return accessTokenValiditySeconds != accessTokenDetail.accessTokenValiditySeconds;
     }
+
+    public AccessTokenDetail(Integer accessTokenValiditySeconds, ClientId clientId) {
+    }
 }

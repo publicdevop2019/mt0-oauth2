@@ -5,7 +5,6 @@ import javax.persistence.Embeddable;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-@Embeddable
 public class ClientId {
 
     private String clientId;

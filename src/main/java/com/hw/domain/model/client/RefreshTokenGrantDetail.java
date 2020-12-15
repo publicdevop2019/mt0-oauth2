@@ -16,6 +16,9 @@ public class RefreshTokenGrantDetail {
 
     private Integer refreshTokenValiditySeconds;
 
+    public RefreshTokenGrantDetail(Set<GrantType> grantTypeEnums, Integer refreshTokenValiditySeconds, ClientId clientId) {
+    }
+
     public Integer refreshTokenValiditySeconds() {
         return refreshTokenValiditySeconds;
     }

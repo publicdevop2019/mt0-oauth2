@@ -2,9 +2,8 @@ package com.hw.domain.model.client;
 
 import com.hw.config.DomainEventPublisher;
 import com.hw.domain.model.client.event.ClientGrantTypeChanged;
-import com.hw.shared.StringSetConverter;
 
-import javax.persistence.Convert;
+import java.util.HashSet;
 import java.util.Set;
 
 public class AuthorizationCodeGrantDetail {
@@ -12,11 +11,15 @@ public class AuthorizationCodeGrantDetail {
         return grantType;
     }
 
+    public AuthorizationCodeGrantDetail(Set<GrantType> grantTypeEnums, Set<String> registeredRedirectUri, boolean autoApprove, ClientId clientId) {
+    }
+
     private transient GrantType grantType;
-    @Convert(converter = StringSetConverter.class)
-    private Set<String> redirectUrls;
+    //    @Convert(converter = StringSetConverter.class)
+    private HashSet<String> redirectUrls = new HashSet<>();
     private boolean autoApprove = false;
     private transient ClientId clientId;
+
     public AuthorizationCodeGrantDetail(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove) {
         this.setGrantType(grantTypes.stream().filter(e -> e.equals(GrantType.AUTHORIZATION_CODE)).findFirst().orElse(null));
         this.setRedirectUrls(redirectUrls);
@@ -38,7 +41,7 @@ public class AuthorizationCodeGrantDetail {
 
     public void setRedirectUrls(Set<String> redirectUrls) {
         if (GrantType.AUTHORIZATION_CODE.equals(grantType))
-            this.redirectUrls = redirectUrls;
+            this.redirectUrls = new HashSet<>(redirectUrls);
     }
 
     public void setGrantType(GrantType grantType) {
@@ -57,6 +60,7 @@ public class AuthorizationCodeGrantDetail {
         this.setRedirectUrls(authorizationCodeGrantDetail.redirectUrls);
 
     }
+
     private boolean grantTypeChanged(AuthorizationCodeGrantDetail authorizationCodeGrantDetail) {
         return !grantType.equals(authorizationCodeGrantDetail.grantType);
     }

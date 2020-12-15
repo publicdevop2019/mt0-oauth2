@@ -16,21 +16,36 @@ import java.util.Set;
 @Service
 public class ClientService {
 
-    public ClientId provisionClient(String name,
+    public ClientId provisionClient(ClientId clientId,
+                                    String name,
+                                    String clientSecret,
                                     String description,
+                                    boolean accessible,
                                     Set<Scope> scopes,
                                     Set<Authority> authorities,
                                     Set<ClientId> resources,
-                                    boolean accessible,
                                     ClientCredentialsGrantDetail clientCredentialsGrantDetail,
                                     PasswordGrantDetail passwordGrantDetail,
                                     RefreshTokenGrantDetail refreshTokenGrantDetail,
                                     AuthorizationCodeGrantDetail authorizationCodeGrantDetail,
                                     AccessTokenDetail accessTokenDetail
     ) {
-        ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
-        Client client = new Client(clientId, name, description, scopes, authorities, resources, accessible,
-                clientCredentialsGrantDetail, passwordGrantDetail, refreshTokenGrantDetail, authorizationCodeGrantDetail, accessTokenDetail);
+
+        Client client = new Client(
+                clientId,
+                name,
+                clientSecret,
+                description,
+                accessible,
+                scopes,
+                authorities,
+                resources,
+                clientCredentialsGrantDetail,
+                passwordGrantDetail,
+                refreshTokenGrantDetail,
+                authorizationCodeGrantDetail,
+                accessTokenDetail
+        );
         DomainRegistry.clientRepository().add(client);
         DomainEventPublisher.instance().publish(new ClientProvisioned(client.clientId()));
         return clientId;

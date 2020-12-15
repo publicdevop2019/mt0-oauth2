@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 @Component
-public class ClientSelectQueryBuilder extends SelectQueryBuilder<Client> {
+public class ClientQueryBuilder extends SelectQueryBuilder<Client> {
     public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
     public static final String ENTITY_NAME = "name";

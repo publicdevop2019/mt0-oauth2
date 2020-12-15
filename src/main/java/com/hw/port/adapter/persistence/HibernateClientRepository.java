@@ -47,7 +47,7 @@ public interface HibernateClientRepository extends JpaRepository<Client, Long>, 
     }
 
     private SumPagedRep<Client> getSumPagedRep(String query, String page, String config) {
-        SelectQueryBuilder<Client> selectQueryBuilder = SelectQueryBuilderRegistry.clientSelectQueryBuilder();
+        SelectQueryBuilder<Client> selectQueryBuilder = QueryBuilderRegistry.clientSelectQueryBuilder();
         List<Client> select = selectQueryBuilder.select(query, page, Client.class);
         Long aLong = null;
         if (!skipCount(config)) {

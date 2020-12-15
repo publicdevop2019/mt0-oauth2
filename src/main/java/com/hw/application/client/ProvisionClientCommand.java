@@ -6,6 +6,7 @@ import com.hw.domain.model.client.Scope;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -25,11 +26,11 @@ public class ProvisionClientCommand implements Serializable {
     private Set<Scope> scopeEnums;
 
     private Integer accessTokenValiditySeconds;
-
+    @Nullable
     private Set<String> registeredRedirectUri;
-
+    @Nullable
     private Integer refreshTokenValiditySeconds;
-
+    @Nullable
     private Set<String> resourceIds;
 
     private boolean resourceIndicator;

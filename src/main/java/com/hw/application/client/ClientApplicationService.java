@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,23 +32,31 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Transactional
     public ClientId provisionClient(ProvisionClientCommand command, String operationId) {
-        return ApplicationServiceRegistry.clientIdempotentApplicationService().idempotentProvision(command, operationId, () -> DomainRegistry.clientService().provisionClient(
-                command.getName(),
-                command.getDescription(),
-                command.getScopeEnums(),
-                command.getGrantedAuthorities(),
-                command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()),
-                command.isResourceIndicator(),
-                new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), command.getClientSecret()),
-                new PasswordGrantDetail(command.getGrantTypeEnums()),
-                new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds()),
-                new AuthorizationCodeGrantDetail(
-                        command.getGrantTypeEnums(),
-                        command.getRegisteredRedirectUri(),
-                        command.isAutoApprove()
-                ),
-                new AccessTokenDetail(command.getAccessTokenValiditySeconds())
-        ));
+        return ApplicationServiceRegistry.clientIdempotentApplicationService().idempotentProvision(command, operationId,
+                () -> {
+                    ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
+                    return DomainRegistry.clientService().provisionClient(
+                            clientId,
+                            command.getName(),
+                            command.getClientSecret(),
+                            command.getDescription(),
+                            command.isResourceIndicator(),
+                            command.getScopeEnums(),
+                            command.getGrantedAuthorities(),
+                            command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
+                            new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), clientId),
+                            new PasswordGrantDetail(command.getGrantTypeEnums(), clientId),
+                            new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds(), clientId),
+                            new AuthorizationCodeGrantDetail(
+                                    command.getGrantTypeEnums(),
+                                    command.getRegisteredRedirectUri(),
+                                    command.isAutoApprove(),
+                                    clientId
+                            ),
+                            new AccessTokenDetail(command.getAccessTokenValiditySeconds(), clientId)
+                    );
+                }
+        );
 
     }
 
@@ -63,18 +72,20 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Transactional
     public void replaceClient(String id, ReplaceClientCommand command, String changeId) {
-        Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
+        ClientId clientId = new ClientId(id);
+        Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
         if (client.isPresent()) {
             Client client1 = client.get();
             ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(command, changeId, (ignored) -> {
                 client1.replace(
                         command.getName(),
+                        command.getClientSecret(),
                         command.getDescription(),
+                        command.isResourceIndicator(),
                         command.getScopeEnums(),
                         command.getGrantedAuthorities(),
-                        command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()),
-                        command.isResourceIndicator(),
-                        new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), command.getClientSecret()),
+                        command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
+                        new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), clientId),
                         new PasswordGrantDetail(command.getGrantTypeEnums()),
                         new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds()),
                         new AuthorizationCodeGrantDetail(
@@ -126,7 +137,8 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Transactional
     public void patchClient(String id, JsonPatch command, String changeId) {
-        Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
+        ClientId clientId = new ClientId(id);
+        Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
         if (client.isPresent()) {
             Client original = client.get();
             ClientPatchingCommand middleLayer = new ClientPatchingCommand(original);
@@ -142,11 +154,11 @@ public class ClientApplicationService implements ClientDetailsService {
                 original.replace(
                         finalMiddleLayer.getName(),
                         finalMiddleLayer.getDescription(),
+                        finalMiddleLayer.isResourceIndicator(),
                         finalMiddleLayer.getScopeEnums(),
                         finalMiddleLayer.getGrantedAuthorities(),
-                        finalMiddleLayer.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()),
-                        finalMiddleLayer.isResourceIndicator(),
-                        new ClientCredentialsGrantDetail(finalMiddleLayer.getGrantTypeEnums()),
+                        finalMiddleLayer.getResourceIds() != null ? finalMiddleLayer.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
+                        new ClientCredentialsGrantDetail(finalMiddleLayer.getGrantTypeEnums(), clientId),
                         new PasswordGrantDetail(finalMiddleLayer.getGrantTypeEnums()),
                         new AccessTokenDetail(finalMiddleLayer.getAccessTokenValiditySeconds())
                 );
