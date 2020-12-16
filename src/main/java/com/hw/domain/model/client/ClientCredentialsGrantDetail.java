@@ -10,7 +10,6 @@ import java.util.Set;
 @Entity
 public class ClientCredentialsGrantDetail {
     @Id
-    @Column(name = "client_id")
     private long id;
     public static final GrantType NAME = GrantType.CLIENT_CREDENTIALS;
 
@@ -21,7 +20,7 @@ public class ClientCredentialsGrantDetail {
     private boolean enabled;
     @OneToOne
     @MapsId
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "id")
     private Client client;
 
     @Embedded

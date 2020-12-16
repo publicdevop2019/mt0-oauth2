@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ClientId {
-    @Column(name = "client_id_id")
     private String clientId;
 
     public ClientId(String id) {
