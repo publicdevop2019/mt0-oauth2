@@ -8,11 +8,10 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
+//@Entity
 public class AuthorizationCodeGrantDetail {
     public static final GrantType NAME = GrantType.AUTHORIZATION_CODE;
-    @Id
-    private long id;
+//    private long id;
 
     public AuthorizationCodeGrantDetail() {
     }
@@ -21,21 +20,19 @@ public class AuthorizationCodeGrantDetail {
     private HashSet<String> redirectUrls = new HashSet<>();
     private boolean autoApprove = false;
     private boolean enabled = false;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "client_id", referencedColumnName = "id")
-    private Client client;
+//    private Client client;
 
     public AuthorizationCodeGrantDetail(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove) {
         this.setRedirectUrls(redirectUrls);
         this.setAutoApprove(autoApprove);
-        id = IdGenerator.instance().id();
+//        id = IdGenerator.instance().id();
         enabled = grantTypes.stream().anyMatch(e -> e.equals(NAME));
     }
 
     public AuthorizationCodeGrantDetail(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove, ClientId clientId) {
         this.setRedirectUrls(redirectUrls);
         this.setAutoApprove(autoApprove);
-        id = IdGenerator.instance().id();
+//        id = IdGenerator.instance().id();
         enabled = grantTypes.stream().anyMatch(e -> e.equals(NAME));
     }
 
@@ -57,7 +54,7 @@ public class AuthorizationCodeGrantDetail {
 
     public void replace(AuthorizationCodeGrantDetail authorizationCodeGrantDetail) {
         if (grantTypeChanged(authorizationCodeGrantDetail)) {
-            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(client.clientId()));
+            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(new ClientId("")));
         }
         this.setAutoApprove(authorizationCodeGrantDetail.autoApprove);
         this.setRedirectUrls(authorizationCodeGrantDetail.redirectUrls);

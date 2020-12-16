@@ -1,12 +1,13 @@
 package com.hw.domain.model.client;
 
 import javax.persistence.AttributeConverter;
-import javax.persistence.Embeddable;
+import javax.persistence.Column;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-public class ClientId {
 
+public class ClientId {
+    @Column(name = "client_id_id")
     private String clientId;
 
     public ClientId(String id) {
@@ -27,7 +28,7 @@ public class ClientId {
     public static class Converter implements AttributeConverter<Set<ClientId>, String> {
         @Override
         public String convertToDatabaseColumn(Set<ClientId> clientIds) {
-            return String.join(",",clientIds.stream().map(ClientId::id).collect(Collectors.toSet()));
+            return String.join(",", clientIds.stream().map(ClientId::id).collect(Collectors.toSet()));
         }
 
         @Override

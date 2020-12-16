@@ -33,11 +33,13 @@ public class Client extends Auditable {
     private HashSet<ClientId> resources = new HashSet<>();
     @Column(name = "_accessible")
     private boolean accessible = false;
-    @OneToOne(mappedBy = "client")
+
+    @OneToOne(mappedBy = "client",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @PrimaryKeyJoinColumn
     private ClientCredentialsGrantDetail clientCredentialsGrantDetail;
     @Embedded
     private PasswordGrantDetail passwordGrantDetail;
-    @OneToOne(mappedBy = "client")
+    @Embedded
     private AuthorizationCodeGrantDetail authorizationCodeGrantDetail;
     @Embedded
     private RefreshTokenGrantDetail refreshTokenGrantDetail;

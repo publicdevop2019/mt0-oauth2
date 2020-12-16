@@ -9,23 +9,27 @@ import java.util.Set;
 
 @Entity
 public class ClientCredentialsGrantDetail {
-    public static final GrantType NAME = GrantType.CLIENT_CREDENTIALS;
     @Id
+    @Column(name = "client_id")
     private long id;
+    public static final GrantType NAME = GrantType.CLIENT_CREDENTIALS;
 
     public boolean enabled() {
         return enabled;
     }
 
     private boolean enabled;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "client_id", referencedColumnName = "id")
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "client_id")
     private Client client;
+
+    @Embedded
+    private ClientId clientId;
 
 
     public ClientCredentialsGrantDetail(Set<GrantType> grantTypes, ClientId clientId) {
         enabled = grantTypes.stream().anyMatch(e -> e.equals(NAME));
-        id = IdGenerator.instance().id();
     }
 
     public ClientCredentialsGrantDetail() {
@@ -33,7 +37,7 @@ public class ClientCredentialsGrantDetail {
 
     public void replace(ClientCredentialsGrantDetail clientCredentialsGrantDetail) {
         if (enabled() != clientCredentialsGrantDetail.enabled()) {
-            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(client.clientId()));
+            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(new ClientId("")));
         }
     }
 }
