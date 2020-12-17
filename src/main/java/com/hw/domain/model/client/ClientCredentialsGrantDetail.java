@@ -2,16 +2,15 @@ package com.hw.domain.model.client;
 
 import com.hw.config.DomainEventPublisher;
 import com.hw.domain.model.client.event.ClientGrantTypeChanged;
-import com.hw.shared.IdGenerator;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
 public class ClientCredentialsGrantDetail {
+    public static final GrantType NAME = GrantType.CLIENT_CREDENTIALS;
     @Id
     private long id;
-    public static final GrantType NAME = GrantType.CLIENT_CREDENTIALS;
 
     public boolean enabled() {
         return enabled;
@@ -26,9 +25,13 @@ public class ClientCredentialsGrantDetail {
     @Embedded
     private ClientId clientId;
 
+    public ClientId clientId() {
+        return clientId;
+    }
 
     public ClientCredentialsGrantDetail(Set<GrantType> grantTypes, ClientId clientId) {
         enabled = grantTypes.stream().anyMatch(e -> e.equals(NAME));
+        this.clientId = clientId;
     }
 
     public ClientCredentialsGrantDetail() {

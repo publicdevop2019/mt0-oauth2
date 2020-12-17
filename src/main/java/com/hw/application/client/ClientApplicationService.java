@@ -86,7 +86,7 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getGrantedAuthorities(),
                         command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
                         new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), clientId),
-                        new PasswordGrantDetail(command.getGrantTypeEnums()),
+                        new PasswordGrantDetail(command.getGrantTypeEnums(), clientId),
                         new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds()),
                         new AuthorizationCodeGrantDetail(
                                 command.getGrantTypeEnums(),
@@ -159,7 +159,7 @@ public class ClientApplicationService implements ClientDetailsService {
                         finalMiddleLayer.getGrantedAuthorities(),
                         finalMiddleLayer.getResourceIds() != null ? finalMiddleLayer.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
                         new ClientCredentialsGrantDetail(finalMiddleLayer.getGrantTypeEnums(), clientId),
-                        new PasswordGrantDetail(finalMiddleLayer.getGrantTypeEnums()),
+                        new PasswordGrantDetail(finalMiddleLayer.getGrantTypeEnums(), clientId),
                         new AccessTokenDetail(finalMiddleLayer.getAccessTokenValiditySeconds())
                 );
             });

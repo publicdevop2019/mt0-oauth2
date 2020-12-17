@@ -37,7 +37,8 @@ public class Client extends Auditable {
     @OneToOne(mappedBy = "client",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @PrimaryKeyJoinColumn
     private ClientCredentialsGrantDetail clientCredentialsGrantDetail;
-    @Embedded
+    @OneToOne(mappedBy = "client",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @PrimaryKeyJoinColumn
     private PasswordGrantDetail passwordGrantDetail;
     @Embedded
     private AuthorizationCodeGrantDetail authorizationCodeGrantDetail;
@@ -189,8 +190,8 @@ public class Client extends Auditable {
         if (clientCredentialsGrantDetail != null && clientCredentialsGrantDetail.enabled()) {
             grantTypes.add(ClientCredentialsGrantDetail.NAME);
         }
-        if (passwordGrantDetail != null) {
-            grantTypes.add(passwordGrantDetail.getGrantType());
+        if (passwordGrantDetail != null && passwordGrantDetail.enabled()) {
+            grantTypes.add(PasswordGrantDetail.NAME);
         }
         if (authorizationCodeGrantDetail != null && authorizationCodeGrantDetail.enabled()) {
             grantTypes.add(AuthorizationCodeGrantDetail.NAME);

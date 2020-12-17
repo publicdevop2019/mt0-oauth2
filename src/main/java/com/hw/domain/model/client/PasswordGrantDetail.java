@@ -3,35 +3,40 @@ package com.hw.domain.model.client;
 import com.hw.config.DomainEventPublisher;
 import com.hw.domain.model.client.event.ClientGrantTypeChanged;
 
+import javax.persistence.*;
 import java.util.Set;
 
+@Entity
 public class PasswordGrantDetail {
-    private transient GrantType grantType;
-    private transient ClientId clientId;
+    public static final GrantType NAME = GrantType.PASSWORD;
+    @Id
+    private long id;
 
-    public PasswordGrantDetail(Set<GrantType> grantTypeEnums, ClientId clientId) {
+    public boolean enabled() {
+        return enabled;
     }
 
-    public GrantType getGrantType() {
-        return grantType;
+    private boolean enabled;
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private Client client;
+
+    @Embedded
+    private ClientId clientId;
+
+    public ClientId clientId() {
+        return clientId;
     }
 
-    public PasswordGrantDetail(Set<GrantType> grantTypes) {
-        this.setGrantType(grantTypes.stream().filter(e -> e.equals(GrantType.PASSWORD)).findFirst().orElse(null));
-    }
-
-    private void setGrantType(GrantType grantType) {
-        this.grantType = grantType;
+    public PasswordGrantDetail(Set<GrantType> grantTypes, ClientId clientId) {
+        enabled = grantTypes.stream().anyMatch(e -> e.equals(NAME));
+        this.clientId = clientId;
     }
 
     public void replace(PasswordGrantDetail passwordGrantDetail) {
-        if (grantTypeChanged(passwordGrantDetail)) {
-            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId));
+        if (enabled() != passwordGrantDetail.enabled()) {
+            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(new ClientId("")));
         }
-        this.setGrantType(passwordGrantDetail.grantType);
-    }
-
-    private boolean grantTypeChanged(PasswordGrantDetail passwordGrantDetail) {
-        return !grantType.equals(passwordGrantDetail.grantType);
     }
 }
