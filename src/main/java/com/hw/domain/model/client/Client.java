@@ -185,10 +185,6 @@ public class Client extends Auditable {
         clientCredentialsGrantDetail.internalOnlySetClient(this);
         passwordGrantDetail.internalOnlySetClient(this);
         authorizationCodeGrantDetail.internalOnlySetClient(this);
-        clientCredentialsGrantDetail.internalOnlySetId(id());
-        passwordGrantDetail.internalOnlySetId(id());
-        authorizationCodeGrantDetail.internalOnlySetId(id());
-
     }
 
     public Set<GrantType> totalGrantTypes() {

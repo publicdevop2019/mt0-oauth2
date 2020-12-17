@@ -17,7 +17,7 @@ public abstract class AbstractGrantDetail {
     protected boolean enabled = false;
 
     @MapsId
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
 //    @JoinColumn(name = "id")
     public Client client;
 
@@ -48,10 +48,6 @@ public abstract class AbstractGrantDetail {
             this.enabled = false;
         else
             enabled = grantTypes.stream().anyMatch(e -> e.equals(name()));
-    }
-
-    public void internalOnlySetId(Long id) {
-        this.id = id;
     }
 
     protected void setEnabled(boolean enabled) {
