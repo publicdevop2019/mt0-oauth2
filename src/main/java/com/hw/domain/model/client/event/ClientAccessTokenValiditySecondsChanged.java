@@ -5,8 +5,8 @@ import com.hw.domain.model.client.ClientId;
 
 import java.util.Date;
 
-public class ClientAccessTokenChanged implements DomainEvent {
-    public ClientAccessTokenChanged(ClientId p0) {
+public class ClientAccessTokenValiditySecondsChanged implements DomainEvent {
+    public ClientAccessTokenValiditySecondsChanged(ClientId p0) {
     }
 
     @Override

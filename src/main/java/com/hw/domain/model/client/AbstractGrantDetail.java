@@ -14,10 +14,6 @@ public abstract class AbstractGrantDetail {
     @Id
     protected long id;
 
-    public boolean enabled() {
-        return enabled;
-    }
-
     protected boolean enabled = false;
 
     @OneToOne
@@ -25,11 +21,21 @@ public abstract class AbstractGrantDetail {
     @JoinColumn(name = "id")
     private Client client;
 
+    private int accessTokenValiditySeconds = 0;
+
     @Embedded
     protected ClientId clientId;
 
+    public boolean enabled() {
+        return enabled;
+    }
+
     public ClientId clientId() {
         return clientId;
+    }
+
+    public int accessTokenValiditySeconds() {
+        return accessTokenValiditySeconds;
     }
 
     protected void setClientId(@Nullable ClientId clientId) {
@@ -47,10 +53,11 @@ public abstract class AbstractGrantDetail {
         this.enabled = enabled;
     }
 
-    public AbstractGrantDetail(Set<GrantType> grantTypes, ClientId clientId) {
+    public AbstractGrantDetail(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds) {
         this.id = IdGenerator.instance().id();
         setEnabled(grantTypes);
         setClientId(clientId);
+        setAccessTokenValiditySeconds(accessTokenValiditySeconds);
     }
 
     private void setClient(Client client) {
@@ -63,5 +70,13 @@ public abstract class AbstractGrantDetail {
 
     protected boolean grantTypeChanged(AbstractGrantDetail abstractGrantDetail) {
         return enabled != abstractGrantDetail.enabled();
+    }
+
+    protected boolean accessTokenValiditySecondsChanged(AbstractGrantDetail abstractGrantDetail) {
+        return accessTokenValiditySeconds() != abstractGrantDetail.accessTokenValiditySeconds();
+    }
+
+    private void setAccessTokenValiditySeconds(int accessTokenValiditySeconds) {
+        this.accessTokenValiditySeconds = accessTokenValiditySeconds;
     }
 }

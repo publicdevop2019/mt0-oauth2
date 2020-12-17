@@ -47,8 +47,6 @@ public class Client extends Auditable {
     @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @PrimaryKeyJoinColumn
     private RefreshTokenGrantDetail refreshTokenGrantDetail;
-    @Embedded
-    private AccessTokenDetail accessTokenDetail;
 
     public void setName(String name) {
         this.name = name;
@@ -97,6 +95,26 @@ public class Client extends Auditable {
 
     public boolean nonRoot() {
         return this.authorities.stream().noneMatch(Authority.ROLE_ROOT::equals);
+    }
+
+    public long id() {
+        return id;
+    }
+
+    public ClientId clientId() {
+        return clientId;
+    }
+
+    public String secret() {
+        return secret;
+    }
+
+    public ClientCredentialsGrantDetail clientCredentialsGrantDetail() {
+        return clientCredentialsGrantDetail;
+    }
+
+    public PasswordGrantDetail passwordGrantDetail() {
+        return passwordGrantDetail;
     }
 
     private boolean resourcesChanged(Set<ClientId> clientIds) {
@@ -153,8 +171,7 @@ public class Client extends Auditable {
                   ClientCredentialsGrantDetail clientCredentialsGrantDetail,
                   PasswordGrantDetail passwordGrantDetail,
                   RefreshTokenGrantDetail refreshTokenGrantDetail,
-                  AuthorizationCodeGrantDetail authorizationCodeGrantDetail,
-                  AccessTokenDetail accessTokenDetail
+                  AuthorizationCodeGrantDetail authorizationCodeGrantDetail
     ) {
 
         setClientId(nextIdentity);
@@ -169,7 +186,6 @@ public class Client extends Auditable {
         setPasswordGrantDetail(passwordGrantDetail);
         setRefreshTokenGrantDetail(refreshTokenGrantDetail);
         setAuthorizationCodeGrantDetail(authorizationCodeGrantDetail);
-        setAccessTokenDetail(accessTokenDetail);
         this.id = IdGenerator.instance().id();
     }
 
@@ -190,20 +206,12 @@ public class Client extends Auditable {
         return grantTypes;
     }
 
-    public AccessTokenDetail accessTokenDetail() {
-        return accessTokenDetail;
-    }
-
     public AuthorizationCodeGrantDetail authorizationCodeGrantDetail() {
         return authorizationCodeGrantDetail;
     }
 
     public RefreshTokenGrantDetail refreshTokenGrantDetail() {
         return refreshTokenGrantDetail;
-    }
-
-    public ClientId clientId() {
-        return clientId;
     }
 
     public void replace(String name,
@@ -213,8 +221,7 @@ public class Client extends Auditable {
                         Set<Authority> authorities,
                         Set<ClientId> resources,
                         ClientCredentialsGrantDetail clientCredentialsGrantDetail,
-                        PasswordGrantDetail passwordGrantDetail,
-                        AccessTokenDetail accessTokenDetail
+                        PasswordGrantDetail passwordGrantDetail
     ) {
         if (authoritiesChanged(authorities)) {
             DomainEventPublisher.instance().publish(new ClientAuthoritiesChanged(clientId));
@@ -236,7 +243,6 @@ public class Client extends Auditable {
         setName(name);
         this.clientCredentialsGrantDetail.replace(clientCredentialsGrantDetail);
         this.passwordGrantDetail.replace(passwordGrantDetail);
-        this.accessTokenDetail.replace(accessTokenDetail);
         DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
     }
 
@@ -256,8 +262,8 @@ public class Client extends Auditable {
                         ClientCredentialsGrantDetail clientCredentialsGrantDetail,
                         PasswordGrantDetail passwordGrantDetail,
                         RefreshTokenGrantDetail refreshTokenGrantDetail,
-                        AuthorizationCodeGrantDetail authorizationCodeGrantDetail,
-                        AccessTokenDetail accessTokenDetail) {
+                        AuthorizationCodeGrantDetail authorizationCodeGrantDetail
+                        ) {
         if (authoritiesChanged(authorities)) {
             DomainEventPublisher.instance().publish(new ClientAuthoritiesChanged(clientId));
         }
@@ -284,7 +290,6 @@ public class Client extends Auditable {
         this.passwordGrantDetail.replace(passwordGrantDetail);
         this.refreshTokenGrantDetail.replace(refreshTokenGrantDetail);
         this.authorizationCodeGrantDetail.replace(authorizationCodeGrantDetail);
-        this.accessTokenDetail.replace(accessTokenDetail);
         DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
     }
 

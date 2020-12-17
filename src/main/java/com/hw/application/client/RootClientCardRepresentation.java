@@ -45,8 +45,15 @@ public class RootClientCardRepresentation {
         grantTypeEnums = client1.totalGrantTypes();
         grantedAuthorities = client1.authorities();
         scopeEnums = client1.scopes();
-        if (client1.accessTokenDetail() != null)
-            accessTokenValiditySeconds = client1.accessTokenDetail().getAccessTokenValiditySeconds();
+        if (client1.clientCredentialsGrantDetail() != null) {
+            this.accessTokenValiditySeconds = client1.clientCredentialsGrantDetail().accessTokenValiditySeconds();
+        } else if (client1.passwordGrantDetail() != null) {
+            this.accessTokenValiditySeconds = client1.passwordGrantDetail().accessTokenValiditySeconds();
+        } else if (client1.refreshTokenGrantDetail() != null) {
+            this.accessTokenValiditySeconds = client1.refreshTokenGrantDetail().accessTokenValiditySeconds();
+        } else if (client1.authorizationCodeGrantDetail() != null) {
+            this.accessTokenValiditySeconds = client1.authorizationCodeGrantDetail().accessTokenValiditySeconds();
+        }
         if (client1.authorizationCodeGrantDetail() != null)
             registeredRedirectUri = client1.authorizationCodeGrantDetail().redirectUrls();
         if (client1.refreshTokenGrantDetail() != null)

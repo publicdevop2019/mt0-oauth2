@@ -1,6 +1,7 @@
 package com.hw.domain.model.client;
 
 import com.hw.config.DomainEventPublisher;
+import com.hw.domain.model.client.event.ClientAccessTokenValiditySecondsChanged;
 import com.hw.domain.model.client.event.ClientGrantTypeChanged;
 import com.hw.domain.model.client.event.ClientRefreshTokenChanged;
 import lombok.NoArgsConstructor;
@@ -14,8 +15,8 @@ public class RefreshTokenGrantDetail extends AbstractGrantDetail {
     public static final GrantType NAME = GrantType.REFRESH_TOKEN;
     private int refreshTokenValiditySeconds = 0;
 
-    public RefreshTokenGrantDetail(Set<GrantType> grantTypes, Integer refreshTokenValiditySeconds, ClientId clientId) {
-        super(grantTypes, clientId);
+    public RefreshTokenGrantDetail(Set<GrantType> grantTypes, Integer refreshTokenValiditySeconds, ClientId clientId, int accessTokenValiditySeconds) {
+        super(grantTypes, clientId, accessTokenValiditySeconds);
         this.setRefreshTokenValiditySeconds(refreshTokenValiditySeconds);
     }
 
@@ -29,6 +30,9 @@ public class RefreshTokenGrantDetail extends AbstractGrantDetail {
         }
         if (refreshTokenValiditySecondsChanged(refreshTokenGrantDetail.refreshTokenValiditySeconds())) {
             DomainEventPublisher.instance().publish(new ClientRefreshTokenChanged(clientId()));
+        }
+        if (accessTokenValiditySecondsChanged(refreshTokenGrantDetail)) {
+            DomainEventPublisher.instance().publish(new ClientAccessTokenValiditySecondsChanged(clientId()));
         }
         this.setRefreshTokenValiditySeconds(refreshTokenGrantDetail.refreshTokenValiditySeconds());
         this.setEnabled(refreshTokenGrantDetail.enabled());

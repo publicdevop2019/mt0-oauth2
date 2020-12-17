@@ -44,16 +44,16 @@ public class ClientApplicationService implements ClientDetailsService {
                             command.getScopeEnums(),
                             command.getGrantedAuthorities(),
                             command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
-                            new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), clientId),
-                            new PasswordGrantDetail(command.getGrantTypeEnums(), clientId),
-                            new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds(), clientId),
+                            new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds()),
+                            new PasswordGrantDetail(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds()),
+                            new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds(), clientId, command.getAccessTokenValiditySeconds()),
                             new AuthorizationCodeGrantDetail(
                                     command.getGrantTypeEnums(),
                                     command.getRegisteredRedirectUri(),
                                     command.isAutoApprove(),
-                                    clientId
-                            ),
-                            new AccessTokenDetail(command.getAccessTokenValiditySeconds(), clientId)
+                                    clientId,
+                                    command.getAccessTokenValiditySeconds()
+                            )
                     );
                 }
         );
@@ -85,16 +85,16 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getScopeEnums(),
                         command.getGrantedAuthorities(),
                         command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
-                        new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), clientId),
-                        new PasswordGrantDetail(command.getGrantTypeEnums(), clientId),
-                        new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds(),clientId),
+                        new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds()),
+                        new PasswordGrantDetail(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds()),
+                        new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds(), clientId, command.getAccessTokenValiditySeconds()),
                         new AuthorizationCodeGrantDetail(
                                 command.getGrantTypeEnums(),
                                 command.getRegisteredRedirectUri(),
                                 command.isAutoApprove(),
-                                clientId
-                        ),
-                        new AccessTokenDetail(command.getAccessTokenValiditySeconds())
+                                clientId,
+                                command.getAccessTokenValiditySeconds()
+                        )
                 );
             });
             DomainRegistry.clientRepository().add(client1);
@@ -159,9 +159,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         finalMiddleLayer.getScopeEnums(),
                         finalMiddleLayer.getGrantedAuthorities(),
                         finalMiddleLayer.getResourceIds() != null ? finalMiddleLayer.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
-                        new ClientCredentialsGrantDetail(finalMiddleLayer.getGrantTypeEnums(), clientId),
-                        new PasswordGrantDetail(finalMiddleLayer.getGrantTypeEnums(), clientId),
-                        new AccessTokenDetail(finalMiddleLayer.getAccessTokenValiditySeconds())
+                        new ClientCredentialsGrantDetail(finalMiddleLayer.getGrantTypeEnums(), clientId, finalMiddleLayer.getAccessTokenValiditySeconds()),
+                        new PasswordGrantDetail(finalMiddleLayer.getGrantTypeEnums(), clientId, finalMiddleLayer.getAccessTokenValiditySeconds())
                 );
             });
         }

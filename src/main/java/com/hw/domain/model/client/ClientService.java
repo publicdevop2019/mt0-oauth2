@@ -27,8 +27,7 @@ public class ClientService {
                                     ClientCredentialsGrantDetail clientCredentialsGrantDetail,
                                     PasswordGrantDetail passwordGrantDetail,
                                     RefreshTokenGrantDetail refreshTokenGrantDetail,
-                                    AuthorizationCodeGrantDetail authorizationCodeGrantDetail,
-                                    AccessTokenDetail accessTokenDetail
+                                    AuthorizationCodeGrantDetail authorizationCodeGrantDetail
     ) {
 
         Client client = new Client(
@@ -43,8 +42,7 @@ public class ClientService {
                 clientCredentialsGrantDetail,
                 passwordGrantDetail,
                 refreshTokenGrantDetail,
-                authorizationCodeGrantDetail,
-                accessTokenDetail
+                authorizationCodeGrantDetail
         );
         DomainRegistry.clientRepository().add(client);
         DomainEventPublisher.instance().publish(new ClientProvisioned(client.clientId()));

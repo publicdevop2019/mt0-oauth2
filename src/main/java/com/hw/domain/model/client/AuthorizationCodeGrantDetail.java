@@ -1,6 +1,7 @@
 package com.hw.domain.model.client;
 
 import com.hw.config.DomainEventPublisher;
+import com.hw.domain.model.client.event.ClientAccessTokenValiditySecondsChanged;
 import com.hw.domain.model.client.event.ClientGrantTypeChanged;
 import com.hw.shared.StringSetConverter;
 import lombok.NoArgsConstructor;
@@ -22,8 +23,8 @@ public class AuthorizationCodeGrantDetail extends AbstractGrantDetail {
 
     private boolean autoApprove = false;
 
-    public AuthorizationCodeGrantDetail(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove, ClientId clientId) {
-        super(grantTypes, clientId);
+    public AuthorizationCodeGrantDetail(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove, ClientId clientId, int accessTokenValiditySeconds) {
+        super(grantTypes, clientId, accessTokenValiditySeconds);
         setRedirectUrls(redirectUrls);
         setAutoApprove(autoApprove);
     }
@@ -39,6 +40,9 @@ public class AuthorizationCodeGrantDetail extends AbstractGrantDetail {
     public void replace(@NotNull AuthorizationCodeGrantDetail authorizationCodeGrantDetail) {
         if (grantTypeChanged(authorizationCodeGrantDetail)) {
             DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId()));
+        }
+        if (accessTokenValiditySecondsChanged(authorizationCodeGrantDetail)) {
+            DomainEventPublisher.instance().publish(new ClientAccessTokenValiditySecondsChanged(clientId()));
         }
         this.setRedirectUrls(authorizationCodeGrantDetail.redirectUrls());
         this.setAutoApprove(authorizationCodeGrantDetail.autoApprove());
