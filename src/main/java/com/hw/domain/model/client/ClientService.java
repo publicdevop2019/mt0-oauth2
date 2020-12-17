@@ -26,7 +26,6 @@ public class ClientService {
                                     Set<ClientId> resources,
                                     ClientCredentialsGrantDetail clientCredentialsGrantDetail,
                                     PasswordGrantDetail passwordGrantDetail,
-                                    RefreshTokenGrantDetail refreshTokenGrantDetail,
                                     AuthorizationCodeGrantDetail authorizationCodeGrantDetail
     ) {
 
@@ -41,7 +40,6 @@ public class ClientService {
                 resources,
                 clientCredentialsGrantDetail,
                 passwordGrantDetail,
-                refreshTokenGrantDetail,
                 authorizationCodeGrantDetail
         );
         DomainRegistry.clientRepository().add(client);

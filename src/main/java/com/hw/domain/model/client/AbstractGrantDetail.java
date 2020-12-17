@@ -12,14 +12,14 @@ import java.util.Set;
 public abstract class AbstractGrantDetail {
     public static GrantType NAME;
     @Id
-    protected long id;
+    protected Long id;
 
     protected boolean enabled = false;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @MapsId
     @JoinColumn(name = "id")
-    private Client client;
+    public Client client;
 
     private int accessTokenValiditySeconds = 0;
 
@@ -54,17 +54,13 @@ public abstract class AbstractGrantDetail {
     }
 
     public AbstractGrantDetail(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds) {
-        this.id = IdGenerator.instance().id();
+//        this.id = IdGenerator.instance().id();
         setEnabled(grantTypes);
         setClientId(clientId);
         setAccessTokenValiditySeconds(accessTokenValiditySeconds);
     }
 
-    private void setClient(Client client) {
-        this.client = client;
-    }
-
-    protected void internalOnlySetClient(Client client) {
+    public void internalOnlySetClient(Client client) {
         this.client = client;
     }
 

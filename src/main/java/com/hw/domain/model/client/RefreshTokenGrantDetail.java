@@ -1,23 +1,70 @@
 package com.hw.domain.model.client;
 
 import com.hw.config.DomainEventPublisher;
-import com.hw.domain.model.client.event.ClientAccessTokenValiditySecondsChanged;
 import com.hw.domain.model.client.event.ClientGrantTypeChanged;
 import com.hw.domain.model.client.event.ClientRefreshTokenChanged;
+import com.hw.shared.IdGenerator;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
+import javax.annotation.Nullable;
+import javax.persistence.*;
 import java.util.Set;
 
 @Entity
 @NoArgsConstructor
-public class RefreshTokenGrantDetail extends AbstractGrantDetail {
+public class RefreshTokenGrantDetail{
     public static final GrantType NAME = GrantType.REFRESH_TOKEN;
+    @Id
+    protected long id;
+
+    protected boolean enabled = false;
+
+    @Embedded
+    protected ClientId clientId;
+
     private int refreshTokenValiditySeconds = 0;
 
-    public RefreshTokenGrantDetail(Set<GrantType> grantTypes, Integer refreshTokenValiditySeconds, ClientId clientId, int accessTokenValiditySeconds) {
-        super(grantTypes, clientId, accessTokenValiditySeconds);
-        this.setRefreshTokenValiditySeconds(refreshTokenValiditySeconds);
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private PasswordGrantDetail passwordGrantDetail;
+
+    public boolean enabled() {
+        return enabled;
+    }
+
+    public ClientId clientId() {
+        return clientId;
+    }
+
+    protected void setClientId(@Nullable ClientId clientId) {
+        this.clientId = clientId;
+    }
+
+    protected void setEnabled(@Nullable Set<GrantType> grantTypes) {
+        if (grantTypes == null)
+            this.enabled = false;
+        else
+            enabled = grantTypes.stream().anyMatch(e -> e.equals(NAME));
+    }
+
+    protected void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public RefreshTokenGrantDetail(Set<GrantType> grantTypes, ClientId clientId, int refreshTokenValiditySeconds) {
+        this.id = IdGenerator.instance().id();
+        setEnabled(grantTypes);
+        setClientId(clientId);
+        setRefreshTokenValiditySeconds(refreshTokenValiditySeconds);
+    }
+
+    public void internalOnlySetPasswordGrantDetail(PasswordGrantDetail passwordGrantDetail) {
+        this.passwordGrantDetail = passwordGrantDetail;
+    }
+
+    protected boolean grantTypeChanged(RefreshTokenGrantDetail refreshTokenGrantDetail) {
+        return enabled != refreshTokenGrantDetail.enabled();
     }
 
     public int refreshTokenValiditySeconds() {
@@ -30,9 +77,6 @@ public class RefreshTokenGrantDetail extends AbstractGrantDetail {
         }
         if (refreshTokenValiditySecondsChanged(refreshTokenGrantDetail.refreshTokenValiditySeconds())) {
             DomainEventPublisher.instance().publish(new ClientRefreshTokenChanged(clientId()));
-        }
-        if (accessTokenValiditySecondsChanged(refreshTokenGrantDetail)) {
-            DomainEventPublisher.instance().publish(new ClientAccessTokenValiditySecondsChanged(clientId()));
         }
         this.setRefreshTokenValiditySeconds(refreshTokenGrantDetail.refreshTokenValiditySeconds());
         this.setEnabled(refreshTokenGrantDetail.enabled());

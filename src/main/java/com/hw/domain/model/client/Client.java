@@ -20,7 +20,7 @@ import java.util.Set;
 @Setter
 public class Client extends Auditable {
     @Id
-    private long id;
+    private Long id;
     @Embedded
     private ClientId clientId;
     private String name;
@@ -43,10 +43,9 @@ public class Client extends Auditable {
     private PasswordGrantDetail passwordGrantDetail;
     @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @PrimaryKeyJoinColumn
+    @Transient
     private AuthorizationCodeGrantDetail authorizationCodeGrantDetail;
-    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @PrimaryKeyJoinColumn
-    private RefreshTokenGrantDetail refreshTokenGrantDetail;
+    private Integer version;
 
     public void setName(String name) {
         this.name = name;
@@ -61,6 +60,7 @@ public class Client extends Auditable {
     }
 
     public void setAuthorities(Set<Authority> authorities) {
+        this.authorities = new HashSet<>(authorities);
         if (accessible) {
             if (
                     authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
@@ -68,10 +68,9 @@ public class Client extends Auditable {
             )
                 setAccessible(false);
         }
-        this.authorities = new HashSet<>(authorities);
     }
 
-    public void setAccessible(boolean accessible) {
+    public void setAccessible(boolean accessible, Set<Authority> authorities) {
         if (accessible) {
             if (
                     authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
@@ -170,7 +169,6 @@ public class Client extends Auditable {
                   Set<ClientId> resources,
                   ClientCredentialsGrantDetail clientCredentialsGrantDetail,
                   PasswordGrantDetail passwordGrantDetail,
-                  RefreshTokenGrantDetail refreshTokenGrantDetail,
                   AuthorizationCodeGrantDetail authorizationCodeGrantDetail
     ) {
 
@@ -178,15 +176,17 @@ public class Client extends Auditable {
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
-        setAccessible(accessible);
         setAuthorities(authorities);
+        setAccessible(accessible, authorities);
         setName(name);
         setSecret(secret);
         setClientCredentialsGrantDetail(clientCredentialsGrantDetail);
         setPasswordGrantDetail(passwordGrantDetail);
-        setRefreshTokenGrantDetail(refreshTokenGrantDetail);
         setAuthorizationCodeGrantDetail(authorizationCodeGrantDetail);
         this.id = IdGenerator.instance().id();
+        clientCredentialsGrantDetail.internalOnlySetClient(this);
+        passwordGrantDetail.internalOnlySetClient(this);
+        authorizationCodeGrantDetail.internalOnlySetClient(this);
     }
 
     public Set<GrantType> totalGrantTypes() {
@@ -196,22 +196,18 @@ public class Client extends Auditable {
         }
         if (passwordGrantDetail != null && passwordGrantDetail.enabled()) {
             grantTypes.add(PasswordGrantDetail.NAME);
+            if (passwordGrantDetail.refreshTokenGrantDetail() != null && passwordGrantDetail.refreshTokenGrantDetail().enabled()) {
+                grantTypes.add(RefreshTokenGrantDetail.NAME);
+            }
         }
         if (authorizationCodeGrantDetail != null && authorizationCodeGrantDetail.enabled()) {
             grantTypes.add(AuthorizationCodeGrantDetail.NAME);
-        }
-        if (refreshTokenGrantDetail != null && refreshTokenGrantDetail.enabled()) {
-            grantTypes.add(RefreshTokenGrantDetail.NAME);
         }
         return grantTypes;
     }
 
     public AuthorizationCodeGrantDetail authorizationCodeGrantDetail() {
         return authorizationCodeGrantDetail;
-    }
-
-    public RefreshTokenGrantDetail refreshTokenGrantDetail() {
-        return refreshTokenGrantDetail;
     }
 
     public void replace(String name,
@@ -246,8 +242,6 @@ public class Client extends Auditable {
         DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
     }
 
-    private Integer version;
-
     public Integer getVersion() {
         return version;
     }
@@ -261,7 +255,6 @@ public class Client extends Auditable {
                         Set<ClientId> resources,
                         ClientCredentialsGrantDetail clientCredentialsGrantDetail,
                         PasswordGrantDetail passwordGrantDetail,
-                        RefreshTokenGrantDetail refreshTokenGrantDetail,
                         AuthorizationCodeGrantDetail authorizationCodeGrantDetail
     ) {
         if (authoritiesChanged(authorities)) {
@@ -288,12 +281,11 @@ public class Client extends Auditable {
         setSecret(secret);
         this.clientCredentialsGrantDetail.replace(clientCredentialsGrantDetail);
         this.passwordGrantDetail.replace(passwordGrantDetail);
-        this.refreshTokenGrantDetail.replace(refreshTokenGrantDetail);
         this.authorizationCodeGrantDetail.replace(authorizationCodeGrantDetail);
         DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
     }
 
-    public void setSecret(String secret) {
+    private void setSecret(String secret) {
         this.secret = DomainRegistry.encryptionService().encryptedValue(secret);
     }
 
@@ -306,11 +298,9 @@ public class Client extends Auditable {
             return clientCredentialsGrantDetail().accessTokenValiditySeconds();
         } else if (passwordGrantDetail() != null) {
             return passwordGrantDetail().accessTokenValiditySeconds();
-        } else if (refreshTokenGrantDetail() != null) {
-            return refreshTokenGrantDetail().accessTokenValiditySeconds();
         } else if (authorizationCodeGrantDetail() != null) {
             return authorizationCodeGrantDetail().accessTokenValiditySeconds();
-        }else{
+        } else {
             return 0;
         }
 

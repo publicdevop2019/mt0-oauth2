@@ -48,8 +48,8 @@ public class RootClientCardRepresentation {
         this.accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
         if (client1.authorizationCodeGrantDetail() != null)
             registeredRedirectUri = client1.authorizationCodeGrantDetail().redirectUrls();
-        if (client1.refreshTokenGrantDetail() != null)
-            refreshTokenValiditySeconds = client1.refreshTokenGrantDetail().refreshTokenValiditySeconds();
+        if (client1.passwordGrantDetail() != null && client1.passwordGrantDetail().refreshTokenGrantDetail() != null)
+            refreshTokenValiditySeconds = client1.passwordGrantDetail().accessTokenValiditySeconds();
         if (!ObjectUtils.isEmpty(client1.resources()))
             resourceIds = client1.resources().stream().map(ClientId::id).collect(Collectors.toSet());
         resourceIndicator = client1.accessible();
