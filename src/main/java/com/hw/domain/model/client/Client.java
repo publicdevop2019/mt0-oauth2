@@ -263,7 +263,7 @@ public class Client extends Auditable {
                         PasswordGrantDetail passwordGrantDetail,
                         RefreshTokenGrantDetail refreshTokenGrantDetail,
                         AuthorizationCodeGrantDetail authorizationCodeGrantDetail
-                        ) {
+    ) {
         if (authoritiesChanged(authorities)) {
             DomainEventPublisher.instance().publish(new ClientAuthoritiesChanged(clientId));
         }
@@ -299,5 +299,20 @@ public class Client extends Auditable {
 
     private boolean secretChanged(String secret) {
         return StringUtils.hasText(secret);
+    }
+
+    public int accessTokenValiditySeconds() {
+        if (clientCredentialsGrantDetail() != null) {
+            return clientCredentialsGrantDetail().accessTokenValiditySeconds();
+        } else if (passwordGrantDetail() != null) {
+            return passwordGrantDetail().accessTokenValiditySeconds();
+        } else if (refreshTokenGrantDetail() != null) {
+            return refreshTokenGrantDetail().accessTokenValiditySeconds();
+        } else if (authorizationCodeGrantDetail() != null) {
+            return authorizationCodeGrantDetail().accessTokenValiditySeconds();
+        }else{
+            return 0;
+        }
+
     }
 }

@@ -5,8 +5,7 @@ import com.hw.domain.model.client.Authority;
 import com.hw.domain.model.client.Client;
 import com.hw.domain.model.client.GrantType;
 import com.hw.domain.model.client.Scope;
-import lombok.Data;
-import org.springframework.beans.BeanUtils;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
 
@@ -15,22 +14,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Data
+@Setter
 public class ClientDetailsRepresentation implements ClientDetails {
     private Long id;
     private String clientSecret;
     private Set<GrantType> grantTypeEnums;
     private Set<Authority> grantedAuthorities;
     private Set<Scope> scopeEnums;
-    private Integer accessTokenValiditySeconds;
+    private int accessTokenValiditySeconds;
     private Set<String> registeredRedirectUri;
-    private Integer refreshTokenValiditySeconds;
+    private int refreshTokenValiditySeconds;
     private Set<String> resourceIds;
-    private Boolean autoApprove;
-    private Boolean hasSecret;
+    private boolean autoApprove = false;
 
-    public ClientDetailsRepresentation(Client bizClient) {
-        BeanUtils.copyProperties(bizClient, this);
+    public ClientDetailsRepresentation(Client client) {
+        setId(client.id());
+        setClientSecret(client.secret());
+        setGrantTypeEnums(client.totalGrantTypes());
+        setGrantedAuthorities(client.authorities());
+        setScopeEnums(client.scopes());
+        setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
     }
 
     @Override
@@ -45,7 +48,7 @@ public class ClientDetailsRepresentation implements ClientDetails {
 
     @Override
     public boolean isSecretRequired() {
-        return hasSecret;
+        return true;
     }
 
     @Override
