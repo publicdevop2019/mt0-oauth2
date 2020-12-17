@@ -1,10 +1,11 @@
 package com.hw.application.client;
 
 import com.hw.domain.model.client.*;
+import lombok.Getter;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-
+@Getter
 public class ClientPatchingCommand {
     private String description;
     private String name;
