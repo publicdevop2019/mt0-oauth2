@@ -15,7 +15,7 @@ import java.util.Set;
 public class ProvisionClientCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private String clientSecret;
-    private boolean hasSecret;
+    private boolean hasSecret = false;
     private String description;
     private String name;
 
@@ -25,15 +25,14 @@ public class ProvisionClientCommand implements Serializable {
 
     private Set<Scope> scopeEnums;
 
-    private Integer accessTokenValiditySeconds;
+    private int accessTokenValiditySeconds = 0;
     @Nullable
     private Set<String> registeredRedirectUri;
-    @Nullable
-    private Integer refreshTokenValiditySeconds;
+    private int refreshTokenValiditySeconds = 0;
     @Nullable
     private Set<String> resourceIds;
 
-    private boolean resourceIndicator;
+    private boolean resourceIndicator = false;
 
-    private boolean autoApprove;
+    private boolean autoApprove = false;
 }

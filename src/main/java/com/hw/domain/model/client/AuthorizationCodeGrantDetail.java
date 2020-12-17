@@ -2,42 +2,30 @@ package com.hw.domain.model.client;
 
 import com.hw.config.DomainEventPublisher;
 import com.hw.domain.model.client.event.ClientGrantTypeChanged;
-import com.hw.shared.IdGenerator;
+import com.hw.shared.StringSetConverter;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.annotation.Nullable;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
-//@Entity
-public class AuthorizationCodeGrantDetail {
+@Entity
+@NoArgsConstructor
+public class AuthorizationCodeGrantDetail extends AbstractGrantDetail {
     public static final GrantType NAME = GrantType.AUTHORIZATION_CODE;
-//    private long id;
 
-    public AuthorizationCodeGrantDetail() {
-    }
-
-    //    @Convert(converter = StringSetConverter.class)
+    @Convert(converter = StringSetConverter.class)
     private HashSet<String> redirectUrls = new HashSet<>();
-    private boolean autoApprove = false;
-    private boolean enabled = false;
-//    private Client client;
 
-    public AuthorizationCodeGrantDetail(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove) {
-        this.setRedirectUrls(redirectUrls);
-        this.setAutoApprove(autoApprove);
-//        id = IdGenerator.instance().id();
-        enabled = grantTypes.stream().anyMatch(e -> e.equals(NAME));
-    }
+    private boolean autoApprove = false;
 
     public AuthorizationCodeGrantDetail(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove, ClientId clientId) {
-        this.setRedirectUrls(redirectUrls);
-        this.setAutoApprove(autoApprove);
-//        id = IdGenerator.instance().id();
-        enabled = grantTypes.stream().anyMatch(e -> e.equals(NAME));
-    }
-
-    public void setAutoApprove(boolean autoApprove) {
-        this.autoApprove = autoApprove;
+        super(grantTypes, clientId);
+        setRedirectUrls(redirectUrls);
+        setAutoApprove(autoApprove);
     }
 
     public Set<String> redirectUrls() {
@@ -48,23 +36,25 @@ public class AuthorizationCodeGrantDetail {
         return autoApprove;
     }
 
-    public void setRedirectUrls(Set<String> redirectUrls) {
-        this.redirectUrls = new HashSet<>(redirectUrls);
-    }
-
-    public void replace(AuthorizationCodeGrantDetail authorizationCodeGrantDetail) {
+    public void replace(@NotNull AuthorizationCodeGrantDetail authorizationCodeGrantDetail) {
         if (grantTypeChanged(authorizationCodeGrantDetail)) {
-            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(new ClientId("")));
+            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId()));
         }
-        this.setAutoApprove(authorizationCodeGrantDetail.autoApprove);
-        this.setRedirectUrls(authorizationCodeGrantDetail.redirectUrls);
+        this.setRedirectUrls(authorizationCodeGrantDetail.redirectUrls());
+        this.setAutoApprove(authorizationCodeGrantDetail.autoApprove());
+        this.setEnabled(authorizationCodeGrantDetail.enabled());
     }
 
-    private boolean grantTypeChanged(AuthorizationCodeGrantDetail authorizationCodeGrantDetail) {
-        return enabled != authorizationCodeGrantDetail.enabled();
+    private void setAutoApprove(boolean autoApprove) {
+        this.autoApprove = autoApprove;
     }
 
-    public boolean enabled() {
-        return enabled;
+    private void setRedirectUrls(@Nullable Set<String> redirectUrls) {
+        if (redirectUrls == null) {
+            this.redirectUrls = new HashSet<>();
+        } else {
+            this.redirectUrls = new HashSet<>(redirectUrls);
+        }
     }
+
 }

@@ -3,56 +3,43 @@ package com.hw.domain.model.client;
 import com.hw.config.DomainEventPublisher;
 import com.hw.domain.model.client.event.ClientGrantTypeChanged;
 import com.hw.domain.model.client.event.ClientRefreshTokenChanged;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.Entity;
 import java.util.Set;
 
-public class RefreshTokenGrantDetail {
-    private transient GrantType grantType;
-    private transient ClientId clientId;
+@Entity
+@NoArgsConstructor
+public class RefreshTokenGrantDetail extends AbstractGrantDetail {
+    public static final GrantType NAME = GrantType.REFRESH_TOKEN;
+    private int refreshTokenValiditySeconds = 0;
 
-    public GrantType getGrantType() {
-        return grantType;
-    }
-
-    private Integer refreshTokenValiditySeconds;
-
-    public RefreshTokenGrantDetail(Set<GrantType> grantTypeEnums, Integer refreshTokenValiditySeconds, ClientId clientId) {
-    }
-
-    public Integer refreshTokenValiditySeconds() {
-        return refreshTokenValiditySeconds;
-    }
-
-    public RefreshTokenGrantDetail(Set<GrantType> grantTypes, Integer refreshTokenValiditySeconds) {
-        this.setGrantType(grantTypes.stream().filter(e -> e.equals(GrantType.REFRESH_TOKEN)).findFirst().orElse(null));
+    public RefreshTokenGrantDetail(Set<GrantType> grantTypes, Integer refreshTokenValiditySeconds, ClientId clientId) {
+        super(grantTypes, clientId);
         this.setRefreshTokenValiditySeconds(refreshTokenValiditySeconds);
     }
 
-    private void setRefreshTokenValiditySeconds(Integer tokenValiditySeconds) {
-        if (grantType != null)
-            this.refreshTokenValiditySeconds = tokenValiditySeconds;
-    }
-
-    private void setGrantType(GrantType grantType) {
-        this.grantType = grantType;
+    public int refreshTokenValiditySeconds() {
+        return refreshTokenValiditySeconds;
     }
 
     public void replace(RefreshTokenGrantDetail refreshTokenGrantDetail) {
         if (grantTypeChanged(refreshTokenGrantDetail)) {
-            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId));
+            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId()));
         }
-        if (refreshTokenValiditySecondsChanged(refreshTokenGrantDetail)) {
-            DomainEventPublisher.instance().publish(new ClientRefreshTokenChanged(clientId));
+        if (refreshTokenValiditySecondsChanged(refreshTokenGrantDetail.refreshTokenValiditySeconds())) {
+            DomainEventPublisher.instance().publish(new ClientRefreshTokenChanged(clientId()));
         }
-        this.setGrantType(refreshTokenGrantDetail.grantType);
-        this.setRefreshTokenValiditySeconds(refreshTokenGrantDetail.refreshTokenValiditySeconds);
+        this.setRefreshTokenValiditySeconds(refreshTokenGrantDetail.refreshTokenValiditySeconds());
+        this.setEnabled(refreshTokenGrantDetail.enabled());
     }
 
-    private boolean grantTypeChanged(RefreshTokenGrantDetail passwordGrantDetail) {
-        return !grantType.equals(passwordGrantDetail.grantType);
+    private boolean refreshTokenValiditySecondsChanged(int refreshTokenValiditySeconds) {
+        return refreshTokenValiditySeconds() != refreshTokenValiditySeconds;
     }
 
-    private boolean refreshTokenValiditySecondsChanged(RefreshTokenGrantDetail passwordGrantDetail) {
-        return !refreshTokenValiditySeconds.equals(passwordGrantDetail.refreshTokenValiditySeconds);
+    private void setRefreshTokenValiditySeconds(int tokenValiditySeconds) {
+        this.refreshTokenValiditySeconds = tokenValiditySeconds;
     }
+
 }

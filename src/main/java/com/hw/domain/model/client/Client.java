@@ -5,6 +5,7 @@ import com.hw.config.DomainEventPublisher;
 import com.hw.domain.model.DomainRegistry;
 import com.hw.domain.model.client.event.*;
 import com.hw.shared.Auditable;
+import com.hw.shared.IdGenerator;
 import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -34,34 +35,20 @@ public class Client extends Auditable {
     @Column(name = "_accessible")
     private boolean accessible = false;
 
-    @OneToOne(mappedBy = "client",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @PrimaryKeyJoinColumn
     private ClientCredentialsGrantDetail clientCredentialsGrantDetail;
-    @OneToOne(mappedBy = "client",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @PrimaryKeyJoinColumn
     private PasswordGrantDetail passwordGrantDetail;
-    @Embedded
+    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @PrimaryKeyJoinColumn
     private AuthorizationCodeGrantDetail authorizationCodeGrantDetail;
-    @Embedded
+    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @PrimaryKeyJoinColumn
     private RefreshTokenGrantDetail refreshTokenGrantDetail;
     @Embedded
     private AccessTokenDetail accessTokenDetail;
-
-//    public Client(ClientId clientId, String name, String description, Set<Scope> scopes, Set<Authority> authorities, Set<ClientId> resources, boolean accessible, Set<GrantType> grantTypes) {
-//        this.setClientId(clientId);
-//        setResources(resources);
-//        setScopes(scopes);
-//        setDescription(description);
-//        setAccessible(accessible);
-//        setAuthorities(authorities);
-//        setName(name);
-//        if (!org.springframework.util.ObjectUtils.isEmpty(grantTypes)) {
-//            if (grantTypes.stream().anyMatch(e -> e.equals(GrantType.CLIENT_CREDENTIALS))) {
-//                this.clientCredentialsGrantDetail = new ClientCredentialsGrantDetail();
-//            }
-//        }
-//
-//    }
 
     public void setName(String name) {
         this.name = name;
@@ -183,6 +170,7 @@ public class Client extends Auditable {
         setRefreshTokenGrantDetail(refreshTokenGrantDetail);
         setAuthorizationCodeGrantDetail(authorizationCodeGrantDetail);
         setAccessTokenDetail(accessTokenDetail);
+        this.id = IdGenerator.instance().id();
     }
 
     public Set<GrantType> totalGrantTypes() {
@@ -196,8 +184,8 @@ public class Client extends Auditable {
         if (authorizationCodeGrantDetail != null && authorizationCodeGrantDetail.enabled()) {
             grantTypes.add(AuthorizationCodeGrantDetail.NAME);
         }
-        if (refreshTokenGrantDetail != null) {
-            grantTypes.add(refreshTokenGrantDetail.getGrantType());
+        if (refreshTokenGrantDetail != null && refreshTokenGrantDetail.enabled()) {
+            grantTypes.add(RefreshTokenGrantDetail.NAME);
         }
         return grantTypes;
     }

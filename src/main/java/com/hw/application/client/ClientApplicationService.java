@@ -87,11 +87,12 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
                         new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), clientId),
                         new PasswordGrantDetail(command.getGrantTypeEnums(), clientId),
-                        new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds()),
+                        new RefreshTokenGrantDetail(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds(),clientId),
                         new AuthorizationCodeGrantDetail(
                                 command.getGrantTypeEnums(),
                                 command.getRegisteredRedirectUri(),
-                                command.isAutoApprove()
+                                command.isAutoApprove(),
+                                clientId
                         ),
                         new AccessTokenDetail(command.getAccessTokenValiditySeconds())
                 );
