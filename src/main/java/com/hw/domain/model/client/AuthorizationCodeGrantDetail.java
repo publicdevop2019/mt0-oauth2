@@ -16,7 +16,6 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 public class AuthorizationCodeGrantDetail extends AbstractGrantDetail {
-    public static final GrantType NAME = GrantType.AUTHORIZATION_CODE;
 
     @Convert(converter = StringSetConverter.class)
     private HashSet<String> redirectUrls = new HashSet<>();
@@ -61,4 +60,8 @@ public class AuthorizationCodeGrantDetail extends AbstractGrantDetail {
         }
     }
 
+    @Override
+    public GrantType name() {
+        return GrantType.AUTHORIZATION_CODE;
+    }
 }

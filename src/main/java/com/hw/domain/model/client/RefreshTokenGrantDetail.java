@@ -19,13 +19,14 @@ public class RefreshTokenGrantDetail{
 
     protected boolean enabled = false;
 
-    @Embedded
+//    @Embedded
+    @Transient
     protected ClientId clientId;
 
     private int refreshTokenValiditySeconds = 0;
 
-    @OneToOne
     @MapsId
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
     private PasswordGrantDetail passwordGrantDetail;
 

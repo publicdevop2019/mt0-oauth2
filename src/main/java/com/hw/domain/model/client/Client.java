@@ -21,7 +21,8 @@ import java.util.Set;
 public class Client extends Auditable {
     @Id
     private Long id;
-    @Embedded
+//    @Embedded
+    @Transient
     private ClientId clientId;
     private String name;
     private String secret;
@@ -34,16 +35,14 @@ public class Client extends Auditable {
     private HashSet<ClientId> resources = new HashSet<>();
     @Column(name = "_accessible")
     private boolean accessible = false;
-
+//    @Transient
     @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @PrimaryKeyJoinColumn
     private ClientCredentialsGrantDetail clientCredentialsGrantDetail;
-    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @PrimaryKeyJoinColumn
-    private PasswordGrantDetail passwordGrantDetail;
-    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @PrimaryKeyJoinColumn
     @Transient
+//    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private PasswordGrantDetail passwordGrantDetail;
+//    @Transient
+    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private AuthorizationCodeGrantDetail authorizationCodeGrantDetail;
     private Integer version;
 
@@ -171,7 +170,7 @@ public class Client extends Auditable {
                   PasswordGrantDetail passwordGrantDetail,
                   AuthorizationCodeGrantDetail authorizationCodeGrantDetail
     ) {
-
+        this.id = IdGenerator.instance().id();
         setClientId(nextIdentity);
         setResources(resources);
         setScopes(scopes);
@@ -183,25 +182,28 @@ public class Client extends Auditable {
         setClientCredentialsGrantDetail(clientCredentialsGrantDetail);
         setPasswordGrantDetail(passwordGrantDetail);
         setAuthorizationCodeGrantDetail(authorizationCodeGrantDetail);
-        this.id = IdGenerator.instance().id();
         clientCredentialsGrantDetail.internalOnlySetClient(this);
         passwordGrantDetail.internalOnlySetClient(this);
         authorizationCodeGrantDetail.internalOnlySetClient(this);
+        clientCredentialsGrantDetail.internalOnlySetId(id());
+        passwordGrantDetail.internalOnlySetId(id());
+        authorizationCodeGrantDetail.internalOnlySetId(id());
+
     }
 
     public Set<GrantType> totalGrantTypes() {
         HashSet<GrantType> grantTypes = new HashSet<>();
         if (clientCredentialsGrantDetail != null && clientCredentialsGrantDetail.enabled()) {
-            grantTypes.add(ClientCredentialsGrantDetail.NAME);
+            grantTypes.add(clientCredentialsGrantDetail.name());
         }
         if (passwordGrantDetail != null && passwordGrantDetail.enabled()) {
-            grantTypes.add(PasswordGrantDetail.NAME);
+            grantTypes.add(passwordGrantDetail.name());
             if (passwordGrantDetail.refreshTokenGrantDetail() != null && passwordGrantDetail.refreshTokenGrantDetail().enabled()) {
                 grantTypes.add(RefreshTokenGrantDetail.NAME);
             }
         }
         if (authorizationCodeGrantDetail != null && authorizationCodeGrantDetail.enabled()) {
-            grantTypes.add(AuthorizationCodeGrantDetail.NAME);
+            grantTypes.add(authorizationCodeGrantDetail.name());
         }
         return grantTypes;
     }

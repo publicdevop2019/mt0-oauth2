@@ -24,7 +24,7 @@ public class SoftDeleteInterceptorConfig implements HibernatePropertiesCustomize
 
     @Override
     public void customize(Map<String, Object> hibernateProperties) {
-        hibernateProperties.put("hibernate.session_factory.interceptor", hibernateInterceptor());
+//        hibernateProperties.put("hibernate.session_factory.interceptor", hibernateInterceptor());
     }
 
     @Bean

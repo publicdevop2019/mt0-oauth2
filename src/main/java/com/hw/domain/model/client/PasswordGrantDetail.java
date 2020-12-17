@@ -11,14 +11,12 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 public class PasswordGrantDetail extends AbstractGrantDetail {
-    public static final GrantType NAME = GrantType.PASSWORD;
 
     private void setRefreshTokenGrantDetail(RefreshTokenGrantDetail refreshTokenGrantDetail) {
         this.refreshTokenGrantDetail = refreshTokenGrantDetail;
     }
 
-    @OneToOne(mappedBy = "passwordGrantDetail", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @PrimaryKeyJoinColumn
+    @OneToOne(mappedBy = "passwordGrantDetail", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true,optional = false)
     private RefreshTokenGrantDetail refreshTokenGrantDetail;
 
     public PasswordGrantDetail(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds, RefreshTokenGrantDetail refreshTokenGrantDetail) {
@@ -40,5 +38,10 @@ public class PasswordGrantDetail extends AbstractGrantDetail {
 
     public RefreshTokenGrantDetail refreshTokenGrantDetail() {
         return refreshTokenGrantDetail;
+    }
+
+    @Override
+    public GrantType name() {
+        return GrantType.PASSWORD;
     }
 }

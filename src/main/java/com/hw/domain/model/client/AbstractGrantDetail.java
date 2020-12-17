@@ -1,6 +1,5 @@
 package com.hw.domain.model.client;
 
-import com.hw.shared.IdGenerator;
 import lombok.NoArgsConstructor;
 
 import javax.annotation.Nullable;
@@ -10,20 +9,22 @@ import java.util.Set;
 @NoArgsConstructor
 @MappedSuperclass
 public abstract class AbstractGrantDetail {
-    public static GrantType NAME;
+    public abstract GrantType name();
+
     @Id
     protected Long id;
 
     protected boolean enabled = false;
 
-    @OneToOne(cascade = CascadeType.ALL)
     @MapsId
-    @JoinColumn(name = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "id")
     public Client client;
 
     private int accessTokenValiditySeconds = 0;
 
-    @Embedded
+    //    @Embedded
+    @Transient
     protected ClientId clientId;
 
     public boolean enabled() {
@@ -46,7 +47,11 @@ public abstract class AbstractGrantDetail {
         if (grantTypes == null)
             this.enabled = false;
         else
-            enabled = grantTypes.stream().anyMatch(e -> e.equals(NAME));
+            enabled = grantTypes.stream().anyMatch(e -> e.equals(name()));
+    }
+
+    public void internalOnlySetId(Long id) {
+        this.id = id;
     }
 
     protected void setEnabled(boolean enabled) {
@@ -54,7 +59,6 @@ public abstract class AbstractGrantDetail {
     }
 
     public AbstractGrantDetail(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds) {
-//        this.id = IdGenerator.instance().id();
         setEnabled(grantTypes);
         setClientId(clientId);
         setAccessTokenValiditySeconds(accessTokenValiditySeconds);

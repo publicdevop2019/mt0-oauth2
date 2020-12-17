@@ -11,7 +11,11 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 public class ClientCredentialsGrantDetail extends AbstractGrantDetail {
-    public static final GrantType NAME = GrantType.CLIENT_CREDENTIALS;
+
+    @Override
+    public GrantType name() {
+        return GrantType.CLIENT_CREDENTIALS;
+    }
 
     public ClientCredentialsGrantDetail(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds) {
         super(grantTypes, clientId, accessTokenValiditySeconds);
