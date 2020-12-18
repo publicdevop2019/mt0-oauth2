@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.util.Set;
 
-//@Entity
+@Entity
 @NoArgsConstructor
 public class RefreshTokenGrantDetail{
     public static final GrantType NAME = GrantType.REFRESH_TOKEN;
@@ -19,14 +19,14 @@ public class RefreshTokenGrantDetail{
 
     protected boolean enabled = false;
 
-//    @Embedded
+    @Embedded
     @Transient
     protected ClientId clientId;
 
     private int refreshTokenValiditySeconds = 0;
 
     @MapsId
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "id")
     private PasswordGrantDetail passwordGrantDetail;
 

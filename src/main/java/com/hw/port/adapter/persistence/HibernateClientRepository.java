@@ -6,7 +6,6 @@ import com.hw.application.client.QueryConfig;
 import com.hw.domain.model.client.Client;
 import com.hw.domain.model.client.ClientId;
 import com.hw.domain.model.client.ClientRepository;
-import com.hw.shared.IdGenerator;
 import com.hw.shared.sql.SumPagedRep;
 import com.hw.shared.sql.builder.SelectQueryBuilder;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,11 +14,12 @@ import org.springframework.stereotype.Repository;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface HibernateClientRepository extends JpaRepository<Client, Long>, ClientRepository {
     default ClientId nextIdentity() {
-        return new ClientId(IdGenerator.instance().id());
+        return new ClientId("CLIENT-" + UUID.randomUUID().toString().replace("-", ""));
     }
 
     default Optional<Client> clientOfId(ClientId clientId) {

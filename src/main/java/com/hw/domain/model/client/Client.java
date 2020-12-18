@@ -36,8 +36,7 @@ public class Client extends Auditable {
     private boolean accessible = false;
     @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private ClientCredentialsGrantDetail clientCredentialsGrantDetail;
-    @Transient
-//    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private PasswordGrantDetail passwordGrantDetail;
     @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private AuthorizationCodeGrantDetail authorizationCodeGrantDetail;
