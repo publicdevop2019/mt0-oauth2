@@ -3,7 +3,11 @@ package com.hw.application.client;
 public class ClientPaging{
     private final long pageNumber;
     private final int pageSize;
-    public String value;
+    private String value;
+
+    public String value() {
+        return value;
+    }
 
     public ClientPaging(String pagingParamStr) {
         pageNumber = 0;

@@ -8,6 +8,7 @@ import com.hw.shared.Auditable;
 import com.hw.shared.IdGenerator;
 import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
+import org.hibernate.annotations.Where;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
@@ -19,6 +20,7 @@ import java.util.Set;
 @Table
 @Entity
 @Setter
+@Where(clause="deleted=0")
 public class Client extends Auditable {
     @Id
     private Long id;

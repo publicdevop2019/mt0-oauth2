@@ -9,7 +9,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ClientQuery {
-    public String value;
+    private String value;
+
+    public String value() {
+        return value;
+    }
 
     public ClientQuery(String queryParam) {
         this.value = queryParam;
