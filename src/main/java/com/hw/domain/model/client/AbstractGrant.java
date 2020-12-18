@@ -9,7 +9,7 @@ import java.util.Set;
 
 @NoArgsConstructor
 @MappedSuperclass
-public abstract class AbstractGrantDetail implements Serializable {
+public abstract class AbstractGrant implements Serializable {
     public abstract GrantType name();
 
     @Id
@@ -54,7 +54,7 @@ public abstract class AbstractGrantDetail implements Serializable {
         this.enabled = enabled;
     }
 
-    public AbstractGrantDetail(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds) {
+    public AbstractGrant(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds) {
         this();
         setEnabled(grantTypes);
         setClientId(clientId);
@@ -65,12 +65,12 @@ public abstract class AbstractGrantDetail implements Serializable {
         this.client = client;
     }
 
-    protected boolean grantTypeChanged(AbstractGrantDetail abstractGrantDetail) {
-        return enabled != abstractGrantDetail.enabled();
+    protected boolean grantTypeChanged(AbstractGrant abstractGrant) {
+        return enabled != abstractGrant.enabled();
     }
 
-    protected boolean accessTokenValiditySecondsChanged(AbstractGrantDetail abstractGrantDetail) {
-        return accessTokenValiditySeconds() != abstractGrantDetail.accessTokenValiditySeconds();
+    protected boolean accessTokenValiditySecondsChanged(AbstractGrant abstractGrant) {
+        return accessTokenValiditySeconds() != abstractGrant.accessTokenValiditySeconds();
     }
 
     private void setAccessTokenValiditySeconds(int accessTokenValiditySeconds) {

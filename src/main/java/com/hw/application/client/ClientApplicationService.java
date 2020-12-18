@@ -35,9 +35,9 @@ public class ClientApplicationService implements ClientDetailsService {
         return ApplicationServiceRegistry.clientIdempotentApplicationService().idempotentProvision(command, operationId,
                 () -> {
                     ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
-                    RefreshTokenGrantDetail refreshTokenGrantDetail = new RefreshTokenGrantDetail(command.getGrantTypeEnums(), clientId, command.getRefreshTokenValiditySeconds());
-                    PasswordGrantDetail passwordGrantDetail = new PasswordGrantDetail(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);
-                    refreshTokenGrantDetail.internalOnlySetPasswordGrantDetail(passwordGrantDetail);
+                    RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), clientId, command.getRefreshTokenValiditySeconds());
+                    PasswordGrant passwordGrantDetail = new PasswordGrant(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);
+                    refreshTokenGrantDetail.internalOnlySetPasswordGrant(passwordGrantDetail);
                     return DomainRegistry.clientService().provisionClient(
                             clientId,
                             command.getName(),
@@ -47,9 +47,9 @@ public class ClientApplicationService implements ClientDetailsService {
                             command.getScopeEnums(),
                             command.getGrantedAuthorities(),
                             command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
-                            new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds()),
+                            new ClientCredentialsGrant(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds()),
                             passwordGrantDetail,
-                            new AuthorizationCodeGrantDetail(
+                            new AuthorizationCodeGrant(
                                     command.getGrantTypeEnums(),
                                     command.getRegisteredRedirectUri(),
                                     command.isAutoApprove(),
@@ -79,7 +79,7 @@ public class ClientApplicationService implements ClientDetailsService {
         if (client.isPresent()) {
             Client client1 = client.get();
             ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(command, changeId, (ignored) -> {
-                RefreshTokenGrantDetail refreshTokenGrantDetail = new RefreshTokenGrantDetail(command.getGrantTypeEnums(), clientId, command.getRefreshTokenValiditySeconds());
+                RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), clientId, command.getRefreshTokenValiditySeconds());
                 client1.replace(
                         command.getName(),
                         command.getClientSecret(),
@@ -88,9 +88,9 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getScopeEnums(),
                         command.getGrantedAuthorities(),
                         command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
-                        new ClientCredentialsGrantDetail(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds()),
-                        new PasswordGrantDetail(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail),
-                        new AuthorizationCodeGrantDetail(
+                        new ClientCredentialsGrant(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds()),
+                        new PasswordGrant(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail),
+                        new AuthorizationCodeGrant(
                                 command.getGrantTypeEnums(),
                                 command.getRegisteredRedirectUri(),
                                 command.isAutoApprove(),
@@ -154,7 +154,7 @@ public class ClientApplicationService implements ClientDetailsService {
             }
             ClientPatchingCommand finalMiddleLayer = middleLayer;
             ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(command, changeId, (ignored) -> {
-                RefreshTokenGrantDetail refreshTokenGrantDetail = original.passwordGrantDetail().refreshTokenGrantDetail();
+                RefreshTokenGrant refreshTokenGrantDetail = original.passwordGrant().refreshTokenGrant();
                 original.replace(
                         finalMiddleLayer.getName(),
                         finalMiddleLayer.getDescription(),
@@ -162,8 +162,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         finalMiddleLayer.getScopeEnums(),
                         finalMiddleLayer.getGrantedAuthorities(),
                         finalMiddleLayer.getResourceIds() != null ? finalMiddleLayer.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
-                        new ClientCredentialsGrantDetail(finalMiddleLayer.getGrantTypeEnums(), clientId, finalMiddleLayer.getAccessTokenValiditySeconds()),
-                        new PasswordGrantDetail(finalMiddleLayer.getGrantTypeEnums(), clientId, finalMiddleLayer.getAccessTokenValiditySeconds(), refreshTokenGrantDetail)
+                        new ClientCredentialsGrant(finalMiddleLayer.getGrantTypeEnums(), clientId, finalMiddleLayer.getAccessTokenValiditySeconds()),
+                        new PasswordGrant(finalMiddleLayer.getGrantTypeEnums(), clientId, finalMiddleLayer.getAccessTokenValiditySeconds(), refreshTokenGrantDetail)
                 );
             });
         }

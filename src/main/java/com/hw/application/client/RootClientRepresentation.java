@@ -46,15 +46,15 @@ public class RootClientRepresentation {
         grantedAuthorities = client.authorities();
         scopeEnums = client.scopes();
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
-        if (client.authorizationCodeGrantDetail() != null)
-            registeredRedirectUri = client.authorizationCodeGrantDetail().redirectUrls();
-        if (client.passwordGrantDetail() != null && client.passwordGrantDetail().refreshTokenGrantDetail() != null)
-            refreshTokenValiditySeconds = client.passwordGrantDetail().accessTokenValiditySeconds();
+        if (client.authorizationCodeGrant() != null)
+            registeredRedirectUri = client.authorizationCodeGrant().redirectUrls();
+        if (client.passwordGrant() != null && client.passwordGrant().refreshTokenGrant() != null)
+            refreshTokenValiditySeconds = client.passwordGrant().accessTokenValiditySeconds();
         if (!ObjectUtils.isEmpty(client.resources()))
             resourceIds = client.resources().stream().map(ClientId::id).collect(Collectors.toSet());
         resourceIndicator = client.accessible();
-        if (client.authorizationCodeGrantDetail() != null)
-            autoApprove = client.authorizationCodeGrantDetail().autoApprove();
+        if (client.authorizationCodeGrant() != null)
+            autoApprove = client.authorizationCodeGrant().autoApprove();
         version = client.version();
         clientSecret = "masked";
         hasSecret = true;

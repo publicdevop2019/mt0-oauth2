@@ -11,6 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,20 +27,38 @@ public class Client extends Auditable {
     private String name;
     private String secret;
     private String description;
-    //    @Convert(converter = Authority.ClientAuthorityConverter.class)
-    private HashSet<Authority> authorities = new HashSet<>();
-    //    @Convert(converter = Scope.ScopeSetConverter.class)
-    private HashSet<Scope> scopes = new HashSet<>();
-    //    @Convert(converter = ClientId.Converter.class)
-    private HashSet<ClientId> resources = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(
+            name = "authorities_map",
+            joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
+    )
+    private Set<Authority> authorities = EnumSet.noneOf(Authority.class);
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "scopes_map",
+            joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
+    )
+    @Enumerated(EnumType.STRING)
+    private Set<Scope> scopes = EnumSet.noneOf(Scope.class);
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Embedded
+    @CollectionTable(
+            name = "resources_map",
+            joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
+    )
+    private Set<ClientId> resources = new HashSet<>();
     @Column(name = "_accessible")
     private boolean accessible = false;
     @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private ClientCredentialsGrantDetail clientCredentialsGrantDetail;
+    private ClientCredentialsGrant clientCredentialsGrant;
     @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private PasswordGrantDetail passwordGrantDetail;
+    private PasswordGrant passwordGrant;
     @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private AuthorizationCodeGrantDetail authorizationCodeGrantDetail;
+    private AuthorizationCodeGrant authorizationCodeGrant;
     private Integer version;
 
     public void setName(String name) {
@@ -103,12 +122,12 @@ public class Client extends Auditable {
         return secret;
     }
 
-    public ClientCredentialsGrantDetail clientCredentialsGrantDetail() {
-        return clientCredentialsGrantDetail;
+    public ClientCredentialsGrant clientCredentialsGrant() {
+        return clientCredentialsGrant;
     }
 
-    public PasswordGrantDetail passwordGrantDetail() {
-        return passwordGrantDetail;
+    public PasswordGrant passwordGrant() {
+        return passwordGrant;
     }
 
     private boolean resourcesChanged(Set<ClientId> clientIds) {
@@ -162,9 +181,9 @@ public class Client extends Auditable {
                   Set<Scope> scopes,
                   Set<Authority> authorities,
                   Set<ClientId> resources,
-                  ClientCredentialsGrantDetail clientCredentialsGrantDetail,
-                  PasswordGrantDetail passwordGrantDetail,
-                  AuthorizationCodeGrantDetail authorizationCodeGrantDetail
+                  ClientCredentialsGrant clientCredentialsGrant,
+                  PasswordGrant passwordGrant,
+                  AuthorizationCodeGrant authorizationCodeGrant
     ) {
         this.id = IdGenerator.instance().id();
         setClientId(nextIdentity);
@@ -175,33 +194,33 @@ public class Client extends Auditable {
         setAccessible(accessible, authorities);
         setName(name);
         setSecret(secret);
-        setClientCredentialsGrantDetail(clientCredentialsGrantDetail);
-        setPasswordGrantDetail(passwordGrantDetail);
-        setAuthorizationCodeGrantDetail(authorizationCodeGrantDetail);
-        clientCredentialsGrantDetail.internalOnlySetClient(this);
-        passwordGrantDetail.internalOnlySetClient(this);
-        authorizationCodeGrantDetail.internalOnlySetClient(this);
+        setClientCredentialsGrant(clientCredentialsGrant);
+        setPasswordGrant(passwordGrant);
+        setAuthorizationCodeGrant(authorizationCodeGrant);
+        clientCredentialsGrant.internalOnlySetClient(this);
+        passwordGrant.internalOnlySetClient(this);
+        authorizationCodeGrant.internalOnlySetClient(this);
     }
 
     public Set<GrantType> totalGrantTypes() {
         HashSet<GrantType> grantTypes = new HashSet<>();
-        if (clientCredentialsGrantDetail != null && clientCredentialsGrantDetail.enabled()) {
-            grantTypes.add(clientCredentialsGrantDetail.name());
+        if (clientCredentialsGrant != null && clientCredentialsGrant.enabled()) {
+            grantTypes.add(clientCredentialsGrant.name());
         }
-        if (passwordGrantDetail != null && passwordGrantDetail.enabled()) {
-            grantTypes.add(passwordGrantDetail.name());
-            if (passwordGrantDetail.refreshTokenGrantDetail() != null && passwordGrantDetail.refreshTokenGrantDetail().enabled()) {
-                grantTypes.add(RefreshTokenGrantDetail.NAME);
+        if (passwordGrant != null && passwordGrant.enabled()) {
+            grantTypes.add(passwordGrant.name());
+            if (passwordGrant.refreshTokenGrant() != null && passwordGrant.refreshTokenGrant().enabled()) {
+                grantTypes.add(RefreshTokenGrant.NAME);
             }
         }
-        if (authorizationCodeGrantDetail != null && authorizationCodeGrantDetail.enabled()) {
-            grantTypes.add(authorizationCodeGrantDetail.name());
+        if (authorizationCodeGrant != null && authorizationCodeGrant.enabled()) {
+            grantTypes.add(authorizationCodeGrant.name());
         }
         return grantTypes;
     }
 
-    public AuthorizationCodeGrantDetail authorizationCodeGrantDetail() {
-        return authorizationCodeGrantDetail;
+    public AuthorizationCodeGrant authorizationCodeGrant() {
+        return authorizationCodeGrant;
     }
 
     public void replace(String name,
@@ -210,8 +229,8 @@ public class Client extends Auditable {
                         Set<Scope> scopes,
                         Set<Authority> authorities,
                         Set<ClientId> resources,
-                        ClientCredentialsGrantDetail clientCredentialsGrantDetail,
-                        PasswordGrantDetail passwordGrantDetail
+                        ClientCredentialsGrant clientCredentialsGrant,
+                        PasswordGrant passwordGrant
     ) {
         if (authoritiesChanged(authorities)) {
             DomainEventPublisher.instance().publish(new ClientAuthoritiesChanged(clientId));
@@ -231,8 +250,8 @@ public class Client extends Auditable {
         setAccessible(accessible);
         setAuthorities(authorities);
         setName(name);
-        this.clientCredentialsGrantDetail.replace(clientCredentialsGrantDetail);
-        this.passwordGrantDetail.replace(passwordGrantDetail);
+        this.clientCredentialsGrant.replace(clientCredentialsGrant);
+        this.passwordGrant.replace(passwordGrant);
         DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
     }
 
@@ -247,9 +266,9 @@ public class Client extends Auditable {
                         Set<Scope> scopes,
                         Set<Authority> authorities,
                         Set<ClientId> resources,
-                        ClientCredentialsGrantDetail clientCredentialsGrantDetail,
-                        PasswordGrantDetail passwordGrantDetail,
-                        AuthorizationCodeGrantDetail authorizationCodeGrantDetail
+                        ClientCredentialsGrant clientCredentialsGrant,
+                        PasswordGrant passwordGrant,
+                        AuthorizationCodeGrant authorizationCodeGrant
     ) {
         if (authoritiesChanged(authorities)) {
             DomainEventPublisher.instance().publish(new ClientAuthoritiesChanged(clientId));
@@ -273,9 +292,9 @@ public class Client extends Auditable {
         setAuthorities(authorities);
         setName(name);
         setSecret(secret);
-        this.clientCredentialsGrantDetail.replace(clientCredentialsGrantDetail);
-        this.passwordGrantDetail.replace(passwordGrantDetail);
-        this.authorizationCodeGrantDetail.replace(authorizationCodeGrantDetail);
+        this.clientCredentialsGrant.replace(clientCredentialsGrant);
+        this.passwordGrant.replace(passwordGrant);
+        this.authorizationCodeGrant.replace(authorizationCodeGrant);
         DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
     }
 
@@ -288,12 +307,12 @@ public class Client extends Auditable {
     }
 
     public int accessTokenValiditySeconds() {
-        if (clientCredentialsGrantDetail() != null) {
-            return clientCredentialsGrantDetail().accessTokenValiditySeconds();
-        } else if (passwordGrantDetail() != null) {
-            return passwordGrantDetail().accessTokenValiditySeconds();
-        } else if (authorizationCodeGrantDetail() != null) {
-            return authorizationCodeGrantDetail().accessTokenValiditySeconds();
+        if (clientCredentialsGrant() != null) {
+            return clientCredentialsGrant().accessTokenValiditySeconds();
+        } else if (passwordGrant() != null) {
+            return passwordGrant().accessTokenValiditySeconds();
+        } else if (authorizationCodeGrant() != null) {
+            return authorizationCodeGrant().accessTokenValiditySeconds();
         } else {
             return 0;
         }

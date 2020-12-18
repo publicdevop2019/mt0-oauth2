@@ -24,9 +24,9 @@ public class ClientService {
                                     Set<Scope> scopes,
                                     Set<Authority> authorities,
                                     Set<ClientId> resources,
-                                    ClientCredentialsGrantDetail clientCredentialsGrantDetail,
-                                    PasswordGrantDetail passwordGrantDetail,
-                                    AuthorizationCodeGrantDetail authorizationCodeGrantDetail
+                                    ClientCredentialsGrant clientCredentialsGrant,
+                                    PasswordGrant passwordGrant,
+                                    AuthorizationCodeGrant authorizationCodeGrant
     ) {
 
         Client client = new Client(
@@ -38,9 +38,9 @@ public class ClientService {
                 scopes,
                 authorities,
                 resources,
-                clientCredentialsGrantDetail,
-                passwordGrantDetail,
-                authorizationCodeGrantDetail
+                clientCredentialsGrant,
+                passwordGrant,
+                authorizationCodeGrant
         );
         DomainRegistry.clientRepository().add(client);
         DomainEventPublisher.instance().publish(new ClientProvisioned(client.clientId()));

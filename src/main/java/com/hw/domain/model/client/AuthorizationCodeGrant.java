@@ -15,14 +15,14 @@ import java.util.Set;
 
 @Entity
 @NoArgsConstructor
-public class AuthorizationCodeGrantDetail extends AbstractGrantDetail {
+public class AuthorizationCodeGrant extends AbstractGrant {
 
     @Convert(converter = StringSetConverter.class)
     private HashSet<String> redirectUrls = new HashSet<>();
 
     private boolean autoApprove = false;
 
-    public AuthorizationCodeGrantDetail(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove, ClientId clientId, int accessTokenValiditySeconds) {
+    public AuthorizationCodeGrant(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove, ClientId clientId, int accessTokenValiditySeconds) {
         super(grantTypes, clientId, accessTokenValiditySeconds);
         setRedirectUrls(redirectUrls);
         setAutoApprove(autoApprove);
@@ -36,16 +36,16 @@ public class AuthorizationCodeGrantDetail extends AbstractGrantDetail {
         return autoApprove;
     }
 
-    public void replace(@NotNull AuthorizationCodeGrantDetail authorizationCodeGrantDetail) {
-        if (grantTypeChanged(authorizationCodeGrantDetail)) {
+    public void replace(@NotNull AuthorizationCodeGrant authorizationCodeGrant) {
+        if (grantTypeChanged(authorizationCodeGrant)) {
             DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId()));
         }
-        if (accessTokenValiditySecondsChanged(authorizationCodeGrantDetail)) {
+        if (accessTokenValiditySecondsChanged(authorizationCodeGrant)) {
             DomainEventPublisher.instance().publish(new ClientAccessTokenValiditySecondsChanged(clientId()));
         }
-        this.setRedirectUrls(authorizationCodeGrantDetail.redirectUrls());
-        this.setAutoApprove(authorizationCodeGrantDetail.autoApprove());
-        this.setEnabled(authorizationCodeGrantDetail.enabled());
+        this.setRedirectUrls(authorizationCodeGrant.redirectUrls());
+        this.setAutoApprove(authorizationCodeGrant.autoApprove());
+        this.setEnabled(authorizationCodeGrant.enabled());
     }
 
     private void setAutoApprove(boolean autoApprove) {

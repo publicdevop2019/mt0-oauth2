@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Entity
 @NoArgsConstructor
-public class RefreshTokenGrantDetail{
+public class RefreshTokenGrant {
     public static final GrantType NAME = GrantType.REFRESH_TOKEN;
     @Id
     protected long id;
@@ -28,7 +28,7 @@ public class RefreshTokenGrantDetail{
     @MapsId
     @OneToOne
     @JoinColumn(name = "id")
-    private PasswordGrantDetail passwordGrantDetail;
+    private PasswordGrant passwordGrant;
 
     public boolean enabled() {
         return enabled;
@@ -53,34 +53,34 @@ public class RefreshTokenGrantDetail{
         this.enabled = enabled;
     }
 
-    public RefreshTokenGrantDetail(Set<GrantType> grantTypes, ClientId clientId, int refreshTokenValiditySeconds) {
+    public RefreshTokenGrant(Set<GrantType> grantTypes, ClientId clientId, int refreshTokenValiditySeconds) {
         this.id = IdGenerator.instance().id();
         setEnabled(grantTypes);
         setClientId(clientId);
         setRefreshTokenValiditySeconds(refreshTokenValiditySeconds);
     }
 
-    public void internalOnlySetPasswordGrantDetail(PasswordGrantDetail passwordGrantDetail) {
-        this.passwordGrantDetail = passwordGrantDetail;
+    public void internalOnlySetPasswordGrant(PasswordGrant passwordGrant) {
+        this.passwordGrant = passwordGrant;
     }
 
-    protected boolean grantTypeChanged(RefreshTokenGrantDetail refreshTokenGrantDetail) {
-        return enabled != refreshTokenGrantDetail.enabled();
+    protected boolean grantTypeChanged(RefreshTokenGrant refreshTokenGrant) {
+        return enabled != refreshTokenGrant.enabled();
     }
 
     public int refreshTokenValiditySeconds() {
         return refreshTokenValiditySeconds;
     }
 
-    public void replace(RefreshTokenGrantDetail refreshTokenGrantDetail) {
-        if (grantTypeChanged(refreshTokenGrantDetail)) {
+    public void replace(RefreshTokenGrant refreshTokenGrant) {
+        if (grantTypeChanged(refreshTokenGrant)) {
             DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId()));
         }
-        if (refreshTokenValiditySecondsChanged(refreshTokenGrantDetail.refreshTokenValiditySeconds())) {
+        if (refreshTokenValiditySecondsChanged(refreshTokenGrant.refreshTokenValiditySeconds())) {
             DomainEventPublisher.instance().publish(new ClientRefreshTokenChanged(clientId()));
         }
-        this.setRefreshTokenValiditySeconds(refreshTokenGrantDetail.refreshTokenValiditySeconds());
-        this.setEnabled(refreshTokenGrantDetail.enabled());
+        this.setRefreshTokenValiditySeconds(refreshTokenGrant.refreshTokenValiditySeconds());
+        this.setEnabled(refreshTokenGrant.enabled());
     }
 
     private boolean refreshTokenValiditySecondsChanged(int refreshTokenValiditySeconds) {

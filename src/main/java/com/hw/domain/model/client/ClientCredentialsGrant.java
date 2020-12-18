@@ -10,24 +10,24 @@ import java.util.Set;
 
 @Entity
 @NoArgsConstructor
-public class ClientCredentialsGrantDetail extends AbstractGrantDetail {
+public class ClientCredentialsGrant extends AbstractGrant {
 
     @Override
     public GrantType name() {
         return GrantType.CLIENT_CREDENTIALS;
     }
 
-    public ClientCredentialsGrantDetail(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds) {
+    public ClientCredentialsGrant(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds) {
         super(grantTypes, clientId, accessTokenValiditySeconds);
     }
 
-    public void replace(ClientCredentialsGrantDetail clientCredentialsGrantDetail) {
-        if (grantTypeChanged(clientCredentialsGrantDetail)) {
+    public void replace(ClientCredentialsGrant clientCredentialsGrant) {
+        if (grantTypeChanged(clientCredentialsGrant)) {
             DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId()));
         }
-        if (accessTokenValiditySecondsChanged(clientCredentialsGrantDetail)) {
+        if (accessTokenValiditySecondsChanged(clientCredentialsGrant)) {
             DomainEventPublisher.instance().publish(new ClientAccessTokenValiditySecondsChanged(clientId()));
         }
-        this.setEnabled(clientCredentialsGrantDetail.enabled());
+        this.setEnabled(clientCredentialsGrant.enabled());
     }
 }
