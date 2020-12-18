@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.Set;
 
-@Entity
+//@Entity
 @NoArgsConstructor
 public class PasswordGrantDetail extends AbstractGrantDetail {
 

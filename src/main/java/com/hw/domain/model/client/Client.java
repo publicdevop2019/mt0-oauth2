@@ -21,8 +21,7 @@ import java.util.Set;
 public class Client extends Auditable {
     @Id
     private Long id;
-//    @Embedded
-    @Transient
+    @Embedded
     private ClientId clientId;
     private String name;
     private String secret;
@@ -35,13 +34,11 @@ public class Client extends Auditable {
     private HashSet<ClientId> resources = new HashSet<>();
     @Column(name = "_accessible")
     private boolean accessible = false;
-//    @Transient
     @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private ClientCredentialsGrantDetail clientCredentialsGrantDetail;
     @Transient
 //    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private PasswordGrantDetail passwordGrantDetail;
-//    @Transient
     @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private AuthorizationCodeGrantDetail authorizationCodeGrantDetail;
     private Integer version;

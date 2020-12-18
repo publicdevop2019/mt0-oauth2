@@ -22,6 +22,13 @@
             <version>2.1.4.RELEASE</version>
         </dependency>
         <!--end of spring security-->
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.4.26.Final</version>
+        </dependency>
+
     </dependencies>
 
     <build>

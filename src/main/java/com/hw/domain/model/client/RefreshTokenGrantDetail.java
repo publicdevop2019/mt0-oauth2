@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.util.Set;
 
-@Entity
+//@Entity
 @NoArgsConstructor
 public class RefreshTokenGrantDetail{
     public static final GrantType NAME = GrantType.REFRESH_TOKEN;

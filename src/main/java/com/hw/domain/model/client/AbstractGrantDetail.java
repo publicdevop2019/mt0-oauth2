@@ -4,11 +4,12 @@ import lombok.NoArgsConstructor;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Set;
 
 @NoArgsConstructor
 @MappedSuperclass
-public abstract class AbstractGrantDetail {
+public abstract class AbstractGrantDetail implements Serializable {
     public abstract GrantType name();
 
     @Id
@@ -16,15 +17,14 @@ public abstract class AbstractGrantDetail {
 
     protected boolean enabled = false;
 
-    @MapsId
+    @JoinColumn(name = "id")
     @OneToOne
-//    @JoinColumn(name = "id")
+    @MapsId
     public Client client;
 
     private int accessTokenValiditySeconds = 0;
 
-    //    @Embedded
-    @Transient
+    @Embedded
     protected ClientId clientId;
 
     public boolean enabled() {
@@ -55,6 +55,7 @@ public abstract class AbstractGrantDetail {
     }
 
     public AbstractGrantDetail(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds) {
+        this();
         setEnabled(grantTypes);
         setClientId(clientId);
         setAccessTokenValiditySeconds(accessTokenValiditySeconds);
