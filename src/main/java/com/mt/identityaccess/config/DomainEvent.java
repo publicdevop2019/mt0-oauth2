@@ -14,11 +14,49 @@
 
 package com.mt.identityaccess.config;
 
+import com.mt.common.IdGenerator;
+import com.mt.identityaccess.domain.model.client.ClientId;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.Entity;
+import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
-public interface DomainEvent {
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@NoArgsConstructor
+public abstract class DomainEvent {
+    private static final int version = 0;
+    @Id
+    private Long id = IdGenerator.instance().id();
 
-    public int eventVersion();
+    private Date occurredOn = new Date();
 
-    public Date occurredOn();
+    @Embedded
+    private ClientId clientId;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Embedded
+    @CollectionTable(
+            name = "domain_event_client_ids_map",
+            joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
+    )
+    private Set<ClientId> clientIds;
+
+    public DomainEvent(ClientId clientId) {
+        this.clientId = clientId;
+    }
+
+    public DomainEvent(Set<ClientId> clientIds) {
+        this.clientIds = clientIds;
+    }
+
+    public int eventVersion() {
+        return version;
+    }
+
+    public Date occurredOn() {
+        return occurredOn;
+    }
+
 }

@@ -2,20 +2,14 @@ package com.mt.identityaccess.domain.model.client.event;
 
 import com.mt.identityaccess.config.DomainEvent;
 import com.mt.identityaccess.domain.model.client.ClientId;
+import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import javax.persistence.Entity;
 
-public class ClientProvisioned implements DomainEvent {
+@Entity
+@NoArgsConstructor
+public class ClientProvisioned extends DomainEvent {
     public ClientProvisioned(ClientId clientId) {
-    }
-
-    @Override
-    public int eventVersion() {
-        return 0;
-    }
-
-    @Override
-    public Date occurredOn() {
-        return null;
+        super(clientId);
     }
 }

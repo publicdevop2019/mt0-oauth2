@@ -1,6 +1,5 @@
 package com.mt.identityaccess.application;
 
-import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.common.idempotent.AppChangeRecordApplicationService;
 import com.mt.common.idempotent.OperationType;
 import com.mt.common.idempotent.command.AppCreateChangeRecordCommand;
@@ -8,6 +7,7 @@ import com.mt.common.idempotent.representation.AppChangeRecordCardRep;
 import com.mt.common.rest.CreatedAggregateRep;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.domain.model.client.Client;
+import com.mt.identityaccess.domain.model.client.ClientId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
