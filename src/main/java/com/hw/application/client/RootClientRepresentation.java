@@ -1,17 +1,15 @@
 package com.hw.application.client;
 
-import com.hw.domain.model.client.Authority;
-import com.hw.domain.model.client.Client;
-import com.hw.domain.model.client.GrantType;
-import com.hw.domain.model.client.Scope;
+import com.hw.domain.model.client.*;
 import lombok.Data;
-import org.springframework.beans.BeanUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
-public class RootClientRepresentation{
-    protected Long id;
+public class RootClientRepresentation {
+    protected String id;
 
     protected String name;
 
@@ -31,16 +29,35 @@ public class RootClientRepresentation{
 
     protected Set<String> resourceIds;
 
-    protected Boolean resourceIndicator;
+    protected boolean resourceIndicator;
 
-    protected Boolean autoApprove;
+    protected boolean autoApprove;
 
     protected Integer version;
     private String clientSecret;
 
-    private Boolean hasSecret;
+    private boolean hasSecret;
 
     public RootClientRepresentation(Client client) {
-        BeanUtils.copyProperties(client, this);
+        id = client.clientId().id();
+        name = client.name();
+        description = client.description();
+        grantTypeEnums = client.totalGrantTypes();
+        grantedAuthorities = client.authorities();
+        scopeEnums = client.scopes();
+        accessTokenValiditySeconds = client.accessTokenValiditySeconds();
+        if (client.authorizationCodeGrantDetail() != null)
+            registeredRedirectUri = client.authorizationCodeGrantDetail().redirectUrls();
+        if (client.passwordGrantDetail() != null && client.passwordGrantDetail().refreshTokenGrantDetail() != null)
+            refreshTokenValiditySeconds = client.passwordGrantDetail().accessTokenValiditySeconds();
+        if (!ObjectUtils.isEmpty(client.resources()))
+            resourceIds = client.resources().stream().map(ClientId::id).collect(Collectors.toSet());
+        resourceIndicator = client.accessible();
+        if (client.authorizationCodeGrantDetail() != null)
+            autoApprove = client.authorizationCodeGrantDetail().autoApprove();
+        version = client.version();
+        clientSecret = "masked";
+        hasSecret = true;
+
     }
 }

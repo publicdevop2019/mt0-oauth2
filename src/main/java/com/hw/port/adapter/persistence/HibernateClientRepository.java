@@ -18,12 +18,14 @@ import java.util.UUID;
 
 @Repository
 public interface HibernateClientRepository extends JpaRepository<Client, Long>, ClientRepository {
+    Optional<Client> findByClientId(ClientId clientId);
+
     default ClientId nextIdentity() {
         return new ClientId("CLIENT-" + UUID.randomUUID().toString().replace("-", ""));
     }
 
     default Optional<Client> clientOfId(ClientId clientId) {
-        return findById(Long.parseLong(clientId.id()));
+        return findByClientId(clientId);
     }
 
     default void add(Client client) {

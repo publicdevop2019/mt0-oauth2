@@ -45,7 +45,7 @@ public class RootClientCardRepresentation {
         grantTypeEnums = client1.totalGrantTypes();
         grantedAuthorities = client1.authorities();
         scopeEnums = client1.scopes();
-        this.accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
+        accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
         if (client1.authorizationCodeGrantDetail() != null)
             registeredRedirectUri = client1.authorizationCodeGrantDetail().redirectUrls();
         if (client1.passwordGrantDetail() != null && client1.passwordGrantDetail().refreshTokenGrantDetail() != null)

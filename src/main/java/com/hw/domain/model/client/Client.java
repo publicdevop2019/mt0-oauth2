@@ -236,7 +236,7 @@ public class Client extends Auditable {
         DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
     }
 
-    public Integer getVersion() {
+    public Integer version() {
         return version;
     }
 
