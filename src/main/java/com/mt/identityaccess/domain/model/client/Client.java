@@ -1,11 +1,11 @@
 package com.mt.identityaccess.domain.model.client;
 
+import com.mt.common.Auditable;
 import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.identityaccess.config.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.DomainRegistry;
+import com.mt.identityaccess.domain.model.UniqueIdGeneratorService;
 import com.mt.identityaccess.domain.model.client.event.*;
-import com.mt.common.Auditable;
-import com.mt.common.IdGenerator;
 import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.annotations.Where;
@@ -20,7 +20,7 @@ import java.util.Set;
 @Table
 @Entity
 @Setter
-@Where(clause="deleted=0")
+@Where(clause = "deleted=0")
 public class Client extends Auditable {
     @Id
     private Long id;
@@ -175,6 +175,10 @@ public class Client extends Auditable {
     public Client() {
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Client(ClientId nextIdentity,
                   String name,
                   String secret,
@@ -185,9 +189,10 @@ public class Client extends Auditable {
                   Set<ClientId> resources,
                   ClientCredentialsGrant clientCredentialsGrant,
                   PasswordGrant passwordGrant,
-                  AuthorizationCodeGrant authorizationCodeGrant
+                  AuthorizationCodeGrant authorizationCodeGrant,
+                  UniqueIdGeneratorService uniqueIdGeneratorService
     ) {
-        this.id = IdGenerator.instance().id();
+        setId(uniqueIdGeneratorService.id());
         setClientId(nextIdentity);
         setResources(resources);
         setScopes(scopes);

@@ -1,10 +1,10 @@
 package com.mt.identityaccess.domain.model;
 
+import com.mt.identityaccess.application.AuthenticationApplicationService;
+import com.mt.identityaccess.domain.model.client.ClientRepository;
 import com.mt.identityaccess.domain.model.client.ClientService;
 import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
 import com.mt.identityaccess.domain.model.user.UserRepository;
-import com.mt.identityaccess.application.AuthenticationApplicationService;
-import com.mt.identityaccess.domain.model.client.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +16,7 @@ public class DomainRegistry {
     private static EncryptionService encryptionService;
     private static AuthenticationApplicationService authenticationService;
     private static ClientService clientService;
+    private static UniqueIdGeneratorService uniqueIdGeneratorService;
 
     @Autowired
     public void setClientRepository(ClientRepository clientRepository) {
@@ -47,6 +48,11 @@ public class DomainRegistry {
         DomainRegistry.clientService = clientService;
     }
 
+    @Autowired
+    public void setUniqueIdGeneratorService(UniqueIdGeneratorService uniqueIdGeneratorService) {
+        DomainRegistry.uniqueIdGeneratorService = uniqueIdGeneratorService;
+    }
+
     public static ClientRepository clientRepository() {
         return clientRepository;
     }
@@ -57,5 +63,9 @@ public class DomainRegistry {
 
     public static ClientService clientService() {
         return clientService;
+    }
+
+    public static UniqueIdGeneratorService uniqueIdGeneratorService() {
+        return uniqueIdGeneratorService;
     }
 }

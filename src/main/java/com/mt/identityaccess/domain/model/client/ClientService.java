@@ -40,7 +40,8 @@ public class ClientService {
                 resources,
                 clientCredentialsGrant,
                 passwordGrant,
-                authorizationCodeGrant
+                authorizationCodeGrant,
+                DomainRegistry.uniqueIdGeneratorService()
         );
         DomainRegistry.clientRepository().add(client);
         DomainEventPublisher.instance().publish(new ClientProvisioned(client.clientId()));

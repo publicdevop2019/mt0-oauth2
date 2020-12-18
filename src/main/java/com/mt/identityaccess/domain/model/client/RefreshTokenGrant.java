@@ -3,7 +3,7 @@ package com.mt.identityaccess.domain.model.client;
 import com.mt.identityaccess.config.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.client.event.ClientGrantTypeChanged;
 import com.mt.identityaccess.domain.model.client.event.ClientRefreshTokenChanged;
-import com.mt.common.IdGenerator;
+import com.mt.common.snowflake.IdGenerator;
 import lombok.NoArgsConstructor;
 
 import javax.annotation.Nullable;
@@ -54,7 +54,6 @@ public class RefreshTokenGrant {
     }
 
     public RefreshTokenGrant(Set<GrantType> grantTypes, ClientId clientId, int refreshTokenValiditySeconds) {
-        this.id = IdGenerator.instance().id();
         setEnabled(grantTypes);
         setClientId(clientId);
         setRefreshTokenValiditySeconds(refreshTokenValiditySeconds);

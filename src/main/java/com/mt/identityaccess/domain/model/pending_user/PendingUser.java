@@ -3,7 +3,7 @@ package com.mt.identityaccess.domain.model.pending_user;
 import com.mt.identityaccess.application.representation.AppBizUserCardRep;
 import com.mt.identityaccess.application.deprecated.AppBizUserApplicationService;
 import com.mt.common.Auditable;
-import com.mt.common.IdGenerator;
+import com.mt.common.snowflake.IdGenerator;
 import com.mt.common.rest.Aggregate;
 import com.mt.common.sql.SumPagedRep;
 import lombok.AccessLevel;

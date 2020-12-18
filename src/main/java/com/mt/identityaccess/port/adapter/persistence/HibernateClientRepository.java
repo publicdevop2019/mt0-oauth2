@@ -1,19 +1,26 @@
 package com.mt.identityaccess.port.adapter.persistence;
 
+import com.mt.common.sql.SumPagedRep;
+import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.identityaccess.application.client.ClientPaging;
 import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.identityaccess.application.client.QueryConfig;
+import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
-import com.mt.common.sql.SumPagedRep;
-import com.mt.common.sql.builder.SelectQueryBuilder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -29,7 +36,10 @@ public interface HibernateClientRepository extends JpaRepository<Client, Long>, 
     void softDeleteAll(Set<Long> id);
 
     default ClientId nextIdentity() {
-        return new ClientId("CLIENT-" + UUID.randomUUID().toString().replace("-", ""));
+        String yyMMdd = LocalDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyMMdd"));
+        Long id = DomainRegistry.uniqueIdGeneratorService().id();
+        String s = Long.toHexString(id);
+        return new ClientId("00CL" + yyMMdd + s.toUpperCase());
     }
 
     default Optional<Client> clientOfId(ClientId clientId) {

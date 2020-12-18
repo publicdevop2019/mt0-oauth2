@@ -14,7 +14,7 @@
 
 package com.mt.identityaccess.config;
 
-import com.mt.common.IdGenerator;
+import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import lombok.NoArgsConstructor;
 
@@ -29,7 +29,7 @@ import java.util.Set;
 public abstract class DomainEvent {
     private static final int version = 0;
     @Id
-    private Long id = IdGenerator.instance().id();
+    private Long id = DomainRegistry.uniqueIdGeneratorService().id();
 
     private Date occurredOn = new Date();
 
