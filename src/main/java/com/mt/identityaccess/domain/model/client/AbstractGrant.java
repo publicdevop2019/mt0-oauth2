@@ -13,7 +13,7 @@ public abstract class AbstractGrant implements Serializable {
     public abstract GrantType name();
 
     @Id
-    protected Long id;
+    private Long id;
 
     protected boolean enabled = false;
 
