@@ -1,10 +1,7 @@
 package com.mt.identityaccess.application.client;
 
 import com.mt.identityaccess.application.representation.AppBizUserRep;
-import com.mt.identityaccess.domain.model.client.Authority;
-import com.mt.identityaccess.domain.model.client.Client;
-import com.mt.identityaccess.domain.model.client.GrantType;
-import com.mt.identityaccess.domain.model.client.Scope;
+import com.mt.identityaccess.domain.model.client.*;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
@@ -16,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Setter
 public class ClientDetailsRepresentation implements ClientDetails {
-    private Long id;
+    private ClientId clientId;
     private String clientSecret;
     private Set<GrantType> grantTypeEnums;
     private Set<Authority> grantedAuthorities;
@@ -28,7 +25,7 @@ public class ClientDetailsRepresentation implements ClientDetails {
     private boolean autoApprove = false;
 
     public ClientDetailsRepresentation(Client client) {
-        setId(client.id());
+        setClientId(client.clientId());
         setClientSecret(client.secret());
         setGrantTypeEnums(client.totalGrantTypes());
         setGrantedAuthorities(client.authorities());
@@ -38,7 +35,7 @@ public class ClientDetailsRepresentation implements ClientDetails {
 
     @Override
     public String getClientId() {
-        return id.toString();
+        return clientId.id();
     }
 
     @Override

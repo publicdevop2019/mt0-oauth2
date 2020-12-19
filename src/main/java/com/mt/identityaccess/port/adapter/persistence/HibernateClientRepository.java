@@ -27,19 +27,18 @@ import java.util.stream.Collectors;
 public interface HibernateClientRepository extends JpaRepository<Client, Long>, ClientRepository {
     Optional<Client> findByClientId(ClientId clientId);
 
-    @Query("update #{#entityName} e set e.deleted=true where e.id=?1")
     @Modifying
+    @Query("update #{#entityName} e set e.deleted=true where e.id=?1")
     void softDelete(Long id);
 
-    @Query("update #{#entityName} e set e.deleted=true where e.id in ?1")
     @Modifying
+    @Query("update #{#entityName} e set e.deleted=true where e.id in ?1")
     void softDeleteAll(Set<Long> id);
 
     default ClientId nextIdentity() {
-        String yyMMdd = LocalDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyMMdd"));
         Long id = DomainRegistry.uniqueIdGeneratorService().id();
-        String s = Long.toHexString(id);
-        return new ClientId("00CL" + yyMMdd + s.toUpperCase());
+        String s = Long.toString(id,36);
+        return new ClientId("00CL"  + s.toUpperCase());
     }
 
     default Optional<Client> clientOfId(ClientId clientId) {
