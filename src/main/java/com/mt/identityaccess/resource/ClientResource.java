@@ -1,17 +1,13 @@
 package com.mt.identityaccess.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
+import com.mt.identityaccess.application.client.*;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
-import com.mt.common.sql.SumPagedRep;
-import com.mt.identityaccess.application.client.ClientApplicationService;
-import com.mt.identityaccess.application.client.ProvisionClientCommand;
-import com.mt.identityaccess.application.client.ReplaceClientCommand;
-import com.mt.identityaccess.application.client.RootClientCardRepresentation;
-import com.mt.identityaccess.application.client.RootClientRepresentation;
-import com.mt.identityaccess.application.client.UserClientCardRepresentation;
 import com.mt.identityaccess.infrastructure.JwtThreadLocal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +15,7 @@ import java.util.Optional;
 
 import static com.mt.common.AppConstant.*;
 
+@Slf4j
 @RestController
 @RequestMapping(produces = "application/json", path = "clients")
 public class ClientResource {
@@ -60,7 +57,7 @@ public class ClientResource {
     }
 
     @DeleteMapping("root/{id}")
-    public ResponseEntity<Void> deleteForRootById(@PathVariable String id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,@RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<Void> deleteForRootById(@PathVariable String id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtThreadLocal.unset();
         JwtThreadLocal.set(jwt);
         clientApplicationService().removeClient(id, changeId);
@@ -68,7 +65,7 @@ public class ClientResource {
     }
 
     @DeleteMapping("root")
-    public ResponseEntity<Void> deleteForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,@RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<Void> deleteForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtThreadLocal.unset();
         JwtThreadLocal.set(jwt);
         clientApplicationService().removeClients(queryParam, changeId);
@@ -76,7 +73,7 @@ public class ClientResource {
     }
 
     @PatchMapping(path = "root/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id, @RequestBody JsonPatch command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,@RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id, @RequestBody JsonPatch command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtThreadLocal.unset();
         JwtThreadLocal.set(jwt);
         clientApplicationService().patchClient(id, command, changeId);

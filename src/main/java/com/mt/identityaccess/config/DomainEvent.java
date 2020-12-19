@@ -20,20 +20,23 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @NoArgsConstructor
-public abstract class DomainEvent {
+public abstract class DomainEvent implements Serializable {
     private static final int version = 0;
     @Id
     private Long id = DomainRegistry.uniqueIdGeneratorService().id();
 
+    @Temporal(TemporalType.TIMESTAMP)
     private Date occurredOn = new Date();
 
     @Embedded
+    @AttributeOverride(name = "clientId", column = @Column(updatable = false))
     private ClientId clientId;
     @ElementCollection(fetch = FetchType.LAZY)
     @Embedded

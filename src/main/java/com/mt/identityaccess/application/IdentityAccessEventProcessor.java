@@ -10,6 +10,8 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
+import javax.persistence.PersistenceException;
+
 @Configuration
 @Aspect
 @Slf4j
