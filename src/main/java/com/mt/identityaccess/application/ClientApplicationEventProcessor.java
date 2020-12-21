@@ -10,17 +10,15 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-import javax.persistence.PersistenceException;
-
 @Configuration
 @Aspect
 @Slf4j
-public class IdentityAccessEventProcessor {
+public class ClientApplicationEventProcessor {
     @Autowired
     private EventStoreRepository eventStore;
 
     public static void register() {
-        (new IdentityAccessEventProcessor()).listen();
+        (new ClientApplicationEventProcessor()).listen();
     }
 
     @Before("execution(* com.mt.identityaccess.application.client.ClientApplicationService.*(..))")
