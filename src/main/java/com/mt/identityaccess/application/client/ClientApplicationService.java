@@ -5,14 +5,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import com.mt.common.rest.exception.AggregatePatchException;
+import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.config.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.ClientRemoved;
 import com.mt.identityaccess.domain.model.client.event.ClientsBatchRemoved;
-import com.mt.common.rest.exception.AggregatePatchException;
-import com.mt.common.sql.SumPagedRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
@@ -36,8 +36,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 () -> {
                     ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
                     RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), clientId, command.getRefreshTokenValiditySeconds());
-                    PasswordGrant passwordGrantDetail = new PasswordGrant(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);
-                    refreshTokenGrantDetail.internalOnlySetPasswordGrant(passwordGrantDetail);
+                    PasswordGrant passwordGrantDetail = new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);
                     return DomainRegistry.clientService().provisionClient(
                             clientId,
                             command.getName(),
@@ -47,13 +46,12 @@ public class ClientApplicationService implements ClientDetailsService {
                             command.getScopeEnums(),
                             command.getGrantedAuthorities(),
                             command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
-                            new ClientCredentialsGrant(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds()),
+                            new ClientCredentialsGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds()),
                             passwordGrantDetail,
                             new AuthorizationCodeGrant(
                                     command.getGrantTypeEnums(),
                                     command.getRegisteredRedirectUri(),
                                     command.isAutoApprove(),
-                                    clientId,
                                     command.getAccessTokenValiditySeconds()
                             )
                     );
@@ -88,13 +86,12 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getScopeEnums(),
                         command.getGrantedAuthorities(),
                         command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
-                        new ClientCredentialsGrant(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds()),
-                        new PasswordGrant(command.getGrantTypeEnums(), clientId, command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail),
+                        new ClientCredentialsGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds()),
+                        new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail),
                         new AuthorizationCodeGrant(
                                 command.getGrantTypeEnums(),
                                 command.getRegisteredRedirectUri(),
                                 command.isAutoApprove(),
-                                clientId,
                                 command.getAccessTokenValiditySeconds()
                         )
                 );
@@ -162,8 +159,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         finalMiddleLayer.getScopeEnums(),
                         finalMiddleLayer.getGrantedAuthorities(),
                         finalMiddleLayer.getResourceIds() != null ? finalMiddleLayer.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
-                        new ClientCredentialsGrant(finalMiddleLayer.getGrantTypeEnums(), clientId, finalMiddleLayer.getAccessTokenValiditySeconds()),
-                        new PasswordGrant(finalMiddleLayer.getGrantTypeEnums(), clientId, finalMiddleLayer.getAccessTokenValiditySeconds(), refreshTokenGrantDetail)
+                        new ClientCredentialsGrant(finalMiddleLayer.getGrantTypeEnums(), finalMiddleLayer.getAccessTokenValiditySeconds()),
+                        new PasswordGrant(finalMiddleLayer.getGrantTypeEnums(), finalMiddleLayer.getAccessTokenValiditySeconds(), refreshTokenGrantDetail)
                 );
             });
         }
@@ -173,6 +170,6 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional(readOnly = true)
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
-        return client.map(ClientDetailsRepresentation::new).orElse(null);
+        return client.map(SpringOAuth2ClientDetailsRepresentation::new).orElse(null);
     }
 }

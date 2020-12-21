@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Setter
-public class ClientDetailsRepresentation implements ClientDetails {
+public class SpringOAuth2ClientDetailsRepresentation implements ClientDetails {
     private ClientId clientId;
     private String clientSecret;
     private Set<GrantType> grantTypeEnums;
@@ -24,7 +24,7 @@ public class ClientDetailsRepresentation implements ClientDetails {
     private Set<String> resourceIds;
     private boolean autoApprove = false;
 
-    public ClientDetailsRepresentation(Client client) {
+    public SpringOAuth2ClientDetailsRepresentation(Client client) {
         setClientId(client.clientId());
         setClientSecret(client.secret());
         setGrantTypeEnums(client.totalGrantTypes());

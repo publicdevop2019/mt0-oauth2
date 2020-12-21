@@ -12,35 +12,16 @@ import java.util.Set;
 public abstract class AbstractGrant implements Serializable {
     public abstract GrantType name();
 
-    @Id
-    private Long id;
-
     protected boolean enabled = false;
 
-    @JoinColumn(name = "id")
-    @OneToOne
-    @MapsId
-    public Client client;
-
     private int accessTokenValiditySeconds = 0;
-
-    @Embedded
-    protected ClientId clientId;
 
     public boolean enabled() {
         return enabled;
     }
 
-    public ClientId clientId() {
-        return clientId;
-    }
-
     public int accessTokenValiditySeconds() {
         return accessTokenValiditySeconds;
-    }
-
-    protected void setClientId(@Nullable ClientId clientId) {
-        this.clientId = clientId;
     }
 
     protected void setEnabled(@Nullable Set<GrantType> grantTypes) {
@@ -54,15 +35,10 @@ public abstract class AbstractGrant implements Serializable {
         this.enabled = enabled;
     }
 
-    public AbstractGrant(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds) {
+    public AbstractGrant(Set<GrantType> grantTypes, int accessTokenValiditySeconds) {
         this();
         setEnabled(grantTypes);
-        setClientId(clientId);
         setAccessTokenValiditySeconds(accessTokenValiditySeconds);
-    }
-
-    public void internalOnlySetClient(Client client) {
-        this.client = client;
     }
 
     protected boolean grantTypeChanged(AbstractGrant abstractGrant) {

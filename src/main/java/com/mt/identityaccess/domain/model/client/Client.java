@@ -36,9 +36,9 @@ public class Client extends Auditable {
             name = "authorities_map",
             joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
     )
-    private Set<Authority> authorities = EnumSet.noneOf(Authority.class);
+    private EnumSet<Authority> authorities = EnumSet.noneOf(Authority.class);
 
-    @ElementCollection(fetch = FetchType.LAZY)
+        @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "scopes_map",
             joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
@@ -53,13 +53,28 @@ public class Client extends Auditable {
             joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
     )
     private Set<ClientId> resources = new HashSet<>();
-    @Column(name = "_accessible")
+    @Column(name = "accessible_")
     private boolean accessible = false;
-    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "enabled", column = @Column(name = "client_credentials_gt_enabled")),
+            @AttributeOverride(name = "accessTokenValiditySeconds", column = @Column(name = "client_credentials_gt_access_token_validity_seconds"))
+    })
     private ClientCredentialsGrant clientCredentialsGrant;
-    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "enabled", column = @Column(name = "password_gt_enabled")),
+            @AttributeOverride(name = "accessTokenValiditySeconds", column = @Column(name = "password_gt_access_token_validity_seconds"))
+    })
     private PasswordGrant passwordGrant;
-    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "enabled", column = @Column(name = "authorization_code_gt_enabled")),
+            @AttributeOverride(name = "accessTokenValiditySeconds", column = @Column(name = "authorization_code_gt_access_token_validity_seconds"))
+    })
     private AuthorizationCodeGrant authorizationCodeGrant;
     private Integer version;
 
@@ -72,11 +87,11 @@ public class Client extends Auditable {
     }
 
     public void setScopes(Set<Scope> scopes) {
-        this.scopes = new HashSet<>(scopes);
+        this.scopes = EnumSet.copyOf(scopes);
     }
 
     public void setAuthorities(Set<Authority> authorities) {
-        this.authorities = new HashSet<>(authorities);
+        this.authorities = EnumSet.copyOf(authorities);
         if (accessible) {
             if (
                     authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
@@ -204,9 +219,6 @@ public class Client extends Auditable {
         setClientCredentialsGrant(clientCredentialsGrant);
         setPasswordGrant(passwordGrant);
         setAuthorizationCodeGrant(authorizationCodeGrant);
-        clientCredentialsGrant.internalOnlySetClient(this);
-        passwordGrant.internalOnlySetClient(this);
-        authorizationCodeGrant.internalOnlySetClient(this);
     }
 
     public Set<GrantType> totalGrantTypes() {

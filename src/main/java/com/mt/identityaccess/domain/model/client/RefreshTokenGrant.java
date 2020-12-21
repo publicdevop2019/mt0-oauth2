@@ -10,37 +10,37 @@ import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.util.Set;
 
-@Entity
+//@Entity
 @NoArgsConstructor
 public class RefreshTokenGrant {
     public static final GrantType NAME = GrantType.REFRESH_TOKEN;
-    @Id
-    protected long id;
-
+//    @Id
+//    protected long id;
+    @Column(name = "pwd_gt_refresh_token_gt_enabled")
     protected boolean enabled = false;
 
-    @Embedded
-    @Transient
-    protected ClientId clientId;
+//    @Embedded
+//    protected ClientId clientId;
 
+    @Column(name = "pwd_gt_refresh_token_gt_refresh_token_validity_seconds")
     private int refreshTokenValiditySeconds = 0;
 
-    @MapsId
-    @OneToOne
-    @JoinColumn(name = "id")
-    private PasswordGrant passwordGrant;
+//    @MapsId
+//    @OneToOne
+//    @JoinColumn(name = "id")
+//    private PasswordGrant passwordGrant;
 
     public boolean enabled() {
         return enabled;
     }
 
-    public ClientId clientId() {
-        return clientId;
-    }
-
-    protected void setClientId(@Nullable ClientId clientId) {
-        this.clientId = clientId;
-    }
+//    public ClientId clientId() {
+//        return clientId;
+//    }
+//
+//    protected void setClientId(@Nullable ClientId clientId) {
+//        this.clientId = clientId;
+//    }
 
     protected void setEnabled(@Nullable Set<GrantType> grantTypes) {
         if (grantTypes == null)
@@ -55,13 +55,13 @@ public class RefreshTokenGrant {
 
     public RefreshTokenGrant(Set<GrantType> grantTypes, ClientId clientId, int refreshTokenValiditySeconds) {
         setEnabled(grantTypes);
-        setClientId(clientId);
+//        setClientId(clientId);
         setRefreshTokenValiditySeconds(refreshTokenValiditySeconds);
     }
 
-    public void internalOnlySetPasswordGrant(PasswordGrant passwordGrant) {
-        this.passwordGrant = passwordGrant;
-    }
+//    public void internalOnlySetPasswordGrant(PasswordGrant passwordGrant) {
+//        this.passwordGrant = passwordGrant;
+//    }
 
     protected boolean grantTypeChanged(RefreshTokenGrant refreshTokenGrant) {
         return enabled != refreshTokenGrant.enabled();
@@ -72,12 +72,12 @@ public class RefreshTokenGrant {
     }
 
     public void replace(RefreshTokenGrant refreshTokenGrant) {
-        if (grantTypeChanged(refreshTokenGrant)) {
-            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId()));
-        }
-        if (refreshTokenValiditySecondsChanged(refreshTokenGrant.refreshTokenValiditySeconds())) {
-            DomainEventPublisher.instance().publish(new ClientRefreshTokenChanged(clientId()));
-        }
+//        if (grantTypeChanged(refreshTokenGrant)) {
+//            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId()));
+//        }
+//        if (refreshTokenValiditySecondsChanged(refreshTokenGrant.refreshTokenValiditySeconds())) {
+//            DomainEventPublisher.instance().publish(new ClientRefreshTokenChanged(clientId()));
+//        }
         this.setRefreshTokenValiditySeconds(refreshTokenGrant.refreshTokenValiditySeconds());
         this.setEnabled(refreshTokenGrant.enabled());
     }

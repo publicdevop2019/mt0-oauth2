@@ -1,14 +1,10 @@
 package com.mt.identityaccess.domain.model.client;
 
-import com.mt.identityaccess.config.DomainEventPublisher;
-import com.mt.identityaccess.domain.model.client.event.ClientAccessTokenValiditySecondsChanged;
-import com.mt.identityaccess.domain.model.client.event.ClientGrantTypeChanged;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Embedded;
 import java.util.Set;
 
-@Entity
 @NoArgsConstructor
 public class PasswordGrant extends AbstractGrant {
 
@@ -16,21 +12,21 @@ public class PasswordGrant extends AbstractGrant {
         this.refreshTokenGrant = refreshTokenGrant;
     }
 
-    @OneToOne(mappedBy = "passwordGrant", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true,optional = false)
+    @Embedded
     private RefreshTokenGrant refreshTokenGrant;
 
-    public PasswordGrant(Set<GrantType> grantTypes, ClientId clientId, int accessTokenValiditySeconds, RefreshTokenGrant refreshTokenGrant) {
-        super(grantTypes, clientId, accessTokenValiditySeconds);
+    public PasswordGrant(Set<GrantType> grantTypes, int accessTokenValiditySeconds, RefreshTokenGrant refreshTokenGrant) {
+        super(grantTypes, accessTokenValiditySeconds);
         setRefreshTokenGrant(refreshTokenGrant);
     }
 
     public void replace(PasswordGrant passwordGrant) {
-        if (grantTypeChanged(passwordGrant)) {
-            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId()));
-        }
-        if (accessTokenValiditySecondsChanged(passwordGrant)) {
-            DomainEventPublisher.instance().publish(new ClientAccessTokenValiditySecondsChanged(clientId()));
-        }
+//        if (grantTypeChanged(passwordGrant)) {
+//            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId()));
+//        }
+//        if (accessTokenValiditySecondsChanged(passwordGrant)) {
+//            DomainEventPublisher.instance().publish(new ClientAccessTokenValiditySecondsChanged(clientId()));
+//        }
         this.setEnabled(passwordGrant.enabled());
         if (refreshTokenGrant() != null)
             refreshTokenGrant().replace(passwordGrant.refreshTokenGrant());
