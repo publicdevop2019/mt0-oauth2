@@ -16,13 +16,4 @@ public class ClientCredentialsGrant extends AbstractGrant {
         super(grantTypes, accessTokenValiditySeconds);
     }
 
-    public void replace(ClientCredentialsGrant clientCredentialsGrant) {
-//        if (grantTypeChanged(clientCredentialsGrant)) {
-//            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId()));
-//        }
-//        if (accessTokenValiditySecondsChanged(clientCredentialsGrant)) {
-//            DomainEventPublisher.instance().publish(new ClientAccessTokenValiditySecondsChanged(clientId()));
-//        }
-        this.setEnabled(clientCredentialsGrant.enabled());
-    }
 }

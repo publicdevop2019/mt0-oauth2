@@ -3,6 +3,7 @@ package com.mt.identityaccess.port.adapter.persistence;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.common.sql.clause.SelectFieldBooleanEqualClause;
 import com.mt.common.sql.clause.SelectFieldNumberRangeClause;
+import com.mt.common.sql.clause.SelectFieldStringEqualClause;
 import com.mt.common.sql.clause.SelectFieldStringLikeClause;
 import com.mt.identityaccess.domain.model.client.Client;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class ClientQueryBuilder extends SelectQueryBuilder<Client> {
     public static final String ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String ENTITY_RESOURCE_INDICATOR = "resourceIndicator";
+    public static final String ENTITY_CLIENT_ID = "clientId";
     public static final String ENTITY_NAME = "name";
     public static final String ENTITY_GRANT_TYPE_ENUMS = "grantTypeEnums";
     public static final String ENTITY_GRANT_AUTHORITIES = "grantedAuthorities";
@@ -24,6 +26,7 @@ public class ClientQueryBuilder extends SelectQueryBuilder<Client> {
         mappedSortBy.put(ENTITY_RESOURCE_INDICATOR, ENTITY_RESOURCE_INDICATOR);
         mappedSortBy.put(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS, ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS);
         supportedWhereField.put(ENTITY_RESOURCE_INDICATOR, new SelectFieldBooleanEqualClause<>(ENTITY_RESOURCE_INDICATOR));
+        supportedWhereField.put(ENTITY_CLIENT_ID, new SelectFieldClientIdEqualClause("clientId.clientId"));
         supportedWhereField.put(ENTITY_NAME, new SelectFieldStringLikeClause<>(ENTITY_NAME));
         supportedWhereField.put(ENTITY_GRANT_TYPE_ENUMS, new SelectFieldStringLikeClause<>(ENTITY_GRANT_TYPE_ENUMS));
         supportedWhereField.put(ENTITY_GRANT_AUTHORITIES, new SelectFieldStringLikeClause<>(ENTITY_GRANT_AUTHORITIES));

@@ -35,7 +35,7 @@ public class ClientApplicationService implements ClientDetailsService {
         return ApplicationServiceRegistry.clientIdempotentApplicationService().idempotentProvision(command, operationId,
                 () -> {
                     ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
-                    RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), clientId, command.getRefreshTokenValiditySeconds());
+                    RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(),  command.getRefreshTokenValiditySeconds());
                     PasswordGrant passwordGrantDetail = new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);
                     return DomainRegistry.clientService().provisionClient(
                             clientId,
@@ -77,7 +77,7 @@ public class ClientApplicationService implements ClientDetailsService {
         if (client.isPresent()) {
             Client client1 = client.get();
             ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(command, changeId, (ignored) -> {
-                RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), clientId, command.getRefreshTokenValiditySeconds());
+                RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(),  command.getRefreshTokenValiditySeconds());
                 client1.replace(
                         command.getName(),
                         command.getClientSecret(),

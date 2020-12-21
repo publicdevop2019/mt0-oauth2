@@ -30,20 +30,10 @@ public class Client extends Auditable {
     private String secret;
     private String description;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @Enumerated(EnumType.STRING)
-    @CollectionTable(
-            name = "authorities_map",
-            joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
-    )
-    private EnumSet<Authority> authorities = EnumSet.noneOf(Authority.class);
+    @Convert(converter = Authority.AuthorityConverter.class)
+    private Set<Authority> authorities = EnumSet.noneOf(Authority.class);
 
-        @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(
-            name = "scopes_map",
-            joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
-    )
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = Scope.ScopeConverter.class)
     private Set<Scope> scopes = EnumSet.noneOf(Scope.class);
 
     @ElementCollection(fetch = FetchType.LAZY)
@@ -269,8 +259,10 @@ public class Client extends Auditable {
         setAccessible(accessible);
         setAuthorities(authorities);
         setName(name);
-        this.clientCredentialsGrant.replace(clientCredentialsGrant);
-        this.passwordGrant.replace(passwordGrant);
+        ClientCredentialsGrant.detectChange(this.clientCredentialsGrant(), clientCredentialsGrant, clientId());
+        setClientCredentialsGrant(clientCredentialsGrant);
+        PasswordGrant.detectChange(this.passwordGrant(), passwordGrant, clientId());
+        setPasswordGrant(passwordGrant);
         DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
     }
 
@@ -311,9 +303,12 @@ public class Client extends Auditable {
         setAuthorities(authorities);
         setName(name);
         setSecret(secret);
-        this.clientCredentialsGrant.replace(clientCredentialsGrant);
-        this.passwordGrant.replace(passwordGrant);
-        this.authorizationCodeGrant.replace(authorizationCodeGrant);
+        ClientCredentialsGrant.detectChange(this.clientCredentialsGrant(), clientCredentialsGrant, clientId());
+        setClientCredentialsGrant(clientCredentialsGrant);
+        PasswordGrant.detectChange(this.passwordGrant(), passwordGrant, clientId());
+        setPasswordGrant(passwordGrant);
+        AuthorizationCodeGrant.detectChange(this.authorizationCodeGrant(), authorizationCodeGrant, clientId());
+        setAuthorizationCodeGrant(authorizationCodeGrant);
         DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
     }
 

@@ -21,7 +21,7 @@ public class ClientQuery {
     }
 
     public ClientQuery(Set<ClientId> resources) {
-        this.value = "id:" + String.join(".", resources.stream().map(ClientId::id).collect(Collectors.toSet()));
+        this.value = "clientId:" + String.join(".", resources.stream().map(ClientId::id).collect(Collectors.toSet()));
     }
 
     public void validate() {
