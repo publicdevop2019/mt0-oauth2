@@ -14,9 +14,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -50,11 +47,11 @@ public interface HibernateClientRepository extends JpaRepository<Client, Long>, 
     }
 
     default void remove(Client client) {
-        softDelete(client.id());
+        softDelete(client.getId());
     }
 
     default void remove(Collection<Client> client) {
-        softDeleteAll(client.stream().map(Client::id).collect(Collectors.toSet()));
+        softDeleteAll(client.stream().map(Client::getId).collect(Collectors.toSet()));
     }
 
     default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, ClientPaging clientPaging, QueryConfig queryConfig) {

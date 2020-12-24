@@ -13,7 +13,7 @@ public class TranslatingRevokeTokenService implements RevokeTokenService {
 
     @Override
     public void revokeClientToken(ClientId clientId) {
-        revokeTokenAdapter.revoke(clientId.id(), "CLIENT");
+        revokeTokenAdapter.revoke(clientId.getClientId(), "CLIENT");
     }
 
     @Override

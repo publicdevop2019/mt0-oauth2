@@ -14,25 +14,13 @@
 
 package com.mt.identityaccess.config;
 
-import java.io.Serializable;
+import java.util.List;
 
-public class IdentifiedDomainObject implements Serializable {
+public interface PublishedEventTrackerRepository {
 
-    private static final long serialVersionUID = 1L;
+    PublishedEventTracker publishedNotificationTracker();
 
-    private long id;
-
-    protected IdentifiedDomainObject() {
-        super();
-
-        this.setId(-1);
-    }
-
-    protected long id() {
-        return this.id;
-    }
-
-    private void setId(long anId) {
-        this.id = anId;
-    }
+    void trackMostRecentPublishedNotification(
+            PublishedEventTracker aPublishedNotificationTracker,
+            List<DomainEvent> aNotifications);
 }

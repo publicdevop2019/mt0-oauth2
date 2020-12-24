@@ -17,14 +17,14 @@ public class ClientPatchingCommand {
     private Set<String> resourceIds;
 
     public ClientPatchingCommand(Client bizClient) {
-        this.description = bizClient.description();
-        this.name = bizClient.name();
-        this.resourceIndicator = bizClient.accessible();
-        this.scopeEnums = bizClient.scopes();
+        this.description = bizClient.getDescription();
+        this.name = bizClient.getName();
+        this.resourceIndicator = bizClient.isAccessible();
+        this.scopeEnums = bizClient.getScopes();
         this.grantTypeEnums = bizClient.totalGrantTypes();
         this.accessTokenValiditySeconds = bizClient.accessTokenValiditySeconds();
-        this.resourceIds = bizClient.resources().stream().map(ClientId::id).collect(Collectors.toSet());
-        this.grantedAuthorities = bizClient.authorities();
+        this.resourceIds = bizClient.getResources().stream().map(ClientId::getClientId).collect(Collectors.toSet());
+        this.grantedAuthorities = bizClient.getAuthorities();
     }
 
 }

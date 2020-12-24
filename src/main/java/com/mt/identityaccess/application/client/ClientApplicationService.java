@@ -106,7 +106,7 @@ public class ClientApplicationService implements ClientDetailsService {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
         if (client.isPresent()) {
             Client client1 = client.get();
-            if (client1.nonRoot()) {
+            if (client1.isNonRoot()) {
                 ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(null, changeId, (ignored) -> {
                     DomainRegistry.clientRepository().remove(client1);
                 });
@@ -120,14 +120,14 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional
     public void removeClients(String queryParam, String changeId) {
         List<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
-        boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.nonRoot());
+        boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.isNonRoot());
         if (!b) {
             ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(null, changeId, (ignored) -> {
                 DomainRegistry.clientRepository().remove(allClientsOfQuery);
             });
             DomainEventPublisher.instance().publish(
                     new ClientsBatchRemoved(
-                            allClientsOfQuery.stream().map(Client::clientId).collect(Collectors.toSet())
+                            allClientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet())
                     )
             );
         } else {
@@ -151,7 +151,7 @@ public class ClientApplicationService implements ClientDetailsService {
             }
             ClientPatchingCommand finalMiddleLayer = middleLayer;
             ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(command, changeId, (ignored) -> {
-                RefreshTokenGrant refreshTokenGrantDetail = original.passwordGrant().refreshTokenGrant();
+                RefreshTokenGrant refreshTokenGrantDetail = original.getPasswordGrant().getRefreshTokenGrant();
                 original.replace(
                         finalMiddleLayer.getName(),
                         finalMiddleLayer.getDescription(),

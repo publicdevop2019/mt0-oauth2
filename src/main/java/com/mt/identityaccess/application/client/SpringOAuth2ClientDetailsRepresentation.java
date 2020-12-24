@@ -25,17 +25,17 @@ public class SpringOAuth2ClientDetailsRepresentation implements ClientDetails {
     private boolean autoApprove = false;
 
     public SpringOAuth2ClientDetailsRepresentation(Client client) {
-        setClientId(client.clientId());
-        setClientSecret(client.secret());
+        setClientId(client.getClientId());
+        setClientSecret(client.getSecret());
         setGrantTypeEnums(client.totalGrantTypes());
-        setGrantedAuthorities(client.authorities());
-        setScopeEnums(client.scopes());
+        setGrantedAuthorities(client.getAuthorities());
+        setScopeEnums(client.getScopes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
     }
 
     @Override
     public String getClientId() {
-        return clientId.id();
+        return clientId.getClientId();
     }
 
     @Override

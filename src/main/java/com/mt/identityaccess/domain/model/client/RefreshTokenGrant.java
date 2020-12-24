@@ -3,7 +3,10 @@ package com.mt.identityaccess.domain.model.client;
 import com.mt.identityaccess.config.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.client.event.ClientGrantTypeChanged;
 import com.mt.identityaccess.domain.model.client.event.ClientRefreshTokenChanged;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 
 import javax.annotation.Nullable;
@@ -14,9 +17,12 @@ import java.util.Set;
 public class RefreshTokenGrant {
     public static final GrantType NAME = GrantType.REFRESH_TOKEN;
     @Column(name = "pwd_gt_refresh_token_gt_enabled")
+    @Getter
     protected boolean enabled = false;
 
     @Column(name = "pwd_gt_refresh_token_gt_refresh_token_validity_seconds")
+    @Getter
+    @Setter(AccessLevel.PRIVATE)
     private int refreshTokenValiditySeconds = 0;
 
     public static void detectChange(RefreshTokenGrant a, RefreshTokenGrant b, ClientId clientId) {
@@ -28,10 +34,6 @@ public class RefreshTokenGrant {
                 DomainEventPublisher.instance().publish(new ClientRefreshTokenChanged(clientId));
             }
         }
-    }
-
-    public boolean enabled() {
-        return enabled;
     }
 
     protected void setEnabled(@Nullable Set<GrantType> grantTypes) {
@@ -53,7 +55,7 @@ public class RefreshTokenGrant {
             return true;
         if (b == null)
             return true;
-        return a.enabled() != b.enabled();
+        return a.isEnabled() != b.isEnabled();
     }
 
     private static boolean refreshTokenValiditySecondsChanged(@Nullable RefreshTokenGrant a, @Nullable RefreshTokenGrant b) {
@@ -63,15 +65,7 @@ public class RefreshTokenGrant {
             return true;
         if (b == null)
             return true;
-        return a.refreshTokenValiditySeconds() != b.refreshTokenValiditySeconds();
-    }
-
-    public int refreshTokenValiditySeconds() {
-        return refreshTokenValiditySeconds;
-    }
-
-    private void setRefreshTokenValiditySeconds(int tokenValiditySeconds) {
-        this.refreshTokenValiditySeconds = tokenValiditySeconds;
+        return a.getRefreshTokenValiditySeconds() != b.getRefreshTokenValiditySeconds();
     }
 
 }

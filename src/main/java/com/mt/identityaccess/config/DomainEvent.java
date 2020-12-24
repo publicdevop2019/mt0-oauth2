@@ -14,9 +14,13 @@
 
 package com.mt.identityaccess.config;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.ClientId;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.*;
@@ -25,19 +29,21 @@ import java.util.Date;
 import java.util.Set;
 
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @NoArgsConstructor
+@Getter
+@Setter(AccessLevel.PRIVATE)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class DomainEvent implements Serializable {
-    private static final int version = 0;
-    @Id
-    private Long id = DomainRegistry.uniqueIdGeneratorService().id();
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date occurredOn = new Date();
+    @Id
+    private Long id;
+
+    private Long timestamp;
 
     @Embedded
     @AttributeOverride(name = "clientId", column = @Column(updatable = false))
     private ClientId clientId;
+
     @ElementCollection(fetch = FetchType.LAZY)
     @Embedded
     @CollectionTable(
@@ -47,19 +53,14 @@ public abstract class DomainEvent implements Serializable {
     private Set<ClientId> clientIds;
 
     public DomainEvent(ClientId clientId) {
-        this.clientId = clientId;
+        setId(DomainRegistry.uniqueIdGeneratorService().id());
+        setTimestamp(new Date().getTime());
+        setClientId(clientId);
     }
 
     public DomainEvent(Set<ClientId> clientIds) {
-        this.clientIds = clientIds;
+        setId(DomainRegistry.uniqueIdGeneratorService().id());
+        setTimestamp(new Date().getTime());
+        setClientIds(clientIds);
     }
-
-    public int eventVersion() {
-        return version;
-    }
-
-    public Date occurredOn() {
-        return occurredOn;
-    }
-
 }

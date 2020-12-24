@@ -39,23 +39,23 @@ public class RootClientRepresentation {
     private boolean hasSecret;
 
     public RootClientRepresentation(Client client) {
-        id = client.clientId().id();
-        name = client.name();
-        description = client.description();
+        id = client.getClientId().getClientId();
+        name = client.getName();
+        description = client.getDescription();
         grantTypeEnums = client.totalGrantTypes();
-        grantedAuthorities = client.authorities();
-        scopeEnums = client.scopes();
+        grantedAuthorities = client.getAuthorities();
+        scopeEnums = client.getScopes();
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
-        if (client.authorizationCodeGrant() != null)
-            registeredRedirectUri = client.authorizationCodeGrant().redirectUrls();
-        if (client.passwordGrant() != null && client.passwordGrant().refreshTokenGrant() != null)
-            refreshTokenValiditySeconds = client.passwordGrant().accessTokenValiditySeconds();
-        if (!ObjectUtils.isEmpty(client.resources()))
-            resourceIds = client.resources().stream().map(ClientId::id).collect(Collectors.toSet());
-        resourceIndicator = client.accessible();
-        if (client.authorizationCodeGrant() != null)
-            autoApprove = client.authorizationCodeGrant().autoApprove();
-        version = client.version();
+        if (client.getAuthorizationCodeGrant() != null)
+            registeredRedirectUri = client.getAuthorizationCodeGrant().getRedirectUrls();
+        if (client.getPasswordGrant() != null && client.getPasswordGrant().getRefreshTokenGrant() != null)
+            refreshTokenValiditySeconds = client.getPasswordGrant().getAccessTokenValiditySeconds();
+        if (!ObjectUtils.isEmpty(client.getResources()))
+            resourceIds = client.getResources().stream().map(ClientId::getClientId).collect(Collectors.toSet());
+        resourceIndicator = client.isAccessible();
+        if (client.getAuthorizationCodeGrant() != null)
+            autoApprove = client.getAuthorizationCodeGrant().isAutoApprove();
+        version = client.getVersion();
         clientSecret = "masked";
         hasSecret = true;
 

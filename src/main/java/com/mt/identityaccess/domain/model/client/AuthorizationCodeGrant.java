@@ -1,7 +1,10 @@
 package com.mt.identityaccess.domain.model.client;
 
 import com.mt.common.StringSetConverter;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.annotation.Nullable;
 import javax.persistence.Convert;
@@ -12,27 +15,16 @@ import java.util.Set;
 public class AuthorizationCodeGrant extends AbstractGrant {
 
     @Convert(converter = StringSetConverter.class)
+    @Getter
     private Set<String> redirectUrls;
-
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
     private boolean autoApprove = false;
 
     public AuthorizationCodeGrant(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove, int accessTokenValiditySeconds) {
         super(grantTypes, accessTokenValiditySeconds);
         setRedirectUrls(redirectUrls);
         setAutoApprove(autoApprove);
-    }
-
-    public Set<String> redirectUrls() {
-        return redirectUrls;
-    }
-
-    public boolean autoApprove() {
-        return autoApprove;
-    }
-
-
-    private void setAutoApprove(boolean autoApprove) {
-        this.autoApprove = autoApprove;
     }
 
     private void setRedirectUrls(@Nullable Set<String> redirectUrls) {

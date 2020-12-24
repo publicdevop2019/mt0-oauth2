@@ -25,7 +25,7 @@ public class ClientResource {
         JwtThreadLocal.unset();
         JwtThreadLocal.set(jwt);
         ClientId clientId = clientApplicationService().provisionClient(command, changeId);
-        return ResponseEntity.ok().header("Location", clientId.id()).build();
+        return ResponseEntity.ok().header("Location", clientId.getClientId()).build();
     }
 
     @GetMapping("root")

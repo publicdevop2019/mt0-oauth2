@@ -17,6 +17,12 @@ public class DomainRegistry {
     private static AuthenticationApplicationService authenticationService;
     private static ClientService clientService;
     private static UniqueIdGeneratorService uniqueIdGeneratorService;
+    private static RevokeTokenService revokeTokenService;
+
+    @Autowired
+    public void setRevokeTokenService(RevokeTokenService revokeTokenService) {
+        DomainRegistry.revokeTokenService = revokeTokenService;
+    }
 
     @Autowired
     public void setClientRepository(ClientRepository clientRepository) {
@@ -67,5 +73,9 @@ public class DomainRegistry {
 
     public static UniqueIdGeneratorService uniqueIdGeneratorService() {
         return uniqueIdGeneratorService;
+    }
+
+    public static RevokeTokenService revokeTokenService() {
+        return revokeTokenService;
     }
 }

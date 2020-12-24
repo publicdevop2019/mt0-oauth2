@@ -1,11 +1,12 @@
 package com.mt.identityaccess.domain.model.client;
 
+import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.client.ClientPaging;
 import com.mt.identityaccess.application.client.ClientQuery;
+import com.mt.identityaccess.config.DomainEvent;
 import com.mt.identityaccess.config.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.DomainRegistry;
-import com.mt.identityaccess.domain.model.client.event.ClientProvisioned;
-import com.mt.common.sql.SumPagedRep;
+import com.mt.identityaccess.domain.model.client.event.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -44,7 +45,7 @@ public class ClientService {
                 DomainRegistry.uniqueIdGeneratorService()
         );
         DomainRegistry.clientRepository().add(client);
-        DomainEventPublisher.instance().publish(new ClientProvisioned(client.clientId()));
+        DomainEventPublisher.instance().publish(new ClientProvisioned(client.getClientId()));
         return clientId;
     }
 
@@ -61,5 +62,22 @@ public class ClientService {
             data.addAll(DomainRegistry.clientRepository().clientsOfQuery(queryParam, queryPagingParam.nextPage()).getData());
         }
         return data;
+    }
+
+    public void revokeTokenBasedOnChange(Object o) {
+        if (
+                o instanceof ClientAccessibleChanged ||
+                        o instanceof ClientAccessTokenValiditySecondsChanged ||
+                        o instanceof ClientAuthoritiesChanged ||
+                        o instanceof ClientGrantTypeChanged ||
+                        o instanceof ClientRefreshTokenChanged ||
+                        o instanceof ClientRemoved ||
+                        o instanceof ClientResourcesChanged ||
+                        o instanceof ClientScopesChanged ||
+                        o instanceof ClientSecretChanged
+        ) {
+            DomainRegistry.revokeTokenService().revokeClientToken(((DomainEvent) o).getClientId());
+        }
+
     }
 }

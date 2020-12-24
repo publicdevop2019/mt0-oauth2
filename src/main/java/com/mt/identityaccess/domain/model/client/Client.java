@@ -6,6 +6,9 @@ import com.mt.identityaccess.config.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.UniqueIdGeneratorService;
 import com.mt.identityaccess.domain.model.client.event.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.annotations.Where;
@@ -19,23 +22,37 @@ import java.util.Set;
 
 @Table
 @Entity
-@Setter
+@NoArgsConstructor
 @Where(clause = "deleted=0")
 public class Client extends Auditable {
+
     @Id
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
     private Long id;
+
     @Embedded
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
     private ClientId clientId;
+    @Setter
+    @Getter
     private String name;
+    @Getter
     private String secret;
+    @Setter
+    @Getter
     private String description;
 
     @Convert(converter = Authority.AuthorityConverter.class)
+    @Getter
     private Set<Authority> authorities = EnumSet.noneOf(Authority.class);
 
     @Convert(converter = Scope.ScopeConverter.class)
+    @Getter
     private Set<Scope> scopes = EnumSet.noneOf(Scope.class);
 
+    @Getter
     @ElementCollection(fetch = FetchType.LAZY)
     @Embedded
     @CollectionTable(
@@ -43,9 +60,14 @@ public class Client extends Auditable {
             joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
     )
     private Set<ClientId> resources = new HashSet<>();
+
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
     @Column(name = "accessible_")
     private boolean accessible = false;
 
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "enabled", column = @Column(name = "client_credentials_gt_enabled")),
@@ -53,6 +75,8 @@ public class Client extends Auditable {
     })
     private ClientCredentialsGrant clientCredentialsGrant;
 
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "enabled", column = @Column(name = "password_gt_enabled")),
@@ -60,21 +84,18 @@ public class Client extends Auditable {
     })
     private PasswordGrant passwordGrant;
 
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "enabled", column = @Column(name = "authorization_code_gt_enabled")),
             @AttributeOverride(name = "accessTokenValiditySeconds", column = @Column(name = "authorization_code_gt_access_token_validity_seconds"))
     })
     private AuthorizationCodeGrant authorizationCodeGrant;
+
+    @Getter
+    @Version
     private Integer version;
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public void setScopes(Set<Scope> scopes) {
         this.scopes = EnumSet.copyOf(scopes);
@@ -113,75 +134,8 @@ public class Client extends Auditable {
         }
     }
 
-    public boolean nonRoot() {
+    public boolean isNonRoot() {
         return this.authorities.stream().noneMatch(Authority.ROLE_ROOT::equals);
-    }
-
-    public long id() {
-        return id;
-    }
-
-    public ClientId clientId() {
-        return clientId;
-    }
-
-    public String secret() {
-        return secret;
-    }
-
-    public ClientCredentialsGrant clientCredentialsGrant() {
-        return clientCredentialsGrant;
-    }
-
-    public PasswordGrant passwordGrant() {
-        return passwordGrant;
-    }
-
-    private boolean resourcesChanged(Set<ClientId> clientIds) {
-        return !ObjectUtils.equals(this.resources, clientIds);
-    }
-
-    private boolean accessibleChanged(boolean b) {
-        return accessible() != b;
-    }
-
-    public boolean accessible() {
-        return accessible;
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public String description() {
-        return description;
-    }
-
-    public Set<Authority> authorities() {
-        return authorities;
-    }
-
-    public Set<Scope> scopes() {
-        return scopes;
-    }
-
-    public Set<ClientId> resources() {
-        return resources;
-    }
-
-    private boolean authoritiesChanged(Set<Authority> authorities) {
-        return !ObjectUtils.equals(this.authorities, authorities);
-    }
-
-    private boolean scopesChanged(Set<Scope> scopes) {
-        return !ObjectUtils.equals(this.scopes, scopes);
-    }
-
-    public Client() {
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Client(ClientId nextIdentity,
@@ -213,23 +167,19 @@ public class Client extends Auditable {
 
     public Set<GrantType> totalGrantTypes() {
         HashSet<GrantType> grantTypes = new HashSet<>();
-        if (clientCredentialsGrant != null && clientCredentialsGrant.enabled()) {
+        if (clientCredentialsGrant != null && clientCredentialsGrant.isEnabled()) {
             grantTypes.add(clientCredentialsGrant.name());
         }
-        if (passwordGrant != null && passwordGrant.enabled()) {
+        if (passwordGrant != null && passwordGrant.isEnabled()) {
             grantTypes.add(passwordGrant.name());
-            if (passwordGrant.refreshTokenGrant() != null && passwordGrant.refreshTokenGrant().enabled()) {
+            if (passwordGrant.getRefreshTokenGrant() != null && passwordGrant.getRefreshTokenGrant().isEnabled()) {
                 grantTypes.add(RefreshTokenGrant.NAME);
             }
         }
-        if (authorizationCodeGrant != null && authorizationCodeGrant.enabled()) {
+        if (authorizationCodeGrant != null && authorizationCodeGrant.isEnabled()) {
             grantTypes.add(authorizationCodeGrant.name());
         }
         return grantTypes;
-    }
-
-    public AuthorizationCodeGrant authorizationCodeGrant() {
-        return authorizationCodeGrant;
     }
 
     public void replace(String name,
@@ -259,15 +209,11 @@ public class Client extends Auditable {
         setAccessible(accessible);
         setAuthorities(authorities);
         setName(name);
-        ClientCredentialsGrant.detectChange(this.clientCredentialsGrant(), clientCredentialsGrant, clientId());
+        ClientCredentialsGrant.detectChange(this.getClientCredentialsGrant(), clientCredentialsGrant, getClientId());
         setClientCredentialsGrant(clientCredentialsGrant);
-        PasswordGrant.detectChange(this.passwordGrant(), passwordGrant, clientId());
+        PasswordGrant.detectChange(this.getPasswordGrant(), passwordGrant, getClientId());
         setPasswordGrant(passwordGrant);
-        DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
-    }
-
-    public Integer version() {
-        return version;
+        DomainEventPublisher.instance().publish(new ClientReplaced(getClientId()));
     }
 
     public void replace(String name,
@@ -303,13 +249,13 @@ public class Client extends Auditable {
         setAuthorities(authorities);
         setName(name);
         setSecret(secret);
-        ClientCredentialsGrant.detectChange(this.clientCredentialsGrant(), clientCredentialsGrant, clientId());
+        ClientCredentialsGrant.detectChange(this.getClientCredentialsGrant(), clientCredentialsGrant, getClientId());
         setClientCredentialsGrant(clientCredentialsGrant);
-        PasswordGrant.detectChange(this.passwordGrant(), passwordGrant, clientId());
+        PasswordGrant.detectChange(this.getPasswordGrant(), passwordGrant, getClientId());
         setPasswordGrant(passwordGrant);
-        AuthorizationCodeGrant.detectChange(this.authorizationCodeGrant(), authorizationCodeGrant, clientId());
+        AuthorizationCodeGrant.detectChange(this.getAuthorizationCodeGrant(), authorizationCodeGrant, getClientId());
         setAuthorizationCodeGrant(authorizationCodeGrant);
-        DomainEventPublisher.instance().publish(new ClientReplaced(clientId()));
+        DomainEventPublisher.instance().publish(new ClientReplaced(getClientId()));
     }
 
     private void setSecret(String secret) {
@@ -321,15 +267,30 @@ public class Client extends Auditable {
     }
 
     public int accessTokenValiditySeconds() {
-        if (clientCredentialsGrant() != null) {
-            return clientCredentialsGrant().accessTokenValiditySeconds();
-        } else if (passwordGrant() != null) {
-            return passwordGrant().accessTokenValiditySeconds();
-        } else if (authorizationCodeGrant() != null) {
-            return authorizationCodeGrant().accessTokenValiditySeconds();
+        if (getClientCredentialsGrant() != null) {
+            return getClientCredentialsGrant().getAccessTokenValiditySeconds();
+        } else if (getPasswordGrant() != null) {
+            return getPasswordGrant().getAccessTokenValiditySeconds();
+        } else if (getAuthorizationCodeGrant() != null) {
+            return getAuthorizationCodeGrant().getAccessTokenValiditySeconds();
         } else {
             return 0;
         }
 
     }
+    private boolean resourcesChanged(Set<ClientId> clientIds) {
+        return !ObjectUtils.equals(this.resources, clientIds);
+    }
+
+    private boolean accessibleChanged(boolean b) {
+        return isAccessible() != b;
+    }
+    private boolean authoritiesChanged(Set<Authority> authorities) {
+        return !ObjectUtils.equals(this.authorities, authorities);
+    }
+
+    private boolean scopesChanged(Set<Scope> scopes) {
+        return !ObjectUtils.equals(this.scopes, scopes);
+    }
+
 }

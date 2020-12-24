@@ -40,18 +40,18 @@ public class RootClientCardRepresentation {
 
     public RootClientCardRepresentation(Object client) {
         Client client1 = (Client) client;
-        id = client1.clientId().id();
-        name = client1.name();
+        id = client1.getClientId().getClientId();
+        name = client1.getName();
         grantTypeEnums = client1.totalGrantTypes();
-        grantedAuthorities = client1.authorities();
-        scopeEnums = client1.scopes();
+        grantedAuthorities = client1.getAuthorities();
+        scopeEnums = client1.getScopes();
         accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
-        if (client1.authorizationCodeGrant() != null)
-            registeredRedirectUri = client1.authorizationCodeGrant().redirectUrls();
-        if (client1.passwordGrant() != null && client1.passwordGrant().refreshTokenGrant() != null)
-            refreshTokenValiditySeconds = client1.passwordGrant().accessTokenValiditySeconds();
-        if (!ObjectUtils.isEmpty(client1.resources()))
-            resourceIds = client1.resources().stream().map(ClientId::id).collect(Collectors.toSet());
-        resourceIndicator = client1.accessible();
+        if (client1.getAuthorizationCodeGrant() != null)
+            registeredRedirectUri = client1.getAuthorizationCodeGrant().getRedirectUrls();
+        if (client1.getPasswordGrant() != null && client1.getPasswordGrant().getRefreshTokenGrant() != null)
+            refreshTokenValiditySeconds = client1.getPasswordGrant().getAccessTokenValiditySeconds();
+        if (!ObjectUtils.isEmpty(client1.getResources()))
+            resourceIds = client1.getResources().stream().map(ClientId::getClientId).collect(Collectors.toSet());
+        resourceIndicator = client1.isAccessible();
     }
 }

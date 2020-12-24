@@ -14,11 +14,23 @@
 
 package com.mt.identityaccess.config;
 
-public class Entity extends IdentifiedDomainObject {
+import com.mt.identityaccess.domain.model.DomainRegistry;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-    private static final long serialVersionUID = 1L;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Version;
 
-    protected Entity() {
-        super();
-    }
+@Entity
+@NoArgsConstructor
+public class PublishedEventTracker {
+    @Id
+    private final Long id = DomainRegistry.uniqueIdGeneratorService().id();
+    @Version
+    private int version;
+    @Setter
+    @Getter
+    private long lastPublishedEventId;
 }
