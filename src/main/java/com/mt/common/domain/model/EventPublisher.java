@@ -12,11 +12,10 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package com.mt.identityaccess.config;
+package com.mt.common.domain.model;
 
-public interface DomainEventSubscriber<T> {
+public interface EventPublisher {
 
-    public void handleEvent(final T aDomainEvent);
+    void publishNotifications();
 
-    public Class<T> subscribedToEventType();
 }

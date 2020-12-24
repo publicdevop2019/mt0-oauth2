@@ -12,12 +12,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package com.mt.identityaccess.port.adapter.messaging;
+package com.mt.common.port.adapter.notification;
 
-import com.mt.identityaccess.config.DomainEvent;
-import com.mt.identityaccess.config.EventPublisher;
-import com.mt.identityaccess.config.PublishedEventTracker;
-import com.mt.identityaccess.config.PublishedEventTrackerRepository;
+import com.mt.common.domain.model.DomainEvent;
+import com.mt.common.domain.model.EventPublisher;
+import com.mt.common.notification.PublishedEventTracker;
+import com.mt.common.notification.PublishedEventTrackerRepository;
 import com.mt.identityaccess.infrastructure.EventRepository;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -32,7 +32,7 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import static com.mt.identityaccess.port.adapter.messaging.RabbitMQEventSubscriber.EXCHANGE_NAME;
+import static com.mt.identityaccess.port.adapter.messaging.TokenRevokeSubscriber.EXCHANGE_NAME;
 
 @Component
 @Slf4j
@@ -64,6 +64,7 @@ public class RabbitMQEventPublisher implements EventPublisher {
                     out.flush();
                     notification2 = bos.toByteArray();
                 }
+                log.debug("publishing event with id {}",domainEvent.getId());
                 channel.basicPublish(EXCHANGE_NAME, "",
                         null,
                         notification2);

@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.client;
 
-import com.mt.identityaccess.config.DomainEventPublisher;
+import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.client.event.ClientGrantTypeChanged;
 import com.mt.identityaccess.domain.model.client.event.ClientRefreshTokenChanged;
 import lombok.AccessLevel;

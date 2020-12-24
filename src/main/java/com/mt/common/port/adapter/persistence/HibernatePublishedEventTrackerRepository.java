@@ -12,11 +12,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package com.mt.identityaccess.port.adapter.persistence;
+package com.mt.common.port.adapter.persistence;
 
-import com.mt.identityaccess.config.DomainEvent;
-import com.mt.identityaccess.config.PublishedEventTracker;
-import com.mt.identityaccess.config.PublishedEventTrackerRepository;
+import com.mt.common.domain.model.DomainEvent;
+import com.mt.common.notification.PublishedEventTracker;
+import com.mt.common.notification.PublishedEventTrackerRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

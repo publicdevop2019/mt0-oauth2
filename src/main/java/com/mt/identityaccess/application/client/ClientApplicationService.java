@@ -8,7 +8,7 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import com.mt.common.rest.exception.AggregatePatchException;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.config.DomainEventPublisher;
+import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.ClientRemoved;

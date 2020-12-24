@@ -35,7 +35,7 @@ public interface HibernateClientRepository extends JpaRepository<Client, Long>, 
     default ClientId nextIdentity() {
         Long id = DomainRegistry.uniqueIdGeneratorService().id();
         String s = Long.toString(id,36);
-        return new ClientId("00CL"  + s.toUpperCase());
+        return new ClientId("0C"  + s.toUpperCase());
     }
 
     default Optional<Client> clientOfId(ClientId clientId) {

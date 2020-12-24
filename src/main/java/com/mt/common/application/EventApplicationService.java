@@ -1,14 +1,14 @@
-package com.mt.identityaccess.application;
+package com.mt.common.application;
 
-import com.mt.identityaccess.config.EventPublisher;
+import com.mt.common.domain.model.EventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@EnableScheduling
 @Component
+@EnableScheduling
 public class EventApplicationService {
     @Autowired
     private EventPublisher eventPublisher;

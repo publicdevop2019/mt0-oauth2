@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application;
+package com.mt.common.application;
 
 import com.mt.common.idempotent.AppChangeRecordApplicationService;
 import com.mt.common.idempotent.OperationType;
@@ -43,11 +43,6 @@ public class ClientIdempotentApplicationService {
     public void idempotent(Object command, String changeId, Consumer<String> wrapper) {
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
         } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
-            String entityType = getEntityName();
-            SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + entityType, null, "sc:1");
-            CreatedAggregateRep createdEntityRep = new CreatedAggregateRep();
-            long l = Long.parseLong(appChangeRecordCardRepSumPagedRep.getData().get(0).getQuery().replace("id:", ""));
-            createdEntityRep.setId(l);
         } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
         } else {
             saveChangeRecord(command, changeId, OperationType.PUT, "id:", null, null);

@@ -1,5 +1,6 @@
 package com.mt.identityaccess.application;
 
+import com.mt.common.application.ClientIdempotentApplicationService;
 import com.mt.identityaccess.application.client.ClientApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

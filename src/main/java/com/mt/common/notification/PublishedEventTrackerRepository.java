@@ -12,25 +12,17 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package com.mt.identityaccess.config;
+package com.mt.common.notification;
 
-import com.mt.identityaccess.domain.model.DomainRegistry;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.mt.common.domain.model.DomainEvent;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import java.util.List;
 
-@Entity
-@NoArgsConstructor
-public class PublishedEventTracker {
-    @Id
-    private final Long id = DomainRegistry.uniqueIdGeneratorService().id();
-    @Version
-    private int version;
-    @Setter
-    @Getter
-    private long lastPublishedEventId;
+public interface PublishedEventTrackerRepository {
+
+    PublishedEventTracker publishedNotificationTracker();
+
+    void trackMostRecentPublishedNotification(
+            PublishedEventTracker aPublishedNotificationTracker,
+            List<DomainEvent> aNotifications);
 }

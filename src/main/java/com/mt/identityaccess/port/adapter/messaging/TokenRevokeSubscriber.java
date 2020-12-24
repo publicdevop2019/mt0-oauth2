@@ -16,7 +16,7 @@ import java.util.concurrent.TimeoutException;
 
 @Slf4j
 @Component
-public class RabbitMQEventSubscriber {
+public class TokenRevokeSubscriber {
     private static final String TASK_QUEUE_NAME = "domain_event_queue";
     public static final String EXCHANGE_NAME = "domain_event_exchange";
 
@@ -37,8 +37,8 @@ public class RabbitMQEventSubscriber {
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
+                log.debug("received message");
                 DomainRegistry.clientService().revokeTokenBasedOnChange(o);
-                log.info("received message");
             };
             channel.basicConsume(TASK_QUEUE_NAME, true, deliverCallback, consumerTag -> {
             });

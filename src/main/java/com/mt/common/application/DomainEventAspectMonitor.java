@@ -1,8 +1,8 @@
-package com.mt.identityaccess.application;
+package com.mt.common.application;
 
-import com.mt.identityaccess.config.DomainEvent;
-import com.mt.identityaccess.config.DomainEventPublisher;
-import com.mt.identityaccess.config.DomainEventSubscriber;
+import com.mt.common.domain.model.DomainEvent;
+import com.mt.common.domain.model.DomainEventPublisher;
+import com.mt.common.domain.model.DomainEventSubscriber;
 import com.mt.identityaccess.infrastructure.EventRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
@@ -23,7 +23,7 @@ public class DomainEventAspectMonitor {
                 .instance()
                 .subscribe(new DomainEventSubscriber<DomainEvent>() {
                     public void handleEvent(DomainEvent event) {
-                        log.debug("domain event received " + event.toString());
+                        log.debug("domain event received {}", event);
                         eventRepository.append(event);
                     }
                     public Class<DomainEvent> subscribedToEventType() {

@@ -1,15 +1,16 @@
 package com.mt.identityaccess.port.adapter.service.revoke_token;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mt.common.EurekaRegistryHelper;
 import com.mt.identityaccess.infrastructure.service.SelfSignedJwtTokenService;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -19,6 +20,7 @@ import java.util.UUID;
 import static com.mt.common.AppConstant.HTTP_HEADER_CHANGE_ID;
 
 @Component
+@Slf4j
 public class HttpRevokeTokenAdapter implements RevokeTokenAdapter {
     @Value("${url.zuul.revoke-tokens}")
     private String url;
@@ -27,15 +29,11 @@ public class HttpRevokeTokenAdapter implements RevokeTokenAdapter {
     private RestTemplate restTemplate;
 
     @Autowired
-    private ObjectMapper mapper;
-
-    @Autowired
     private SelfSignedJwtTokenService selfSignedJwtTokenService;
 
     @Autowired
     private EurekaRegistryHelper eurekaRegistryHelper;
 
-    @Async
     @Override
     public void revoke(String id, String targetType) {
         String resolvedUrl = eurekaRegistryHelper.getProxyHomePageUrl() + url;
@@ -46,6 +44,7 @@ public class HttpRevokeTokenAdapter implements RevokeTokenAdapter {
         headers.set(HTTP_HEADER_CHANGE_ID, UUID.randomUUID().toString());
         HttpEntity<CreateRevokeTokenCommand> hashMapHttpEntity = new HttpEntity<>(createRevokeTokenCommand, headers);
         try {
+            log.debug("revokeing token for {} type of {}", id, targetType);
             restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity, String.class);
         } catch (HttpClientErrorException ex) {
             /**
@@ -57,7 +56,8 @@ public class HttpRevokeTokenAdapter implements RevokeTokenAdapter {
 
         }
     }
-
+    @Getter
+    @Setter
     public static class CreateRevokeTokenCommand {
         private final String id;
         private final String type;
