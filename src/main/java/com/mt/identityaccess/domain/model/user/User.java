@@ -33,7 +33,7 @@ import java.util.Set;
  * user has ROLE_USER
  */
 @Entity
-@Table
+@Table(name = "user_")
 @Data
 public class User extends Auditable implements Aggregate {
     public static final String ENTITY_EMAIL = "email";

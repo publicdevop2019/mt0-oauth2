@@ -50,32 +50,34 @@ public class RabbitMQEventPublisher implements EventPublisher {
                 publishedEventTrackerRepository.publishedNotificationTracker();
         List<DomainEvent> storedEvents =
                 eventStore.allStoredEventsSince(publishedNotificationTracker.getLastPublishedEventId());
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
-        try (Connection connection = factory.newConnection();
-             Channel channel = connection.createChannel()) {
-            channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
-            for (DomainEvent domainEvent : storedEvents) {
-                byte[] notification2;
-                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                    ObjectOutputStream out;
-                    out = new ObjectOutputStream(bos);
-                    out.writeObject(domainEvent);
-                    out.flush();
-                    notification2 = bos.toByteArray();
+        if (!storedEvents.isEmpty()) {
+            ConnectionFactory factory = new ConnectionFactory();
+            factory.setHost("localhost");
+            try (Connection connection = factory.newConnection();
+                 Channel channel = connection.createChannel()) {
+                channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+                for (DomainEvent domainEvent : storedEvents) {
+                    byte[] notification2;
+                    try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                        ObjectOutputStream out;
+                        out = new ObjectOutputStream(bos);
+                        out.writeObject(domainEvent);
+                        out.flush();
+                        notification2 = bos.toByteArray();
+                    }
+                    log.debug("publishing event with id {}", domainEvent.getId());
+                    channel.basicPublish(EXCHANGE_NAME, "",
+                            null,
+                            notification2);
                 }
-                log.debug("publishing event with id {}",domainEvent.getId());
-                channel.basicPublish(EXCHANGE_NAME, "",
-                        null,
-                        notification2);
-            }
 
-        } catch (IOException | TimeoutException e) {
-            e.printStackTrace();
+            } catch (IOException | TimeoutException e) {
+                e.printStackTrace();
+            }
+            publishedEventTrackerRepository
+                    .trackMostRecentPublishedNotification(
+                            publishedNotificationTracker,
+                            storedEvents);
         }
-        publishedEventTrackerRepository
-                .trackMostRecentPublishedNotification(
-                        publishedNotificationTracker,
-                        storedEvents);
     }
 }
