@@ -37,7 +37,7 @@ public class TokenRevokeSubscriber {
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                log.debug("received message");
+                log.debug("received message from mq");
                 DomainRegistry.clientService().revokeTokenBasedOnChange(o);
             };
             channel.basicConsume(TASK_QUEUE_NAME, true, deliverCallback, consumerTag -> {

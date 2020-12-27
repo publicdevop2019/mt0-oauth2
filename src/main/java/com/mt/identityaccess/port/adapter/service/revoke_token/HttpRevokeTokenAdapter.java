@@ -44,17 +44,19 @@ public class HttpRevokeTokenAdapter implements RevokeTokenAdapter {
         headers.set(HTTP_HEADER_CHANGE_ID, UUID.randomUUID().toString());
         HttpEntity<CreateRevokeTokenCommand> hashMapHttpEntity = new HttpEntity<>(createRevokeTokenCommand, headers);
         try {
-            log.debug("revokeing token for {} type of {}", id, targetType);
+            log.debug("revoking token for {} type of {}", id, targetType);
             restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity, String.class);
         } catch (HttpClientErrorException ex) {
             /**
              * re-try
              */
+            log.debug("re-try revoking token");
             headers.setBearerAuth(selfSignedJwtTokenService.getSelfSignedAccessToken().getValue());
             HttpEntity<CreateRevokeTokenCommand> hashMapHttpEntity2 = new HttpEntity<>(createRevokeTokenCommand, headers);
             restTemplate.exchange(resolvedUrl, HttpMethod.POST, hashMapHttpEntity2, String.class);
 
         }
+        log.debug("revoking token complete");
     }
     @Getter
     @Setter

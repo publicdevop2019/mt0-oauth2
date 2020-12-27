@@ -20,7 +20,7 @@ import static com.mt.common.idempotent.model.ChangeRecord.CHANGE_ID;
 import static com.mt.common.idempotent.model.ChangeRecord.ENTITY_TYPE;
 
 @Service
-public class ClientIdempotentApplicationService {
+public class ApplicationServiceIdempotentWrapper {
     @Autowired
     AppChangeRecordApplicationService appChangeRecordApplicationService;
 

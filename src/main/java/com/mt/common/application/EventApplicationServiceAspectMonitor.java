@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Aspect
 @Slf4j
-public class DomainEventAspectMonitor {
+public class EventApplicationServiceAspectMonitor {
     @Autowired
     private EventRepository eventRepository;
 
@@ -23,7 +23,7 @@ public class DomainEventAspectMonitor {
                 .instance()
                 .subscribe(new DomainEventSubscriber<DomainEvent>() {
                     public void handleEvent(DomainEvent event) {
-                        log.debug("domain event received {}", event);
+                        log.debug("append domain event {}", event);
                         eventRepository.append(event);
                     }
                     public Class<DomainEvent> subscribedToEventType() {

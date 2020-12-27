@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @EnableScheduling
-public class EventApplicationService {
+public class EventApplicationServiceScheduler {
     @Autowired
     private EventPublisher eventPublisher;
 

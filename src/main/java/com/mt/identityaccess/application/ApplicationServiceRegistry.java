@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application;
 
-import com.mt.common.application.ClientIdempotentApplicationService;
+import com.mt.common.application.ApplicationServiceIdempotentWrapper;
 import com.mt.identityaccess.application.client.ClientApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,13 +25,13 @@ public class ApplicationServiceRegistry {
     }
 
     @Autowired
-    public void setClientIdempotentApplicationService(ClientIdempotentApplicationService clientIdempotentApplicationService) {
+    public void setClientIdempotentApplicationService(ApplicationServiceIdempotentWrapper clientIdempotentApplicationService) {
         ApplicationServiceRegistry.clientIdempotentApplicationService = clientIdempotentApplicationService;
     }
 
     private static AuthorizeCodeApplicationService authorizeCodeApplicationService;
     private static AuthenticationApplicationService authenticationApplicationService;
-    private static ClientIdempotentApplicationService clientIdempotentApplicationService;
+    private static ApplicationServiceIdempotentWrapper clientIdempotentApplicationService;
 
     public static ClientApplicationService clientApplicationService() {
         return clientApplicationService;
@@ -45,7 +45,7 @@ public class ApplicationServiceRegistry {
         return authenticationApplicationService;
     }
 
-    public static ClientIdempotentApplicationService clientIdempotentApplicationService() {
+    public static ApplicationServiceIdempotentWrapper clientIdempotentApplicationService() {
         return clientIdempotentApplicationService;
     }
 }
