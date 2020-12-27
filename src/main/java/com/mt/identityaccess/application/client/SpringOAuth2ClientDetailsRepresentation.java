@@ -31,6 +31,9 @@ public class SpringOAuth2ClientDetailsRepresentation implements ClientDetails {
         setGrantedAuthorities(client.getAuthorities());
         setScopeEnums(client.getScopes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
+        setResourceIds(client.getResources().stream().map(ClientId::getClientId).collect(Collectors.toSet()));
+        if (client.getAuthorizationCodeGrant() != null)
+            setRegisteredRedirectUri(client.getAuthorizationCodeGrant().getRedirectUrls());
     }
 
     @Override

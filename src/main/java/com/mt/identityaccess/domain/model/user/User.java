@@ -1,5 +1,9 @@
 package com.mt.identityaccess.domain.model.user;
 
+import com.mt.common.Auditable;
+import com.mt.common.ServiceUtility;
+import com.mt.common.rest.Aggregate;
+import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.command.*;
 import com.mt.identityaccess.application.deprecated.AppBizUserApplicationService;
 import com.mt.identityaccess.application.deprecated.AppPendingUserApplicationService;
@@ -7,10 +11,6 @@ import com.mt.identityaccess.application.representation.AppBizUserCardRep;
 import com.mt.identityaccess.application.representation.AppPendingUserCardRep;
 import com.mt.identityaccess.domain.model.RevokeTokenService;
 import com.mt.identityaccess.domain.model.UserNotificationService;
-import com.mt.common.Auditable;
-import com.mt.common.ServiceUtility;
-import com.mt.common.rest.Aggregate;
-import com.mt.common.sql.SumPagedRep;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -100,10 +100,10 @@ public class User extends Auditable implements Aggregate {
         SumPagedRep<AppBizUserCardRep> appBizUserCardRepSumPagedRep = bizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
         if (!appBizUserCardRepSumPagedRep.getData().isEmpty())
             throw new IllegalArgumentException("already an user " + command.getEmail());
-        SumPagedRep<AppPendingUserCardRep> appPendingUserCardRepSumPagedRep = pendingUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
-        if (appPendingUserCardRepSumPagedRep.getData().isEmpty())
+        SumPagedRep<AppPendingUserCardRep> data = pendingUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
+        if (data.getData().isEmpty())
             throw new IllegalArgumentException("please get activation code first");
-        if (!appPendingUserCardRepSumPagedRep.getData().get(0).getActivationCode().equals(command.getActivationCode()))
+        if (data.getData().get(0).getActivationCode() == null || !data.getData().get(0).getActivationCode().equals(command.getActivationCode()))
             throw new IllegalArgumentException("activation code mismatch");
     }
 
@@ -144,7 +144,7 @@ public class User extends Auditable implements Aggregate {
             throw new IllegalArgumentException("password(s)");
         if (!encoder.matches(command.getCurrentPwd(), this.getPassword()))
             throw new IllegalArgumentException("wrong password");
-//        tokenRevocationService.blacklist(this.getId());
+//        tokenRevocationService.revokeUserToken(this.getId());
         this.setPassword(encoder.encode(command.getPassword()));
         return this;
     }
@@ -152,7 +152,7 @@ public class User extends Auditable implements Aggregate {
 
     public User replace(AdminUpdateBizUserCommand command, RevokeTokenService tokenRevocationService) {
         validateBeforeUpdate(command);
-//        shouldRevoke(command, tokenRevocationService);
+        shouldRevoke(command, tokenRevocationService);
         this.setGrantedAuthorities(command.getGrantedAuthorities());
         this.setLocked(command.isLocked());
         this.setSubscription(command.isSubscription());
@@ -184,30 +184,31 @@ public class User extends Auditable implements Aggregate {
      *
      * @return
      */
-//    public void shouldRevoke(AdminUpdateBizUserCommand command, HttpRevokeBizUserTokenAdapter tokenRevocationService) {
-//        if (authorityChanged(getGrantedAuthorities(), command.getGrantedAuthorities())) {
-//            tokenRevocationService.blacklist(this.getId());
-//        } else {
-//            if (Boolean.TRUE.equals(command.isLocked()))
-//                tokenRevocationService.blacklist(this.getId());
-//        }
-//    }
+    public void shouldRevoke(AdminUpdateBizUserCommand command, RevokeTokenService tokenRevocationService) {
+        if (authorityChanged(getGrantedAuthorities(), command.getGrantedAuthorities())) {
+//            tokenRevocationService.revokeClientToken(this.getId());
+        } else {
+            if (Boolean.TRUE.equals(command.isLocked())){
+//                tokenRevocationService.revokeClientToken(this.getId());
+            }
+        }
+    }
     private boolean authorityChanged(Set<Role> old, Set<Role> next) {
         return !old.equals(next);
     }
 
     public void replace(Object command, UserNotificationService emailService, RevokeTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {
         if (command instanceof AppForgetBizUserPasswordCommand) {
-//            replace((AppForgetBizUserPasswordCommand) command, emailService);
+            replace((AppForgetBizUserPasswordCommand) command, emailService);
         } else if (command instanceof AppResetBizUserPasswordCommand) {
-//            replace((AppResetBizUserPasswordCommand) command, tokenRevocationService, encoder);
+            replace((AppResetBizUserPasswordCommand) command, tokenRevocationService, encoder);
         }
     }
 
     private void replace(AppForgetBizUserPasswordCommand command, UserNotificationService emailService) {
         String s = generateToken();
         this.setPwdResetToken(s);
-//        emailService.sendPasswordResetLink(s, command.getEmail());
+//        emailService.sendPasswordResetCodeTo(s, command.getEmail());
     }
 
     private void replace(AppResetBizUserPasswordCommand command, RevokeTokenService tokenRevocationService, BCryptPasswordEncoder encoder) {

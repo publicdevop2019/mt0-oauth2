@@ -1,11 +1,11 @@
 package com.mt.identityaccess.domain.model.pending_user;
 
-import com.mt.identityaccess.application.representation.AppBizUserCardRep;
-import com.mt.identityaccess.application.deprecated.AppBizUserApplicationService;
 import com.mt.common.Auditable;
-import com.mt.common.snowflake.IdGenerator;
 import com.mt.common.rest.Aggregate;
+import com.mt.common.snowflake.IdGenerator;
 import com.mt.common.sql.SumPagedRep;
+import com.mt.identityaccess.application.deprecated.AppBizUserApplicationService;
+import com.mt.identityaccess.application.representation.AppBizUserCardRep;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import java.util.Optional;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"email"}))
@@ -34,14 +35,17 @@ public class PendingUser extends Auditable implements Aggregate {
 
     public static PendingUser create(String email, PendingUserRepository pendingRORepo, AppBizUserApplicationService appBizUserApplicationService, IdGenerator idGenerator) {
         validateOnCreate(email, appBizUserApplicationService);
-//        PendingUser pendingResourceOwner = pendingRORepo.findOneByEmail(email);
-//        if (pendingResourceOwner == null) {
-//            pendingResourceOwner = new PendingUser();
-//            pendingResourceOwner.setEmail(email);
-//            pendingResourceOwner.setId(idGenerator.id());
-//        }
-//        pendingResourceOwner.setActivationCode(PendingUser.generateCode());
-        return null;
+        Optional<PendingUser> pendingResourceOwner = pendingRORepo.registeredUsing(email);
+        if (pendingResourceOwner.isEmpty()) {
+            PendingUser pendingUser = new PendingUser();
+            pendingUser.setEmail(email);
+            pendingUser.setId(idGenerator.id());
+            pendingUser.setActivationCode(PendingUser.generateCode());
+            return pendingUser;
+        } else {
+            pendingResourceOwner.get().setActivationCode(PendingUser.generateCode());
+            return pendingResourceOwner.get();
+        }
     }
 
     private static String generateCode() {

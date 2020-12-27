@@ -1,8 +1,8 @@
 package com.mt.identityaccess.domain.model.client;
 
 import com.mt.common.Auditable;
-import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.common.domain.model.DomainEventPublisher;
+import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.UniqueIdGeneratorService;
 import com.mt.identityaccess.domain.model.client.event.*;
@@ -59,6 +59,9 @@ public class Client extends Auditable {
             name = "resources_map",
             joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
     )
+    @AttributeOverrides({
+            @AttributeOverride(name = "clientId", column = @Column(updatable = false))
+    })
     private Set<ClientId> resources = new HashSet<>();
 
     @Setter(AccessLevel.PRIVATE)
@@ -107,8 +110,12 @@ public class Client extends Auditable {
             if (
                     authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
                             || authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_FIRST_PARTY))
-            )
-                setAccessible(false);
+            ) {
+                throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
+            }
+            setAccessible(true);
+        } else {
+            setAccessible(false);
         }
     }
 
@@ -126,6 +133,9 @@ public class Client extends Auditable {
     public void setResources(Set<ClientId> resources) {
         if (!resources.isEmpty()) {
             List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(resources));
+            if (clientsOfQuery.size() != resources.size()) {
+                throw new IllegalArgumentException("invalid resource(s) found");
+            }
             boolean b = clientsOfQuery.stream().anyMatch(e -> !e.accessible);
             if (b) {
                 throw new IllegalArgumentException("invalid resource(s) found");
@@ -248,7 +258,8 @@ public class Client extends Auditable {
         setAccessible(accessible);
         setAuthorities(authorities);
         setName(name);
-        setSecret(secret);
+        if (StringUtils.hasText(secret))
+            setSecret(secret);
         ClientCredentialsGrant.detectChange(this.getClientCredentialsGrant(), clientCredentialsGrant, getClientId());
         setClientCredentialsGrant(clientCredentialsGrant);
         PasswordGrant.detectChange(this.getPasswordGrant(), passwordGrant, getClientId());
@@ -278,6 +289,7 @@ public class Client extends Auditable {
         }
 
     }
+
     private boolean resourcesChanged(Set<ClientId> clientIds) {
         return !ObjectUtils.equals(this.resources, clientIds);
     }
@@ -285,6 +297,7 @@ public class Client extends Auditable {
     private boolean accessibleChanged(boolean b) {
         return isAccessible() != b;
     }
+
     private boolean authoritiesChanged(Set<Authority> authorities) {
         return !ObjectUtils.equals(this.authorities, authorities);
     }
