@@ -1,6 +1,6 @@
 package com.mt.identityaccess.port.adapter.service.revoke_token;
 
-import com.mt.identityaccess.domain.model.RevokeTokenService;
+import com.mt.identityaccess.domain.service.RevokeTokenService;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.user.UserId;
 import org.springframework.beans.factory.annotation.Autowired;

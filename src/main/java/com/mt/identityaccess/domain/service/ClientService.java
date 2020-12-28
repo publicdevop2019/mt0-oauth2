@@ -1,4 +1,4 @@
-package com.mt.identityaccess.domain.model.client;
+package com.mt.identityaccess.domain.service;
 
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.client.ClientPaging;
@@ -6,6 +6,7 @@ import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.common.domain.model.DomainEvent;
 import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.DomainRegistry;
+import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.*;
 import org.springframework.stereotype.Service;
 

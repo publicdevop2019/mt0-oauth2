@@ -1,4 +1,4 @@
-package com.mt.identityaccess.port.adapter.persistence;
+package com.mt.identityaccess.port.adapter.persistence.client;
 
 import com.mt.common.sql.clause.WhereClause;
 import com.mt.identityaccess.domain.model.client.Client;

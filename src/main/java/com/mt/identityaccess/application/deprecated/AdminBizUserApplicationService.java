@@ -2,7 +2,7 @@ package com.mt.identityaccess.application.deprecated;
 
 import com.mt.identityaccess.application.representation.AdminBizUserCardRep;
 import com.mt.identityaccess.application.representation.AdminBizUserRep;
-import com.mt.identityaccess.domain.model.RevokeTokenService;
+import com.mt.identityaccess.domain.service.RevokeTokenService;
 import com.mt.identityaccess.domain.model.user.AdminBizUserPatchMiddleLayer;
 import com.mt.common.rest.RoleBasedRestfulService;
 import com.mt.common.sql.RestfulQueryRegistry;

@@ -2,7 +2,7 @@ package com.mt.identityaccess.application.deprecated;
 
 import com.mt.identityaccess.application.command.AppCreatePendingUserCommand;
 import com.mt.identityaccess.application.representation.AppPendingUserCardRep;
-import com.mt.identityaccess.domain.model.UserNotificationService;
+import com.mt.identityaccess.domain.service.UserNotificationService;
 import com.mt.common.rest.RoleBasedRestfulService;
 import com.mt.common.rest.VoidTypedClass;
 import com.mt.common.sql.RestfulQueryRegistry;

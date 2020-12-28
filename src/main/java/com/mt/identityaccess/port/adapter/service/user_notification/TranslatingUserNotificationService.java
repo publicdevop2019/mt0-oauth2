@@ -2,7 +2,7 @@ package com.mt.identityaccess.port.adapter.service.user_notification;
 
 import com.mt.identityaccess.domain.model.pending_user.ActivationCode;
 import com.mt.identityaccess.domain.model.user.ResetCode;
-import com.mt.identityaccess.domain.model.UserNotificationService;
+import com.mt.identityaccess.domain.service.UserNotificationService;
 import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;
 import com.mt.identityaccess.domain.model.user.UserEmail;
 import org.springframework.beans.factory.annotation.Autowired;

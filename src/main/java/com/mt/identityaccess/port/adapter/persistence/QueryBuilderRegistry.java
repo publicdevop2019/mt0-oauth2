@@ -1,5 +1,6 @@
 package com.mt.identityaccess.port.adapter.persistence;
 
+import com.mt.identityaccess.port.adapter.persistence.client.ClientQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

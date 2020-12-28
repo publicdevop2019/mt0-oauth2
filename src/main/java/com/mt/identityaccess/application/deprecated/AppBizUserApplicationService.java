@@ -5,8 +5,8 @@ import com.mt.identityaccess.application.command.AppForgetBizUserPasswordCommand
 import com.mt.identityaccess.application.command.AppResetBizUserPasswordCommand;
 import com.mt.identityaccess.application.representation.AppBizUserCardRep;
 import com.mt.identityaccess.application.representation.AppBizUserRep;
-import com.mt.identityaccess.domain.model.RevokeTokenService;
-import com.mt.identityaccess.domain.model.UserNotificationService;
+import com.mt.identityaccess.domain.service.RevokeTokenService;
+import com.mt.identityaccess.domain.service.UserNotificationService;
 import com.mt.common.rest.RoleBasedRestfulService;
 import com.mt.common.rest.VoidTypedClass;
 import com.mt.common.sql.RestfulQueryRegistry;

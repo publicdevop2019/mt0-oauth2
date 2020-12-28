@@ -1,4 +1,4 @@
-package com.mt.identityaccess.domain.model;
+package com.mt.identityaccess.domain.service;
 
 import com.mt.identityaccess.domain.model.pending_user.ActivationCode;
 import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;

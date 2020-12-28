@@ -4,7 +4,7 @@ import com.mt.common.rest.RoleBasedRestfulService;
 import com.mt.common.rest.VoidTypedClass;
 import com.mt.common.sql.RestfulQueryRegistry;
 import com.mt.identityaccess.application.command.UserUpdateBizUserPasswordCommand;
-import com.mt.identityaccess.domain.model.RevokeTokenService;
+import com.mt.identityaccess.domain.service.RevokeTokenService;
 import com.mt.identityaccess.domain.model.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

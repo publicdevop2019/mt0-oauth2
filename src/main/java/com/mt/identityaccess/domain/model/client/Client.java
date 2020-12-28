@@ -4,7 +4,7 @@ import com.mt.common.Auditable;
 import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.identityaccess.domain.model.DomainRegistry;
-import com.mt.identityaccess.domain.model.UniqueIdGeneratorService;
+import com.mt.identityaccess.domain.service.UniqueIdGeneratorService;
 import com.mt.identityaccess.domain.model.client.event.*;
 import lombok.AccessLevel;
 import lombok.Getter;

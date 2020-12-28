@@ -9,8 +9,8 @@ import com.mt.identityaccess.application.deprecated.AppBizUserApplicationService
 import com.mt.identityaccess.application.deprecated.AppPendingUserApplicationService;
 import com.mt.identityaccess.application.representation.AppBizUserCardRep;
 import com.mt.identityaccess.application.representation.AppPendingUserCardRep;
-import com.mt.identityaccess.domain.model.RevokeTokenService;
-import com.mt.identityaccess.domain.model.UserNotificationService;
+import com.mt.identityaccess.domain.service.RevokeTokenService;
+import com.mt.identityaccess.domain.service.UserNotificationService;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;

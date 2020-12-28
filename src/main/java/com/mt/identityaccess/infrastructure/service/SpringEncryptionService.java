@@ -1,6 +1,6 @@
 package com.mt.identityaccess.infrastructure.service;
 
-import com.mt.identityaccess.domain.model.EncryptionService;
+import com.mt.identityaccess.domain.service.EncryptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

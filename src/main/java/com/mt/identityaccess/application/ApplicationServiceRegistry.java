@@ -2,6 +2,7 @@ package com.mt.identityaccess.application;
 
 import com.mt.common.application.ApplicationServiceIdempotentWrapper;
 import com.mt.identityaccess.application.client.ClientApplicationService;
+import com.mt.identityaccess.domain.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class ApplicationServiceRegistry {
     }
 
     @Autowired
-    public void setAuthenticationApplicationService(AuthenticationApplicationService authenticationApplicationService) {
+    public void setAuthenticationApplicationService(AuthenticationService authenticationApplicationService) {
         ApplicationServiceRegistry.authenticationApplicationService = authenticationApplicationService;
     }
 
@@ -30,7 +31,7 @@ public class ApplicationServiceRegistry {
     }
 
     private static AuthorizeCodeApplicationService authorizeCodeApplicationService;
-    private static AuthenticationApplicationService authenticationApplicationService;
+    private static AuthenticationService authenticationApplicationService;
     private static ApplicationServiceIdempotentWrapper clientIdempotentApplicationService;
 
     public static ClientApplicationService clientApplicationService() {
@@ -41,7 +42,7 @@ public class ApplicationServiceRegistry {
         return authorizeCodeApplicationService;
     }
 
-    public static AuthenticationApplicationService authenticationApplicationService() {
+    public static AuthenticationService authenticationApplicationService() {
         return authenticationApplicationService;
     }
 
