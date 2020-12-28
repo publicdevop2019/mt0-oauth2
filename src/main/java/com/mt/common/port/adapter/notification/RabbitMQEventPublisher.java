@@ -18,7 +18,7 @@ import com.mt.common.domain.model.DomainEvent;
 import com.mt.common.domain.model.EventPublisher;
 import com.mt.common.notification.PublishedEventTracker;
 import com.mt.common.notification.PublishedEventTrackerRepository;
-import com.mt.identityaccess.infrastructure.EventRepository;
+import com.mt.common.domain.model.EventRepository;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;

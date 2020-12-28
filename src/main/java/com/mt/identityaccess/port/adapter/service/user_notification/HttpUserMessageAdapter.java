@@ -5,7 +5,7 @@ import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;
 import com.mt.identityaccess.domain.model.user.ResetCode;
 import com.mt.identityaccess.domain.model.user.UserEmail;
 import com.mt.common.EurekaRegistryHelper;
-import com.mt.identityaccess.infrastructure.service.SelfSignedJwtTokenService;
+import com.mt.identityaccess.infrastructure.SelfSignedJwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;

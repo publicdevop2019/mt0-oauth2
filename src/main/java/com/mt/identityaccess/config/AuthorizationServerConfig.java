@@ -2,7 +2,7 @@ package com.mt.identityaccess.config;
 
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.deprecated.AppBizUserApplicationService;
-import com.mt.identityaccess.infrastructure.service.SelfSignedJwtTokenService;
+import com.mt.identityaccess.infrastructure.SelfSignedJwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

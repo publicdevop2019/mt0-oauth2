@@ -7,7 +7,7 @@ import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
 import com.mt.identityaccess.domain.model.user.UserRepository;
 import com.mt.identityaccess.domain.service.EncryptionService;
 import com.mt.identityaccess.domain.service.RevokeTokenService;
-import com.mt.identityaccess.domain.service.UniqueIdGeneratorService;
+import com.mt.common.domain.model.id.UniqueIdGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

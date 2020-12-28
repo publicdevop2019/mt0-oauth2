@@ -1,4 +1,4 @@
-package com.mt.identityaccess.infrastructure.service;
+package com.mt.identityaccess.infrastructure;
 
 import com.mt.identityaccess.domain.service.EncryptionService;
 import org.springframework.beans.factory.annotation.Autowired;

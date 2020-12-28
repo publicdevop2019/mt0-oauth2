@@ -1,4 +1,4 @@
-package com.mt.identityaccess.domain.service;
+package com.mt.common.domain.model.id;
 
 public interface UniqueIdGeneratorService {
     Long id();

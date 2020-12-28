@@ -1,8 +1,7 @@
-package com.mt.identityaccess.infrastructure.service;
+package com.mt.identityaccess.infrastructure;
 
 import com.mt.identityaccess.domain.service.AuthenticationService;
 import com.mt.identityaccess.domain.model.user.Role;
-import com.mt.identityaccess.infrastructure.JwtThreadLocal;
 import com.mt.common.ServiceUtility;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -78,6 +77,22 @@ public class JwtAuthenticationService implements AuthenticationService {
             };
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("unable to create authentication obj in authorization header");
+        }
+    }
+
+    public static class JwtThreadLocal {
+        public static final ThreadLocal<String> jwtThreadLocal = new ThreadLocal<>();
+
+        public static void set(String user) {
+            jwtThreadLocal.set(user);
+        }
+
+        public static void unset() {
+            jwtThreadLocal.remove();
+        }
+
+        public static String get() {
+            return jwtThreadLocal.get();
         }
     }
 }

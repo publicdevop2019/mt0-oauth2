@@ -3,7 +3,7 @@ package com.mt.common.application;
 import com.mt.common.domain.model.DomainEvent;
 import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.common.domain.model.DomainEventSubscriber;
-import com.mt.identityaccess.infrastructure.EventRepository;
+import com.mt.common.domain.model.EventRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;

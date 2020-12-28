@@ -1,7 +1,7 @@
 package com.mt.identityaccess.port.adapter.service.revoke_token;
 
 import com.mt.common.EurekaRegistryHelper;
-import com.mt.identityaccess.infrastructure.service.SelfSignedJwtTokenService;
+import com.mt.identityaccess.infrastructure.SelfSignedJwtTokenService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

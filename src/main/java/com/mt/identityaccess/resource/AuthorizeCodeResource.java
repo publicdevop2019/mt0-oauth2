@@ -1,7 +1,7 @@
 package com.mt.identityaccess.resource;
 
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.infrastructure.JwtThreadLocal;
+import com.mt.identityaccess.infrastructure.JwtAuthenticationService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,8 +16,8 @@ public class AuthorizeCodeResource {
 
     @PostMapping("/authorize")
     public Map<String, String> authorize(@RequestParam Map<String, String> parameters, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtThreadLocal.unset();
-        JwtThreadLocal.set(jwt);
+        JwtAuthenticationService.JwtThreadLocal.unset();
+        JwtAuthenticationService.JwtThreadLocal.set(jwt);
         return ApplicationServiceRegistry.authorizeCodeApplicationService().authorize(parameters);
     }
 }

@@ -1,4 +1,4 @@
-package com.mt.identityaccess.infrastructure;
+package com.mt.common.domain.model;
 
 import com.mt.common.domain.model.DomainEvent;
 import org.springframework.data.repository.CrudRepository;

@@ -1,7 +1,7 @@
-package com.mt.identityaccess.infrastructure.service;
+package com.mt.common.infrastructure;
 
 import com.mt.common.snowflake.IdGenerator;
-import com.mt.identityaccess.domain.service.UniqueIdGeneratorService;
+import com.mt.common.domain.model.id.UniqueIdGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

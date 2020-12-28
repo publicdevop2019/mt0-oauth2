@@ -1,4 +1,4 @@
-package com.mt.identityaccess.infrastructure.service;
+package com.mt.identityaccess.infrastructure;
 
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import org.springframework.beans.factory.annotation.Value;
