@@ -42,7 +42,7 @@ public class ClientQuery {
                         throw new EmptyQueryValueException();
                     }
                     //only root user and general user can query, general user can only query by id
-                    if (isUser) {
+                    if (!isRoot) {
                         if (!"id".equals(split[0]))
                             throw new IllegalArgumentException("user role can only query by id");
                     }
