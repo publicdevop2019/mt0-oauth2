@@ -1,6 +1,6 @@
 package com.mt.identityaccess.port.adapter.messaging;
 
-import com.mt.identityaccess.domain.model.DomainRegistry;
+import com.mt.identityaccess.domain.DomainRegistry;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;

@@ -1,5 +1,6 @@
 package com.mt.common.application;
 
+import com.mt.common.domain.model.id.DomainId;
 import com.mt.common.idempotent.AppChangeRecordApplicationService;
 import com.mt.common.idempotent.OperationType;
 import com.mt.common.idempotent.command.AppCreateChangeRecordCommand;
@@ -23,7 +24,7 @@ public class ApplicationServiceIdempotentWrapper {
     @Autowired
     AppChangeRecordApplicationService appChangeRecordApplicationService;
 
-    public ClientId idempotentProvision(Object command, String changeId, ClientId clientId, Supplier<ClientId> wrapper) {
+    public DomainId idempotentProvision(Object command, String changeId, DomainId domainId, Supplier<DomainId> wrapper) {
         String entityType = getEntityName();
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + entityType, null, "sc:1");
@@ -34,7 +35,7 @@ public class ApplicationServiceIdempotentWrapper {
         } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             return new ClientId();
         } else {
-            saveChangeRecord(command, changeId, OperationType.POST, "id:" + clientId.getClientId(), null, null);
+            saveChangeRecord(command, changeId, OperationType.POST, "id:" + domainId.getDomainId(), null, null);
             return wrapper.get();
         }
     }

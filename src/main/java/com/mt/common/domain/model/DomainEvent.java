@@ -14,8 +14,7 @@
 
 package com.mt.common.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.mt.identityaccess.domain.model.DomainRegistry;
+import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import lombok.AccessLevel;
 import lombok.Getter;

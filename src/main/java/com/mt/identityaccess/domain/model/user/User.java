@@ -6,9 +6,10 @@ import com.mt.common.rest.Aggregate;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.command.*;
 import com.mt.identityaccess.application.deprecated.AppBizUserApplicationService;
-import com.mt.identityaccess.application.deprecated.AppPendingUserApplicationService;
 import com.mt.identityaccess.application.representation.AppBizUserCardRep;
-import com.mt.identityaccess.application.representation.AppPendingUserCardRep;
+import com.mt.identityaccess.domain.model.pending_user.PendingUser;
+import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
+import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;
 import com.mt.identityaccess.domain.service.RevokeTokenService;
 import com.mt.identityaccess.domain.service.UserNotificationService;
 import lombok.AccessLevel;
@@ -25,6 +26,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -83,13 +85,13 @@ public class User extends Auditable implements Aggregate {
         this.subscription = false;
     }
 
-    public static User create(Long id, AppCreateBizUserCommand command, PasswordEncoder encoder, AppPendingUserApplicationService pendingResourceOwnerRepo, AppBizUserApplicationService service) {
-        validateBeforeCreate(command, pendingResourceOwnerRepo, service);
+    public static User create(Long id, AppCreateBizUserCommand command, PasswordEncoder encoder, PendingUserRepository pendingUserRepository, AppBizUserApplicationService service) {
+        validateBeforeCreate(command, pendingUserRepository, service);
         command.setPassword(encoder.encode(command.getPassword()));
         return new User(command, id);
     }
 
-    private static void validateBeforeCreate(AppCreateBizUserCommand command, AppPendingUserApplicationService pendingUserApplicationService, AppBizUserApplicationService bizUserApplicationService) {
+    private static void validateBeforeCreate(AppCreateBizUserCommand command, PendingUserRepository pendingUserRepository, AppBizUserApplicationService bizUserApplicationService) {
         if (!StringUtils.hasText(command.getEmail()))
             throw new IllegalArgumentException("email is empty");
         if (!StringUtils.hasText(command.getPassword()))
@@ -100,10 +102,10 @@ public class User extends Auditable implements Aggregate {
         SumPagedRep<AppBizUserCardRep> appBizUserCardRepSumPagedRep = bizUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
         if (!appBizUserCardRepSumPagedRep.getData().isEmpty())
             throw new IllegalArgumentException("already an user " + command.getEmail());
-        SumPagedRep<AppPendingUserCardRep> data = pendingUserApplicationService.readByQuery(QUERY_EMAIL + command.getEmail(), null, null);
-        if (data.getData().isEmpty())
+        Optional<PendingUser> data = pendingUserRepository.pendingUserOfEmail(new RegistrationEmail(command.getEmail()));
+        if (data.isEmpty())
             throw new IllegalArgumentException("please get activation code first");
-        if (data.getData().get(0).getActivationCode() == null || !data.getData().get(0).getActivationCode().equals(command.getActivationCode()))
+        if (data.get().getActivationCode() == null || !data.get().getActivationCode().getActivationCode().equals(command.getActivationCode()))
             throw new IllegalArgumentException("activation code mismatch");
     }
 
@@ -188,11 +190,12 @@ public class User extends Auditable implements Aggregate {
         if (authorityChanged(getGrantedAuthorities(), command.getGrantedAuthorities())) {
 //            tokenRevocationService.revokeClientToken(this.getId());
         } else {
-            if (Boolean.TRUE.equals(command.isLocked())){
+            if (Boolean.TRUE.equals(command.isLocked())) {
 //                tokenRevocationService.revokeClientToken(this.getId());
             }
         }
     }
+
     private boolean authorityChanged(Set<Role> old, Set<Role> next) {
         return !old.equals(next);
     }

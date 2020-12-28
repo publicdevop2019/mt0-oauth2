@@ -9,7 +9,7 @@ import com.mt.common.rest.exception.AggregatePatchException;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.common.domain.model.DomainEventPublisher;
-import com.mt.identityaccess.domain.model.DomainRegistry;
+import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.ClientRemoved;
 import com.mt.identityaccess.domain.model.client.event.ClientsBatchRemoved;
@@ -35,7 +35,7 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional
     public ClientId provisionClient(ProvisionClientCommand command, String operationId) {
         ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
-        return ApplicationServiceRegistry.clientIdempotentApplicationService().idempotentProvision(command, operationId,clientId,
+        return (ClientId) ApplicationServiceRegistry.idempotentWrapper().idempotentProvision(command, operationId,clientId,
                 () -> {
                     RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(),  command.getRefreshTokenValiditySeconds());
                     PasswordGrant passwordGrantDetail = new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);
@@ -78,7 +78,7 @@ public class ClientApplicationService implements ClientDetailsService {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
         if (client.isPresent()) {
             Client client1 = client.get();
-            ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(command, changeId, (ignored) -> {
+            ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
                 RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(),  command.getRefreshTokenValiditySeconds());
                 client1.replace(
                         command.getName(),
@@ -109,7 +109,7 @@ public class ClientApplicationService implements ClientDetailsService {
         if (client.isPresent()) {
             Client client1 = client.get();
             if (client1.isNonRoot()) {
-                ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(null, changeId, (ignored) -> {
+                ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
                     DomainRegistry.clientRepository().remove(client1);
                 });
                 DomainEventPublisher.instance().publish(new ClientRemoved(clientId));
@@ -124,7 +124,7 @@ public class ClientApplicationService implements ClientDetailsService {
         List<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
         boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.isNonRoot());
         if (!b) {
-            ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(null, changeId, (ignored) -> {
+            ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
                 DomainRegistry.clientRepository().remove(allClientsOfQuery);
             });
             DomainEventPublisher.instance().publish(
@@ -153,7 +153,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 throw new AggregatePatchException();
             }
             ClientPatchingCommand finalMiddleLayer = middleLayer;
-            ApplicationServiceRegistry.clientIdempotentApplicationService().idempotent(command, changeId, (ignored) -> {
+            ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
                 RefreshTokenGrant refreshTokenGrantDetail = original.getPasswordGrant().getRefreshTokenGrant();
                 original.replace(
                         finalMiddleLayer.getName(),

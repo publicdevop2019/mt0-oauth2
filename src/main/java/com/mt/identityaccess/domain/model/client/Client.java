@@ -2,9 +2,9 @@ package com.mt.identityaccess.domain.model.client;
 
 import com.mt.common.Auditable;
 import com.mt.common.domain.model.DomainEventPublisher;
-import com.mt.identityaccess.application.client.ClientQuery;
-import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.common.domain.model.id.UniqueIdGeneratorService;
+import com.mt.identityaccess.application.client.ClientQuery;
+import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.event.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -57,7 +57,8 @@ public class Client extends Auditable {
     @Embedded
     @CollectionTable(
             name = "resources_map",
-            joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
+            joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"id", "clientId"})
     )
     @AttributeOverrides({
             @AttributeOverride(name = "clientId", column = @Column(updatable = false))
@@ -158,10 +159,9 @@ public class Client extends Auditable {
                   Set<ClientId> resources,
                   ClientCredentialsGrant clientCredentialsGrant,
                   PasswordGrant passwordGrant,
-                  AuthorizationCodeGrant authorizationCodeGrant,
-                  UniqueIdGeneratorService uniqueIdGeneratorService
+                  AuthorizationCodeGrant authorizationCodeGrant
     ) {
-        setId(uniqueIdGeneratorService.id());
+        setId(DomainRegistry.uniqueIdGeneratorService().id());
         setClientId(nextIdentity);
         setResources(resources);
         setScopes(scopes);

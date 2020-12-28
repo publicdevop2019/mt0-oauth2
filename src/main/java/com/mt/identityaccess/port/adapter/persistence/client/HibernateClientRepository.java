@@ -5,7 +5,7 @@ import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.identityaccess.application.client.ClientPaging;
 import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.identityaccess.application.client.QueryConfig;
-import com.mt.identityaccess.domain.model.DomainRegistry;
+import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.client.ClientRepository;

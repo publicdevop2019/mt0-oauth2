@@ -1,10 +1,10 @@
 package com.mt.identityaccess.port.adapter.service.user_notification;
 
+import com.mt.common.EurekaRegistryHelper;
 import com.mt.identityaccess.domain.model.pending_user.ActivationCode;
 import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;
 import com.mt.identityaccess.domain.model.user.ResetCode;
 import com.mt.identityaccess.domain.model.user.UserEmail;
-import com.mt.common.EurekaRegistryHelper;
 import com.mt.identityaccess.infrastructure.SelfSignedJwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,16 +35,14 @@ public class HttpUserMessageAdapter implements UserMessageAdapter {
     @Autowired
     private EurekaRegistryHelper eurekaRegistryHelper;
 
-    @Async
     @Override
     public void sendActivationCode(RegistrationEmail email, ActivationCode activationCode) {
         HashMap<String, String> body = new HashMap<>();
-        body.put("activationCode", activationCode.plainValue());
-        body.put("email", email.plainValue());
+        body.put("activationCode", activationCode.getActivationCode());
+        body.put("email", email.getEmail());
         send(body, registerUrl);
     }
 
-    @Async
     @Override
     public void sendPasswordResetCode(UserEmail email, ResetCode resetCode) {
         HashMap<String, String> body = new HashMap<>();

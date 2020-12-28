@@ -14,7 +14,7 @@
 
 package com.mt.common.notification;
 
-import com.mt.identityaccess.domain.model.DomainRegistry;
+import com.mt.identityaccess.domain.DomainRegistry;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

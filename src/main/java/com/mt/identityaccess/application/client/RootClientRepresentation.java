@@ -39,7 +39,7 @@ public class RootClientRepresentation {
     private boolean hasSecret;
 
     public RootClientRepresentation(Client client) {
-        id = client.getClientId().getClientId();
+        id = client.getClientId().getDomainId();
         name = client.getName();
         description = client.getDescription();
         grantTypeEnums = client.totalGrantTypes();
@@ -51,7 +51,7 @@ public class RootClientRepresentation {
         if (client.getPasswordGrant() != null && client.getPasswordGrant().getRefreshTokenGrant() != null)
             refreshTokenValiditySeconds = client.getPasswordGrant().getAccessTokenValiditySeconds();
         if (!ObjectUtils.isEmpty(client.getResources()))
-            resourceIds = client.getResources().stream().map(ClientId::getClientId).collect(Collectors.toSet());
+            resourceIds = client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
         resourceIndicator = client.isAccessible();
         if (client.getAuthorizationCodeGrant() != null)
             autoApprove = client.getAuthorizationCodeGrant().isAutoApprove();

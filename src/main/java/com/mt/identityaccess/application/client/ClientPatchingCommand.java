@@ -25,7 +25,7 @@ public class ClientPatchingCommand {
         this.scopeEnums = bizClient.getScopes();
         this.grantTypeEnums = bizClient.totalGrantTypes();
         this.accessTokenValiditySeconds = bizClient.accessTokenValiditySeconds();
-        this.resourceIds = bizClient.getResources().stream().map(ClientId::getClientId).collect(Collectors.toSet());
+        this.resourceIds = bizClient.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
         this.grantedAuthorities = bizClient.getAuthorities();
     }
 

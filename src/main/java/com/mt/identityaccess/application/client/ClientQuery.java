@@ -1,6 +1,7 @@
 package com.mt.identityaccess.application.client;
 
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
+import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.user.Role;
 import com.mt.common.sql.exception.EmptyQueryValueException;
@@ -21,14 +22,14 @@ public class ClientQuery {
     }
 
     public ClientQuery(Set<ClientId> resources) {
-        this.value = "clientId:" + String.join(".", resources.stream().map(ClientId::getClientId).collect(Collectors.toSet()));
+        this.value = "clientId:" + String.join(".", resources.stream().map(ClientId::getDomainId).collect(Collectors.toSet()));
     }
 
     public void validate() {
-        boolean isRoot = ApplicationServiceRegistry.authenticationApplicationService().isUser()
-                && ApplicationServiceRegistry.authenticationApplicationService().userInRole(Role.ROLE_ROOT);
-        boolean isUser = ApplicationServiceRegistry.authenticationApplicationService().isUser()
-                && ApplicationServiceRegistry.authenticationApplicationService().userInRole(Role.ROLE_USER);
+        boolean isRoot = DomainRegistry.authenticationService().isUser()
+                && DomainRegistry.authenticationService().userInRole(Role.ROLE_ROOT);
+        boolean isUser = DomainRegistry.authenticationService().isUser()
+                && DomainRegistry.authenticationService().userInRole(Role.ROLE_USER);
         if (isRoot || isUser) {
             if (value == null) {
                 if (!isRoot) {

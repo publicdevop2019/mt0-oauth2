@@ -31,14 +31,14 @@ public class SpringOAuth2ClientDetailsRepresentation implements ClientDetails {
         setGrantedAuthorities(client.getAuthorities());
         setScopeEnums(client.getScopes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
-        setResourceIds(client.getResources().stream().map(ClientId::getClientId).collect(Collectors.toSet()));
+        setResourceIds(client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet()));
         if (client.getAuthorizationCodeGrant() != null)
             setRegisteredRedirectUri(client.getAuthorizationCodeGrant().getRedirectUrls());
     }
 
     @Override
     public String getClientId() {
-        return clientId.getClientId();
+        return clientId.getDomainId();
     }
 
     @Override

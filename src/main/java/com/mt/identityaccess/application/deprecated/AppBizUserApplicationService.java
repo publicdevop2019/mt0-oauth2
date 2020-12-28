@@ -5,6 +5,7 @@ import com.mt.identityaccess.application.command.AppForgetBizUserPasswordCommand
 import com.mt.identityaccess.application.command.AppResetBizUserPasswordCommand;
 import com.mt.identityaccess.application.representation.AppBizUserCardRep;
 import com.mt.identityaccess.application.representation.AppBizUserRep;
+import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
 import com.mt.identityaccess.domain.service.RevokeTokenService;
 import com.mt.identityaccess.domain.service.UserNotificationService;
 import com.mt.common.rest.RoleBasedRestfulService;
@@ -37,7 +38,7 @@ public class AppBizUserApplicationService extends RoleBasedRestfulService<User, 
     private UserNotificationService emailService;
 
     @Autowired
-    private AppPendingUserApplicationService pendingUserApplicationService;
+    private PendingUserRepository pendingUserRepository;
 
 
     @Override
@@ -66,7 +67,7 @@ public class AppBizUserApplicationService extends RoleBasedRestfulService<User, 
 
     @Override
     protected User createEntity(long id, Object command) {
-        return User.create(id, (AppCreateBizUserCommand) command, encoder, pendingUserApplicationService, this);
+        return User.create(id, (AppCreateBizUserCommand) command, encoder, pendingUserRepository, this);
 
     }
 

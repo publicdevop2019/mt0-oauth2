@@ -10,6 +10,8 @@ import java.util.Optional;
 
 @Repository
 public interface HibernateUserRepository extends JpaRepository<User, Long>, UserRepository {
+    Optional<User> findByEmail(String email);
+
     default UserId nextIdentity() {
         return new UserId();
     }
@@ -20,5 +22,9 @@ public interface HibernateUserRepository extends JpaRepository<User, Long>, User
 
     default void add(User user) {
         save(user);
+    }
+
+    default Optional<User> searchExistingUserWith(String email) {
+        return findByEmail(email);
     }
 }

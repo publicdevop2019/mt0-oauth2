@@ -2,6 +2,7 @@ package com.mt.identityaccess.application;
 
 import com.mt.common.application.ApplicationServiceIdempotentWrapper;
 import com.mt.identityaccess.application.client.ClientApplicationService;
+import com.mt.identityaccess.application.pending_user.PendingUserApplicationService;
 import com.mt.identityaccess.domain.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ApplicationServiceRegistry {
     private static ClientApplicationService clientApplicationService;
+    private static PendingUserApplicationService pendingUserApplicationService;
 
     @Autowired
     public void setClientApplicationService(ClientApplicationService clientApplicationService) {
@@ -21,18 +23,12 @@ public class ApplicationServiceRegistry {
     }
 
     @Autowired
-    public void setAuthenticationApplicationService(AuthenticationService authenticationApplicationService) {
-        ApplicationServiceRegistry.authenticationApplicationService = authenticationApplicationService;
-    }
-
-    @Autowired
     public void setClientIdempotentApplicationService(ApplicationServiceIdempotentWrapper clientIdempotentApplicationService) {
-        ApplicationServiceRegistry.clientIdempotentApplicationService = clientIdempotentApplicationService;
+        ApplicationServiceRegistry.applicationServiceIdempotentWrapper = clientIdempotentApplicationService;
     }
 
     private static AuthorizeCodeApplicationService authorizeCodeApplicationService;
-    private static AuthenticationService authenticationApplicationService;
-    private static ApplicationServiceIdempotentWrapper clientIdempotentApplicationService;
+    private static ApplicationServiceIdempotentWrapper applicationServiceIdempotentWrapper;
 
     public static ClientApplicationService clientApplicationService() {
         return clientApplicationService;
@@ -42,11 +38,11 @@ public class ApplicationServiceRegistry {
         return authorizeCodeApplicationService;
     }
 
-    public static AuthenticationService authenticationApplicationService() {
-        return authenticationApplicationService;
+    public static ApplicationServiceIdempotentWrapper idempotentWrapper() {
+        return applicationServiceIdempotentWrapper;
     }
 
-    public static ApplicationServiceIdempotentWrapper clientIdempotentApplicationService() {
-        return clientIdempotentApplicationService;
+    public static PendingUserApplicationService pendingUserApplicationService() {
+        return pendingUserApplicationService;
     }
 }

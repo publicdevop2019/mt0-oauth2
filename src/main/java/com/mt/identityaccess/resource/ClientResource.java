@@ -25,7 +25,7 @@ public class ClientResource {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         ClientId clientId = clientApplicationService().provisionClient(command, changeId);
-        return ResponseEntity.ok().header("Location", clientId.getClientId()).build();
+        return ResponseEntity.ok().header("Location", clientId.getDomainId()).build();
     }
 
     @GetMapping("root")
