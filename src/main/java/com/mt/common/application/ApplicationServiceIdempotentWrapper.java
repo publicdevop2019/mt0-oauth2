@@ -4,7 +4,6 @@ import com.mt.common.idempotent.AppChangeRecordApplicationService;
 import com.mt.common.idempotent.OperationType;
 import com.mt.common.idempotent.command.AppCreateChangeRecordCommand;
 import com.mt.common.idempotent.representation.AppChangeRecordCardRep;
-import com.mt.common.rest.CreatedAggregateRep;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
@@ -24,7 +23,7 @@ public class ApplicationServiceIdempotentWrapper {
     @Autowired
     AppChangeRecordApplicationService appChangeRecordApplicationService;
 
-    public ClientId idempotentProvision(Object command, String changeId, Supplier<ClientId> wrapper) {
+    public ClientId idempotentProvision(Object command, String changeId, ClientId clientId, Supplier<ClientId> wrapper) {
         String entityType = getEntityName();
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + entityType, null, "sc:1");
@@ -35,16 +34,13 @@ public class ApplicationServiceIdempotentWrapper {
         } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             return new ClientId();
         } else {
-            saveChangeRecord(command, changeId, OperationType.POST, "id:", null, null);
+            saveChangeRecord(command, changeId, OperationType.POST, "id:" + clientId.getClientId(), null, null);
             return wrapper.get();
         }
     }
 
     public void idempotent(Object command, String changeId, Consumer<String> wrapper) {
-        if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
-        } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
-        } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
-        } else {
+        if (!changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
             saveChangeRecord(command, changeId, OperationType.PUT, "id:", null, null);
             wrapper.accept(null);
         }
