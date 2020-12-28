@@ -13,6 +13,7 @@ import com.mt.identityaccess.domain.model.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.ClientRemoved;
 import com.mt.identityaccess.domain.model.client.event.ClientsBatchRemoved;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ClientApplicationService implements ClientDetailsService {
     @Autowired
     private ObjectMapper om;
@@ -147,6 +149,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 JsonNode patchedNode = command.apply(jsonNode);
                 middleLayer = om.treeToValue(patchedNode, ClientPatchingCommand.class);
             } catch (JsonPatchException | JsonProcessingException e) {
+                log.error("error during patching",e);
                 throw new AggregatePatchException();
             }
             ClientPatchingCommand finalMiddleLayer = middleLayer;

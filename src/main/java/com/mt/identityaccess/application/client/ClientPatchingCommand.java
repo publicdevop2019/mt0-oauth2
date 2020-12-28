@@ -2,10 +2,12 @@ package com.mt.identityaccess.application.client;
 
 import com.mt.identityaccess.domain.model.client.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 @Getter
+@NoArgsConstructor
 public class ClientPatchingCommand {
     private String description;
     private String name;

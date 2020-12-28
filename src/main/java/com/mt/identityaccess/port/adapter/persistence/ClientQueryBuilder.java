@@ -2,8 +2,6 @@ package com.mt.identityaccess.port.adapter.persistence;
 
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.common.sql.clause.SelectFieldBooleanEqualClause;
-import com.mt.common.sql.clause.SelectFieldNumberRangeClause;
-import com.mt.common.sql.clause.SelectFieldStringEqualClause;
 import com.mt.common.sql.clause.SelectFieldStringLikeClause;
 import com.mt.identityaccess.domain.model.client.Client;
 import org.springframework.stereotype.Component;
@@ -22,9 +20,7 @@ public class ClientQueryBuilder extends SelectQueryBuilder<Client> {
     {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 2000;
-        mappedSortBy.put(ENTITY_NAME, ENTITY_NAME);
-        mappedSortBy.put(ENTITY_RESOURCE_INDICATOR, "accessible");
-        mappedSortBy.put(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS, "accessTokenValiditySeconds");
+        sortConverter = new ClientOrderConverter();
         supportedWhereField.put(ENTITY_RESOURCE_INDICATOR, new SelectFieldBooleanEqualClause<>("accessible"));
         supportedWhereField.put(ENTITY_CLIENT_ID, new SelectFieldClientIdEqualClause());
         supportedWhereField.put(ENTITY_NAME, new SelectFieldStringLikeClause<>(ENTITY_NAME));
