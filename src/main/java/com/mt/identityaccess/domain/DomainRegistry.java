@@ -17,14 +17,25 @@ public class DomainRegistry {
     private static AuthenticationService authenticationService;
     private static ClientService clientService;
     private static PendingUserService pendingUserService;
+    private static UserService userService;
     private static UniqueIdGeneratorService uniqueIdGeneratorService;
     private static RevokeTokenService revokeTokenService;
     private static ActivationCodeService activationCodeService;
+    private static PasswordResetTokenService passwordResetTokenService;
     private static UserNotificationService userNotificationService;
 
     public static AuthenticationService authenticationService() {
         return authenticationService;
     }
+
+    public static PasswordResetTokenService passwordResetTokenService() {
+        return passwordResetTokenService;
+    }
+
+    public static UserService userService() {
+        return userService;
+    }
+
     public static UserNotificationService userNotificationService() {
         return userNotificationService;
     }
@@ -32,6 +43,16 @@ public class DomainRegistry {
     @Autowired
     public void setActivationCodeService(ActivationCodeService activationCodeService) {
         DomainRegistry.activationCodeService = activationCodeService;
+    }
+
+    @Autowired
+    public void setPasswordResetTokenService(PasswordResetTokenService passwordResetTokenService) {
+        DomainRegistry.passwordResetTokenService = passwordResetTokenService;
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        DomainRegistry.userService = userService;
     }
 
     @Autowired

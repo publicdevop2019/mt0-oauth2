@@ -3,6 +3,7 @@ package com.mt.identityaccess.application;
 import com.mt.common.application.ApplicationServiceIdempotentWrapper;
 import com.mt.identityaccess.application.client.ClientApplicationService;
 import com.mt.identityaccess.application.pending_user.PendingUserApplicationService;
+import com.mt.identityaccess.application.user.UserApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,16 @@ import org.springframework.stereotype.Service;
 public class ApplicationServiceRegistry {
     private static ClientApplicationService clientApplicationService;
     private static PendingUserApplicationService pendingUserApplicationService;
+    private static UserApplicationService userApplicationService;
+
+    public static UserApplicationService userApplicationService() {
+        return userApplicationService;
+    }
+
+    @Autowired
+    public void setUserApplicationService(UserApplicationService userApplicationService) {
+        ApplicationServiceRegistry.userApplicationService = userApplicationService;
+    }
 
     @Autowired
     public void setClientApplicationService(ClientApplicationService clientApplicationService) {

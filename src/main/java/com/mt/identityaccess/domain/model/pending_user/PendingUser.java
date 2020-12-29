@@ -1,6 +1,7 @@
 package com.mt.identityaccess.domain.model.pending_user;
 
 import com.mt.common.Auditable;
+import com.mt.identityaccess.domain.model.ActivationCode;
 import com.mt.identityaccess.domain.DomainRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -8,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
 
 @Entity
 @Table

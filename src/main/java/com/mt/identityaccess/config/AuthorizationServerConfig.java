@@ -1,7 +1,6 @@
 package com.mt.identityaccess.config;
 
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.application.deprecated.AppBizUserApplicationService;
 import com.mt.identityaccess.infrastructure.SelfSignedJwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -28,9 +27,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Autowired
     JwtAccessTokenConverter jwtAccessTokenConverter;
-
-    @Autowired
-    AppBizUserApplicationService userDetailsService;
 
     @Autowired
     SelfSignedJwtTokenService authTokenHelper;
@@ -75,6 +71,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Autowired
     public void setGlobalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService);
+        auth.userDetailsService(ApplicationServiceRegistry.userApplicationService());
     }
 }

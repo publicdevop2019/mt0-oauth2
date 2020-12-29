@@ -27,7 +27,7 @@ import java.util.Objects;
 @Slf4j
 @Component
 public class BeanFactory {
-    private static final Integer STRENGTH = 12;
+
     @Autowired
     ClientApplicationService clientDetailsService;
 
@@ -36,11 +36,6 @@ public class BeanFactory {
      */
     @Resource
     private Environment env;
-
-    @Bean
-    public BCryptPasswordEncoder encoder() {
-        return new BCryptPasswordEncoder(STRENGTH);
-    }
 
     @Bean
     public TokenStoreUserApprovalHandler userApprovalHandler(TokenStore tokenStore) {
@@ -113,7 +108,7 @@ public class BeanFactory {
 
     @Bean
     private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory() {
-        log.info("loading DefaultOAuth2RequestFactory");
+        log.debug("loading DefaultOAuth2RequestFactory");
         return new DefaultOAuth2RequestFactory(clientDetailsService);
     }
 }

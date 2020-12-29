@@ -24,7 +24,7 @@ public class ApplicationServiceIdempotentWrapper {
     @Autowired
     AppChangeRecordApplicationService appChangeRecordApplicationService;
 
-    public DomainId idempotentProvision(Object command, String changeId, DomainId domainId, Supplier<DomainId> wrapper) {
+    public DomainId idempotentCreate(Object command, String changeId, DomainId domainId, Supplier<DomainId> wrapper) {
         String entityType = getEntityName();
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + entityType, null, "sc:1");

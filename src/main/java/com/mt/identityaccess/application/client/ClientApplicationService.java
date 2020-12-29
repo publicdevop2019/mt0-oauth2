@@ -35,13 +35,13 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public ClientId provisionClient(ProvisionClientCommand command, String operationId) {
+    public ClientId create(CreateClientCommand command, String operationId) {
         ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
-        return (ClientId) ApplicationServiceRegistry.idempotentWrapper().idempotentProvision(command, operationId, clientId,
+        return (ClientId) ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, clientId,
                 () -> {
                     RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
                     PasswordGrant passwordGrantDetail = new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);
-                    return DomainRegistry.clientService().provisionClient(
+                    return DomainRegistry.clientService().create(
                             clientId,
                             command.getName(),
                             command.getClientSecret(),
@@ -146,7 +146,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public void patchClient(String id, JsonPatch command, String changeId) {
+    public void patch(String id, JsonPatch command, String changeId) {
         ClientId clientId = new ClientId(id);
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
         if (client.isPresent()) {

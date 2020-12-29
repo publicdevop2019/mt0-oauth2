@@ -21,10 +21,10 @@ import static com.mt.common.AppConstant.*;
 public class ClientResource {
 
     @PostMapping("root")
-    public ResponseEntity<Void> createForRoot(@RequestBody ProvisionClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<Void> createForRoot(@RequestBody CreateClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
-        ClientId clientId = clientApplicationService().provisionClient(command, changeId);
+        ClientId clientId = clientApplicationService().create(command, changeId);
         return ResponseEntity.ok().header("Location", clientId.getDomainId()).build();
     }
 
@@ -76,7 +76,7 @@ public class ClientResource {
     public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id, @RequestBody JsonPatch command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
-        clientApplicationService().patchClient(id, command, changeId);
+        clientApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 

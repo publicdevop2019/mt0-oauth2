@@ -1,12 +1,17 @@
 package com.mt.identityaccess.domain.model.user;
 
-public class UserId {
-    private String id;
-    private Long dbId;
-    public String id() {
-        return id;
+import com.mt.common.domain.model.id.DomainId;
+import com.mt.identityaccess.domain.DomainRegistry;
+
+public class UserId extends DomainId {
+    public UserId() {
+        super();
+        Long id = DomainRegistry.uniqueIdGeneratorService().id();
+        String s = Long.toString(id, 36);
+        setDomainId("0U" + s.toUpperCase());
     }
-    public Long persistentId(){
-        return dbId;
+
+    public UserId(String domainId) {
+        super(domainId);
     }
 }

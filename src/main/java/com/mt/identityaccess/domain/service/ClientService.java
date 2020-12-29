@@ -18,17 +18,17 @@ import java.util.Set;
 @Service
 public class ClientService {
 
-    public ClientId provisionClient(ClientId clientId,
-                                    String name,
-                                    String clientSecret,
-                                    String description,
-                                    boolean accessible,
-                                    Set<Scope> scopes,
-                                    Set<Authority> authorities,
-                                    Set<ClientId> resources,
-                                    ClientCredentialsGrant clientCredentialsGrant,
-                                    PasswordGrant passwordGrant,
-                                    AuthorizationCodeGrant authorizationCodeGrant
+    public ClientId create(ClientId clientId,
+                           String name,
+                           String clientSecret,
+                           String description,
+                           boolean accessible,
+                           Set<Scope> scopes,
+                           Set<Authority> authorities,
+                           Set<ClientId> resources,
+                           ClientCredentialsGrant clientCredentialsGrant,
+                           PasswordGrant passwordGrant,
+                           AuthorizationCodeGrant authorizationCodeGrant
     ) {
 
         Client client = new Client(
@@ -45,7 +45,7 @@ public class ClientService {
                 authorizationCodeGrant
         );
         DomainRegistry.clientRepository().add(client);
-        DomainEventPublisher.instance().publish(new ClientProvisioned(client.getClientId()));
+        DomainEventPublisher.instance().publish(new ClientCreated(client.getClientId()));
         return clientId;
     }
 

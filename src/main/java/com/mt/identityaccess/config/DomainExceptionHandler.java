@@ -2,6 +2,7 @@ package com.mt.identityaccess.config;
 
 import com.mt.common.ErrorMessage;
 import com.mt.identityaccess.application.client.RootClientDeleteException;
+import com.mt.identityaccess.application.user.RootUserDeleteException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +24,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             RedirectMismatchException.class,
             AccessDeniedException.class,
             RootClientDeleteException.class,
+            RootUserDeleteException.class,
             IllegalArgumentException.class,
             OAuth2Exception.class
     })
