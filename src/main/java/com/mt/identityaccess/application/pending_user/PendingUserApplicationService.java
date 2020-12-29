@@ -1,5 +1,6 @@
 package com.mt.identityaccess.application.pending_user;
 
+import com.mt.common.application.SubscribeForEvent;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.command.AppCreatePendingUserCommand;
 import com.mt.identityaccess.domain.DomainRegistry;
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 @Service
 public class PendingUserApplicationService {
+    @SubscribeForEvent
     @Transactional
     public RegistrationEmail provisionPendingUser(AppCreatePendingUserCommand command, String operationId) {
         RegistrationEmail registrationEmail = new RegistrationEmail(command.getEmail());
@@ -20,9 +22,4 @@ public class PendingUserApplicationService {
                 () -> DomainRegistry.pendingUserService().provisionOrUpdatePendingUser(registrationEmail, new ActivationCode())
         );
     }
-
-//    @Transactional(readOnly = true)
-//    public Optional<Client> pendingUser(String id) {
-//        return DomainRegistry.pendingUserRepository().
-//    }
 }

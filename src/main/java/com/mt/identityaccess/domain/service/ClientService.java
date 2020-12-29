@@ -76,7 +76,7 @@ public class ClientService {
                         o instanceof ClientScopesChanged ||
                         o instanceof ClientSecretChanged
         ) {
-            DomainRegistry.revokeTokenService().revokeClientToken(((DomainEvent) o).getClientId());
+            DomainRegistry.revokeTokenService().revokeClientToken(((DomainEvent) o).getDomainId());
         }
 
     }

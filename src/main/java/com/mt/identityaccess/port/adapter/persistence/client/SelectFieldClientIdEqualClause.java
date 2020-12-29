@@ -20,7 +20,7 @@ public class SelectFieldClientIdEqualClause extends WhereClause<Client> {
         String[] split = query.split("\\.");
         List<Predicate> results = new ArrayList<>();
         for (String str : split) {
-            results.add(cb.equal(root.get("clientId").get("clientId"), str));
+            results.add(cb.equal(root.get("clientId").get("domainId"), str));
         }
         return cb.or(results.toArray(new Predicate[0]));
     }

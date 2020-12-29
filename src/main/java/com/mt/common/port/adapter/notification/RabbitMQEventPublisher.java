@@ -32,7 +32,7 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import static com.mt.identityaccess.port.adapter.messaging.TokenRevokeSubscriber.EXCHANGE_NAME;
+import static com.mt.identityaccess.port.adapter.messaging.DomainEventMQSubscriber.EXCHANGE_NAME;
 
 @Component
 @Slf4j

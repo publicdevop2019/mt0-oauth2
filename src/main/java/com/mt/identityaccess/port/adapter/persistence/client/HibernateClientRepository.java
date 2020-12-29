@@ -34,9 +34,7 @@ public interface HibernateClientRepository extends JpaRepository<Client, Long>, 
     void softDeleteAll(Set<Long> id);
 
     default ClientId nextIdentity() {
-        Long id = DomainRegistry.uniqueIdGeneratorService().id();
-        String s = Long.toString(id,36);
-        return new ClientId("0C"  + s.toUpperCase());
+        return new ClientId();
     }
 
     default Optional<Client> clientOfId(ClientId clientId) {

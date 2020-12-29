@@ -58,10 +58,10 @@ public class Client extends Auditable {
     @CollectionTable(
             name = "resources_map",
             joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"id", "clientId"})
+            uniqueConstraints = @UniqueConstraint(columnNames = {"id", "domainId"})
     )
     @AttributeOverrides({
-            @AttributeOverride(name = "clientId", column = @Column(updatable = false))
+            @AttributeOverride(name = "domainId", column = @Column(updatable = false))
     })
     private Set<ClientId> resources = new HashSet<>();
 

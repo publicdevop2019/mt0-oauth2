@@ -1,5 +1,6 @@
 package com.mt.identityaccess.port.adapter.service.revoke_token;
 
+import com.mt.common.domain.model.id.DomainId;
 import com.mt.identityaccess.domain.service.RevokeTokenService;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.user.UserId;
@@ -12,12 +13,12 @@ public class TranslatingRevokeTokenService implements RevokeTokenService {
     RevokeTokenAdapter revokeTokenAdapter;
 
     @Override
-    public void revokeClientToken(ClientId clientId) {
-        revokeTokenAdapter.revoke(clientId.getDomainId(), "CLIENT");
+    public void revokeClientToken(DomainId domainId) {
+        revokeTokenAdapter.revoke(domainId.getDomainId(), "CLIENT");
     }
 
     @Override
-    public void revokeUserToken(UserId userId) {
-        revokeTokenAdapter.revoke(userId.id(), "USER");
+    public void revokeUserToken(DomainId domainId) {
+        revokeTokenAdapter.revoke(domainId.getDomainId(), "USER");
     }
 }

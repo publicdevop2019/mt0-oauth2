@@ -79,6 +79,11 @@ public class DomainRegistry {
         DomainRegistry.uniqueIdGeneratorService = uniqueIdGeneratorService;
     }
 
+    @Autowired
+    public void setUserNotificationService(UserNotificationService userNotificationService) {
+        DomainRegistry.userNotificationService = userNotificationService;
+    }
+
     public static ClientRepository clientRepository() {
         return clientRepository;
     }

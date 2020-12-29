@@ -14,8 +14,8 @@
 
 package com.mt.common.domain.model;
 
+import com.mt.common.domain.model.id.DomainId;
 import com.mt.identityaccess.domain.DomainRegistry;
-import com.mt.identityaccess.domain.model.client.ClientId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,26 +40,26 @@ public abstract class DomainEvent implements Serializable {
     private Long timestamp;
 
     @Embedded
-    @AttributeOverride(name = "clientId", column = @Column(updatable = false))
-    private ClientId clientId;
+    @AttributeOverride(name = "domainId", column = @Column(updatable = false))
+    private DomainId domainId;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @Embedded
     @CollectionTable(
-            name = "domain_event_client_ids_map",
+            name = "domain_event_ids_map",
             joinColumns = @JoinColumn(name = "id", referencedColumnName = "id")
     )
-    private Set<ClientId> clientIds;
+    private Set<DomainId> domainIds;
 
-    public DomainEvent(ClientId clientId) {
+    public DomainEvent(DomainId domainId) {
         setId(DomainRegistry.uniqueIdGeneratorService().id());
         setTimestamp(new Date().getTime());
-        setClientId(clientId);
+        setDomainId(domainId);
     }
 
-    public DomainEvent(Set<ClientId> clientIds) {
+    public DomainEvent(Set<DomainId> domainIds) {
         setId(DomainRegistry.uniqueIdGeneratorService().id());
         setTimestamp(new Date().getTime());
-        setClientIds(clientIds);
+        setDomainIds(domainIds);
     }
 }

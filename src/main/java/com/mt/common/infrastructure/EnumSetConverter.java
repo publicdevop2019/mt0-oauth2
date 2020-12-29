@@ -1,4 +1,4 @@
-package com.mt.identityaccess.port.adapter.service;
+package com.mt.common.infrastructure;
 
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;

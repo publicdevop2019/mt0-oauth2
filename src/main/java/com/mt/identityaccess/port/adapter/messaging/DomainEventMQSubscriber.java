@@ -16,7 +16,7 @@ import java.util.concurrent.TimeoutException;
 
 @Slf4j
 @Component
-public class TokenRevokeSubscriber {
+public class DomainEventMQSubscriber {
     private static final String TASK_QUEUE_NAME = "domain_event_queue";
     public static final String EXCHANGE_NAME = "domain_event_exchange";
 

@@ -5,10 +5,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import com.mt.common.application.SubscribeForEvent;
+import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.common.rest.exception.AggregatePatchException;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.ClientRemoved;
@@ -32,12 +33,13 @@ public class ClientApplicationService implements ClientDetailsService {
     @Autowired
     private ObjectMapper om;
 
+    @SubscribeForEvent
     @Transactional
     public ClientId provisionClient(ProvisionClientCommand command, String operationId) {
         ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
-        return (ClientId) ApplicationServiceRegistry.idempotentWrapper().idempotentProvision(command, operationId,clientId,
+        return (ClientId) ApplicationServiceRegistry.idempotentWrapper().idempotentProvision(command, operationId, clientId,
                 () -> {
-                    RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(),  command.getRefreshTokenValiditySeconds());
+                    RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
                     PasswordGrant passwordGrantDetail = new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);
                     return DomainRegistry.clientService().provisionClient(
                             clientId,
@@ -62,16 +64,19 @@ public class ClientApplicationService implements ClientDetailsService {
 
     }
 
+    @SubscribeForEvent
     @Transactional(readOnly = true)
     public SumPagedRep<Client> clients(String queryParam, String pagingParam, String configParam) {
         return DomainRegistry.clientRepository().clientsOfQuery(new ClientQuery(queryParam), new ClientPaging(pagingParam), new QueryConfig(configParam));
     }
 
+    @SubscribeForEvent
     @Transactional(readOnly = true)
     public Optional<Client> client(String id) {
         return DomainRegistry.clientRepository().clientOfId(new ClientId(id));
     }
 
+    @SubscribeForEvent
     @Transactional
     public void replaceClient(String id, ReplaceClientCommand command, String changeId) {
         ClientId clientId = new ClientId(id);
@@ -79,7 +84,7 @@ public class ClientApplicationService implements ClientDetailsService {
         if (client.isPresent()) {
             Client client1 = client.get();
             ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-                RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(),  command.getRefreshTokenValiditySeconds());
+                RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
                 client1.replace(
                         command.getName(),
                         command.getClientSecret(),
@@ -102,6 +107,7 @@ public class ClientApplicationService implements ClientDetailsService {
         }
     }
 
+    @SubscribeForEvent
     @Transactional
     public void removeClient(String id, String changeId) {
         ClientId clientId = new ClientId(id);
@@ -119,6 +125,7 @@ public class ClientApplicationService implements ClientDetailsService {
         }
     }
 
+    @SubscribeForEvent
     @Transactional
     public void removeClients(String queryParam, String changeId) {
         List<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
@@ -137,6 +144,7 @@ public class ClientApplicationService implements ClientDetailsService {
         }
     }
 
+    @SubscribeForEvent
     @Transactional
     public void patchClient(String id, JsonPatch command, String changeId) {
         ClientId clientId = new ClientId(id);
@@ -149,7 +157,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 JsonNode patchedNode = command.apply(jsonNode);
                 middleLayer = om.treeToValue(patchedNode, ClientPatchingCommand.class);
             } catch (JsonPatchException | JsonProcessingException e) {
-                log.error("error during patching",e);
+                log.error("error during patching", e);
                 throw new AggregatePatchException();
             }
             ClientPatchingCommand finalMiddleLayer = middleLayer;

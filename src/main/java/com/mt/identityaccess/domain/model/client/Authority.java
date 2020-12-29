@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.model.client;
 
 
-import com.mt.identityaccess.port.adapter.service.EnumSetConverter;
+import com.mt.common.infrastructure.EnumSetConverter;
 
 public enum Authority {
     ROLE_FRONTEND,
