@@ -71,7 +71,7 @@ public class ClientService {
                         o instanceof ClientAuthoritiesChanged ||
                         o instanceof ClientGrantTypeChanged ||
                         o instanceof ClientRefreshTokenChanged ||
-                        o instanceof ClientRemoved ||
+                        o instanceof ClientDeleted ||
                         o instanceof ClientResourcesChanged ||
                         o instanceof ClientScopesChanged ||
                         o instanceof ClientSecretChanged

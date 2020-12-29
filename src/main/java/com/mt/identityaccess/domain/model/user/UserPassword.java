@@ -3,9 +3,10 @@ package com.mt.identityaccess.domain.model.user;
 import com.mt.identityaccess.domain.DomainRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.util.StringUtils;
-
+@NoArgsConstructor
 public class UserPassword {
     @Getter
     @Setter(AccessLevel.PRIVATE)
@@ -17,7 +18,7 @@ public class UserPassword {
         setPassword(DomainRegistry.encryptionService().encryptedValue(password));
     }
 
-    public boolean compareEncrypted(String currentPwd) {
-        return DomainRegistry.encryptionService().compare(password, currentPwd);
+    public boolean sameAs(String rawPassword) {
+        return DomainRegistry.encryptionService().compare(password, rawPassword);
     }
 }

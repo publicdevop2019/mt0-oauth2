@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 
 @Repository
 public interface HibernateClientRepository extends JpaRepository<Client, Long>, ClientRepository {
-    Optional<Client> findByClientId(ClientId clientId);
+    Optional<Client> findByClientIdAndDeletedFalse(ClientId clientId);
 
     @Modifying
-    @Query("update #{#entityName} e set e.deleted=true where e.id=?1")
+    @Query("update #{#entityName} e set e.deleted=true where e.id = ?1")
     void softDelete(Long id);
 
     @Modifying
@@ -38,7 +38,7 @@ public interface HibernateClientRepository extends JpaRepository<Client, Long>, 
     }
 
     default Optional<Client> clientOfId(ClientId clientId) {
-        return findByClientId(clientId);
+        return findByClientIdAndDeletedFalse(clientId);
     }
 
     default void add(Client client) {

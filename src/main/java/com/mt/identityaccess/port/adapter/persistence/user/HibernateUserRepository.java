@@ -9,6 +9,8 @@ import com.mt.identityaccess.domain.model.user.UserId;
 import com.mt.identityaccess.domain.model.user.UserRepository;
 import com.mt.identityaccess.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,16 +18,20 @@ import java.util.Optional;
 
 @Repository
 public interface HibernateUserRepository extends JpaRepository<User, Long>, UserRepository {
-    Optional<User> findByUserId(UserId userId);
+    @Modifying
+    @Query("update #{#entityName} e set e.deleted=true where e.id=?1")
+    void softDelete(Long id);
 
-    Optional<User> findByEmail(String email);
+    Optional<User> findByUserIdAndDeletedFalse(UserId userId);
+
+    Optional<User> findByEmailEmail(String email);
 
     default UserId nextIdentity() {
         return new UserId();
     }
 
     default Optional<User> userOfId(UserId userId) {
-        return findByUserId(userId);
+        return findByUserIdAndDeletedFalse(userId);
     }
 
     default void add(User user) {
@@ -33,7 +39,11 @@ public interface HibernateUserRepository extends JpaRepository<User, Long>, User
     }
 
     default Optional<User> searchExistingUserWith(String email) {
-        return findByEmail(email);
+        return findByEmailEmail(email);
+    }
+
+    default void remove(User user) {
+        softDelete(user.getId());
     }
 
     default SumPagedRep<User> usersOfQuery(UserQuery userQuery, UserPaging userPaging, QueryConfig queryConfig) {

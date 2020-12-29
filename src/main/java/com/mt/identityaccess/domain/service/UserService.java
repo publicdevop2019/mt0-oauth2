@@ -32,7 +32,7 @@ public class UserService {
     public void updatePassword(User user, String currentPwd, String password) {
         if (!StringUtils.hasText(password) || !StringUtils.hasText(currentPwd))
             throw new IllegalArgumentException("password(s)");
-        if (!user.getPassword().compareEncrypted(currentPwd))
+        if (!user.getPassword().sameAs(currentPwd))
             throw new IllegalArgumentException("wrong password");
         user.setPassword(new UserPassword(password));
         DomainRegistry.userRepository().add(user);

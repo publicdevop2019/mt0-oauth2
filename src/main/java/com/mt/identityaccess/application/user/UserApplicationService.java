@@ -159,9 +159,8 @@ public class UserApplicationService implements UserDetailsService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
-        Optional<User> client = DomainRegistry.userRepository().userOfId(new UserId(id));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> client = DomainRegistry.userRepository().searchExistingUserWith(username);
         return client.map(SpringOAuth2UserDetailRepresentation::new).orElse(null);
     }
 }

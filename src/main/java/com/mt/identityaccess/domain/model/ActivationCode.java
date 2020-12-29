@@ -18,5 +18,6 @@ public class ActivationCode {
     public ActivationCode(String activationCode) {
         if (!StringUtils.hasText(activationCode))
             throw new IllegalArgumentException("activationCode is empty");
+        setActivationCode(activationCode);
     }
 }

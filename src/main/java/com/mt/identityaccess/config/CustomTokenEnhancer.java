@@ -1,7 +1,5 @@
 package com.mt.identityaccess.config;
 
-import com.mt.identityaccess.domain.model.user.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -19,17 +17,13 @@ import java.util.Map;
 @Component
 public class CustomTokenEnhancer implements TokenEnhancer {
 
-    @Autowired
-    UserRepository resourceOwnerRepo;
-
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
 
         Map<String, Object> info = new HashMap<>();
         info.put("iat", Instant.now().getEpochSecond());
         if (!authentication.isClientOnly()) {
-            long l = Long.parseLong(authentication.getName());
-            info.put("uid", Long.toString(l));
+            info.put("uid", authentication.getName());
         }
         ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(info);
         return accessToken;

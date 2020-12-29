@@ -12,7 +12,7 @@ import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
-import com.mt.identityaccess.domain.model.client.event.ClientRemoved;
+import com.mt.identityaccess.domain.model.client.event.ClientDeleted;
 import com.mt.identityaccess.domain.model.client.event.ClientsBatchRemoved;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,7 +118,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
                     DomainRegistry.clientRepository().remove(client1);
                 });
-                DomainEventPublisher.instance().publish(new ClientRemoved(clientId));
+                DomainEventPublisher.instance().publish(new ClientDeleted(clientId));
             } else {
                 throw new RootClientDeleteException();
             }
@@ -178,7 +178,6 @@ public class ClientApplicationService implements ClientDetailsService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
         return client.map(SpringOAuth2ClientDetailsRepresentation::new).orElse(null);

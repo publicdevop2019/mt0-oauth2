@@ -1,8 +1,8 @@
 package com.mt.identityaccess.domain.model.client;
 
+import com.google.common.base.Objects;
 import com.mt.common.Auditable;
 import com.mt.common.domain.model.DomainEventPublisher;
-import com.mt.common.domain.model.id.UniqueIdGeneratorService;
 import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.event.*;
@@ -53,15 +53,14 @@ public class Client extends Auditable {
     private Set<Scope> scopes = EnumSet.noneOf(Scope.class);
 
     @Getter
-    @ElementCollection(fetch = FetchType.LAZY)
-    @Embedded
+    @ElementCollection(fetch = FetchType.EAGER)//if lazy then loadClientByClientId needs to be transactional
     @CollectionTable(
             name = "resources_map",
             joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
             uniqueConstraints = @UniqueConstraint(columnNames = {"id", "domainId"})
     )
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(updatable = false))
+            @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))
     })
     private Set<ClientId> resources = new HashSet<>();
 
@@ -98,6 +97,7 @@ public class Client extends Auditable {
     private AuthorizationCodeGrant authorizationCodeGrant;
 
     @Getter
+    @Setter(AccessLevel.NONE)
     @Version
     private Integer version;
 
@@ -141,7 +141,7 @@ public class Client extends Auditable {
             if (b) {
                 throw new IllegalArgumentException("invalid resource(s) found");
             }
-            this.resources = new HashSet<>(resources);
+            this.resources = resources;
         }
     }
 
@@ -223,7 +223,7 @@ public class Client extends Auditable {
         setClientCredentialsGrant(clientCredentialsGrant);
         PasswordGrant.detectChange(this.getPasswordGrant(), passwordGrant, getClientId());
         setPasswordGrant(passwordGrant);
-        DomainEventPublisher.instance().publish(new ClientReplaced(getClientId()));
+        DomainEventPublisher.instance().publish(new ClientUpdated(getClientId()));
     }
 
     public void replace(String name,
@@ -266,7 +266,7 @@ public class Client extends Auditable {
         setPasswordGrant(passwordGrant);
         AuthorizationCodeGrant.detectChange(this.getAuthorizationCodeGrant(), authorizationCodeGrant, getClientId());
         setAuthorizationCodeGrant(authorizationCodeGrant);
-        DomainEventPublisher.instance().publish(new ClientReplaced(getClientId()));
+        DomainEventPublisher.instance().publish(new ClientUpdated(getClientId()));
     }
 
     private void setSecret(String secret) {
@@ -306,4 +306,17 @@ public class Client extends Auditable {
         return !ObjectUtils.equals(this.scopes, scopes);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Client)) return false;
+        if (!super.equals(o)) return false;
+        Client client = (Client) o;
+        return Objects.equal(clientId, client.clientId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(super.hashCode(), clientId);
+    }
 }

@@ -1,10 +1,10 @@
 package com.mt.identityaccess.infrastructure;
 
-import com.mt.identityaccess.domain.service.ActivationCodeService;
+import com.mt.identityaccess.domain.service.PasswordResetTokenService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RandomPasswordResetTokenService implements ActivationCodeService {
+public class RandomPasswordResetTokenService implements PasswordResetTokenService {
     @Override
     public String generate() {
         return "123456789";

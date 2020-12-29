@@ -4,10 +4,11 @@ import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.pending_user.PendingUser;
 import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import java.util.Optional;
-
+@NoArgsConstructor
 public class UserEmail {
     @Getter
     private String email;

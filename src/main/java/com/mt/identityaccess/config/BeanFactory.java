@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler;
@@ -29,7 +28,7 @@ import java.util.Objects;
 public class BeanFactory {
 
     @Autowired
-    ClientApplicationService clientDetailsService;
+    ClientApplicationService clientApplicationService;
 
     /**
      * use Resource annotation to solve invoked before spring load issue
@@ -44,9 +43,9 @@ public class BeanFactory {
 
         handler.setTokenStore(tokenStore);
 
-        handler.setRequestFactory(new DefaultOAuth2RequestFactory(clientDetailsService));
+        handler.setRequestFactory(new DefaultOAuth2RequestFactory(clientApplicationService));
 
-        handler.setClientDetailsService(clientDetailsService);
+        handler.setClientDetailsService(clientApplicationService);
 
         return handler;
     }
@@ -109,6 +108,6 @@ public class BeanFactory {
     @Bean
     private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory() {
         log.debug("loading DefaultOAuth2RequestFactory");
-        return new DefaultOAuth2RequestFactory(clientDetailsService);
+        return new DefaultOAuth2RequestFactory(clientApplicationService);
     }
 }

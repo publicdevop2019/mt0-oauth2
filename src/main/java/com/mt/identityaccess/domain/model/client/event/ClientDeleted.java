@@ -8,8 +8,8 @@ import javax.persistence.Entity;
 
 @Entity
 @NoArgsConstructor
-public class ClientRemoved extends DomainEvent{
-    public ClientRemoved(ClientId clientId) {
+public class ClientDeleted extends DomainEvent{
+    public ClientDeleted(ClientId clientId) {
         super(clientId);
     }
 }

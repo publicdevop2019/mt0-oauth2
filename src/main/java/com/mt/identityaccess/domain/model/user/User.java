@@ -1,5 +1,6 @@
 package com.mt.identityaccess.domain.model.user;
 
+import com.google.common.base.Objects;
 import com.mt.common.Auditable;
 import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
@@ -10,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.Collections;
@@ -23,6 +25,7 @@ import java.util.Set;
 @Entity
 @Table(name = "user_")
 @NoArgsConstructor
+@Where(clause = "deleted=0")
 public class User extends Auditable {
     public static final String ENTITY_EMAIL = "email";
     public static final String ENTITY_SUBSCRIPTION = "subscription";
@@ -34,6 +37,7 @@ public class User extends Auditable {
     private static final String QUERY_EMAIL = "email:";
     @Id
     @Setter(AccessLevel.PRIVATE)
+    @Getter
     private Long id;
     @Setter(AccessLevel.PRIVATE)
     @Embedded
@@ -81,11 +85,7 @@ public class User extends Auditable {
     }
 
     public boolean isNonRoot() {
-        return getGrantedAuthorities().stream().anyMatch(e -> ROLE_ROOT.equals(e.name()));
-    }
-
-    private boolean authorityChanged(Set<Role> old, Set<Role> next) {
-        return !old.equals(next);
+        return getGrantedAuthorities().stream().noneMatch(e -> ROLE_ROOT.equals(e.name()));
     }
 
     public void replace(Set<Role> grantedAuthorities, boolean locked, boolean subscription) {
@@ -97,7 +97,7 @@ public class User extends Auditable {
             throw new IllegalArgumentException("only root user can change grantedAuthorities");
         if (isSubscription() != subscription && !DomainRegistry.authenticationService().userInRole(Role.ROLE_ROOT))
             throw new IllegalArgumentException("only root user can change subscription");
-        if (authorityChanged(getGrantedAuthorities(), grantedAuthorities)) {
+        if (!getGrantedAuthorities().equals(grantedAuthorities)) {
             DomainEventPublisher.instance().publish(new UserAuthorityChanged(getUserId()));
         }
         if (Boolean.TRUE.equals(locked)) {
@@ -112,4 +112,17 @@ public class User extends Auditable {
         DomainEventPublisher.instance().publish(new UserUpdated(getUserId()));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        if (!super.equals(o)) return false;
+        User user = (User) o;
+        return Objects.equal(userId, user.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(super.hashCode(), userId);
+    }
 }
