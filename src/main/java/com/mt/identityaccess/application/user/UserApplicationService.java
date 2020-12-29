@@ -28,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -136,7 +138,7 @@ public class UserApplicationService implements UserDetailsService {
         if (user.isPresent()) {
             User user1 = user.get();
             ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-                DomainRegistry.userService().updatePassword(user1,command.getCurrentPwd(), command.getPassword());
+                DomainRegistry.userService().updatePassword(user1, command.getCurrentPwd(), command.getPassword());
             });
             DomainRegistry.userRepository().add(user1);
         }
@@ -160,7 +162,22 @@ public class UserApplicationService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> client = DomainRegistry.userRepository().searchExistingUserWith(username);
+        Optional<User> client;
+        if (isEmail(username)) {
+            //for login
+            client = DomainRegistry.userRepository().searchExistingUserWith(username);
+        } else {
+            //for refresh token
+            client = DomainRegistry.userRepository().userOfId(new UserId(username));
+        }
         return client.map(SpringOAuth2UserDetailRepresentation::new).orElse(null);
+    }
+
+    private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
+            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+
+    private static boolean isEmail(String emailStr) {
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
+        return matcher.find();
     }
 }

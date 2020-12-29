@@ -15,7 +15,7 @@ public class UserQueryBuilder extends SelectQueryBuilder<User> {
         MAX_PAGE_SIZE = 50;
         mappedSortBy.put(ENTITY_EMAIL, ENTITY_EMAIL);
         mappedSortBy.put("createdAt", "createdAt");
-        supportedWhereField.put(ENTITY_EMAIL, new SelectFieldStringLikeClause<>(ENTITY_EMAIL));
+        supportedWhereField.put(ENTITY_EMAIL, new SelectFieldUserEmailClause());
         supportedWhereField.put(ENTITY_SUBSCRIPTION, new SelectFieldBooleanEqualClause<>(ENTITY_SUBSCRIPTION));
         supportedWhereField.put(ENTITY_GRANTED_AUTHORITIES, new SelectFieldStringLikeClause<>(ENTITY_GRANTED_AUTHORITIES));
         allowEmptyClause = true;
