@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.client;
+package com.mt.identityaccess.application.client.command;
 
 import com.mt.identityaccess.domain.model.client.*;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
-public class ClientPatchingCommand {
+public class ClientPatchCommand {
     private String description;
     private String name;
     private boolean resourceIndicator;
@@ -18,7 +18,7 @@ public class ClientPatchingCommand {
     private int accessTokenValiditySeconds = 0;
     private Set<String> resourceIds;
 
-    public ClientPatchingCommand(Client bizClient) {
+    public ClientPatchCommand(Client bizClient) {
         this.description = bizClient.getDescription();
         this.name = bizClient.getName();
         this.resourceIndicator = bizClient.isAccessible();

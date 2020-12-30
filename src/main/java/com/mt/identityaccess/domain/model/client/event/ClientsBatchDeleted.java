@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 
 @Entity
 @NoArgsConstructor
-public class ClientsBatchRemoved extends DomainEvent {
-    public ClientsBatchRemoved(Set<ClientId> clientIds) {
+public class ClientsBatchDeleted extends DomainEvent {
+    public ClientsBatchDeleted(Set<ClientId> clientIds) {
         super(clientIds.stream().map(e -> (DomainId) e).collect(Collectors.toSet()));
     }
 }

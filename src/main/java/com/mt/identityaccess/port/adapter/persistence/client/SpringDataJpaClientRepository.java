@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
-public interface HibernateClientRepository extends JpaRepository<Client, Long>, ClientRepository {
+public interface SpringDataJpaClientRepository extends JpaRepository<Client, Long>, ClientRepository {
     Optional<Client> findByClientIdAndDeletedFalse(ClientId clientId);
 
     @Modifying

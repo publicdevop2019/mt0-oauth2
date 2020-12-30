@@ -2,6 +2,7 @@ package com.mt.identityaccess.application;
 
 import com.mt.common.application.ApplicationServiceIdempotentWrapper;
 import com.mt.identityaccess.application.client.ClientApplicationService;
+import com.mt.identityaccess.application.client.EndpointApplicationService;
 import com.mt.identityaccess.application.pending_user.PendingUserApplicationService;
 import com.mt.identityaccess.application.user.UserApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,19 @@ public class ApplicationServiceRegistry {
     private static ClientApplicationService clientApplicationService;
     private static PendingUserApplicationService pendingUserApplicationService;
     private static UserApplicationService userApplicationService;
+    private static EndpointApplicationService endpointApplicationService;
 
     public static UserApplicationService userApplicationService() {
         return userApplicationService;
+    }
+
+    public static EndpointApplicationService endpointApplicationService() {
+        return endpointApplicationService;
+    }
+
+    @Autowired
+    public void setEndpointApplicationService(EndpointApplicationService endpointApplicationService) {
+        ApplicationServiceRegistry.endpointApplicationService = endpointApplicationService;
     }
 
     @Autowired

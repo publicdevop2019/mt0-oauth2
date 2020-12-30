@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.client;
+package com.mt.identityaccess.application.client.representation;
 
 import com.mt.identityaccess.domain.model.client.*;
 import lombok.Data;
@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class RootClientRepresentation {
+public class ClientRepresentation {
     protected String id;
 
     protected String name;
@@ -38,7 +38,7 @@ public class RootClientRepresentation {
 
     private boolean hasSecret;
 
-    public RootClientRepresentation(Client client) {
+    public ClientRepresentation(Client client) {
         id = client.getClientId().getDomainId();
         name = client.getName();
         description = client.getDescription();

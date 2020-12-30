@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.client;
+package com.mt.identityaccess.application.client.command;
 
 import com.mt.identityaccess.domain.model.client.Authority;
 import com.mt.identityaccess.domain.model.client.GrantType;
@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Data
 @Slf4j
-public class CreateClientCommand implements Serializable {
+public class ClientCreateCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private String clientSecret;
     private boolean hasSecret = false;

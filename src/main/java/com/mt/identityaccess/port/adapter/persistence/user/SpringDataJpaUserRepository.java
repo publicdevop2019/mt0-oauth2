@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface HibernateUserRepository extends JpaRepository<User, Long>, UserRepository {
+public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, UserRepository {
     @Modifying
     @Query("update #{#entityName} e set e.deleted=true where e.id=?1")
     void softDelete(Long id);
@@ -53,10 +53,6 @@ public interface HibernateUserRepository extends JpaRepository<User, Long>, User
 
     default void batchLock(List<PatchCommand> commands) {
         QueryBuilderRegistry.updateUserQueryBuilder().update(commands, User.class);
-    }
-
-    default SumPagedRep<User> usersOfQuery(UserQuery userQuery, UserPaging userPaging) {
-        return getSumPagedRep(userQuery.getValue(), userPaging.value(), null);
     }
 
     private SumPagedRep<User> getSumPagedRep(String query, String page, String config) {

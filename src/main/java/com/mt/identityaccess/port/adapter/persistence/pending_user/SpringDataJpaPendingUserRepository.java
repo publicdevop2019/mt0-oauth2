@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface HibernatePendingUserRepository extends JpaRepository<PendingUser, Long>, PendingUserRepository {
+public interface SpringDataJpaPendingUserRepository extends JpaRepository<PendingUser, Long>, PendingUserRepository {
     default Optional<PendingUser> pendingUserOfEmail(RegistrationEmail email) {
         return findByRegistrationEmailEmail(email.getEmail());
     }

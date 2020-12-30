@@ -1,6 +1,7 @@
 package com.mt.identityaccess.port.adapter.persistence;
 
 import com.mt.identityaccess.port.adapter.persistence.client.ClientQueryBuilder;
+import com.mt.identityaccess.port.adapter.persistence.client.EndpointQueryBuilder;
 import com.mt.identityaccess.port.adapter.persistence.user.UpdateUserQueryBuilder;
 import com.mt.identityaccess.port.adapter.persistence.user.UserQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,12 @@ public class QueryBuilderRegistry {
     private static ClientQueryBuilder clientSelectQueryBuilder;
     private static UserQueryBuilder userQueryBuilder;
     private static UpdateUserQueryBuilder updateUserQueryBuilder;
+    private static EndpointQueryBuilder endpointQueryBuilder;
+
+    @Autowired
+    public void setEndpointQueryBuilder(EndpointQueryBuilder endpointQueryBuilder) {
+        QueryBuilderRegistry.endpointQueryBuilder = endpointQueryBuilder;
+    }
 
     @Autowired
     public void setClientQueryBuilder(ClientQueryBuilder clientSelectQueryBuilder) {
@@ -24,6 +31,10 @@ public class QueryBuilderRegistry {
 
     public static ClientQueryBuilder clientSelectQueryBuilder() {
         return clientSelectQueryBuilder;
+    }
+
+    public static EndpointQueryBuilder endpointSelectQueryBuilder() {
+        return endpointQueryBuilder;
     }
 
     @Autowired

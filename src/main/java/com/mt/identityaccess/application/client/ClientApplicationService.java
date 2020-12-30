@@ -11,6 +11,10 @@ import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.common.rest.exception.AggregatePatchException;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
+import com.mt.identityaccess.application.client.command.ClientPatchCommand;
+import com.mt.identityaccess.application.client.command.ClientCreateCommand;
+import com.mt.identityaccess.application.client.command.ClientUpdateCommand;
+import com.mt.identityaccess.application.client.representation.ClientSpringOAuth2Representation;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.*;
@@ -35,7 +39,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public ClientId create(CreateClientCommand command, String operationId) {
+    public ClientId create(ClientCreateCommand command, String operationId) {
         ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
         return (ClientId) ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, clientId,
                 () -> {
@@ -78,7 +82,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public void replaceClient(String id, ReplaceClientCommand command, String changeId) {
+    public void replaceClient(String id, ClientUpdateCommand command, String changeId) {
         ClientId clientId = new ClientId(id);
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
         if (client.isPresent()) {
@@ -135,7 +139,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 DomainRegistry.clientRepository().remove(allClientsOfQuery);
             });
             DomainEventPublisher.instance().publish(
-                    new ClientsBatchRemoved(
+                    new ClientsBatchDeleted(
                             allClientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet())
                     )
             );
@@ -151,16 +155,16 @@ public class ClientApplicationService implements ClientDetailsService {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
         if (client.isPresent()) {
             Client original = client.get();
-            ClientPatchingCommand middleLayer = new ClientPatchingCommand(original);
+            ClientPatchCommand middleLayer = new ClientPatchCommand(original);
             try {
                 JsonNode jsonNode = om.convertValue(middleLayer, JsonNode.class);
                 JsonNode patchedNode = command.apply(jsonNode);
-                middleLayer = om.treeToValue(patchedNode, ClientPatchingCommand.class);
+                middleLayer = om.treeToValue(patchedNode, ClientPatchCommand.class);
             } catch (JsonPatchException | JsonProcessingException e) {
                 log.error("error during patching", e);
                 throw new AggregatePatchException();
             }
-            ClientPatchingCommand finalMiddleLayer = middleLayer;
+            ClientPatchCommand finalMiddleLayer = middleLayer;
             ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
                 RefreshTokenGrant refreshTokenGrantDetail = original.getPasswordGrant().getRefreshTokenGrant();
                 original.replace(
@@ -180,7 +184,7 @@ public class ClientApplicationService implements ClientDetailsService {
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
-        return client.map(SpringOAuth2ClientDetailsRepresentation::new).orElse(null);
+        return client.map(ClientSpringOAuth2Representation::new).orElse(null);
     }
 
     public void revokeTokenBasedOnChange(Object o) {

@@ -4,6 +4,11 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.*;
+import com.mt.identityaccess.application.client.command.ClientCreateCommand;
+import com.mt.identityaccess.application.client.command.ClientUpdateCommand;
+import com.mt.identityaccess.application.client.representation.ClientAutoApproveRepresentation;
+import com.mt.identityaccess.application.client.representation.ClientCardRepresentation;
+import com.mt.identityaccess.application.client.representation.ClientRepresentation;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.infrastructure.JwtAuthenticationService;
@@ -21,7 +26,7 @@ import static com.mt.common.AppConstant.*;
 public class ClientResource {
 
     @PostMapping("root")
-    public ResponseEntity<Void> createForRoot(@RequestBody CreateClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<Void> createForRoot(@RequestBody ClientCreateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         ClientId clientId = clientApplicationService().create(command, changeId);
@@ -29,27 +34,27 @@ public class ClientResource {
     }
 
     @GetMapping("root")
-    public ResponseEntity<SumPagedRep<RootClientCardRepresentation>> readForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                                                                        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                                                        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
-                                                                                        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    public ResponseEntity<SumPagedRep<ClientCardRepresentation>> readForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                                    @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                                    @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
+                                                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         SumPagedRep<Client> clients = clientApplicationService().clients(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep(clients, RootClientCardRepresentation::new));
+        return ResponseEntity.ok(new SumPagedRep(clients, ClientCardRepresentation::new));
     }
 
     @GetMapping("root/{id}")
-    public ResponseEntity<RootClientRepresentation> readForRootById(@PathVariable String id, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<ClientRepresentation> readForRootById(@PathVariable String id, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         Optional<Client> client = clientApplicationService().client(id);
-        return client.map(value -> ResponseEntity.ok(new RootClientRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
+        return client.map(value -> ResponseEntity.ok(new ClientRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
     }
 
     @PutMapping("root/{id}")
-    public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") String id, @RequestBody ReplaceClientCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") String id, @RequestBody ClientUpdateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         clientApplicationService().replaceClient(id, command, changeId);
@@ -81,14 +86,14 @@ public class ClientResource {
     }
 
     @GetMapping("user")
-    public ResponseEntity<SumPagedRep<UserClientCardRepresentation>> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                                                                       @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                                                       @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
-                                                                                       @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<SumPagedRep<ClientAutoApproveRepresentation>> getForUserByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                                          @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                                          @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
+                                                                                          @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         SumPagedRep<Client> clients = clientApplicationService().clients(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep(clients, UserClientCardRepresentation::new));
+        return ResponseEntity.ok(new SumPagedRep(clients, ClientAutoApproveRepresentation::new));
     }
 
     private ClientApplicationService clientApplicationService() {

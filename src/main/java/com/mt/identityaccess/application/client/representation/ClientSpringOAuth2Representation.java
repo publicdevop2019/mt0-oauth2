@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.client;
+package com.mt.identityaccess.application.client.representation;
 
 import com.mt.identityaccess.application.user.SpringOAuth2UserDetailRepresentation;
 import com.mt.identityaccess.domain.model.client.*;
@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Setter
-public class SpringOAuth2ClientDetailsRepresentation implements ClientDetails {
+public class ClientSpringOAuth2Representation implements ClientDetails {
     private ClientId clientId;
     private String clientSecret;
     private Set<GrantType> grantTypeEnums;
@@ -24,7 +24,7 @@ public class SpringOAuth2ClientDetailsRepresentation implements ClientDetails {
     private Set<String> resourceIds;
     private boolean autoApprove = false;
 
-    public SpringOAuth2ClientDetailsRepresentation(Client client) {
+    public ClientSpringOAuth2Representation(Client client) {
         setClientId(client.getClientId());
         setClientSecret(client.getSecret());
         setGrantTypeEnums(client.totalGrantTypes());

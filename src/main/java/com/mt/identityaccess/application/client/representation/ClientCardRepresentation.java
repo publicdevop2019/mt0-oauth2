@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.client;
+package com.mt.identityaccess.application.client.representation;
 
 import com.mt.identityaccess.domain.model.client.*;
 import lombok.Data;
@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
-public class RootClientCardRepresentation {
+public class ClientCardRepresentation {
 
     protected String id;
 
@@ -38,7 +38,7 @@ public class RootClientCardRepresentation {
 
     protected int version;
 
-    public RootClientCardRepresentation(Object client) {
+    public ClientCardRepresentation(Object client) {
         Client client1 = (Client) client;
         id = client1.getClientId().getDomainId();
         name = client1.getName();

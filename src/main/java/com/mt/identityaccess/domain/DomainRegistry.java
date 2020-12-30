@@ -2,6 +2,7 @@ package com.mt.identityaccess.domain;
 
 import com.mt.common.domain.model.id.UniqueIdGeneratorService;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
+import com.mt.identityaccess.domain.model.client.EndpointRepository;
 import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
 import com.mt.identityaccess.domain.model.user.UserRepository;
 import com.mt.identityaccess.domain.service.*;
@@ -13,6 +14,8 @@ public class DomainRegistry {
     private static ClientRepository clientRepository;
     private static UserRepository userRepository;
     private static PendingUserRepository pendingUserRepository;
+    private static EndpointRepository endpointRepository;
+    private static EndpointService endpointService;
     private static EncryptionService encryptionService;
     private static AuthenticationService authenticationService;
     private static ClientService clientService;
@@ -28,6 +31,14 @@ public class DomainRegistry {
         return authenticationService;
     }
 
+    public static EndpointService endpointService() {
+        return endpointService;
+    }
+
+    public static EndpointRepository endpointRepository() {
+        return endpointRepository;
+    }
+
     public static PasswordResetTokenService passwordResetTokenService() {
         return passwordResetTokenService;
     }
@@ -41,8 +52,18 @@ public class DomainRegistry {
     }
 
     @Autowired
+    public void setEndpointService(EndpointService endpointService) {
+        DomainRegistry.endpointService = endpointService;
+    }
+
+    @Autowired
     public void setActivationCodeService(ActivationCodeService activationCodeService) {
         DomainRegistry.activationCodeService = activationCodeService;
+    }
+
+    @Autowired
+    public void setEndpointRepository(EndpointRepository endpointRepository) {
+        DomainRegistry.endpointRepository = endpointRepository;
     }
 
     @Autowired

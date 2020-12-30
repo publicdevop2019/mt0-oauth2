@@ -1,14 +1,14 @@
-package com.mt.identityaccess.application.client;
+package com.mt.identityaccess.application.client.representation;
 
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
 @Data
-public class UserClientCardRepresentation {
+public class ClientAutoApproveRepresentation {
     private Long id;
     private Boolean autoApprove;
 
-    public UserClientCardRepresentation(Object client) {
+    public ClientAutoApproveRepresentation(Object client) {
         BeanUtils.copyProperties(client, this);
     }
 }
