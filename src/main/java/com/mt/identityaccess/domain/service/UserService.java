@@ -1,8 +1,10 @@
 package com.mt.identityaccess.domain.service;
 
+import com.mt.common.domain.model.DomainEvent;
 import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.ActivationCode;
+import com.mt.identityaccess.domain.model.client.event.*;
 import com.mt.identityaccess.domain.model.pending_user.PendingUser;
 import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;
 import com.mt.identityaccess.domain.model.user.*;
@@ -64,5 +66,4 @@ public class UserService {
         DomainRegistry.userRepository().add(user.get());
         DomainEventPublisher.instance().publish(new UserPasswordChanged(user.get().getUserId()));
     }
-
 }

@@ -64,20 +64,4 @@ public class ClientService {
         return data;
     }
 
-    public void revokeTokenBasedOnChange(Object o) {
-        if (
-                o instanceof ClientAccessibleChanged ||
-                        o instanceof ClientAccessTokenValiditySecondsChanged ||
-                        o instanceof ClientAuthoritiesChanged ||
-                        o instanceof ClientGrantTypeChanged ||
-                        o instanceof ClientRefreshTokenChanged ||
-                        o instanceof ClientDeleted ||
-                        o instanceof ClientResourcesChanged ||
-                        o instanceof ClientScopesChanged ||
-                        o instanceof ClientSecretChanged
-        ) {
-            DomainRegistry.revokeTokenService().revokeClientToken(((DomainEvent) o).getDomainId());
-        }
-
-    }
 }

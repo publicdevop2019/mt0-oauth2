@@ -8,6 +8,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.mt.common.DeepCopyException;
 import com.mt.common.application.SubscribeForEvent;
+import com.mt.common.domain.model.DomainEvent;
 import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.common.rest.exception.AggregatePatchException;
 import com.mt.common.sql.PatchCommand;
@@ -16,10 +17,14 @@ import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.QueryConfig;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.ActivationCode;
+import com.mt.identityaccess.domain.model.client.event.*;
 import com.mt.identityaccess.domain.model.user.User;
 import com.mt.identityaccess.domain.model.user.UserEmail;
 import com.mt.identityaccess.domain.model.user.UserId;
+import com.mt.identityaccess.domain.model.user.event.UserAuthorityChanged;
 import com.mt.identityaccess.domain.model.user.event.UserDeleted;
+import com.mt.identityaccess.domain.model.user.event.UserGetLocked;
+import com.mt.identityaccess.domain.model.user.event.UserPasswordChanged;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -178,7 +183,16 @@ public class UserApplicationService implements UserDetailsService {
         }
         return client.map(SpringOAuth2UserDetailRepresentation::new).orElse(null);
     }
-
+    public void revokeTokenBasedOnChange(Object o) {
+        if (
+                o instanceof UserAuthorityChanged ||
+                        o instanceof UserDeleted ||
+                        o instanceof UserGetLocked ||
+                        o instanceof UserPasswordChanged
+        ) {
+            DomainRegistry.revokeTokenService().revokeUserToken(((DomainEvent) o).getDomainId());
+        }
+    }
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 

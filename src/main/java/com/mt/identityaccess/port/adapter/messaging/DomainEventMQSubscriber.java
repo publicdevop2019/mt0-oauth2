@@ -1,6 +1,6 @@
 package com.mt.identityaccess.port.adapter.messaging;
 
-import com.mt.identityaccess.domain.DomainRegistry;
+import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -38,7 +38,8 @@ public class DomainEventMQSubscriber {
                     e.printStackTrace();
                 }
                 log.debug("received message from mq");
-                DomainRegistry.clientService().revokeTokenBasedOnChange(o);
+                ApplicationServiceRegistry.clientApplicationService().revokeTokenBasedOnChange(o);
+                ApplicationServiceRegistry.userApplicationService().revokeTokenBasedOnChange(o);
             };
             channel.basicConsume(TASK_QUEUE_NAME, true, deliverCallback, consumerTag -> {
             });

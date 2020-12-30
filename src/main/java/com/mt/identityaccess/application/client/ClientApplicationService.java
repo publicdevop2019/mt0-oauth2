@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.mt.common.application.SubscribeForEvent;
+import com.mt.common.domain.model.DomainEvent;
 import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.common.rest.exception.AggregatePatchException;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
-import com.mt.identityaccess.domain.model.client.event.ClientDeleted;
-import com.mt.identityaccess.domain.model.client.event.ClientsBatchRemoved;
+import com.mt.identityaccess.domain.model.client.event.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;
@@ -181,5 +181,22 @@ public class ClientApplicationService implements ClientDetailsService {
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
         return client.map(SpringOAuth2ClientDetailsRepresentation::new).orElse(null);
+    }
+
+    public void revokeTokenBasedOnChange(Object o) {
+        if (
+                o instanceof ClientAccessibleChanged ||
+                        o instanceof ClientAccessTokenValiditySecondsChanged ||
+                        o instanceof ClientAuthoritiesChanged ||
+                        o instanceof ClientGrantTypeChanged ||
+                        o instanceof ClientRefreshTokenChanged ||
+                        o instanceof ClientDeleted ||
+                        o instanceof ClientResourcesChanged ||
+                        o instanceof ClientScopesChanged ||
+                        o instanceof ClientSecretChanged
+        ) {
+            DomainRegistry.revokeTokenService().revokeClientToken(((DomainEvent) o).getDomainId());
+        }
+
     }
 }
