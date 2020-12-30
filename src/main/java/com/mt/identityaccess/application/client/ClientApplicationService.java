@@ -68,13 +68,11 @@ public class ClientApplicationService implements ClientDetailsService {
 
     }
 
-    @SubscribeForEvent
     @Transactional(readOnly = true)
     public SumPagedRep<Client> clients(String queryParam, String pagingParam, String configParam) {
         return DomainRegistry.clientRepository().clientsOfQuery(new ClientQuery(queryParam), new ClientPaging(pagingParam), new QueryConfig(configParam));
     }
 
-    @SubscribeForEvent
     @Transactional(readOnly = true)
     public Optional<Client> client(String id) {
         return DomainRegistry.clientRepository().clientOfId(new ClientId(id));

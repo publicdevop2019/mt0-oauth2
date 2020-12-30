@@ -13,7 +13,7 @@ public class EventApplicationServiceScheduler {
     @Autowired
     private EventPublisher eventPublisher;
 
-//    @Scheduled(fixedRateString = "${fixedRate.in.milliseconds.notification}")
+    @Scheduled(fixedRateString = "${fixedRate.in.milliseconds.notification}")
     @Transactional
     public void publishEvents() {
         eventPublisher.publishNotifications();

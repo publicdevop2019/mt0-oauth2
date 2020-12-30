@@ -1,7 +1,9 @@
 package com.mt.identityaccess.domain.model.client;
 
 import com.mt.common.Auditable;
+import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
+import com.mt.identityaccess.domain.model.client.event.EndpointUpdated;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -68,5 +70,6 @@ public class Endpoint extends Auditable {
         setDescription(description);
         setPath(path);
         setMethod(method);
+        DomainEventPublisher.instance().publish(new EndpointUpdated(endpointId));
     }
 }

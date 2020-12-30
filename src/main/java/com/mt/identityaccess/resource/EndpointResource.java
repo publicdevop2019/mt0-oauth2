@@ -19,7 +19,7 @@ import java.util.Optional;
 import static com.mt.common.AppConstant.*;
 
 @RestController
-@RequestMapping(produces = "application/json", path = "proxy/endpoints")
+@RequestMapping(produces = "application/json", path = "endpoints")
 public class EndpointResource {
 
     @Autowired

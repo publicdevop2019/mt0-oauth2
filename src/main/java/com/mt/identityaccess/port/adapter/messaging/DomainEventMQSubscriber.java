@@ -40,6 +40,7 @@ public class DomainEventMQSubscriber {
                 log.debug("received message from mq");
                 ApplicationServiceRegistry.clientApplicationService().revokeTokenBasedOnChange(o);
                 ApplicationServiceRegistry.userApplicationService().revokeTokenBasedOnChange(o);
+                ApplicationServiceRegistry.endpointApplicationService().reloadInProxy(o);
             };
             channel.basicConsume(TASK_QUEUE_NAME, true, deliverCallback, consumerTag -> {
             });

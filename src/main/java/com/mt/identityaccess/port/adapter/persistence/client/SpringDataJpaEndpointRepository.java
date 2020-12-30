@@ -54,7 +54,7 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
         return getSumPagedRep(endpointQuery.value(), endpointPaging.value(), queryConfig.value());
     }
 
-    default SumPagedRep<Endpoint> endpointsOfQuery(ClientQuery clientQuery, ClientPaging clientPaging) {
+    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery clientQuery, EndpointPaging clientPaging) {
         return getSumPagedRep(clientQuery.value(), clientPaging.value(), null);
     }
 

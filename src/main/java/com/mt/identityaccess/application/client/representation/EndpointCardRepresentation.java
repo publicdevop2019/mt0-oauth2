@@ -19,6 +19,7 @@ public class EndpointCardRepresentation {
         this.expression = endpoint.getExpression();
         this.description = endpoint.getDescription();
         this.resourceId = endpoint.getClientId().getDomainId();
+        this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.version = endpoint.getVersion();
     }

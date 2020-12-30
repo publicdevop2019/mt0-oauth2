@@ -21,18 +21,24 @@ import com.mt.identityaccess.domain.model.client.event.EndpointCreated;
 import com.mt.identityaccess.domain.model.client.event.EndpointDeleted;
 import com.mt.identityaccess.domain.model.client.event.EndpointUpdated;
 import com.mt.identityaccess.domain.model.client.event.EndpointsBatchDeleted;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class EndpointApplicationService {
+    public static final String EXCHANGE_RELOAD_EP_CACHE = "reloadEpCache";
     @Autowired
     private ObjectMapper om;
 
@@ -77,7 +83,6 @@ public class EndpointApplicationService {
                         command.getPath(),
                         command.getMethod()
                 );
-                DomainEventPublisher.instance().publish(new EndpointUpdated(endpointId));
                 DomainRegistry.endpointRepository().add(endpoint1);
             });
         }
@@ -134,6 +139,26 @@ public class EndpointApplicationService {
                         finalMiddleLayer.getPath()
                 );
             });
+        }
+    }
+
+    public void reloadInProxy(Object o) {
+        if (
+                o instanceof EndpointUpdated ||
+                        o instanceof EndpointCreated ||
+                        o instanceof EndpointDeleted ||
+                        o instanceof EndpointsBatchDeleted
+        ) {
+            ConnectionFactory factory = new ConnectionFactory();
+            factory.setHost("localhost");
+            try (Connection connection = factory.newConnection();
+                 Channel channel = connection.createChannel()) {
+                channel.exchangeDeclare(EXCHANGE_RELOAD_EP_CACHE, "fanout");
+                channel.basicPublish(EXCHANGE_RELOAD_EP_CACHE, "", null, null);
+                log.debug("sent clean filter cache message");
+            } catch (IOException | TimeoutException e) {
+                log.error("error in mq", e);
+            }
         }
     }
 }
