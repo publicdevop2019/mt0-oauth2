@@ -1,10 +1,12 @@
 package com.mt.identityaccess.application.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import com.mt.common.DeepCopyException;
 import com.mt.common.application.SubscribeForEvent;
 import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.common.rest.exception.AggregatePatchException;
@@ -26,6 +28,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -100,34 +103,37 @@ public class UserApplicationService implements UserDetailsService {
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
-        UserId userId = new UserId(id);
-        Optional<User> user = DomainRegistry.userRepository().userOfId(userId);
-        if (user.isPresent()) {
-            User original = user.get();
-            UserPatchingCommand middleLayer = new UserPatchingCommand(original);
-            try {
-                JsonNode jsonNode = om.convertValue(middleLayer, JsonNode.class);
-                JsonNode patchedNode = command.apply(jsonNode);
-                middleLayer = om.treeToValue(patchedNode, UserPatchingCommand.class);
-            } catch (JsonPatchException | JsonProcessingException e) {
-                log.error("error during patching", e);
-                throw new AggregatePatchException();
-            }
-            UserPatchingCommand finalMiddleLayer = middleLayer;
-            ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+            UserId userId = new UserId(id);
+            Optional<User> user = DomainRegistry.userRepository().userOfId(userId);
+            if (user.isPresent()) {
+                User original = user.get();
+                UserPatchingCommand middleLayer = new UserPatchingCommand(original);
+                try {
+                    JsonNode jsonNode = om.convertValue(middleLayer, JsonNode.class);
+                    JsonNode patchedNode = command.apply(jsonNode);
+                    middleLayer = om.treeToValue(patchedNode, UserPatchingCommand.class);
+                } catch (JsonPatchException | JsonProcessingException e) {
+                    log.error("error during patching", e);
+                    throw new AggregatePatchException();
+                }
+                UserPatchingCommand finalMiddleLayer = middleLayer;
                 original.replace(
                         finalMiddleLayer.getGrantedAuthorities(),
                         finalMiddleLayer.isLocked(),
                         original.isSubscription()
                 );
-            });
-        }
+            }
+        });
     }
 
     @SubscribeForEvent
     @Transactional
-    public void patchBatch(List<PatchCommand> patch, String changeId) {
-
+    public void patchBatch(List<PatchCommand> commands, String changeId) {
+        List<PatchCommand> deepCopy = getDeepCopy(commands);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(deepCopy, changeId, (ignored) -> {
+            DomainRegistry.userRepository().batchLock(commands);
+        });
     }
 
     @SubscribeForEvent
@@ -179,5 +185,17 @@ public class UserApplicationService implements UserDetailsService {
     private static boolean isEmail(String emailStr) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
         return matcher.find();
+    }
+
+    private List<PatchCommand> getDeepCopy(List<PatchCommand> patchCommands) {
+        List<PatchCommand> deepCopy;
+        try {
+            deepCopy = om.readValue(om.writeValueAsString(patchCommands), new TypeReference<List<PatchCommand>>() {
+            });
+        } catch (IOException e) {
+            log.error("error during deep copy", e);
+            throw new DeepCopyException();
+        }
+        return deepCopy;
     }
 }

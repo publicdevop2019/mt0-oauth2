@@ -1,5 +1,6 @@
 package com.mt.identityaccess.port.adapter.persistence.user;
 
+import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.client.QueryConfig;
 import com.mt.identityaccess.application.user.UserPaging;
@@ -48,6 +49,10 @@ public interface HibernateUserRepository extends JpaRepository<User, Long>, User
 
     default SumPagedRep<User> usersOfQuery(UserQuery userQuery, UserPaging userPaging, QueryConfig queryConfig) {
         return getSumPagedRep(userQuery.getValue(), userPaging.value(), queryConfig.value());
+    }
+
+    default void batchLock(List<PatchCommand> commands) {
+        QueryBuilderRegistry.updateUserQueryBuilder().update(commands, User.class);
     }
 
     default SumPagedRep<User> usersOfQuery(UserQuery userQuery, UserPaging userPaging) {

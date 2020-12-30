@@ -1,15 +1,14 @@
 package com.mt.identityaccess.application.user;
 
-import com.mt.identityaccess.domain.model.user.User;
 import com.mt.identityaccess.domain.model.user.Role;
+import com.mt.identityaccess.domain.model.user.User;
 import lombok.Data;
-import org.springframework.beans.BeanUtils;
 
 import java.util.Set;
 
 @Data
 public class UserRepresentation {
-    private Long id;
+    private String id;
 
     private String email;
     private boolean locked;
@@ -23,9 +22,15 @@ public class UserRepresentation {
     private Long modifiedAt;
     private boolean subscription;
 
-    public UserRepresentation(User bizUser) {
-        BeanUtils.copyProperties(bizUser, this);
-        this.createdAt = bizUser.getCreatedAt().getTime();
-        this.modifiedAt = bizUser.getModifiedAt().getTime();
+    public UserRepresentation(User user) {
+        this.id = user.getUserId().getDomainId();
+        this.email = user.getEmail().getEmail();
+        this.locked = user.isLocked();
+        this.grantedAuthorities = user.getGrantedAuthorities();
+        this.createdBy = user.getCreatedBy();
+        this.createdAt = user.getCreatedAt().getTime();
+        this.modifiedBy = user.getModifiedBy();
+        this.modifiedAt = user.getModifiedAt().getTime();
+        this.subscription = user.isSubscription();
     }
 }
