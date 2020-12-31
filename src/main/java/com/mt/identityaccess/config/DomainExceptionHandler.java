@@ -1,6 +1,7 @@
 package com.mt.identityaccess.config;
 
 import com.mt.common.ErrorMessage;
+import com.mt.identityaccess.application.client.DuplicateEndpointException;
 import com.mt.identityaccess.application.client.RootClientDeleteException;
 import com.mt.identityaccess.application.user.RootUserDeleteException;
 import org.springframework.core.Ordered;
@@ -26,7 +27,8 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             RootClientDeleteException.class,
             RootUserDeleteException.class,
             IllegalArgumentException.class,
-            OAuth2Exception.class
+            OAuth2Exception.class,
+            DuplicateEndpointException.class
     })
     protected ResponseEntity<Object> handleException(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);

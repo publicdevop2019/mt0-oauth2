@@ -21,7 +21,6 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Where(clause = "deleted=0")
 public class Endpoint extends Auditable {
-    public static final String ENTITY_RESOURCE_ID = "resourceId";
     public static final String ENTITY_PATH = "path";
     public static final String ENTITY_METHOD = "method";
     public static final String ENTITY_EXPRESSION = "expression";

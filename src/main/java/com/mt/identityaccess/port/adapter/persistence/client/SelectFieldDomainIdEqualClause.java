@@ -1,7 +1,6 @@
 package com.mt.identityaccess.port.adapter.persistence.client;
 
 import com.mt.common.sql.clause.WhereClause;
-import com.mt.identityaccess.domain.model.client.Client;
 
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -10,17 +9,20 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectFieldClientIdEqualClause extends WhereClause<Client> {
-    public SelectFieldClientIdEqualClause() {
+public class SelectFieldDomainIdEqualClause<T> extends WhereClause<T> {
+    private String domainIdName;
+
+    public SelectFieldDomainIdEqualClause(String domainIdName) {
         super();
+        this.domainIdName = domainIdName;
     }
 
     @Override
-    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<Client> root, AbstractQuery<?> abstractQuery) {
+    public Predicate getWhereClause(String query, CriteriaBuilder cb, Root<T> root, AbstractQuery<?> abstractQuery) {
         String[] split = query.split("\\.");
         List<Predicate> results = new ArrayList<>();
         for (String str : split) {
-            results.add(cb.equal(root.get("clientId").get("domainId"), str));
+            results.add(cb.equal(root.get(this.domainIdName).get("domainId"), str));
         }
         return cb.or(results.toArray(new Predicate[0]));
     }
