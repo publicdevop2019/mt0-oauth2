@@ -106,7 +106,7 @@ public class Client extends Auditable {
     }
 
     public void setAuthorities(Set<Authority> authorities) {
-        this.authorities = EnumSet.copyOf(authorities);
+        this.authorities = authorities;
         if (accessible) {
             if (
                     authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
@@ -267,6 +267,10 @@ public class Client extends Auditable {
         AuthorizationCodeGrant.detectChange(this.getAuthorizationCodeGrant(), authorizationCodeGrant, getClientId());
         setAuthorizationCodeGrant(authorizationCodeGrant);
         DomainEventPublisher.instance().publish(new ClientUpdated(getClientId()));
+    }
+
+    public Endpoint addNewEndpoint(String expression, String description, String path, EndpointId endpointId, String method) {
+        return new Endpoint(getClientId(), expression, description, path, endpointId, method);
     }
 
     private void setSecret(String secret) {

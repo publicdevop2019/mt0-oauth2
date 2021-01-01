@@ -12,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class PendingUserApplicationService {
     @SubscribeForEvent
     @Transactional
-    public RegistrationEmail create(AppCreatePendingUserCommand command, String operationId) {
+    public String create(AppCreatePendingUserCommand command, String operationId) {
         RegistrationEmail registrationEmail = new RegistrationEmail(command.getEmail());
-        return (RegistrationEmail) ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, registrationEmail,
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, registrationEmail,
                 () -> DomainRegistry.pendingUserService().createOrUpdatePendingUser(registrationEmail, new ActivationCode())
         );
     }

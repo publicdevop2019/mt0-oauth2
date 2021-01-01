@@ -14,11 +14,13 @@ import java.io.Serializable;
 @MappedSuperclass
 public class DomainId implements Serializable {
     @Getter
-    @Column(unique = true, updatable = false,nullable = false)
+    @Column(unique = true, updatable = false, nullable = false)
     @Setter(AccessLevel.PROTECTED)
     private String domainId;
 
     public DomainId(String domainId) {
+        if (this.domainId != null)
+            throw new IllegalStateException("domain id already present");
         this.domainId = domainId;
     }
 

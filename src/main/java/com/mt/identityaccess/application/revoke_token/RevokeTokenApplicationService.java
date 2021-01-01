@@ -15,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class RevokeTokenApplicationService {
     @SubscribeForEvent
     @Transactional
-    public RevokeTokenId create(CreateRevokeTokenCommand command, String changeId) {
+    public String create(CreateRevokeTokenCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId();
-        return (RevokeTokenId) ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
             boolean b = DomainRegistry.authenticationService().userInRole(Role.ROLE_ROOT);
             if (!b && command.getType().equals(RevokeToken.TokenType.CLIENT))
                 throw new IllegalArgumentException("type can only be user");
@@ -28,9 +28,9 @@ public class RevokeTokenApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public RevokeTokenId internalOnlyCreate(CreateRevokeTokenCommand command, String changeId) {
+    public String internalOnlyCreate(CreateRevokeTokenCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId();
-        return (RevokeTokenId) ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
             DomainRegistry.revokeTokenRepository().add(new RevokeToken(command.getId(), revokeTokenId, command.getType()));
             return revokeTokenId;
         });

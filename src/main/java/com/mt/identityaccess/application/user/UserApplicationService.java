@@ -47,9 +47,9 @@ public class UserApplicationService implements UserDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public UserId create(AppCreateUserCommand command, String operationId) {
+    public String create(AppCreateUserCommand command, String operationId) {
         UserId userId = DomainRegistry.userRepository().nextIdentity();
-        return (UserId) ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, userId,
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, userId,
                 () -> DomainRegistry.userService().create(
                         new UserEmail(command.getEmail()),
                         command.getPassword(),

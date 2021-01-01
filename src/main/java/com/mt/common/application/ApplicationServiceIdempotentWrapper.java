@@ -7,7 +7,6 @@ import com.mt.common.idempotent.command.AppCreateChangeRecordCommand;
 import com.mt.common.idempotent.representation.AppChangeRecordCardRep;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.domain.model.client.Client;
-import com.mt.identityaccess.domain.model.client.ClientId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,19 +23,19 @@ public class ApplicationServiceIdempotentWrapper {
     @Autowired
     AppChangeRecordApplicationService appChangeRecordApplicationService;
 
-    public DomainId idempotentCreate(Object command, String changeId, DomainId domainId, Supplier<DomainId> wrapper) {
+    public String idempotentCreate(Object command, String changeId, DomainId domainId, Supplier<DomainId> wrapper) {
         String entityType = getEntityName();
         if (changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
             SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + entityType, null, "sc:1");
-            return new ClientId(appChangeRecordCardRepSumPagedRep.getData().get(0).getQuery().replace("id:", ""));
+            return appChangeRecordCardRepSumPagedRep.getData().get(0).getQuery().replace("id:", "");
         } else if (changeAlreadyExist(changeId) && !changeAlreadyRevoked(changeId)) {
             SumPagedRep<AppChangeRecordCardRep> appChangeRecordCardRepSumPagedRep = appChangeRecordApplicationService.readByQuery(CHANGE_ID + ":" + changeId + "," + ENTITY_TYPE + ":" + entityType, null, "sc:1");
-            return new ClientId(appChangeRecordCardRepSumPagedRep.getData().get(0).getQuery().replace("id:", ""));
+            return appChangeRecordCardRepSumPagedRep.getData().get(0).getQuery().replace("id:", "");
         } else if (!changeAlreadyExist(changeId) && changeAlreadyRevoked(changeId)) {
-            return new ClientId();
+            return "";
         } else {
             saveChangeRecord(command, changeId, OperationType.POST, "id:" + domainId.getDomainId(), null, null);
-            return wrapper.get();
+            return wrapper.get().getDomainId();
         }
     }
 

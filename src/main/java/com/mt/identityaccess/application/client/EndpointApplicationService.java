@@ -14,6 +14,7 @@ import com.mt.identityaccess.application.client.command.EndpointCreateCommand;
 import com.mt.identityaccess.application.client.command.EndpointPatchCommand;
 import com.mt.identityaccess.application.client.command.EndpointUpdateCommand;
 import com.mt.identityaccess.domain.DomainRegistry;
+import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.client.Endpoint;
 import com.mt.identityaccess.domain.model.client.EndpointId;
@@ -44,18 +45,24 @@ public class EndpointApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public EndpointId create(EndpointCreateCommand command, String changeId) {
+    public String create(EndpointCreateCommand command, String changeId) {
         EndpointId endpointId = new EndpointId();
-        return (EndpointId) ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, endpointId, () -> {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, endpointId, () -> {
             String s = "resourceId:" + command.getResourceId() + ",path:" + command.getPath() + ",method:" + command.getMethod();
             SumPagedRep<Endpoint> endpointSumPagedRep = DomainRegistry.endpointRepository().endpointsOfQuery(new EndpointQuery(s), new EndpointPaging(), new QueryConfig("sc:1"));
             if (!endpointSumPagedRep.getData().isEmpty())
                 throw new DuplicateEndpointException();
             String resourceId = command.getResourceId();
-            Endpoint endpoint = new Endpoint(command.getExpression(), command.getDescription(), new ClientId(resourceId), command.getPath(), endpointId, command.getMethod());
-            DomainRegistry.endpointRepository().add(endpoint);
-            DomainEventPublisher.instance().publish(new EndpointCreated(endpointId));
-            return endpointId;
+            Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(resourceId));
+            if (client.isPresent()) {
+                Client client1 = client.get();
+                Endpoint endpoint = client1.addNewEndpoint(command.getExpression(), command.getDescription(), command.getPath(), endpointId, command.getMethod());
+                DomainRegistry.endpointRepository().add(endpoint);
+                DomainEventPublisher.instance().publish(new EndpointCreated(endpointId));
+                return endpointId;
+            } else {
+                throw new InvalidClientIdException();
+            }
         });
     }
 

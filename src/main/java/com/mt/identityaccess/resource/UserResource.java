@@ -28,8 +28,7 @@ public class UserResource {
     @PostMapping("app")
     public ResponseEntity<Void> createForApp(@RequestBody AppCreateUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         validator.validate("appCreateUserCommand", command);
-        UserId userId = ApplicationServiceRegistry.userApplicationService().create(command, changeId);
-        return ResponseEntity.ok().header("Location", userId.getDomainId()).build();
+        return ResponseEntity.ok().header("Location", ApplicationServiceRegistry.userApplicationService().create(command, changeId)).build();
     }
 
     @GetMapping("admin")

@@ -39,9 +39,9 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public ClientId create(ClientCreateCommand command, String operationId) {
+    public String create(ClientCreateCommand command, String operationId) {
         ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
-        return (ClientId) ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, clientId,
+        return  ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, clientId,
                 () -> {
                     RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
                     PasswordGrant passwordGrantDetail = new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);

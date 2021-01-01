@@ -28,8 +28,7 @@ public class EndpointResource {
     @PostMapping("root")
     public ResponseEntity<Void> createForRoot(@RequestBody EndpointCreateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         validator.validate("rootCreateBizEndpointCommand", command);
-        EndpointId endpointId = ApplicationServiceRegistry.endpointApplicationService().create(command, changeId);
-        return ResponseEntity.ok().header("Location", endpointId.getDomainId()).build();
+        return ResponseEntity.ok().header("Location", ApplicationServiceRegistry.endpointApplicationService().create(command, changeId)).build();
     }
 
     @GetMapping("root")

@@ -54,7 +54,7 @@ public class Endpoint extends Auditable {
     @Setter(AccessLevel.NONE)
     private Integer version;
 
-    public Endpoint(String expression, String description, ClientId clientId, @NotBlank String path, EndpointId endpointId, @NotBlank String method) {
+    public Endpoint(ClientId clientId, String expression, String description, @NotBlank String path, EndpointId endpointId, @NotBlank String method) {
         setId(DomainRegistry.uniqueIdGeneratorService().id());
         setExpression(expression);
         setDescription(description);
