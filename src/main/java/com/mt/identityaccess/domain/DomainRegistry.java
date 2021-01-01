@@ -4,6 +4,7 @@ import com.mt.common.domain.model.id.UniqueIdGeneratorService;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
 import com.mt.identityaccess.domain.model.client.EndpointRepository;
 import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
+import com.mt.identityaccess.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.identityaccess.domain.model.user.UserRepository;
 import com.mt.identityaccess.domain.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,11 @@ public class DomainRegistry {
     private static ActivationCodeService activationCodeService;
     private static PasswordResetTokenService passwordResetTokenService;
     private static UserNotificationService userNotificationService;
+    private static RevokeTokenRepository revokeTokenRepository;
+
+    public static RevokeTokenRepository revokeTokenRepository() {
+        return revokeTokenRepository;
+    }
 
     public static AuthenticationService authenticationService() {
         return authenticationService;
@@ -54,6 +60,11 @@ public class DomainRegistry {
     @Autowired
     public void setEndpointService(EndpointService endpointService) {
         DomainRegistry.endpointService = endpointService;
+    }
+
+    @Autowired
+    public void setRevokeTokenRepository(RevokeTokenRepository revokeTokenRepository) {
+        DomainRegistry.revokeTokenRepository = revokeTokenRepository;
     }
 
     @Autowired

@@ -32,6 +32,7 @@ import java.util.Set;
 @Getter
 @Setter(AccessLevel.PRIVATE)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(length=100)
 public abstract class DomainEvent implements Serializable {
 
     @Id

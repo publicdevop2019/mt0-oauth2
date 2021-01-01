@@ -4,6 +4,7 @@ import com.mt.common.application.ApplicationServiceIdempotentWrapper;
 import com.mt.identityaccess.application.client.ClientApplicationService;
 import com.mt.identityaccess.application.client.EndpointApplicationService;
 import com.mt.identityaccess.application.pending_user.PendingUserApplicationService;
+import com.mt.identityaccess.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.identityaccess.application.user.UserApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,13 +15,23 @@ public class ApplicationServiceRegistry {
     private static PendingUserApplicationService pendingUserApplicationService;
     private static UserApplicationService userApplicationService;
     private static EndpointApplicationService endpointApplicationService;
+    private static RevokeTokenApplicationService revokeTokenApplicationService;
 
     public static UserApplicationService userApplicationService() {
         return userApplicationService;
     }
 
+    public static RevokeTokenApplicationService revokeTokenApplicationService() {
+        return revokeTokenApplicationService;
+    }
+
     public static EndpointApplicationService endpointApplicationService() {
         return endpointApplicationService;
+    }
+
+    @Autowired
+    public void setRevokeTokenApplicationService(RevokeTokenApplicationService revokeTokenApplicationService) {
+        ApplicationServiceRegistry.revokeTokenApplicationService = revokeTokenApplicationService;
     }
 
     @Autowired
