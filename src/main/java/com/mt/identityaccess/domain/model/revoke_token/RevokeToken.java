@@ -29,6 +29,7 @@ public class RevokeToken extends Auditable implements Aggregate {
     private Long issuedAt;
 
     @Column(nullable = false)
+    @Embedded
     private RevokeTokenId revokeTokenId;
     @Convert(converter = TokenType.DBConverter.class)
     @Column(nullable = false)
