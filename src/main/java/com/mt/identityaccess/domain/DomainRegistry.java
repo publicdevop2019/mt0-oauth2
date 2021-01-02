@@ -2,7 +2,7 @@ package com.mt.identityaccess.domain;
 
 import com.mt.common.domain.model.id.UniqueIdGeneratorService;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
-import com.mt.identityaccess.domain.model.client.EndpointRepository;
+import com.mt.identityaccess.domain.model.endpoint.EndpointRepository;
 import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
 import com.mt.identityaccess.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.identityaccess.domain.model.user.UserRepository;

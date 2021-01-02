@@ -6,6 +6,8 @@ import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.event.*;
+import com.mt.identityaccess.domain.model.endpoint.Endpoint;
+import com.mt.identityaccess.domain.model.endpoint.EndpointId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

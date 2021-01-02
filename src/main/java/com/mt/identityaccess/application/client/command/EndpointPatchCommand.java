@@ -1,7 +1,7 @@
 package com.mt.identityaccess.application.client.command;
 
 import com.mt.common.rest.TypedClass;
-import com.mt.identityaccess.domain.model.client.Endpoint;
+import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import lombok.Data;
 
 @Data

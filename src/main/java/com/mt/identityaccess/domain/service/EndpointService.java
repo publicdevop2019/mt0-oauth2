@@ -4,7 +4,7 @@ import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.client.EndpointPaging;
 import com.mt.identityaccess.application.client.EndpointQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
-import com.mt.identityaccess.domain.model.client.Endpoint;
+import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

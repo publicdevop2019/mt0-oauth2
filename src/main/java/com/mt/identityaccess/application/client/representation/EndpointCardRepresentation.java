@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.client.representation;
 
-import com.mt.identityaccess.domain.model.client.Endpoint;
+import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import lombok.Data;
 
 @Data

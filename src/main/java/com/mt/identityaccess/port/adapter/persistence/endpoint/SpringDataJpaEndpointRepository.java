@@ -1,11 +1,11 @@
-package com.mt.identityaccess.port.adapter.persistence.client;
+package com.mt.identityaccess.port.adapter.persistence.endpoint;
 
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.identityaccess.application.client.*;
-import com.mt.identityaccess.domain.model.client.Endpoint;
-import com.mt.identityaccess.domain.model.client.EndpointId;
-import com.mt.identityaccess.domain.model.client.EndpointRepository;
+import com.mt.identityaccess.domain.model.endpoint.Endpoint;
+import com.mt.identityaccess.domain.model.endpoint.EndpointId;
+import com.mt.identityaccess.domain.model.endpoint.EndpointRepository;
 import com.mt.identityaccess.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

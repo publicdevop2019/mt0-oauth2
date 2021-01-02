@@ -1,4 +1,4 @@
-package com.mt.identityaccess.domain.model.client;
+package com.mt.identityaccess.domain.model.endpoint;
 
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.client.EndpointPaging;

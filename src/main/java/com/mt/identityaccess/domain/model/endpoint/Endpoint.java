@@ -1,9 +1,10 @@
-package com.mt.identityaccess.domain.model.client;
+package com.mt.identityaccess.domain.model.endpoint;
 
 import com.mt.common.Auditable;
 import com.mt.common.domain.model.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
-import com.mt.identityaccess.domain.model.client.event.EndpointUpdated;
+import com.mt.identityaccess.domain.model.client.ClientId;
+import com.mt.identityaccess.domain.model.endpoint.event.EndpointUpdated;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

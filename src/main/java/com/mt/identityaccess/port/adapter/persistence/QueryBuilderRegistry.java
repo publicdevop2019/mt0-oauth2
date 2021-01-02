@@ -1,7 +1,7 @@
 package com.mt.identityaccess.port.adapter.persistence;
 
 import com.mt.identityaccess.port.adapter.persistence.client.ClientQueryBuilder;
-import com.mt.identityaccess.port.adapter.persistence.client.EndpointQueryBuilder;
+import com.mt.identityaccess.port.adapter.persistence.endpoint.EndpointQueryBuilder;
 import com.mt.identityaccess.port.adapter.persistence.revoke_token.RevokeTokenQueryBuilder;
 import com.mt.identityaccess.port.adapter.persistence.user.UpdateUserQueryBuilder;
 import com.mt.identityaccess.port.adapter.persistence.user.UserQueryBuilder;

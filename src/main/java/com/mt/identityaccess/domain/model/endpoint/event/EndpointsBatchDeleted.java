@@ -1,9 +1,8 @@
-package com.mt.identityaccess.domain.model.client.event;
+package com.mt.identityaccess.domain.model.endpoint.event;
 
 import com.mt.common.domain.model.DomainEvent;
 import com.mt.common.domain.model.id.DomainId;
-import com.mt.identityaccess.domain.model.client.ClientId;
-import com.mt.identityaccess.domain.model.client.EndpointId;
+import com.mt.identityaccess.domain.model.endpoint.EndpointId;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
