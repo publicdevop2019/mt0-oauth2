@@ -16,7 +16,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 @Entity
-@Table
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"domainId", "path", "method"}))
 @Slf4j
 @NoArgsConstructor
 @Getter

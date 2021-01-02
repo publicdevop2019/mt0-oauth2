@@ -1,7 +1,6 @@
 package com.mt.identityaccess.config;
 
 import com.mt.common.ErrorMessage;
-import com.mt.identityaccess.application.client.DuplicateEndpointException;
 import com.mt.identityaccess.application.client.InvalidClientIdException;
 import com.mt.identityaccess.application.client.RootClientDeleteException;
 import com.mt.identityaccess.application.user.RootUserDeleteException;
@@ -29,7 +28,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             RootUserDeleteException.class,
             IllegalArgumentException.class,
             OAuth2Exception.class,
-            DuplicateEndpointException.class,
             InvalidClientIdException.class
     })
     protected ResponseEntity<Object> handleException(RuntimeException ex, WebRequest request) {

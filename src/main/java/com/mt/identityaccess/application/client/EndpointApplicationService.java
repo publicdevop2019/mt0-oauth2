@@ -48,10 +48,6 @@ public class EndpointApplicationService {
     public String create(EndpointCreateCommand command, String changeId) {
         EndpointId endpointId = new EndpointId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, endpointId, () -> {
-            String s = "resourceId:" + command.getResourceId() + ",path:" + command.getPath() + ",method:" + command.getMethod();
-            SumPagedRep<Endpoint> endpointSumPagedRep = DomainRegistry.endpointRepository().endpointsOfQuery(new EndpointQuery(s), new EndpointPaging(), new QueryConfig("sc:1"));
-            if (!endpointSumPagedRep.getData().isEmpty())
-                throw new DuplicateEndpointException();
             String resourceId = command.getResourceId();
             Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(resourceId));
             if (client.isPresent()) {
