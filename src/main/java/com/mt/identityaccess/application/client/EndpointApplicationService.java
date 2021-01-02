@@ -1,13 +1,8 @@
 package com.mt.identityaccess.application.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
 import com.mt.common.application.SubscribeForEvent;
 import com.mt.common.domain.model.DomainEventPublisher;
-import com.mt.common.rest.exception.AggregatePatchException;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.command.EndpointCreateCommand;
@@ -26,7 +21,6 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +34,6 @@ import java.util.stream.Collectors;
 @Service
 public class EndpointApplicationService {
     public static final String EXCHANGE_RELOAD_EP_CACHE = "reloadEpCache";
-    @Autowired
-    private ObjectMapper om;
 
     @SubscribeForEvent
     @Transactional
@@ -124,22 +116,14 @@ public class EndpointApplicationService {
         Optional<Endpoint> endpoint = DomainRegistry.endpointRepository().endpointOfId(endpointId);
         if (endpoint.isPresent()) {
             Endpoint endpoint1 = endpoint.get();
-            EndpointPatchCommand middleLayer = new EndpointPatchCommand(endpoint1);
-            try {
-                JsonNode jsonNode = om.convertValue(middleLayer, JsonNode.class);
-                JsonNode patchedNode = command.apply(jsonNode);
-                middleLayer = om.treeToValue(patchedNode, EndpointPatchCommand.class);
-            } catch (JsonPatchException | JsonProcessingException e) {
-                log.error("error during patching", e);
-                throw new AggregatePatchException();
-            }
-            EndpointPatchCommand finalMiddleLayer = middleLayer;
+            EndpointPatchCommand beforePatch = new EndpointPatchCommand(endpoint1);
+            EndpointPatchCommand afterPatch = DomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, EndpointPatchCommand.class);
             ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
                 endpoint1.replace(
-                        finalMiddleLayer.getExpression(),
-                        finalMiddleLayer.getDescription(),
-                        finalMiddleLayer.getMethod(),
-                        finalMiddleLayer.getPath()
+                        afterPatch.getExpression(),
+                        afterPatch.getDescription(),
+                        afterPatch.getMethod(),
+                        afterPatch.getPath()
                 );
             });
         }

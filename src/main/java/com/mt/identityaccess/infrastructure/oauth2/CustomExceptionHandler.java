@@ -1,4 +1,4 @@
-package com.mt.identityaccess.config;
+package com.mt.identityaccess.infrastructure.oauth2;
 
 import com.mt.common.ErrorMessage;
 import com.mt.identityaccess.application.client.InvalidClientIdException;
@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
+public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
             RedirectMismatchException.class,

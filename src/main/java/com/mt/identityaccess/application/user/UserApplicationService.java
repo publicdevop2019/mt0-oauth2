@@ -1,23 +1,15 @@
 package com.mt.identityaccess.application.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.mt.common.DeepCopyException;
 import com.mt.common.application.SubscribeForEvent;
 import com.mt.common.domain.model.DomainEvent;
 import com.mt.common.domain.model.DomainEventPublisher;
-import com.mt.common.rest.exception.AggregatePatchException;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.QueryConfig;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.ActivationCode;
-import com.mt.identityaccess.domain.model.client.event.*;
 import com.mt.identityaccess.domain.model.user.User;
 import com.mt.identityaccess.domain.model.user.UserEmail;
 import com.mt.identityaccess.domain.model.user.UserId;
@@ -26,14 +18,12 @@ import com.mt.identityaccess.domain.model.user.event.UserDeleted;
 import com.mt.identityaccess.domain.model.user.event.UserGetLocked;
 import com.mt.identityaccess.domain.model.user.event.UserPasswordChanged;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -42,8 +32,6 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service
 public class UserApplicationService implements UserDetailsService {
-    @Autowired
-    private ObjectMapper om;
 
     @SubscribeForEvent
     @Transactional
@@ -113,19 +101,11 @@ public class UserApplicationService implements UserDetailsService {
             Optional<User> user = DomainRegistry.userRepository().userOfId(userId);
             if (user.isPresent()) {
                 User original = user.get();
-                UserPatchingCommand middleLayer = new UserPatchingCommand(original);
-                try {
-                    JsonNode jsonNode = om.convertValue(middleLayer, JsonNode.class);
-                    JsonNode patchedNode = command.apply(jsonNode);
-                    middleLayer = om.treeToValue(patchedNode, UserPatchingCommand.class);
-                } catch (JsonPatchException | JsonProcessingException e) {
-                    log.error("error during patching", e);
-                    throw new AggregatePatchException();
-                }
-                UserPatchingCommand finalMiddleLayer = middleLayer;
+                UserPatchingCommand beforePatch = new UserPatchingCommand(original);
+                UserPatchingCommand afterPatch = DomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, UserPatchingCommand.class);
                 original.replace(
-                        finalMiddleLayer.getGrantedAuthorities(),
-                        finalMiddleLayer.isLocked(),
+                        afterPatch.getGrantedAuthorities(),
+                        afterPatch.isLocked(),
                         original.isSubscription()
                 );
             }
@@ -135,7 +115,7 @@ public class UserApplicationService implements UserDetailsService {
     @SubscribeForEvent
     @Transactional
     public void patchBatch(List<PatchCommand> commands, String changeId) {
-        List<PatchCommand> deepCopy = getDeepCopy(commands);
+        List<PatchCommand> deepCopy = DomainRegistry.customObjectSerializer().deepCopy(commands);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(deepCopy, changeId, (ignored) -> {
             DomainRegistry.userRepository().batchLock(commands);
         });
@@ -183,6 +163,7 @@ public class UserApplicationService implements UserDetailsService {
         }
         return client.map(SpringOAuth2UserDetailRepresentation::new).orElse(null);
     }
+
     public void revokeTokenBasedOnChange(Object o) {
         if (
                 o instanceof UserAuthorityChanged ||
@@ -193,23 +174,12 @@ public class UserApplicationService implements UserDetailsService {
             DomainRegistry.revokeTokenService().revokeUserToken(((DomainEvent) o).getDomainId());
         }
     }
+
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
     private static boolean isEmail(String emailStr) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
         return matcher.find();
-    }
-
-    private List<PatchCommand> getDeepCopy(List<PatchCommand> patchCommands) {
-        List<PatchCommand> deepCopy;
-        try {
-            deepCopy = om.readValue(om.writeValueAsString(patchCommands), new TypeReference<List<PatchCommand>>() {
-            });
-        } catch (IOException e) {
-            log.error("error during deep copy", e);
-            throw new DeepCopyException();
-        }
-        return deepCopy;
     }
 }

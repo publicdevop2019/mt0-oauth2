@@ -1,4 +1,4 @@
-package com.mt.identityaccess.config;
+package com.mt.identityaccess.infrastructure.oauth2;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

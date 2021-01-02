@@ -1,25 +1,19 @@
 package com.mt.identityaccess.application.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
 import com.mt.common.application.SubscribeForEvent;
 import com.mt.common.domain.model.DomainEvent;
 import com.mt.common.domain.model.DomainEventPublisher;
-import com.mt.common.rest.exception.AggregatePatchException;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.application.client.command.ClientPatchCommand;
 import com.mt.identityaccess.application.client.command.ClientCreateCommand;
+import com.mt.identityaccess.application.client.command.ClientPatchCommand;
 import com.mt.identityaccess.application.client.command.ClientUpdateCommand;
 import com.mt.identityaccess.application.client.representation.ClientSpringOAuth2Representation;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
 import com.mt.identityaccess.domain.model.client.event.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;
@@ -34,14 +28,12 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class ClientApplicationService implements ClientDetailsService {
-    @Autowired
-    private ObjectMapper om;
 
     @SubscribeForEvent
     @Transactional
     public String create(ClientCreateCommand command, String operationId) {
         ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
-        return  ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, clientId,
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, clientId,
                 () -> {
                     RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
                     PasswordGrant passwordGrantDetail = new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);
@@ -153,27 +145,19 @@ public class ClientApplicationService implements ClientDetailsService {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
         if (client.isPresent()) {
             Client original = client.get();
-            ClientPatchCommand middleLayer = new ClientPatchCommand(original);
-            try {
-                JsonNode jsonNode = om.convertValue(middleLayer, JsonNode.class);
-                JsonNode patchedNode = command.apply(jsonNode);
-                middleLayer = om.treeToValue(patchedNode, ClientPatchCommand.class);
-            } catch (JsonPatchException | JsonProcessingException e) {
-                log.error("error during patching", e);
-                throw new AggregatePatchException();
-            }
-            ClientPatchCommand finalMiddleLayer = middleLayer;
+            ClientPatchCommand beforePatch = new ClientPatchCommand(original);
+            ClientPatchCommand afterPatch = DomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, ClientPatchCommand.class);
             ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
                 RefreshTokenGrant refreshTokenGrantDetail = original.getPasswordGrant().getRefreshTokenGrant();
                 original.replace(
-                        finalMiddleLayer.getName(),
-                        finalMiddleLayer.getDescription(),
-                        finalMiddleLayer.isResourceIndicator(),
-                        finalMiddleLayer.getScopeEnums(),
-                        finalMiddleLayer.getGrantedAuthorities(),
-                        finalMiddleLayer.getResourceIds() != null ? finalMiddleLayer.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
-                        new ClientCredentialsGrant(finalMiddleLayer.getGrantTypeEnums(), finalMiddleLayer.getAccessTokenValiditySeconds()),
-                        new PasswordGrant(finalMiddleLayer.getGrantTypeEnums(), finalMiddleLayer.getAccessTokenValiditySeconds(), refreshTokenGrantDetail)
+                        afterPatch.getName(),
+                        afterPatch.getDescription(),
+                        afterPatch.isResourceIndicator(),
+                        afterPatch.getScopeEnums(),
+                        afterPatch.getGrantedAuthorities(),
+                        afterPatch.getResourceIds() != null ? afterPatch.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
+                        new ClientCredentialsGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds()),
+                        new PasswordGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds(), refreshTokenGrantDetail)
                 );
             });
         }

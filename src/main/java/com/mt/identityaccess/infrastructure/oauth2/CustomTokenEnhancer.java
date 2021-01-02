@@ -1,4 +1,4 @@
-package com.mt.identityaccess.config;
+package com.mt.identityaccess.infrastructure.oauth2;
 
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;

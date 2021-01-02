@@ -1,8 +1,7 @@
-package com.mt.identityaccess.config;
+package com.mt.identityaccess.infrastructure.oauth2;
 
-import com.mt.identityaccess.application.client.ClientApplicationService;
+import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
@@ -27,9 +26,6 @@ import java.util.Objects;
 @Component
 public class BeanFactory {
 
-    @Autowired
-    ClientApplicationService clientApplicationService;
-
     /**
      * use Resource annotation to solve invoked before spring load issue
      */
@@ -43,9 +39,9 @@ public class BeanFactory {
 
         handler.setTokenStore(tokenStore);
 
-        handler.setRequestFactory(new DefaultOAuth2RequestFactory(clientApplicationService));
+        handler.setRequestFactory(new DefaultOAuth2RequestFactory(ApplicationServiceRegistry.clientApplicationService()));
 
-        handler.setClientDetailsService(clientApplicationService);
+        handler.setClientDetailsService(ApplicationServiceRegistry.clientApplicationService());
 
         return handler;
     }
@@ -108,6 +104,6 @@ public class BeanFactory {
     @Bean
     private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory() {
         log.debug("loading DefaultOAuth2RequestFactory");
-        return new DefaultOAuth2RequestFactory(clientApplicationService);
+        return new DefaultOAuth2RequestFactory(ApplicationServiceRegistry.clientApplicationService());
     }
 }

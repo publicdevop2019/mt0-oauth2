@@ -1,4 +1,4 @@
-package com.mt.identityaccess.config;
+package com.mt.identityaccess.infrastructure.oauth2;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -20,7 +20,7 @@ import java.io.IOException;
 @Component
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
-public class DomainExceptionFilter extends GenericFilterBean {
+public class CustomExceptionFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {

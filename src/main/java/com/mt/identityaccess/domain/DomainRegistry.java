@@ -1,6 +1,7 @@
 package com.mt.identityaccess.domain;
 
 import com.mt.common.domain.model.id.UniqueIdGeneratorService;
+import com.mt.common.serializer.CustomObjectSerializer;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
 import com.mt.identityaccess.domain.model.endpoint.EndpointRepository;
 import com.mt.identityaccess.domain.model.pending_user.PendingUserRepository;
@@ -28,33 +29,11 @@ public class DomainRegistry {
     private static PasswordResetTokenService passwordResetTokenService;
     private static UserNotificationService userNotificationService;
     private static RevokeTokenRepository revokeTokenRepository;
+    private static CustomObjectSerializer objectSerializer;
 
-    public static RevokeTokenRepository revokeTokenRepository() {
-        return revokeTokenRepository;
-    }
-
-    public static AuthenticationService authenticationService() {
-        return authenticationService;
-    }
-
-    public static EndpointService endpointService() {
-        return endpointService;
-    }
-
-    public static EndpointRepository endpointRepository() {
-        return endpointRepository;
-    }
-
-    public static PasswordResetTokenService passwordResetTokenService() {
-        return passwordResetTokenService;
-    }
-
-    public static UserService userService() {
-        return userService;
-    }
-
-    public static UserNotificationService userNotificationService() {
-        return userNotificationService;
+    @Autowired
+    public void setCustomObjectSerializer(CustomObjectSerializer customObjectSerializer) {
+        DomainRegistry.objectSerializer = customObjectSerializer;
     }
 
     @Autowired
@@ -172,4 +151,37 @@ public class DomainRegistry {
     public static ActivationCodeService activationCodeService() {
         return activationCodeService;
     }
+
+    public static CustomObjectSerializer customObjectSerializer() {
+        return objectSerializer;
+    }
+
+    public static RevokeTokenRepository revokeTokenRepository() {
+        return revokeTokenRepository;
+    }
+
+    public static AuthenticationService authenticationService() {
+        return authenticationService;
+    }
+
+    public static EndpointService endpointService() {
+        return endpointService;
+    }
+
+    public static EndpointRepository endpointRepository() {
+        return endpointRepository;
+    }
+
+    public static PasswordResetTokenService passwordResetTokenService() {
+        return passwordResetTokenService;
+    }
+
+    public static UserService userService() {
+        return userService;
+    }
+
+    public static UserNotificationService userNotificationService() {
+        return userNotificationService;
+    }
+
 }
