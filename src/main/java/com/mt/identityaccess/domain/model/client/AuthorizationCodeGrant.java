@@ -1,5 +1,6 @@
 package com.mt.identityaccess.domain.model.client;
 
+import com.mt.identityaccess.domain.DomainRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,12 +47,12 @@ public class AuthorizationCodeGrant extends AbstractGrant {
     private static class RedirectURLConverter implements AttributeConverter<Set<RedirectURL>,byte[]> {
         @Override
         public byte[] convertToDatabaseColumn(Set<RedirectURL> redirectURLS) {
-            return new byte[0];
+            return DomainRegistry.customObjectSerializer().nativeSerialize(redirectURLS);
         }
 
         @Override
         public Set<RedirectURL> convertToEntityAttribute(byte[] bytes) {
-            return null;
+            return (Set<RedirectURL>)DomainRegistry.customObjectSerializer().nativeDeserialize(bytes);
         }
     }
 }
