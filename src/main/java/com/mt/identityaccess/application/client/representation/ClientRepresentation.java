@@ -47,7 +47,7 @@ public class ClientRepresentation {
         scopeEnums = client.getScopes();
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
         if (client.getAuthorizationCodeGrant() != null)
-            registeredRedirectUri = client.getAuthorizationCodeGrant().getRedirectUrls();
+            registeredRedirectUri = client.getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectURL::getValue).collect(Collectors.toSet());
         if (client.getPasswordGrant() != null && client.getPasswordGrant().getRefreshTokenGrant() != null)
             refreshTokenValiditySeconds = client.getPasswordGrant().getAccessTokenValiditySeconds();
         if (!ObjectUtils.isEmpty(client.getResources()))

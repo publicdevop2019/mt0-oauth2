@@ -4,6 +4,7 @@ import com.mt.common.logging.ErrorMessage;
 import com.mt.identityaccess.application.client.InvalidClientIdException;
 import com.mt.identityaccess.application.client.RootClientDeleteException;
 import com.mt.identityaccess.application.user.RootUserDeleteException;
+import com.mt.identityaccess.domain.model.client.RedirectURL;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -28,7 +29,8 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             RootUserDeleteException.class,
             IllegalArgumentException.class,
             OAuth2Exception.class,
-            InvalidClientIdException.class
+            InvalidClientIdException.class,
+            RedirectURL.InvalidRedirectURLException.class,
     })
     protected ResponseEntity<Object> handleException(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);

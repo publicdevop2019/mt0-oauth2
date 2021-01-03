@@ -33,7 +33,7 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
         setResourceIds(client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet()));
         if (client.getAuthorizationCodeGrant() != null)
-            setRegisteredRedirectUri(client.getAuthorizationCodeGrant().getRedirectUrls());
+            setRegisteredRedirectUri(client.getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectURL::getValue).collect(Collectors.toSet()));
     }
 
     @Override

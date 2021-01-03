@@ -1,42 +1,57 @@
 package com.mt.identityaccess.domain.model.client;
 
-import com.mt.common.persistence.StringSetConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.annotation.Nullable;
+import javax.persistence.AttributeConverter;
 import javax.persistence.Convert;
+import javax.persistence.Lob;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class AuthorizationCodeGrant extends AbstractGrant {
 
-    @Convert(converter = StringSetConverter.class)
+    @Lob
     @Getter
-    private Set<String> redirectUrls;
+    @Convert(converter = RedirectURLConverter.class)
+    private Set<RedirectURL> redirectUrls;
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private boolean autoApprove = false;
 
     public AuthorizationCodeGrant(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove, int accessTokenValiditySeconds) {
         super(grantTypes, accessTokenValiditySeconds);
-        setRedirectUrls(redirectUrls);
+        if (redirectUrls == null) {
+            setRedirectUrls(Collections.emptySet());
+        } else {
+            setRedirectUrls(redirectUrls.stream().map(RedirectURL::new).collect(Collectors.toSet()));
+        }
         setAutoApprove(autoApprove);
     }
 
-    private void setRedirectUrls(@Nullable Set<String> redirectUrls) {
-        if (redirectUrls == null) {
-            this.redirectUrls = new HashSet<>();
-        } else {
-            this.redirectUrls = new HashSet<>(redirectUrls);
-        }
+    private void setRedirectUrls(Set<RedirectURL> redirectUrls) {
+        this.redirectUrls = new HashSet<>(redirectUrls);
     }
 
     @Override
     public GrantType name() {
         return GrantType.AUTHORIZATION_CODE;
+    }
+
+    private static class RedirectURLConverter implements AttributeConverter<Set<RedirectURL>,byte[]> {
+        @Override
+        public byte[] convertToDatabaseColumn(Set<RedirectURL> redirectURLS) {
+            return new byte[0];
+        }
+
+        @Override
+        public Set<RedirectURL> convertToEntityAttribute(byte[] bytes) {
+            return null;
+        }
     }
 }
