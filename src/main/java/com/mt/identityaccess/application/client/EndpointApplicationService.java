@@ -1,8 +1,8 @@
 package com.mt.identityaccess.application.client;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.application.SubscribeForEvent;
-import com.mt.common.domain.model.DomainEventPublisher;
+import com.mt.common.domain_event.DomainEventPublisher;
+import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.command.EndpointCreateCommand;
@@ -51,7 +51,7 @@ public class EndpointApplicationService {
             } else {
                 throw new InvalidClientIdException();
             }
-        });
+        }, Endpoint.class);
     }
 
     @Transactional(readOnly = true)
@@ -79,7 +79,7 @@ public class EndpointApplicationService {
                         command.getMethod()
                 );
                 DomainRegistry.endpointRepository().add(endpoint1);
-            });
+            }, Endpoint.class);
         }
     }
 
@@ -93,7 +93,7 @@ public class EndpointApplicationService {
             ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
                 DomainRegistry.endpointRepository().remove(endpoint1);
                 DomainEventPublisher.instance().publish(new EndpointDeleted(endpointId));
-            });
+            }, Endpoint.class);
         }
     }
 
@@ -106,7 +106,7 @@ public class EndpointApplicationService {
             DomainEventPublisher.instance().publish(
                     new EndpointsBatchDeleted(endpoints.stream().map(Endpoint::getEndpointId).collect(Collectors.toSet()))
             );
-        });
+        }, Endpoint.class);
     }
 
     @SubscribeForEvent
@@ -125,7 +125,7 @@ public class EndpointApplicationService {
                         afterPatch.getMethod(),
                         afterPatch.getPath()
                 );
-            });
+            }, Endpoint.class);
         }
     }
 

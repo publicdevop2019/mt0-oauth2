@@ -1,6 +1,6 @@
 package com.mt.identityaccess.infrastructure;
 
-import com.mt.common.ServiceUtility;
+import com.mt.common.jwt.ServiceUtility;
 import com.mt.identityaccess.domain.model.user.Role;
 import com.mt.identityaccess.domain.model.user.UserId;
 import com.mt.identityaccess.domain.service.AuthenticationService;

@@ -1,9 +1,9 @@
 package com.mt.identityaccess.application.client;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.application.SubscribeForEvent;
-import com.mt.common.domain.model.DomainEvent;
-import com.mt.common.domain.model.DomainEventPublisher;
+import com.mt.common.domain_event.SubscribeForEvent;
+import com.mt.common.domain_event.DomainEvent;
+import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.command.ClientCreateCommand;
@@ -55,7 +55,7 @@ public class ClientApplicationService implements ClientDetailsService {
                                     command.getAccessTokenValiditySeconds()
                             )
                     );
-                }
+                },Client.class
         );
 
     }
@@ -96,7 +96,7 @@ public class ClientApplicationService implements ClientDetailsService {
                                 command.getAccessTokenValiditySeconds()
                         )
                 );
-            });
+            },Client.class);
             DomainRegistry.clientRepository().add(client1);
         }
     }
@@ -111,7 +111,7 @@ public class ClientApplicationService implements ClientDetailsService {
             if (client1.isNonRoot()) {
                 ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
                     DomainRegistry.clientRepository().remove(client1);
-                });
+                },Client.class);
                 DomainEventPublisher.instance().publish(new ClientDeleted(clientId));
             } else {
                 throw new RootClientDeleteException();
@@ -127,7 +127,7 @@ public class ClientApplicationService implements ClientDetailsService {
         if (!b) {
             ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
                 DomainRegistry.clientRepository().remove(allClientsOfQuery);
-            });
+            },Client.class);
             DomainEventPublisher.instance().publish(
                     new ClientsBatchDeleted(
                             allClientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet())
@@ -159,7 +159,7 @@ public class ClientApplicationService implements ClientDetailsService {
                         new ClientCredentialsGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds()),
                         new PasswordGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds(), refreshTokenGrantDetail)
                 );
-            });
+            },Client.class);
         }
     }
 

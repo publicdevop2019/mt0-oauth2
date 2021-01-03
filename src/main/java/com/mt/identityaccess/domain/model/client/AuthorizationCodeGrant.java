@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.client;
 
-import com.mt.common.StringSetConverter;
+import com.mt.common.persistence.StringSetConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

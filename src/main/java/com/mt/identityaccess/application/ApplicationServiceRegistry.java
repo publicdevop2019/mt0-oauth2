@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application;
 
-import com.mt.common.application.ApplicationServiceIdempotentWrapper;
+import com.mt.common.idempotent.ApplicationServiceIdempotentWrapper;
 import com.mt.identityaccess.application.client.ClientApplicationService;
 import com.mt.identityaccess.application.client.EndpointApplicationService;
 import com.mt.identityaccess.application.pending_user.PendingUserApplicationService;

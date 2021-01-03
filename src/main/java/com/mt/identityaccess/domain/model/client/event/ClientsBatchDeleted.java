@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.model.client.event;
 
-import com.mt.common.domain.model.DomainEvent;
-import com.mt.common.domain.model.id.DomainId;
+import com.mt.common.domain_event.DomainEvent;
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import lombok.NoArgsConstructor;
 

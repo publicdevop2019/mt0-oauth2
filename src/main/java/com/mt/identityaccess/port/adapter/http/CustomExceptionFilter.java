@@ -1,4 +1,4 @@
-package com.mt.identityaccess.infrastructure.oauth2;
+package com.mt.identityaccess.port.adapter.http;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;

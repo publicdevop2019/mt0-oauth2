@@ -1,9 +1,9 @@
 package com.mt.identityaccess.application.user;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.application.SubscribeForEvent;
-import com.mt.common.domain.model.DomainEvent;
-import com.mt.common.domain.model.DomainEventPublisher;
+import com.mt.common.domain_event.DomainEvent;
+import com.mt.common.domain_event.DomainEventPublisher;
+import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
@@ -43,7 +43,7 @@ public class UserApplicationService implements UserDetailsService {
                         command.getPassword(),
                         new ActivationCode(command.getActivationCode()),
                         userId
-                )
+                ), User.class
         );
 
     }
@@ -70,7 +70,7 @@ public class UserApplicationService implements UserDetailsService {
                         command.isLocked(),
                         command.isSubscription()
                 );
-            });
+            }, User.class);
             DomainRegistry.userRepository().add(user1);
         }
     }
@@ -85,7 +85,7 @@ public class UserApplicationService implements UserDetailsService {
             if (user1.isNonRoot()) {
                 ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
                     DomainRegistry.userRepository().remove(user1);
-                });
+                }, User.class);
                 DomainEventPublisher.instance().publish(new UserDeleted(userId));
             } else {
                 throw new RootUserDeleteException();
@@ -109,7 +109,7 @@ public class UserApplicationService implements UserDetailsService {
                         original.isSubscription()
                 );
             }
-        });
+        }, User.class);
     }
 
     @SubscribeForEvent
@@ -118,7 +118,7 @@ public class UserApplicationService implements UserDetailsService {
         List<PatchCommand> deepCopy = DomainRegistry.customObjectSerializer().deepCopy(commands);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(deepCopy, changeId, (ignored) -> {
             DomainRegistry.userRepository().batchLock(commands);
-        });
+        }, User.class);
     }
 
     @SubscribeForEvent
@@ -130,7 +130,7 @@ public class UserApplicationService implements UserDetailsService {
             User user1 = user.get();
             ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
                 DomainRegistry.userService().updatePassword(user1, command.getCurrentPwd(), command.getPassword());
-            });
+            }, User.class);
             DomainRegistry.userRepository().add(user1);
         }
     }
@@ -140,7 +140,7 @@ public class UserApplicationService implements UserDetailsService {
     public void forgetPassword(AppForgetUserPasswordCommand command, String changeId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
             DomainRegistry.userService().forgetPassword(command.getEmail());
-        });
+        }, User.class);
     }
 
     @SubscribeForEvent
@@ -148,7 +148,7 @@ public class UserApplicationService implements UserDetailsService {
     public void resetPassword(AppResetUserPasswordCommand command, String changeId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
             DomainRegistry.userService().resetPassword(command.getEmail(), command.getNewPassword(), command.getToken());
-        });
+        }, User.class);
     }
 
     @Override
@@ -175,8 +175,9 @@ public class UserApplicationService implements UserDetailsService {
         }
     }
 
+    private static final String EMAIL_REGEX = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$";
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
-            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+            Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE);
 
     private static boolean isEmail(String emailStr) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);

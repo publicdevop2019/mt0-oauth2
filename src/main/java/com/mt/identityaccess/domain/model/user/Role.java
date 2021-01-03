@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.user;
 
-import com.mt.common.infrastructure.EnumSetConverter;
+import com.mt.common.persistence.EnumSetConverter;
 
 public enum Role {
     ROLE_ADMIN,

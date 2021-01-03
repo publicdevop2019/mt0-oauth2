@@ -3,11 +3,10 @@ package com.mt.identityaccess.resource;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.common.validation.BizValidator;
+import com.mt.common.validate.BizValidator;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.user.*;
 import com.mt.identityaccess.domain.model.user.User;
-import com.mt.identityaccess.domain.model.user.UserId;
 import com.mt.identityaccess.infrastructure.JwtAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-import static com.mt.common.AppConstant.*;
+import static com.mt.common.CommonConstant.*;
 
 @RestController
 @RequestMapping(produces = "application/json", path = "users")

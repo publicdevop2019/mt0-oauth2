@@ -1,6 +1,6 @@
-package com.mt.identityaccess.infrastructure.oauth2;
+package com.mt.identityaccess.port.adapter.http;
 
-import com.mt.common.ErrorMessage;
+import com.mt.common.logging.ErrorMessage;
 import com.mt.identityaccess.application.client.InvalidClientIdException;
 import com.mt.identityaccess.application.client.RootClientDeleteException;
 import com.mt.identityaccess.application.user.RootUserDeleteException;

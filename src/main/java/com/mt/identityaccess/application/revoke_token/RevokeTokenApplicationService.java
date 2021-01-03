@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.revoke_token;
 
-import com.mt.common.application.SubscribeForEvent;
+import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.QueryConfig;
@@ -23,7 +23,7 @@ public class RevokeTokenApplicationService {
                 throw new IllegalArgumentException("type can only be user");
             DomainRegistry.revokeTokenRepository().add(new RevokeToken(command.getId(), revokeTokenId, command.getType()));
             return revokeTokenId;
-        });
+        }, RevokeToken.class);
     }
 
     @SubscribeForEvent
@@ -33,7 +33,7 @@ public class RevokeTokenApplicationService {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
             DomainRegistry.revokeTokenRepository().add(new RevokeToken(command.getId(), revokeTokenId, command.getType()));
             return revokeTokenId;
-        });
+        }, RevokeToken.class);
     }
 
     @Transactional(readOnly = true)

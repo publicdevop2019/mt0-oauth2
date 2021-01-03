@@ -1,8 +1,8 @@
 package com.mt.identityaccess.domain.model.user;
 
 import com.google.common.base.Objects;
-import com.mt.common.Auditable;
-import com.mt.common.domain.model.DomainEventPublisher;
+import com.mt.common.audit.Auditable;
+import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.user.event.UserAuthorityChanged;
 import com.mt.identityaccess.domain.model.user.event.UserGetLocked;

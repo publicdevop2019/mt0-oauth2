@@ -6,7 +6,7 @@ import com.mt.common.sql.clause.SelectFieldStringLikeClause;
 import com.mt.identityaccess.domain.model.client.Client;
 import org.springframework.stereotype.Component;
 
-import static com.mt.common.AppConstant.COMMON_ENTITY_ID;
+import static com.mt.common.CommonConstant.COMMON_ENTITY_ID;
 
 @Component
 public class ClientQueryBuilder extends SelectQueryBuilder<Client> {

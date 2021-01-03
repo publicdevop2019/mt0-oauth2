@@ -1,6 +1,6 @@
 package com.mt.identityaccess.port.adapter.service.user_notification;
 
-import com.mt.common.EurekaRegistryHelper;
+import com.mt.common.service_discovery.EurekaRegistryHelper;
 import com.mt.identityaccess.domain.model.ActivationCode;
 import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;
 import com.mt.identityaccess.domain.model.user.PasswordResetToken;

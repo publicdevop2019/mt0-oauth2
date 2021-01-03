@@ -10,7 +10,6 @@ import com.mt.identityaccess.application.client.representation.ClientAutoApprove
 import com.mt.identityaccess.application.client.representation.ClientCardRepresentation;
 import com.mt.identityaccess.application.client.representation.ClientRepresentation;
 import com.mt.identityaccess.domain.model.client.Client;
-import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.infrastructure.JwtAuthenticationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-import static com.mt.common.AppConstant.*;
+import static com.mt.common.CommonConstant.*;
 
 @Slf4j
 @RestController

@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.client;
 
-import com.mt.common.domain.model.id.DomainId;
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.identityaccess.domain.DomainRegistry;
 
 import java.io.Serializable;

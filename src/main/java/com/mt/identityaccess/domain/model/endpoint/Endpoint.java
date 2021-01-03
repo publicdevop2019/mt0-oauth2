@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.model.endpoint;
 
-import com.mt.common.Auditable;
-import com.mt.common.domain.model.DomainEventPublisher;
+import com.mt.common.audit.Auditable;
+import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.endpoint.event.EndpointUpdated;

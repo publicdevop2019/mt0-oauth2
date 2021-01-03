@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-import static com.mt.common.AppConstant.HTTP_HEADER_AUTHORIZATION;
+import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 
 @RestController
 public class AuthorizeCodeResource {

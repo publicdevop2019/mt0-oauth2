@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain;
 
-import com.mt.common.domain.model.id.UniqueIdGeneratorService;
+import com.mt.common.domain.model.domainId.UniqueIdGeneratorService;
 import com.mt.common.serializer.CustomObjectSerializer;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
 import com.mt.identityaccess.domain.model.endpoint.EndpointRepository;

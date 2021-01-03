@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.model.revoke_token;
 
-import com.mt.common.Auditable;
-import com.mt.common.EnumDBConverter;
+import com.mt.common.audit.Auditable;
+import com.mt.common.persistence.EnumConverter;
 import com.mt.common.rest.Aggregate;
 import com.mt.identityaccess.domain.DomainRegistry;
 import lombok.AccessLevel;
@@ -50,7 +50,7 @@ public class RevokeToken extends Auditable implements Aggregate {
         CLIENT,
         USER;
 
-        public static class DBConverter extends EnumDBConverter<TokenType> {
+        public static class DBConverter extends EnumConverter<TokenType> {
             public DBConverter() {
                 super(TokenType.class);
             }

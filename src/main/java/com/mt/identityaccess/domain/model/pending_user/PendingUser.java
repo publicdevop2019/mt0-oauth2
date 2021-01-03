@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.pending_user;
 
-import com.mt.common.Auditable;
+import com.mt.common.audit.Auditable;
 import com.mt.identityaccess.domain.model.ActivationCode;
 import com.mt.identityaccess.domain.DomainRegistry;
 import lombok.AccessLevel;

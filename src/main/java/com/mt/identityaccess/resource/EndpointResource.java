@@ -2,7 +2,7 @@ package com.mt.identityaccess.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.common.validation.BizValidator;
+import com.mt.common.validate.BizValidator;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.command.EndpointCreateCommand;
 import com.mt.identityaccess.application.client.command.EndpointUpdateCommand;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-import static com.mt.common.AppConstant.*;
+import static com.mt.common.CommonConstant.*;
 
 @RestController
 @RequestMapping(produces = "application/json", path = "endpoints")

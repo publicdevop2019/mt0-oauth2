@@ -14,11 +14,12 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.util.concurrent.TimeoutException;
 
+import static com.mt.common.CommonConstant.EXCHANGE_NAME;
+
 @Slf4j
 @Component
 public class DomainEventMQSubscriber {
     private static final String TASK_QUEUE_NAME = "domain_event_queue";
-    public static final String EXCHANGE_NAME = "domain_event_exchange";
 
     static {
         ConnectionFactory factory = new ConnectionFactory();

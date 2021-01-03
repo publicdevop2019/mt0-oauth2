@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.client;
 
-import com.mt.common.infrastructure.EnumSetConverter;
+import com.mt.common.persistence.EnumSetConverter;
 
 public enum Scope {
     WRITE,

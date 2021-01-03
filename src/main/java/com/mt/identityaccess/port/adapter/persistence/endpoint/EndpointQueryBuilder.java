@@ -7,7 +7,7 @@ import com.mt.identityaccess.port.adapter.persistence.client.SelectFieldDomainId
 import com.mt.identityaccess.port.adapter.persistence.client.SelectFieldIsNullClause;
 import org.springframework.stereotype.Component;
 
-import static com.mt.common.AppConstant.COMMON_ENTITY_ID;
+import static com.mt.common.CommonConstant.COMMON_ENTITY_ID;
 import static com.mt.identityaccess.domain.model.endpoint.Endpoint.*;
 
 @Component

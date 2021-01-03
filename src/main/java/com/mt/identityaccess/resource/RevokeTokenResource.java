@@ -9,7 +9,7 @@ import com.mt.identityaccess.infrastructure.JwtAuthenticationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static com.mt.common.AppConstant.*;
+import static com.mt.common.CommonConstant.*;
 
 @RestController
 @RequestMapping(produces = "application/json", path = "revoke-tokens")

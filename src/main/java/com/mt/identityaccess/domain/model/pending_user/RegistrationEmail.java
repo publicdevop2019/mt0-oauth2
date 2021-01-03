@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.pending_user;
 
-import com.mt.common.domain.model.id.DomainId;
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.user.User;
 import lombok.AccessLevel;
