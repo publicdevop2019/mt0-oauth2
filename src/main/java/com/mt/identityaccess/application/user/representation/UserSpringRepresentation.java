@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.user;
+package com.mt.identityaccess.application.user.representation;
 
 import com.mt.identityaccess.domain.model.user.Role;
 import com.mt.identityaccess.domain.model.user.User;
@@ -12,13 +12,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class SpringOAuth2UserDetailRepresentation implements UserDetails {
+public class UserSpringRepresentation implements UserDetails {
     private String id;
     private String password;
     private boolean locked;
     private Set<Role> grantedAuthorities;
 
-    public SpringOAuth2UserDetailRepresentation(User user) {
+    public UserSpringRepresentation(User user) {
         id = user.getUserId().getDomainId();
         password = user.getPassword().getPassword();
         locked = user.isLocked();

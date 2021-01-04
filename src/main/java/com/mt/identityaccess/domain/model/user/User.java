@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
+import com.mt.identityaccess.domain.model.client.event.ClientUpdated;
 import com.mt.identityaccess.domain.model.user.event.UserAuthorityChanged;
 import com.mt.identityaccess.domain.model.user.event.UserGetLocked;
 import com.mt.identityaccess.domain.model.user.event.UserUpdated;
@@ -109,9 +110,11 @@ public class User extends Auditable {
         if (isSubscription() && getGrantedAuthorities().stream().noneMatch(e -> "ROLE_ADMIN".equals(e.name()))) {
             throw new IllegalArgumentException("only admin can subscribe to new order");
         }
+    }
+    @PreUpdate
+    private void preUpdate(){
         DomainEventPublisher.instance().publish(new UserUpdated(getUserId()));
     }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

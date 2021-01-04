@@ -273,6 +273,10 @@ public class Client extends Auditable {
         setPasswordGrant(passwordGrant);
         AuthorizationCodeGrant.detectChange(this.getAuthorizationCodeGrant(), authorizationCodeGrant, getClientId());
         setAuthorizationCodeGrant(authorizationCodeGrant);
+    }
+
+    @PreUpdate
+    private void preUpdate(){
         DomainEventPublisher.instance().publish(new ClientUpdated(getClientId()));
     }
 

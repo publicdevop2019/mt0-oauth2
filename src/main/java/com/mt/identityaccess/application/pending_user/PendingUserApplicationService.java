@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PendingUserApplicationService {
     @SubscribeForEvent
     @Transactional
-    public String create(AppCreatePendingUserCommand command, String operationId) {
+    public String create(PendingUserCreateCommand command, String operationId) {
         RegistrationEmail registrationEmail = new RegistrationEmail(command.getEmail());
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, registrationEmail,
                 () -> DomainRegistry.pendingUserService().createOrUpdatePendingUser(registrationEmail, new ActivationCode()), PendingUser.class

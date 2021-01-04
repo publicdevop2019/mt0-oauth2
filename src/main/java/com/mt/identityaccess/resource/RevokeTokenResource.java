@@ -2,7 +2,7 @@ package com.mt.identityaccess.resource;
 
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.application.revoke_token.CreateRevokeTokenCommand;
+import com.mt.identityaccess.application.revoke_token.RevokeTokenCreateCommand;
 import com.mt.identityaccess.application.revoke_token.RevokeTokenCardRepresentation;
 import com.mt.identityaccess.domain.model.revoke_token.RevokeToken;
 import com.mt.identityaccess.infrastructure.JwtAuthenticationService;
@@ -16,7 +16,7 @@ import static com.mt.common.CommonConstant.*;
 public class RevokeTokenResource {
 
     @PostMapping("root")
-    public ResponseEntity<Void> createForRoot(@RequestBody CreateRevokeTokenCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<Void> createForRoot(@RequestBody RevokeTokenCreateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         ApplicationServiceRegistry.revokeTokenApplicationService().create(command, changeId);
@@ -32,7 +32,7 @@ public class RevokeTokenResource {
     }
 
     @PostMapping("admin")
-    public ResponseEntity<Void> createForAdmin(@RequestBody CreateRevokeTokenCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<Void> createForAdmin(@RequestBody RevokeTokenCreateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         ApplicationServiceRegistry.revokeTokenApplicationService().create(command, changeId);

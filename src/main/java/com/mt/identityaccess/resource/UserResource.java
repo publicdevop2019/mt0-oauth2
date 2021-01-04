@@ -5,7 +5,10 @@ import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.validate.BizValidator;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.application.user.*;
+import com.mt.identityaccess.application.user.command.*;
+import com.mt.identityaccess.application.user.representation.UserSystemCardRepresentation;
+import com.mt.identityaccess.application.user.representation.UserCardRepresentation;
+import com.mt.identityaccess.application.user.representation.UserAdminRepresentation;
 import com.mt.identityaccess.domain.model.user.User;
 import com.mt.identityaccess.infrastructure.JwtAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +28,7 @@ public class UserResource {
     BizValidator validator;
 
     @PostMapping("app")
-    public ResponseEntity<Void> createForApp(@RequestBody AppCreateUserCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> createForApp(@RequestBody UserCreateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         validator.validate("appCreateUserCommand", command);
         return ResponseEntity.ok().header("Location", ApplicationServiceRegistry.userApplicationService().create(command, changeId)).build();
     }
@@ -39,9 +42,9 @@ public class UserResource {
     }
 
     @GetMapping("admin/{id}")
-    public ResponseEntity<UserRepresentation> readForAdminById(@PathVariable String id) {
+    public ResponseEntity<UserAdminRepresentation> readForAdminById(@PathVariable String id) {
         Optional<User> user = ApplicationServiceRegistry.userApplicationService().user(id);
-        return user.map(value -> ResponseEntity.ok(new UserRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
+        return user.map(value -> ResponseEntity.ok(new UserAdminRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
     }
 
 
@@ -64,11 +67,11 @@ public class UserResource {
     }
 
     @GetMapping("app")
-    public ResponseEntity<SumPagedRep<AppUserCardRepresentation>> getForAppByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                                                                   @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                                                   @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+    public ResponseEntity<SumPagedRep<UserSystemCardRepresentation>> getForAppByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                                      @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                                      @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
         SumPagedRep<User> users = ApplicationServiceRegistry.userApplicationService().users(queryParam, pageParam, config);
-        return ResponseEntity.ok(new SumPagedRep(users, AppUserCardRepresentation::new));
+        return ResponseEntity.ok(new SumPagedRep(users, UserSystemCardRepresentation::new));
     }
 
     @PatchMapping(path = "admin/{id}", consumes = "application/json-patch+json")
@@ -100,14 +103,14 @@ public class UserResource {
     }
 
     @PostMapping("app/forgetPwd")
-    public ResponseEntity<Void> forgetPwd(@RequestBody AppForgetUserPasswordCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> forgetPwd(@RequestBody UserForgetPasswordCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         validator.validate("appForgetUserPasswordCommand", command);
         ApplicationServiceRegistry.userApplicationService().forgetPassword(command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("app/resetPwd")
-    public ResponseEntity<Void> resetPwd(@RequestBody AppResetUserPasswordCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> resetPwd(@RequestBody UserResetPasswordCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         validator.validate("appResetUserPasswordCommand", command);
         ApplicationServiceRegistry.userApplicationService().resetPassword(command, changeId);
         return ResponseEntity.ok().build();

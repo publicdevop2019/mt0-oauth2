@@ -74,11 +74,11 @@ public class ClientApplicationService implements ClientDetailsService {
     @SubscribeForEvent
     @Transactional
     public void replaceClient(String id, ClientUpdateCommand command, String changeId) {
-        ClientId clientId = new ClientId(id);
-        Optional<Client> optionalClient = DomainRegistry.clientRepository().clientOfId(clientId);
-        if (optionalClient.isPresent()) {
-            Client client = optionalClient.get();
-            ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+            ClientId clientId = new ClientId(id);
+            Optional<Client> optionalClient = DomainRegistry.clientRepository().clientOfId(clientId);
+            if (optionalClient.isPresent()) {
+                Client client = optionalClient.get();
                 RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
                 client.replace(
                         command.getName(),
@@ -97,58 +97,59 @@ public class ClientApplicationService implements ClientDetailsService {
                                 command.getAccessTokenValiditySeconds()
                         )
                 );
-            }, Client.class);
-            DomainRegistry.clientRepository().add(client);
-        }
+                DomainRegistry.clientRepository().add(client);
+            }
+        }, Client.class);
     }
 
     @SubscribeForEvent
     @Transactional
     public void removeClient(String id, String changeId) {
-        ClientId clientId = new ClientId(id);
-        Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
-        if (client.isPresent()) {
-            Client client1 = client.get();
-            if (client1.isNonRoot()) {
-                ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(id, changeId, (change) -> {
+            ClientId clientId = new ClientId(id);
+            Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
+            if (client.isPresent()) {
+                Client client1 = client.get();
+                if (client1.isNonRoot()) {
                     DomainRegistry.clientRepository().remove(client1);
-                }, Client.class);
-                DomainEventPublisher.instance().publish(new ClientDeleted(clientId));
-            } else {
-                throw new RootClientDeleteException();
+                    DomainEventPublisher.instance().publish(new ClientDeleted(clientId));
+                } else {
+                    throw new RootClientDeleteException();
+                }
             }
-        }
+        }, Client.class);
     }
 
     @SubscribeForEvent
     @Transactional
     public void removeClients(String queryParam, String changeId) {
-        List<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
-        boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.isNonRoot());
-        if (!b) {
-            ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (change) -> {
+            List<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
+            boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.isNonRoot());
+            if (!b) {
+                change.setRequestBody(allClientsOfQuery);
                 DomainRegistry.clientRepository().remove(allClientsOfQuery);
-            }, Client.class);
-            DomainEventPublisher.instance().publish(
-                    new ClientsBatchDeleted(
-                            allClientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet())
-                    )
-            );
-        } else {
-            throw new RootClientDeleteException();
-        }
+                DomainEventPublisher.instance().publish(
+                        new ClientsBatchDeleted(
+                                allClientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet())
+                        )
+                );
+            } else {
+                throw new RootClientDeleteException();
+            }
+        }, Client.class);
     }
 
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
-        ClientId clientId = new ClientId(id);
-        Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
-        if (client.isPresent()) {
-            Client original = client.get();
-            ClientPatchCommand beforePatch = new ClientPatchCommand(original);
-            ClientPatchCommand afterPatch = DomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, ClientPatchCommand.class);
-            ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+            ClientId clientId = new ClientId(id);
+            Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
+            if (client.isPresent()) {
+                Client original = client.get();
+                ClientPatchCommand beforePatch = new ClientPatchCommand(original);
+                ClientPatchCommand afterPatch = DomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, ClientPatchCommand.class);
                 RefreshTokenGrant refreshTokenGrantDetail = original.getPasswordGrant().getRefreshTokenGrant();
                 original.replace(
                         afterPatch.getName(),
@@ -160,8 +161,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         new ClientCredentialsGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds()),
                         new PasswordGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds(), refreshTokenGrantDetail)
                 );
-            }, Client.class);
-        }
+            }
+        }, Client.class);
     }
 
     @Override

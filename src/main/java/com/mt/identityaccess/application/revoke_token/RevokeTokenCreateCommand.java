@@ -8,12 +8,12 @@ import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
-public class CreateRevokeTokenCommand implements Serializable {
+public class RevokeTokenCreateCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private String id;
     private RevokeToken.TokenType type;
 
-    public CreateRevokeTokenCommand(String id, RevokeToken.TokenType type) {
+    public RevokeTokenCreateCommand(String id, RevokeToken.TokenType type) {
         this.id = id;
         this.type = type;
     }

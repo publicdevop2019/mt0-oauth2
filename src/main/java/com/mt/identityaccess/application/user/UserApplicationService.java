@@ -8,6 +8,8 @@ import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.common.persistence.QueryConfig;
+import com.mt.identityaccess.application.user.command.*;
+import com.mt.identityaccess.application.user.representation.UserSpringRepresentation;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.ActivationCode;
 import com.mt.identityaccess.domain.model.user.User;
@@ -35,7 +37,7 @@ public class UserApplicationService implements UserDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public String create(AppCreateUserCommand command, String operationId) {
+    public String create(UserCreateCommand command, String operationId) {
         UserId userId = DomainRegistry.userRepository().nextIdentity();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, userId,
                 () -> DomainRegistry.userService().create(
@@ -137,7 +139,7 @@ public class UserApplicationService implements UserDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public void forgetPassword(AppForgetUserPasswordCommand command, String changeId) {
+    public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
             DomainRegistry.userService().forgetPassword(command.getEmail());
         }, User.class);
@@ -145,7 +147,7 @@ public class UserApplicationService implements UserDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public void resetPassword(AppResetUserPasswordCommand command, String changeId) {
+    public void resetPassword(UserResetPasswordCommand command, String changeId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
             DomainRegistry.userService().resetPassword(command.getEmail(), command.getNewPassword(), command.getToken());
         }, User.class);
@@ -161,7 +163,7 @@ public class UserApplicationService implements UserDetailsService {
             //for refresh token
             client = DomainRegistry.userRepository().userOfId(new UserId(username));
         }
-        return client.map(SpringOAuth2UserDetailRepresentation::new).orElse(null);
+        return client.map(UserSpringRepresentation::new).orElse(null);
     }
 
     public void revokeTokenBasedOnChange(Object o) {

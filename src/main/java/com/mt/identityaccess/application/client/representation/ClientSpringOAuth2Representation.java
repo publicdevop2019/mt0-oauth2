@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.client.representation;
 
-import com.mt.identityaccess.application.user.SpringOAuth2UserDetailRepresentation;
+import com.mt.identityaccess.application.user.representation.UserSpringRepresentation;
 import com.mt.identityaccess.domain.model.client.*;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -78,7 +78,7 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
-        return grantedAuthorities.stream().map(SpringOAuth2UserDetailRepresentation.GrantedAuthorityImpl::new).collect(Collectors.toList());
+        return grantedAuthorities.stream().map(UserSpringRepresentation.GrantedAuthorityImpl::new).collect(Collectors.toList());
     }
 
     @Override

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RevokeTokenApplicationService {
     @SubscribeForEvent
     @Transactional
-    public String create(CreateRevokeTokenCommand command, String changeId) {
+    public String create(RevokeTokenCreateCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
             boolean b = DomainRegistry.authenticationService().userInRole(Role.ROLE_ROOT);
@@ -28,7 +28,7 @@ public class RevokeTokenApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public String internalOnlyCreate(CreateRevokeTokenCommand command, String changeId) {
+    public String internalOnlyCreate(RevokeTokenCreateCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
             DomainRegistry.revokeTokenRepository().add(new RevokeToken(command.getId(), revokeTokenId, command.getType()));

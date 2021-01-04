@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.user;
+package com.mt.identityaccess.application.user.command;
 
 import com.mt.identityaccess.domain.model.user.Role;
 import com.mt.common.rest.AggregateUpdateCommand;

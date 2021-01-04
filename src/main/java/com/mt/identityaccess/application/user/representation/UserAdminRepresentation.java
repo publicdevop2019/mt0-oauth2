@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.user;
+package com.mt.identityaccess.application.user.representation;
 
 import com.mt.identityaccess.domain.model.user.Role;
 import com.mt.identityaccess.domain.model.user.User;
@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class UserRepresentation {
+public class UserAdminRepresentation {
     private String id;
 
     private String email;
@@ -22,7 +22,7 @@ public class UserRepresentation {
     private Long modifiedAt;
     private boolean subscription;
 
-    public UserRepresentation(User user) {
+    public UserAdminRepresentation(User user) {
         this.id = user.getUserId().getDomainId();
         this.email = user.getEmail().getEmail();
         this.locked = user.isLocked();

@@ -3,10 +3,10 @@ package com.mt.identityaccess.application.endpoint;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.common.domain_event.SubscribeForEvent;
+import com.mt.common.persistence.QueryConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.InvalidClientIdException;
-import com.mt.common.persistence.QueryConfig;
 import com.mt.identityaccess.application.endpoint.command.EndpointCreateCommand;
 import com.mt.identityaccess.application.endpoint.command.EndpointPatchCommand;
 import com.mt.identityaccess.application.endpoint.command.EndpointUpdateCommand;
@@ -69,11 +69,11 @@ public class EndpointApplicationService {
     @SubscribeForEvent
     @Transactional
     public void update(String id, EndpointUpdateCommand command, String changeId) {
-        EndpointId endpointId = new EndpointId(id);
-        Optional<Endpoint> endpoint = DomainRegistry.endpointRepository().endpointOfId(endpointId);
-        if (endpoint.isPresent()) {
-            Endpoint endpoint1 = endpoint.get();
-            ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+            EndpointId endpointId = new EndpointId(id);
+            Optional<Endpoint> endpoint = DomainRegistry.endpointRepository().endpointOfId(endpointId);
+            if (endpoint.isPresent()) {
+                Endpoint endpoint1 = endpoint.get();
                 endpoint1.replace(
                         command.getExpression(),
                         command.getDescription(),
@@ -81,29 +81,30 @@ public class EndpointApplicationService {
                         command.getMethod()
                 );
                 DomainRegistry.endpointRepository().add(endpoint1);
-            }, Endpoint.class);
-        }
+            }
+        }, Endpoint.class);
     }
 
     @SubscribeForEvent
     @Transactional
     public void removeEndpoint(String id, String changeId) {
-        EndpointId endpointId = new EndpointId(id);
-        Optional<Endpoint> endpoint = DomainRegistry.endpointRepository().endpointOfId(endpointId);
-        if (endpoint.isPresent()) {
-            Endpoint endpoint1 = endpoint.get();
-            ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
+            EndpointId endpointId = new EndpointId(id);
+            Optional<Endpoint> endpoint = DomainRegistry.endpointRepository().endpointOfId(endpointId);
+            if (endpoint.isPresent()) {
+                Endpoint endpoint1 = endpoint.get();
                 DomainRegistry.endpointRepository().remove(endpoint1);
                 DomainEventPublisher.instance().publish(new EndpointDeleted(endpointId));
-            }, Endpoint.class);
-        }
+            }
+        }, Endpoint.class);
     }
 
     @SubscribeForEvent
     @Transactional
     public void removeEndpoints(String queryParam, String changeId) {
-        List<Endpoint> endpoints = DomainRegistry.endpointService().getEndpointsOfQuery(new EndpointQuery(queryParam));
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (command) -> {
+            List<Endpoint> endpoints = DomainRegistry.endpointService().getEndpointsOfQuery(new EndpointQuery(queryParam));
+            command.setRequestBody(endpoints);
             DomainRegistry.endpointRepository().remove(endpoints);
             DomainEventPublisher.instance().publish(
                     new EndpointsBatchDeleted(endpoints.stream().map(Endpoint::getEndpointId).collect(Collectors.toSet()))
@@ -114,21 +115,21 @@ public class EndpointApplicationService {
     @SubscribeForEvent
     @Transactional
     public void patchEndpoint(String id, JsonPatch command, String changeId) {
-        EndpointId endpointId = new EndpointId(id);
-        Optional<Endpoint> endpoint = DomainRegistry.endpointRepository().endpointOfId(endpointId);
-        if (endpoint.isPresent()) {
-            Endpoint endpoint1 = endpoint.get();
-            EndpointPatchCommand beforePatch = new EndpointPatchCommand(endpoint1);
-            EndpointPatchCommand afterPatch = DomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, EndpointPatchCommand.class);
-            ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+            EndpointId endpointId = new EndpointId(id);
+            Optional<Endpoint> endpoint = DomainRegistry.endpointRepository().endpointOfId(endpointId);
+            if (endpoint.isPresent()) {
+                Endpoint endpoint1 = endpoint.get();
+                EndpointPatchCommand beforePatch = new EndpointPatchCommand(endpoint1);
+                EndpointPatchCommand afterPatch = DomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, EndpointPatchCommand.class);
                 endpoint1.replace(
                         afterPatch.getExpression(),
                         afterPatch.getDescription(),
                         afterPatch.getMethod(),
                         afterPatch.getPath()
                 );
-            }, Endpoint.class);
-        }
+            }
+        }, Endpoint.class);
     }
 
     public void reloadInProxy(Object o) {

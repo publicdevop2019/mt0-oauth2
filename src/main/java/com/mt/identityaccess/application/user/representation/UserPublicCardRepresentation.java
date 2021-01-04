@@ -1,13 +1,13 @@
-package com.mt.identityaccess.application.user;
+package com.mt.identityaccess.application.user.representation;
 
 import com.mt.identityaccess.domain.model.user.User;
 import lombok.Data;
 
 @Data
-public class PublicUserCardRepresentation {
+public class UserPublicCardRepresentation {
     private String id;
 
-    public PublicUserCardRepresentation(User bizUser) {
+    public UserPublicCardRepresentation(User bizUser) {
         this.id = bizUser.getUserId().getDomainId();
     }
 }
