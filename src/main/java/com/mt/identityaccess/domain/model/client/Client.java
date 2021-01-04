@@ -48,11 +48,11 @@ public class Client extends Auditable {
 
     @Convert(converter = Authority.AuthorityConverter.class)
     @Getter
-    private Set<Authority> authorities = EnumSet.noneOf(Authority.class);
+    private final Set<Authority> authorities = EnumSet.noneOf(Authority.class);
 
     @Convert(converter = Scope.ScopeConverter.class)
     @Getter
-    private Set<Scope> scopes = new HashSet<>();
+    private final Set<Scope> scopes = EnumSet.noneOf(Scope.class);
 
     @Getter
     @ElementCollection(fetch = FetchType.EAGER)//if lazy then loadClientByClientId needs to be transactional
@@ -136,18 +136,20 @@ public class Client extends Auditable {
     }
 
     public void setResources(Set<ClientId> resources) {
-        if (!resources.isEmpty()) {
-            List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(resources));
-            if (clientsOfQuery.size() != resources.size()) {
-                throw new IllegalArgumentException("invalid resource(s) found");
+            if (!resources.equals(this.resources)) {
+                if (!resources.isEmpty()) {
+                    List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(resources));
+                    if (clientsOfQuery.size() != resources.size()) {
+                        throw new IllegalArgumentException("invalid resource(s) found");
+                    }
+                    boolean b = clientsOfQuery.stream().anyMatch(e -> !e.accessible);
+                    if (b) {
+                        throw new IllegalArgumentException("invalid resource(s) found");
+                    }
+                }
+                this.resources.clear();
+                this.resources.addAll(resources);
             }
-            boolean b = clientsOfQuery.stream().anyMatch(e -> !e.accessible);
-            if (b) {
-                throw new IllegalArgumentException("invalid resource(s) found");
-            }
-            this.resources.clear();
-            this.resources.addAll(resources);
-        }
     }
 
     public boolean isNonRoot() {

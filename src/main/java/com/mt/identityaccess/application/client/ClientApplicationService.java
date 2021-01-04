@@ -79,7 +79,6 @@ public class ClientApplicationService implements ClientDetailsService {
         if (optionalClient.isPresent()) {
             Client client = optionalClient.get();
             ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-                Client client1 = DomainRegistry.customObjectSerializer().nativeDeepCopy(client);
                 RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
                 client.replace(
                         command.getName(),
@@ -98,9 +97,6 @@ public class ClientApplicationService implements ClientDetailsService {
                                 command.getAccessTokenValiditySeconds()
                         )
                 );
-                if (client.equals(client1)) {
-                    log.debug("objects are equal");
-                }
             }, Client.class);
             DomainRegistry.clientRepository().add(client);
         }

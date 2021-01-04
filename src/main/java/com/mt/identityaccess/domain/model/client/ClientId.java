@@ -17,4 +17,5 @@ public class ClientId extends DomainId implements Serializable {
     public ClientId(String domainId) {
         super(domainId);
     }
+
 }
