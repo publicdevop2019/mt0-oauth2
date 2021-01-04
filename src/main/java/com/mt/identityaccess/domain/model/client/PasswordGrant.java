@@ -5,11 +5,12 @@ import org.apache.commons.lang.ObjectUtils;
 
 import javax.annotation.Nullable;
 import javax.persistence.Embedded;
+import java.io.Serializable;
 import java.util.Set;
 
 @NoArgsConstructor
 @EqualsAndHashCode
-public class PasswordGrant extends AbstractGrant {
+public class PasswordGrant extends AbstractGrant  implements Serializable {
 
     @Embedded
     @Setter(AccessLevel.PRIVATE)

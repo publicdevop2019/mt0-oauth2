@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.client.command;
+package com.mt.identityaccess.application.endpoint.command;
 
 import com.mt.common.rest.TypedClass;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;

@@ -2,7 +2,7 @@ package com.mt.identityaccess.domain.model.user;
 
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.identityaccess.application.client.QueryConfig;
+import com.mt.common.persistence.QueryConfig;
 import com.mt.identityaccess.application.user.UserPaging;
 import com.mt.identityaccess.application.user.UserQuery;
 

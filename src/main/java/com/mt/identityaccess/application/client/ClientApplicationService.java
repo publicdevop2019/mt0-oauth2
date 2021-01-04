@@ -1,9 +1,10 @@
 package com.mt.identityaccess.application.client;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.domain_event.DomainEvent;
 import com.mt.common.domain_event.DomainEventPublisher;
+import com.mt.common.domain_event.SubscribeForEvent;
+import com.mt.common.persistence.QueryConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.command.ClientCreateCommand;
@@ -55,7 +56,7 @@ public class ClientApplicationService implements ClientDetailsService {
                                     command.getAccessTokenValiditySeconds()
                             )
                     );
-                },Client.class
+                }, Client.class
         );
 
     }
@@ -74,12 +75,13 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional
     public void replaceClient(String id, ClientUpdateCommand command, String changeId) {
         ClientId clientId = new ClientId(id);
-        Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
-        if (client.isPresent()) {
-            Client client1 = client.get();
+        Optional<Client> optionalClient = DomainRegistry.clientRepository().clientOfId(clientId);
+        if (optionalClient.isPresent()) {
+            Client client = optionalClient.get();
             ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+                Client client1 = DomainRegistry.customObjectSerializer().nativeDeepCopy(client);
                 RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
-                client1.replace(
+                client.replace(
                         command.getName(),
                         command.getClientSecret(),
                         command.getDescription(),
@@ -96,8 +98,11 @@ public class ClientApplicationService implements ClientDetailsService {
                                 command.getAccessTokenValiditySeconds()
                         )
                 );
-            },Client.class);
-            DomainRegistry.clientRepository().add(client1);
+                if (client.equals(client1)) {
+                    log.debug("objects are equal");
+                }
+            }, Client.class);
+            DomainRegistry.clientRepository().add(client);
         }
     }
 
@@ -111,7 +116,7 @@ public class ClientApplicationService implements ClientDetailsService {
             if (client1.isNonRoot()) {
                 ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
                     DomainRegistry.clientRepository().remove(client1);
-                },Client.class);
+                }, Client.class);
                 DomainEventPublisher.instance().publish(new ClientDeleted(clientId));
             } else {
                 throw new RootClientDeleteException();
@@ -127,7 +132,7 @@ public class ClientApplicationService implements ClientDetailsService {
         if (!b) {
             ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
                 DomainRegistry.clientRepository().remove(allClientsOfQuery);
-            },Client.class);
+            }, Client.class);
             DomainEventPublisher.instance().publish(
                     new ClientsBatchDeleted(
                             allClientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet())
@@ -159,7 +164,7 @@ public class ClientApplicationService implements ClientDetailsService {
                         new ClientCredentialsGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds()),
                         new PasswordGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds(), refreshTokenGrantDetail)
                 );
-            },Client.class);
+            }, Client.class);
         }
     }
 

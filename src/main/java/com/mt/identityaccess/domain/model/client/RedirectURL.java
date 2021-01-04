@@ -1,5 +1,6 @@
 package com.mt.identityaccess.domain.model.client;
 
+import com.google.common.base.Objects;
 import lombok.Getter;
 import org.apache.commons.validator.routines.UrlValidator;
 
@@ -20,5 +21,18 @@ public class RedirectURL implements Serializable {
     }
 
     public static class InvalidRedirectURLException extends RuntimeException {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RedirectURL)) return false;
+        RedirectURL that = (RedirectURL) o;
+        return Objects.equal(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(value);
     }
 }

@@ -9,18 +9,19 @@ import lombok.Setter;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Convert;
 import javax.persistence.Lob;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
-public class AuthorizationCodeGrant extends AbstractGrant {
+public class AuthorizationCodeGrant extends AbstractGrant implements Serializable {
 
     @Lob
     @Getter
     @Convert(converter = RedirectURLConverter.class)
-    private Set<RedirectURL> redirectUrls;
+    private final Set<RedirectURL> redirectUrls=new HashSet<>();
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private boolean autoApprove = false;
@@ -36,7 +37,8 @@ public class AuthorizationCodeGrant extends AbstractGrant {
     }
 
     private void setRedirectUrls(Set<RedirectURL> redirectUrls) {
-        this.redirectUrls = new HashSet<>(redirectUrls);
+        this.redirectUrls.clear();
+        this.redirectUrls.addAll(redirectUrls);
     }
 
     @Override

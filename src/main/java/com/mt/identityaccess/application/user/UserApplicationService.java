@@ -7,7 +7,7 @@ import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.application.client.QueryConfig;
+import com.mt.common.persistence.QueryConfig;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.ActivationCode;
 import com.mt.identityaccess.domain.model.user.User;

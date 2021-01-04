@@ -52,7 +52,7 @@ public class Client extends Auditable {
 
     @Convert(converter = Scope.ScopeConverter.class)
     @Getter
-    private Set<Scope> scopes = EnumSet.noneOf(Scope.class);
+    private Set<Scope> scopes = new HashSet<>();
 
     @Getter
     @ElementCollection(fetch = FetchType.EAGER)//if lazy then loadClientByClientId needs to be transactional
@@ -64,7 +64,7 @@ public class Client extends Auditable {
     @AttributeOverrides({
             @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))
     })
-    private Set<ClientId> resources = new HashSet<>();
+    private final Set<ClientId> resources = new HashSet<>();
 
     @Setter(AccessLevel.PRIVATE)
     @Getter
@@ -104,11 +104,13 @@ public class Client extends Auditable {
     private Integer version;
 
     public void setScopes(Set<Scope> scopes) {
-        this.scopes = EnumSet.copyOf(scopes);
+        this.scopes.clear();
+        this.scopes.addAll(scopes);
     }
 
     public void setAuthorities(Set<Authority> authorities) {
-        this.authorities = authorities;
+        this.authorities.clear();
+        this.authorities.addAll(authorities);
         if (accessible) {
             if (
                     authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
@@ -143,7 +145,8 @@ public class Client extends Auditable {
             if (b) {
                 throw new IllegalArgumentException("invalid resource(s) found");
             }
-            this.resources = resources;
+            this.resources.clear();
+            this.resources.addAll(resources);
         }
     }
 

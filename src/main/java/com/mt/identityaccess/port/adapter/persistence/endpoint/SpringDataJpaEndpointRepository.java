@@ -1,8 +1,10 @@
 package com.mt.identityaccess.port.adapter.persistence.endpoint;
 
+import com.mt.common.persistence.QueryConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.identityaccess.application.client.*;
+import com.mt.identityaccess.application.endpoint.EndpointPaging;
+import com.mt.identityaccess.application.endpoint.EndpointQuery;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import com.mt.identityaccess.domain.model.endpoint.EndpointId;
 import com.mt.identityaccess.domain.model.endpoint.EndpointRepository;

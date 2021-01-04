@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.client;
+package com.mt.identityaccess.application.endpoint;
 
 public class EndpointQuery {
     private String value;

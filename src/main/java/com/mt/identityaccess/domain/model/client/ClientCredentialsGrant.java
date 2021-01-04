@@ -2,10 +2,11 @@ package com.mt.identityaccess.domain.model.client;
 
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.Set;
 
 @NoArgsConstructor
-public class ClientCredentialsGrant extends AbstractGrant {
+public class ClientCredentialsGrant extends AbstractGrant  implements Serializable {
 
     @Override
     public GrantType name() {

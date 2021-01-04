@@ -1,9 +1,9 @@
 package com.mt.identityaccess.domain.model.endpoint;
 
 import com.mt.common.sql.SumPagedRep;
-import com.mt.identityaccess.application.client.EndpointPaging;
-import com.mt.identityaccess.application.client.EndpointQuery;
-import com.mt.identityaccess.application.client.QueryConfig;
+import com.mt.identityaccess.application.endpoint.EndpointPaging;
+import com.mt.identityaccess.application.endpoint.EndpointQuery;
+import com.mt.common.persistence.QueryConfig;
 
 import java.util.Collection;
 import java.util.Optional;

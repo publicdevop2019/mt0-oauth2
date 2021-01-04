@@ -2,7 +2,7 @@ package com.mt.identityaccess.application;
 
 import com.mt.common.idempotent.ApplicationServiceIdempotentWrapper;
 import com.mt.identityaccess.application.client.ClientApplicationService;
-import com.mt.identityaccess.application.client.EndpointApplicationService;
+import com.mt.identityaccess.application.endpoint.EndpointApplicationService;
 import com.mt.identityaccess.application.pending_user.PendingUserApplicationService;
 import com.mt.identityaccess.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.identityaccess.application.user.UserApplicationService;

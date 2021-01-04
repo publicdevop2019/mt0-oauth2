@@ -11,10 +11,11 @@ import org.apache.commons.lang.ObjectUtils;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
+import java.io.Serializable;
 import java.util.Set;
 
 @NoArgsConstructor
-public class RefreshTokenGrant {
+public class RefreshTokenGrant  implements Serializable {
     public static final GrantType NAME = GrantType.REFRESH_TOKEN;
     @Column(name = "pwd_gt_refresh_token_gt_enabled")
     @Getter

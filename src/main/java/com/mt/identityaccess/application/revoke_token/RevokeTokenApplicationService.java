@@ -3,7 +3,7 @@ package com.mt.identityaccess.application.revoke_token;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.application.client.QueryConfig;
+import com.mt.common.persistence.QueryConfig;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.revoke_token.RevokeToken;
 import com.mt.identityaccess.domain.model.revoke_token.RevokeTokenId;

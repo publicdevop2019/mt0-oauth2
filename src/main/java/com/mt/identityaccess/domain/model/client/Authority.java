@@ -16,4 +16,5 @@ public enum Authority {
             super(Authority.class);
         }
     }
+
 }

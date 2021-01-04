@@ -1,13 +1,15 @@
-package com.mt.identityaccess.application.client;
+package com.mt.identityaccess.application.endpoint;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.application.client.command.EndpointCreateCommand;
-import com.mt.identityaccess.application.client.command.EndpointPatchCommand;
-import com.mt.identityaccess.application.client.command.EndpointUpdateCommand;
+import com.mt.identityaccess.application.client.InvalidClientIdException;
+import com.mt.common.persistence.QueryConfig;
+import com.mt.identityaccess.application.endpoint.command.EndpointCreateCommand;
+import com.mt.identityaccess.application.endpoint.command.EndpointPatchCommand;
+import com.mt.identityaccess.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
