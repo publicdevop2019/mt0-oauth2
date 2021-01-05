@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 import org.springframework.util.StringUtils;
 
@@ -26,6 +27,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @Where(clause = "deleted=0")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Client extends Auditable {
 
     @Id
@@ -64,6 +66,7 @@ public class Client extends Auditable {
     @AttributeOverrides({
             @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))
     })
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private final Set<ClientId> resources = new HashSet<>();
 
     @Setter(AccessLevel.PRIVATE)
