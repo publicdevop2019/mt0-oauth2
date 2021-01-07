@@ -56,8 +56,12 @@ public class Client extends Auditable {
     @Getter
     private final Set<Scope> scopes = EnumSet.noneOf(Scope.class);
 
+    /**
+     * if lazy then loadClientByClientId needs to be transactional
+     * use eager as @Transactional is adding too much overhead
+     */
     @Getter
-    @ElementCollection(fetch = FetchType.EAGER)//if lazy then loadClientByClientId needs to be transactional
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "resources_map",
             joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),

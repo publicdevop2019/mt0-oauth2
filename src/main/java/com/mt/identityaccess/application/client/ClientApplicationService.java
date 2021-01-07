@@ -61,12 +61,10 @@ public class ClientApplicationService implements ClientDetailsService {
 
     }
 
-    @Transactional(readOnly = true)
     public SumPagedRep<Client> clients(String queryParam, String pagingParam, String configParam) {
         return DomainRegistry.clientRepository().clientsOfQuery(new ClientQuery(queryParam), new ClientPaging(pagingParam), new QueryConfig(configParam));
     }
 
-    @Transactional(readOnly = true)
     public Optional<Client> client(String id) {
         return DomainRegistry.clientRepository().clientOfId(new ClientId(id));
     }
@@ -164,7 +162,6 @@ public class ClientApplicationService implements ClientDetailsService {
             }
         }, Client.class);
     }
-
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
