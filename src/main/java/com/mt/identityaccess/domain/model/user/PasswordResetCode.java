@@ -6,24 +6,24 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-public class PasswordResetToken {
+public class PasswordResetCode {
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private String value;
 
-    public PasswordResetToken() {
+    public PasswordResetCode() {
         setValue(DomainRegistry.passwordResetTokenService().generate());
     }
 
-    public PasswordResetToken(String token) {
+    public PasswordResetCode(String token) {
         setValue(token);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PasswordResetToken)) return false;
-        PasswordResetToken that = (PasswordResetToken) o;
+        if (!(o instanceof PasswordResetCode)) return false;
+        PasswordResetCode that = (PasswordResetCode) o;
         return Objects.equal(value, that.value);
     }
 

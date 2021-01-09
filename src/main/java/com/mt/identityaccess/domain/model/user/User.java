@@ -4,9 +4,9 @@ import com.google.common.base.Objects;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
-import com.mt.identityaccess.domain.model.client.event.ClientUpdated;
 import com.mt.identityaccess.domain.model.user.event.UserAuthorityChanged;
 import com.mt.identityaccess.domain.model.user.event.UserGetLocked;
+import com.mt.identityaccess.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.identityaccess.domain.model.user.event.UserUpdated;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -57,10 +57,11 @@ public class User extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private boolean locked = false;
+
     @Setter
     @Getter
     @Embedded
-    private PasswordResetToken pwdResetToken;
+    private PasswordResetCode pwdResetToken;
     @Column
     @Convert(converter = Role.ResourceOwnerAuthorityConverter.class)
     @Setter(AccessLevel.PRIVATE)
@@ -74,7 +75,6 @@ public class User extends Auditable {
     @Setter(AccessLevel.NONE)
     private Integer version;
 
-
     public User(UserEmail userEmail, String rawPassword, UserId userId) {
         setId(DomainRegistry.uniqueIdGeneratorService().id());
         setEmail(userEmail);
@@ -83,6 +83,11 @@ public class User extends Auditable {
         setLocked(false);
         setGrantedAuthorities(Collections.singleton(Role.ROLE_USER));
         setSubscription(false);
+    }
+
+    public void setPwdResetToken(PasswordResetCode pwdResetToken) {
+        this.pwdResetToken = pwdResetToken;
+        DomainEventPublisher.instance().publish(new UserPwdResetCodeUpdated(getUserId(), getEmail(), getPwdResetToken()));
     }
 
     public boolean isNonRoot() {
@@ -111,10 +116,12 @@ public class User extends Auditable {
             throw new IllegalArgumentException("only admin can subscribe to new order");
         }
     }
+
     @PreUpdate
-    private void preUpdate(){
+    private void preUpdate() {
         DomainEventPublisher.instance().publish(new UserUpdated(getUserId()));
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -5,7 +5,6 @@ import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.ActivationCode;
 import com.mt.identityaccess.domain.model.pending_user.PendingUser;
 import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;
-import com.mt.identityaccess.domain.model.pending_user.event.PendingUserCodeUpdated;
 import com.mt.identityaccess.domain.model.pending_user.event.PendingUserCreated;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +21,10 @@ public class PendingUserService {
         if (pendingResourceOwner.isEmpty()) {
             PendingUser pendingUser = new PendingUser(email, activationCode);
             DomainRegistry.pendingUserRepository().add(pendingUser);
-            DomainRegistry.userNotificationService().sendActivationCodeTo(email, activationCode);
             DomainEventPublisher.instance().publish(new PendingUserCreated(pendingUser.getRegistrationEmail()));
             return pendingUser.getRegistrationEmail();
         } else {
             pendingResourceOwner.get().newActivationCode(activationCode);
-            DomainRegistry.userNotificationService().sendActivationCodeTo(email, activationCode);
-            DomainEventPublisher.instance().publish(new PendingUserCodeUpdated(pendingResourceOwner.get().getRegistrationEmail()));
             return pendingResourceOwner.get().getRegistrationEmail();
         }
     }

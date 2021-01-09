@@ -44,9 +44,8 @@ public class UserService {
         if (user.isEmpty()) {
             throw new IllegalArgumentException("user does not exist");
         }
-        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        PasswordResetCode passwordResetToken = new PasswordResetCode();
         user.get().setPwdResetToken(passwordResetToken);
-        DomainRegistry.userNotificationService().sendPasswordResetCodeTo(user.get().getEmail(), passwordResetToken);
         DomainRegistry.userRepository().add(user.get());
 
     }
@@ -58,7 +57,7 @@ public class UserService {
         }
         if (user.get().getPwdResetToken() == null)
             throw new IllegalArgumentException("token not exist");
-        if (!user.get().getPwdResetToken().equals(new PasswordResetToken(token)))
+        if (!user.get().getPwdResetToken().equals(new PasswordResetCode(token)))
             throw new IllegalArgumentException("token mismatch");
         user.get().setPassword(new UserPassword(newPassword));
         DomainRegistry.userRepository().add(user.get());

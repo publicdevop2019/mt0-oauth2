@@ -1,8 +1,10 @@
 package com.mt.identityaccess.domain.model.pending_user;
 
 import com.mt.common.audit.Auditable;
+import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.ActivationCode;
 import com.mt.identityaccess.domain.DomainRegistry;
+import com.mt.identityaccess.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,6 +41,12 @@ public class PendingUser extends Auditable {
         setRegistrationEmail(registrationEmail);
         setActivationCode(activationCode);
     }
+
+    private void setActivationCode(ActivationCode activationCode) {
+        this.activationCode = activationCode;
+        DomainEventPublisher.instance().publish(new PendingUserActivationCodeUpdated(registrationEmail,activationCode));
+    }
+
     public void newActivationCode(ActivationCode activationCode){
         setActivationCode(activationCode);
     }
