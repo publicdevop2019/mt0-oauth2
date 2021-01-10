@@ -3,10 +3,11 @@ package com.mt.identityaccess.domain.model.pending_user.event;
 import com.mt.common.domain_event.DomainEvent;
 import com.mt.identityaccess.domain.model.ActivationCode;
 import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-
+@Getter
 public class PendingUserActivationCodeUpdated extends DomainEvent {
     private String email;
     private String code;

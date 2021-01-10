@@ -24,6 +24,9 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +42,16 @@ import java.util.stream.Collectors;
 @Service
 public class EndpointApplicationService {
     public static final String EXCHANGE_RELOAD_EP_CACHE = "reloadEpCache";
+    @Value("${proxy.reload}")
+    private boolean reloadOnAppStart;
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void reloadProxy() {
+        if (reloadOnAppStart) {
+            log.debug("sending reload proxy endpoint message");
+            reloadInProxy();
+        }
+    }
 
     @SubscribeForEvent
     @Transactional
@@ -156,6 +169,19 @@ public class EndpointApplicationService {
             } catch (IOException | TimeoutException e) {
                 log.error("error in mq", e);
             }
+        }
+    }
+
+    public void reloadInProxy() {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost");
+        try (Connection connection = factory.newConnection();
+             Channel channel = connection.createChannel()) {
+            channel.exchangeDeclare(EXCHANGE_RELOAD_EP_CACHE, "fanout");
+            channel.basicPublish(EXCHANGE_RELOAD_EP_CACHE, "", null, null);
+            log.debug("sent clean filter cache message");
+        } catch (IOException | TimeoutException e) {
+            log.error("error in mq", e);
         }
     }
 }
