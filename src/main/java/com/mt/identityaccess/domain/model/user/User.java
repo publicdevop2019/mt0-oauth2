@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -27,6 +28,7 @@ import java.util.Set;
 @Table(name = "user_")
 @NoArgsConstructor
 @Where(clause = "deleted=0")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class User extends Auditable {
     public static final String ENTITY_EMAIL = "email";
     public static final String ENTITY_SUBSCRIPTION = "subscription";

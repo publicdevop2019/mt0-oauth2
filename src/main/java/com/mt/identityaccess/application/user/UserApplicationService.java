@@ -53,7 +53,6 @@ public class UserApplicationService implements UserDetailsService {
 
     }
 
-    @Transactional(readOnly = true)
     public SumPagedRep<User> users(String queryParam, String pageParam, String config) {
         return DomainRegistry.userRepository().usersOfQuery(new UserQuery(queryParam), new UserPaging(pageParam), new QueryConfig(config));
     }

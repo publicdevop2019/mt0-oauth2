@@ -72,12 +72,10 @@ public class EndpointApplicationService {
         }, Endpoint.class);
     }
 
-    @Transactional(readOnly = true)
     public SumPagedRep<Endpoint> endpoints(String queryParam, String pageParam, String config) {
         return DomainRegistry.endpointRepository().endpointsOfQuery(new EndpointQuery(queryParam), new EndpointPaging(pageParam), new QueryConfig(config));
     }
 
-    @Transactional(readOnly = true)
     public Optional<Endpoint> endpoint(String id) {
         return DomainRegistry.endpointRepository().endpointOfId(new EndpointId(id));
     }

@@ -36,7 +36,6 @@ public class RevokeTokenApplicationService {
         }, RevokeToken.class);
     }
 
-    @Transactional(readOnly = true)
     public SumPagedRep<RevokeToken> revokeTokens(String queryParam, String pageParam, String config) {
         return DomainRegistry.revokeTokenRepository().revokeTokensOfQuery(new RevokeTokenQuery(queryParam), new RevokeTokenPaging(pageParam), new QueryConfig(config));
     }
