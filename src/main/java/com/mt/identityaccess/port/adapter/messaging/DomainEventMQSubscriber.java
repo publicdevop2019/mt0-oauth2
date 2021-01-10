@@ -1,5 +1,6 @@
 package com.mt.identityaccess.port.adapter.messaging;
 
+import com.mt.common.domain_event.StoredEvent;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.rabbitmq.client.Channel;
@@ -30,7 +31,8 @@ public class DomainEventMQSubscriber {
             channel.queueBind(TASK_QUEUE_NAME, EXCHANGE_NAME, "");
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 log.debug("received message from mq");
-                Object o = DomainRegistry.customObjectSerializer().nativeDeserialize(delivery.getBody());
+                String s = new String(delivery.getBody());
+                StoredEvent o = DomainRegistry.customObjectSerializer().deserialize(s, StoredEvent.class);
                 ApplicationServiceRegistry.clientApplicationService().revokeTokenBasedOnChange(o);
                 ApplicationServiceRegistry.userApplicationService().revokeTokenBasedOnChange(o);
                 ApplicationServiceRegistry.endpointApplicationService().reloadInProxy(o);

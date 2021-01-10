@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-@Entity
-@NoArgsConstructor
 public class UserDeleted extends DomainEvent {
     public UserDeleted(UserId userId) {
         super(userId);

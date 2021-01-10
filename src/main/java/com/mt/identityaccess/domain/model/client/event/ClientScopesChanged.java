@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-@Entity
-@NoArgsConstructor
 public class ClientScopesChanged extends DomainEvent{
     public ClientScopesChanged(ClientId clientId) {
         super(clientId);

@@ -3,6 +3,7 @@ package com.mt.identityaccess.application.client;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain_event.DomainEvent;
 import com.mt.common.domain_event.DomainEventPublisher;
+import com.mt.common.domain_event.StoredEvent;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.sql.SumPagedRep;
@@ -21,14 +22,25 @@ import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class ClientApplicationService implements ClientDetailsService {
+    private static final Set<String> EVENTS = new HashSet<>();
+
+    static {
+        EVENTS.add(ClientAccessibleChanged.class.getName());
+        EVENTS.add(ClientAccessTokenValiditySecondsChanged.class.getName());
+        EVENTS.add(ClientAuthoritiesChanged.class.getName());
+        EVENTS.add(ClientGrantTypeChanged.class.getName());
+        EVENTS.add(ClientRefreshTokenChanged.class.getName());
+        EVENTS.add(ClientDeleted.class.getName());
+        EVENTS.add(ClientResourcesChanged.class.getName());
+        EVENTS.add(ClientScopesChanged.class.getName());
+        EVENTS.add(ClientSecretChanged.class.getName());
+    }
 
     @SubscribeForEvent
     @Transactional
@@ -162,26 +174,17 @@ public class ClientApplicationService implements ClientDetailsService {
             }
         }, Client.class);
     }
+
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
         return client.map(ClientSpringOAuth2Representation::new).orElse(null);
     }
 
-    public void revokeTokenBasedOnChange(Object o) {
-        if (
-                o instanceof ClientAccessibleChanged ||
-                        o instanceof ClientAccessTokenValiditySecondsChanged ||
-                        o instanceof ClientAuthoritiesChanged ||
-                        o instanceof ClientGrantTypeChanged ||
-                        o instanceof ClientRefreshTokenChanged ||
-                        o instanceof ClientDeleted ||
-                        o instanceof ClientResourcesChanged ||
-                        o instanceof ClientScopesChanged ||
-                        o instanceof ClientSecretChanged
-        ) {
-            DomainRegistry.revokeTokenService().revokeClientToken(((DomainEvent) o).getDomainId());
+    public void revokeTokenBasedOnChange(StoredEvent o) {
+        if (EVENTS.contains(o.getName())) {
+            DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
+            DomainRegistry.revokeTokenService().revokeClientToken((deserialize).getDomainId());
         }
-
     }
 }

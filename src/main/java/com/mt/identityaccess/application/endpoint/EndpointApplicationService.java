@@ -2,6 +2,7 @@ package com.mt.identityaccess.application.endpoint;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain_event.DomainEventPublisher;
+import com.mt.common.domain_event.StoredEvent;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.sql.SumPagedRep;
@@ -27,8 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
@@ -132,13 +135,17 @@ public class EndpointApplicationService {
         }, Endpoint.class);
     }
 
-    public void reloadInProxy(Object o) {
-        if (
-                o instanceof EndpointUpdated ||
-                        o instanceof EndpointCreated ||
-                        o instanceof EndpointDeleted ||
-                        o instanceof EndpointsBatchDeleted
-        ) {
+    private static final Set<String> EVENTS = new HashSet<>();
+
+    static {
+        EVENTS.add(EndpointUpdated.class.getName());
+        EVENTS.add(EndpointCreated.class.getName());
+        EVENTS.add(EndpointDeleted.class.getName());
+        EVENTS.add(EndpointsBatchDeleted.class.getName());
+    }
+
+    public void reloadInProxy(StoredEvent o) {
+        if (EVENTS.contains(o.getName())) {
             ConnectionFactory factory = new ConnectionFactory();
             factory.setHost("localhost");
             try (Connection connection = factory.newConnection();

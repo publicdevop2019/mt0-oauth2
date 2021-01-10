@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-@Entity
-@NoArgsConstructor
 public class PendingUserCreated extends DomainEvent {
     public PendingUserCreated(RegistrationEmail email) {
         super(email);

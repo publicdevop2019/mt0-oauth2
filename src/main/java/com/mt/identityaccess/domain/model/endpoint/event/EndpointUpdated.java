@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-@Entity
-@NoArgsConstructor
 public class EndpointUpdated extends DomainEvent {
     public EndpointUpdated(EndpointId endpointId) {
         super(endpointId);

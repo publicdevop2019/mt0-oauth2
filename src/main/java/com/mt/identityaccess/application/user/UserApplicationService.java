@@ -3,11 +3,12 @@ package com.mt.identityaccess.application.user;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain_event.DomainEvent;
 import com.mt.common.domain_event.DomainEventPublisher;
+import com.mt.common.domain_event.StoredEvent;
 import com.mt.common.domain_event.SubscribeForEvent;
+import com.mt.common.persistence.QueryConfig;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.common.persistence.QueryConfig;
 import com.mt.identityaccess.application.user.command.*;
 import com.mt.identityaccess.application.user.representation.UserSpringRepresentation;
 import com.mt.identityaccess.domain.DomainRegistry;
@@ -26,8 +27,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -166,14 +169,19 @@ public class UserApplicationService implements UserDetailsService {
         return client.map(UserSpringRepresentation::new).orElse(null);
     }
 
-    public void revokeTokenBasedOnChange(Object o) {
-        if (
-                o instanceof UserAuthorityChanged ||
-                        o instanceof UserDeleted ||
-                        o instanceof UserGetLocked ||
-                        o instanceof UserPasswordChanged
-        ) {
-            DomainRegistry.revokeTokenService().revokeUserToken(((DomainEvent) o).getDomainId());
+    private static final Set<String> EVENTS = new HashSet<>();
+
+    static {
+        EVENTS.add(UserAuthorityChanged.class.getName());
+        EVENTS.add(UserDeleted.class.getName());
+        EVENTS.add(UserGetLocked.class.getName());
+        EVENTS.add(UserPasswordChanged.class.getName());
+    }
+
+    public void revokeTokenBasedOnChange(StoredEvent o) {
+        if (EVENTS.contains(o.getName())) {
+            DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(),DomainEvent.class);
+            DomainRegistry.revokeTokenService().revokeUserToken(deserialize.getDomainId());
         }
     }
 

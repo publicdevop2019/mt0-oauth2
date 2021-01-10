@@ -9,8 +9,6 @@ import javax.persistence.Entity;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Entity
-@NoArgsConstructor
 public class ClientsBatchDeleted extends DomainEvent {
     public ClientsBatchDeleted(Set<ClientId> clientIds) {
         super(clientIds.stream().map(e -> (DomainId) e).collect(Collectors.toSet()));

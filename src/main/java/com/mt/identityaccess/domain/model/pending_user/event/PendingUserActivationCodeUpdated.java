@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-@Entity
-@NoArgsConstructor
 public class PendingUserActivationCodeUpdated extends DomainEvent {
     private String email;
     private String code;
@@ -17,7 +15,6 @@ public class PendingUserActivationCodeUpdated extends DomainEvent {
         super(registrationEmail);
         setEmail(registrationEmail);
         setCode(activationCode);
-        updateBody(this);
     }
 
     private void setEmail(RegistrationEmail registrationEmail) {

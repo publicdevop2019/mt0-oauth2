@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-@Entity
-@NoArgsConstructor
 public class UserPasswordChanged extends DomainEvent {
     public UserPasswordChanged(UserId userId) {
         super(userId);

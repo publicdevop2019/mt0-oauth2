@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-@Entity
-@NoArgsConstructor
 public class UserPwdResetCodeUpdated extends DomainEvent {
     private String email;
     private String code;
@@ -18,7 +16,6 @@ public class UserPwdResetCodeUpdated extends DomainEvent {
         super(userId);
         setEmail(email);
         setCode(pwdResetToken);
-        updateBody(this);
     }
 
     public void setEmail(UserEmail userEmail) {

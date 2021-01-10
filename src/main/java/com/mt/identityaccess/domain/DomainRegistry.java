@@ -27,7 +27,6 @@ public class DomainRegistry {
     private static RevokeTokenService revokeTokenService;
     private static ActivationCodeService activationCodeService;
     private static PasswordResetTokenService passwordResetTokenService;
-    private static UserNotificationService userNotificationService;
     private static RevokeTokenRepository revokeTokenRepository;
     private static CustomObjectSerializer objectSerializer;
 
@@ -111,11 +110,6 @@ public class DomainRegistry {
         DomainRegistry.uniqueIdGeneratorService = uniqueIdGeneratorService;
     }
 
-    @Autowired
-    public void setUserNotificationService(UserNotificationService userNotificationService) {
-        DomainRegistry.userNotificationService = userNotificationService;
-    }
-
     public static ClientRepository clientRepository() {
         return clientRepository;
     }
@@ -180,8 +174,5 @@ public class DomainRegistry {
         return userService;
     }
 
-    public static UserNotificationService userNotificationService() {
-        return userNotificationService;
-    }
 
 }

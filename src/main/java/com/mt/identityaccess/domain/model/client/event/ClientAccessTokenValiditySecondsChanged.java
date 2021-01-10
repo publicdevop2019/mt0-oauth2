@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-@Entity
-@NoArgsConstructor
 public class ClientAccessTokenValiditySecondsChanged extends DomainEvent{
     public ClientAccessTokenValiditySecondsChanged(ClientId clientId) {
         super(clientId);
