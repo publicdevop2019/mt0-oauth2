@@ -1,6 +1,7 @@
 package com.mt.identityaccess.domain;
 
 import com.mt.common.domain.model.domainId.UniqueIdGeneratorService;
+import com.mt.common.domain_event.EventStreamService;
 import com.mt.common.serializer.CustomObjectSerializer;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
 import com.mt.identityaccess.domain.model.endpoint.EndpointRepository;
@@ -29,6 +30,16 @@ public class DomainRegistry {
     private static PasswordResetTokenService passwordResetTokenService;
     private static RevokeTokenRepository revokeTokenRepository;
     private static CustomObjectSerializer objectSerializer;
+    private static EventStreamService eventStreamService;
+
+    public static EventStreamService eventStreamService() {
+        return eventStreamService;
+    }
+
+    @Autowired
+    public void setEventStreamService(EventStreamService eventStreamService) {
+        DomainRegistry.eventStreamService = eventStreamService;
+    }
 
     @Autowired
     public void setCustomObjectSerializer(CustomObjectSerializer customObjectSerializer) {

@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-public class ClientDeleted extends DomainEvent{
+public class ClientDeleted extends ClientEvent{
     public ClientDeleted(ClientId clientId) {
         super(clientId);
     }

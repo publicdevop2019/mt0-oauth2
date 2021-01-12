@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-public class UserUpdated extends DomainEvent {
+public class UserUpdated extends UserEvent {
     public UserUpdated(UserId userId) {
         super(userId);
     }

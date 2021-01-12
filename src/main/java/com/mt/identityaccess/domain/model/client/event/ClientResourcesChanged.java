@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-public class ClientResourcesChanged extends DomainEvent{
+public class ClientResourcesChanged extends ClientEvent{
     public ClientResourcesChanged(ClientId clientId) {
         super(clientId);
     }

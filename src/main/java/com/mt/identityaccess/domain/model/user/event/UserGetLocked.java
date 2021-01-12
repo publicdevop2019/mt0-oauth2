@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 
-public class UserGetLocked extends DomainEvent {
+public class UserGetLocked extends UserEvent {
     public UserGetLocked(UserId userId) {
         super(userId);
     }

@@ -9,5 +9,6 @@ import javax.persistence.Entity;
 public class RevokeTokenCreated extends DomainEvent {
     public RevokeTokenCreated(RevokeTokenId revokeTokenId) {
         super(revokeTokenId);
+        setTopic("revokeToken");
     }
 }

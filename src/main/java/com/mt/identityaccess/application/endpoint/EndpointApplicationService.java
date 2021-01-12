@@ -1,8 +1,8 @@
 package com.mt.identityaccess.application.endpoint;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import com.mt.common.domain_event.AppStarted;
 import com.mt.common.domain_event.DomainEventPublisher;
-import com.mt.common.domain_event.StoredEvent;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.sql.SumPagedRep;
@@ -18,11 +18,7 @@ import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import com.mt.identityaccess.domain.model.endpoint.EndpointId;
 import com.mt.identityaccess.domain.model.endpoint.event.EndpointCreated;
 import com.mt.identityaccess.domain.model.endpoint.event.EndpointDeleted;
-import com.mt.identityaccess.domain.model.endpoint.event.EndpointUpdated;
 import com.mt.identityaccess.domain.model.endpoint.event.EndpointsBatchDeleted;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -30,12 +26,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -44,12 +36,14 @@ public class EndpointApplicationService {
     public static final String EXCHANGE_RELOAD_EP_CACHE = "reloadEpCache";
     @Value("${proxy.reload}")
     private boolean reloadOnAppStart;
+    @Value("${spring.application.name}")
+    private String appName;
 
     @EventListener(ApplicationReadyEvent.class)
     protected void reloadProxy() {
         if (reloadOnAppStart) {
             log.debug("sending reload proxy endpoint message");
-            reloadInProxy();
+            DomainRegistry.eventStreamService().next(appName, false, "system", new AppStarted());
         }
     }
 
@@ -146,40 +140,4 @@ public class EndpointApplicationService {
         }, Endpoint.class);
     }
 
-    private static final Set<String> EVENTS = new HashSet<>();
-
-    static {
-        EVENTS.add(EndpointUpdated.class.getName());
-        EVENTS.add(EndpointCreated.class.getName());
-        EVENTS.add(EndpointDeleted.class.getName());
-        EVENTS.add(EndpointsBatchDeleted.class.getName());
-    }
-
-    public void reloadInProxy(StoredEvent o) {
-        if (EVENTS.contains(o.getName())) {
-            ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost("localhost");
-            try (Connection connection = factory.newConnection();
-                 Channel channel = connection.createChannel()) {
-                channel.exchangeDeclare(EXCHANGE_RELOAD_EP_CACHE, "fanout");
-                channel.basicPublish(EXCHANGE_RELOAD_EP_CACHE, "", null, null);
-                log.debug("sent clean filter cache message");
-            } catch (IOException | TimeoutException e) {
-                log.error("error in mq", e);
-            }
-        }
-    }
-
-    public void reloadInProxy() {
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
-        try (Connection connection = factory.newConnection();
-             Channel channel = connection.createChannel()) {
-            channel.exchangeDeclare(EXCHANGE_RELOAD_EP_CACHE, "fanout");
-            channel.basicPublish(EXCHANGE_RELOAD_EP_CACHE, "", null, null);
-            log.debug("sent clean filter cache message");
-        } catch (IOException | TimeoutException e) {
-            log.error("error in mq", e);
-        }
-    }
 }
