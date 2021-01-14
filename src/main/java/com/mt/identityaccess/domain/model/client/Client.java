@@ -237,7 +237,6 @@ public class Client extends Auditable {
         setClientCredentialsGrant(clientCredentialsGrant);
         PasswordGrant.detectChange(this.getPasswordGrant(), passwordGrant, getClientId());
         setPasswordGrant(passwordGrant);
-        DomainEventPublisher.instance().publish(new ClientUpdated(getClientId()));
     }
 
     public void replace(String name,
