@@ -181,6 +181,7 @@ public class ClientApplicationService implements ClientDetailsService {
         return client.map(ClientSpringOAuth2Representation::new).orElse(null);
     }
 
+    @Transactional
     public void revokeTokenBasedOnChange(StoredEvent o) {
         if (EVENTS.contains(o.getName())) {
             DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
