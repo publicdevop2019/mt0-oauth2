@@ -1,6 +1,7 @@
 package com.mt.identityaccess.application.revoke_token;
 
 import com.mt.common.domain_event.SubscribeForEvent;
+import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.common.persistence.QueryConfig;
@@ -37,6 +38,6 @@ public class RevokeTokenApplicationService {
     }
 
     public SumPagedRep<RevokeToken> revokeTokens(String queryParam, String pageParam, String config) {
-        return DomainRegistry.revokeTokenRepository().revokeTokensOfQuery(new RevokeTokenQuery(queryParam), new RevokeTokenPaging(pageParam), new QueryConfig(config));
+        return DomainRegistry.revokeTokenRepository().revokeTokensOfQuery(new RevokeTokenQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(config));
     }
 }
