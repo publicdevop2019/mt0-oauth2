@@ -148,6 +148,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 throw new RootClientDeleteException();
             }
             change.setDeletedIds(allClientsOfQuery.stream().map(e -> e.getClientId().getDomainId()).collect(Collectors.toSet()));
+            change.setQuery(queryParam);
             return allClientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
         }, Client.class);
     }
