@@ -132,8 +132,8 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public void removeClients(String queryParam, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (change) -> {
+    public Set<String> removeClients(String queryParam, String changeId) {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
             List<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
             boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.isNonRoot());
             if (!b) {
@@ -147,6 +147,8 @@ public class ClientApplicationService implements ClientDetailsService {
             } else {
                 throw new RootClientDeleteException();
             }
+            change.setDeletedIds(allClientsOfQuery.stream().map(e -> e.getClientId().getDomainId()).collect(Collectors.toSet()));
+            return allClientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
         }, Client.class);
     }
 
