@@ -32,7 +32,7 @@ public class ClientApplicationService implements ClientDetailsService {
     private static final Set<String> EVENTS = new HashSet<>();
 
     static {
-        EVENTS.add(ClientAccessibleChanged.class.getName());
+        EVENTS.add(ClientAccessibilityRemoved.class.getName());
         EVENTS.add(ClientAccessTokenValiditySecondsChanged.class.getName());
         EVENTS.add(ClientAuthoritiesChanged.class.getName());
         EVENTS.add(ClientGrantTypeChanged.class.getName());
@@ -59,7 +59,7 @@ public class ClientApplicationService implements ClientDetailsService {
                             command.isResourceIndicator(),
                             command.getScopeEnums(),
                             command.getGrantedAuthorities(),
-                            command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
+                            command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
                             new ClientCredentialsGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds()),
                             passwordGrantDetail,
                             new AuthorizationCodeGrant(
@@ -98,7 +98,7 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.isResourceIndicator(),
                         command.getScopeEnums(),
                         command.getGrantedAuthorities(),
-                        command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
+                        command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
                         new ClientCredentialsGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds()),
                         new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail),
                         new AuthorizationCodeGrant(
@@ -171,7 +171,7 @@ public class ClientApplicationService implements ClientDetailsService {
                         afterPatch.isResourceIndicator(),
                         afterPatch.getScopeEnums(),
                         afterPatch.getGrantedAuthorities(),
-                        afterPatch.getResourceIds() != null ? afterPatch.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.EMPTY_SET,
+                        afterPatch.getResourceIds() != null ? afterPatch.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
                         new ClientCredentialsGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds()),
                         new PasswordGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds(), refreshTokenGrantDetail)
                 );
@@ -189,12 +189,27 @@ public class ClientApplicationService implements ClientDetailsService {
     public void revokeTokenBasedOnChange(StoredEvent o) {
         if (EVENTS.contains(o.getName())) {
             DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
-            DomainRegistry.revokeTokenService().revokeClientToken((deserialize).getDomainId());
+            DomainRegistry.revokeTokenService().revokeClientToken(deserialize.getDomainId());
+            if (ClientAccessibilityRemoved.class.getName().equals(o.getName())) {
+                List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(ClientQuery.resourceIds(deserialize.getDomainId().getDomainId()));
+                clientsOfQuery.forEach(e -> {
+                    DomainRegistry.revokeTokenService().revokeClientToken(e.getClientId());
+                });
+            }
         } else if (ClientAsResourceDeleted.class.getName().equals(o.getName())) {
             DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
+            //remove deleted client from resource_map
             DomainId domainId = deserialize.getDomainId();
             ClientId clientId = new ClientId(domainId.getDomainId());
-            DomainRegistry.clientRepository().removeResourceClient(clientId);
+            List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(ClientQuery.resourceIds(deserialize.getDomainId().getDomainId()));
+            clientsOfQuery.forEach(e -> e.removeResource(clientId));
+            Set<ClientId> collect = clientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
+            collect.add(clientId);
+            DomainEventPublisher.instance().publish(new ClientResourceCleanUpCompleted(collect));
+        } else if (ClientResourceCleanUpCompleted.class.getName().equals(o.getName())) {
+            DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
+            //revoke deleted client token
+            deserialize.getDomainIds().forEach(e -> DomainRegistry.revokeTokenService().revokeClientToken(e));
         }
     }
 }

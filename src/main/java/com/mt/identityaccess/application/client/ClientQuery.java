@@ -1,16 +1,27 @@
 package com.mt.identityaccess.application.client;
 
-import com.mt.identityaccess.application.ApplicationServiceRegistry;
+import com.mt.common.sql.exception.EmptyQueryValueException;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.user.Role;
-import com.mt.common.sql.exception.EmptyQueryValueException;
+import lombok.AccessLevel;
+import lombok.Setter;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ClientQuery {
+    @Setter(AccessLevel.PRIVATE)
     private String value;
+
+    public static ClientQuery resourceIds(String domainId) {
+        ClientQuery clientQuery = new ClientQuery();
+        clientQuery.setValue("resourceIds:" + domainId);
+        return clientQuery;
+    }
+
+    private ClientQuery() {
+    }
 
     public String value() {
         return value;

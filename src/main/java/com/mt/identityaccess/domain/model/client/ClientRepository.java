@@ -23,5 +23,4 @@ public interface ClientRepository {
 
     void remove(Collection<Client> clients);
 
-    void removeResourceClient(ClientId clientId);
 }

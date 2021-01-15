@@ -73,7 +73,6 @@ public class Client extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private final Set<ClientId> resources = new HashSet<>();
 
-    @Setter(AccessLevel.PRIVATE)
     @Getter
     @Column(name = "accessible_")
     private boolean accessible = false;
@@ -125,13 +124,16 @@ public class Client extends Auditable {
             ) {
                 throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
             }
-            setAccessible(true);
+            setAccessible(true, this.authorities);
         } else {
-            setAccessible(false);
+            setAccessible(false, this.authorities);
         }
     }
 
     public void setAccessible(boolean accessible, Set<Authority> authorities) {
+        if (this.accessible && !accessible) {
+            DomainEventPublisher.instance().publish(new ClientAccessibilityRemoved(clientId));
+        }
         if (accessible) {
             if (
                     authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
@@ -142,21 +144,25 @@ public class Client extends Auditable {
         this.accessible = accessible;
     }
 
+    public void removeResource(ClientId clientId) {
+        this.resources.remove(clientId);
+    }
+
     public void setResources(Set<ClientId> resources) {
-            if (!resources.equals(this.resources)) {
-                if (!resources.isEmpty()) {
-                    List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(resources));
-                    if (clientsOfQuery.size() != resources.size()) {
-                        throw new IllegalArgumentException("invalid resource(s) found");
-                    }
-                    boolean b = clientsOfQuery.stream().anyMatch(e -> !e.accessible);
-                    if (b) {
-                        throw new IllegalArgumentException("invalid resource(s) found");
-                    }
+        if (!resources.equals(this.resources)) {
+            if (!resources.isEmpty()) {
+                List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(resources));
+                if (clientsOfQuery.size() != resources.size()) {
+                    throw new IllegalArgumentException("invalid resource(s) found");
                 }
-                this.resources.clear();
-                this.resources.addAll(resources);
+                boolean b = clientsOfQuery.stream().anyMatch(e -> !e.accessible);
+                if (b) {
+                    throw new IllegalArgumentException("invalid resource(s) found");
+                }
             }
+            this.resources.clear();
+            this.resources.addAll(resources);
+        }
     }
 
     public boolean removable() {
@@ -224,13 +230,10 @@ public class Client extends Auditable {
         if (resourcesChanged(resources)) {
             DomainEventPublisher.instance().publish(new ClientResourcesChanged(clientId));
         }
-        if (accessibleChanged(accessible)) {
-            DomainEventPublisher.instance().publish(new ClientAccessibleChanged(clientId));
-        }
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
-        setAccessible(accessible);
+        setAccessible(accessible, authorities);
         setAuthorities(authorities);
         setName(name);
         ClientCredentialsGrant.detectChange(this.getClientCredentialsGrant(), clientCredentialsGrant, getClientId());
@@ -260,7 +263,7 @@ public class Client extends Auditable {
             DomainEventPublisher.instance().publish(new ClientResourcesChanged(clientId));
         }
         if (accessibleChanged(accessible)) {
-            DomainEventPublisher.instance().publish(new ClientAccessibleChanged(clientId));
+            DomainEventPublisher.instance().publish(new ClientAccessibilityRemoved(clientId));
         }
         if (secretChanged(secret)) {
             DomainEventPublisher.instance().publish(new ClientSecretChanged(clientId));
@@ -268,7 +271,7 @@ public class Client extends Auditable {
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
-        setAccessible(accessible);
+        setAccessible(accessible, authorities);
         setAuthorities(authorities);
         setName(name);
         if (StringUtils.hasText(secret))
@@ -282,7 +285,7 @@ public class Client extends Auditable {
     }
 
     @PreUpdate
-    private void preUpdate(){
+    private void preUpdate() {
         DomainEventPublisher.instance().publish(new ClientUpdated(getClientId()));
     }
 
@@ -343,7 +346,7 @@ public class Client extends Auditable {
 
     public void cleanUp() {
         DomainEventPublisher.instance().publish(new ClientDeleted(clientId));
-        if(isAccessible()){
+        if (isAccessible()) {
             DomainEventPublisher.instance().publish(new ClientAsResourceDeleted(clientId));
         }
     }

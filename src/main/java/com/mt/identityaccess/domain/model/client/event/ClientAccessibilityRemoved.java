@@ -2,8 +2,8 @@ package com.mt.identityaccess.domain.model.client.event;
 
 import com.mt.identityaccess.domain.model.client.ClientId;
 
-public class ClientAccessibleChanged extends ClientEvent {
-    public ClientAccessibleChanged(ClientId clientId) {
+public class ClientAccessibilityRemoved extends ClientEvent {
+    public ClientAccessibilityRemoved(ClientId clientId) {
         super(clientId);
     }
 }
