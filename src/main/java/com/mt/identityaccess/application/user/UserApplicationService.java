@@ -121,7 +121,7 @@ public class UserApplicationService implements UserDetailsService {
     public void patchBatch(List<PatchCommand> commands, String changeId) {
         List<PatchCommand> deepCopy = DomainRegistry.customObjectSerializer().deepCopy(commands);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(deepCopy, changeId, (ignored) -> {
-            DomainRegistry.userRepository().batchLock(commands);
+            DomainRegistry.userService().batchLock(commands);
         }, User.class);
     }
 

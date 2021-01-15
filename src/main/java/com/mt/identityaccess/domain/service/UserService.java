@@ -1,16 +1,19 @@
 package com.mt.identityaccess.domain.service;
 
 import com.mt.common.domain_event.DomainEventPublisher;
+import com.mt.common.sql.PatchCommand;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.ActivationCode;
 import com.mt.identityaccess.domain.model.pending_user.PendingUser;
 import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;
 import com.mt.identityaccess.domain.model.user.*;
 import com.mt.identityaccess.domain.model.user.event.UserCreated;
+import com.mt.identityaccess.domain.model.user.event.UserGetLocked;
 import com.mt.identityaccess.domain.model.user.event.UserPasswordChanged;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -62,5 +65,14 @@ public class UserService {
         user.get().setPassword(new UserPassword(newPassword));
         DomainRegistry.userRepository().add(user.get());
         DomainEventPublisher.instance().publish(new UserPasswordChanged(user.get().getUserId()));
+    }
+
+    public void batchLock(List<PatchCommand> commands) {
+        if (Boolean.TRUE.equals(commands.get(0).getValue())) {
+            commands.stream().map(e -> new UserId(e.getPath().split("/")[1])).forEach(e -> {
+                DomainEventPublisher.instance().publish(new UserGetLocked(e));
+            });
+        }
+        DomainRegistry.userRepository().batchLock(commands);
     }
 }
