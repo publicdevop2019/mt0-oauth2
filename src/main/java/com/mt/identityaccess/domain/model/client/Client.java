@@ -159,7 +159,7 @@ public class Client extends Auditable {
             }
     }
 
-    public boolean isNonRoot() {
+    public boolean removable() {
         return this.authorities.stream().noneMatch(Authority.ROLE_ROOT::equals);
     }
 
@@ -339,5 +339,12 @@ public class Client extends Auditable {
     @Override
     public int hashCode() {
         return Objects.hashCode(super.hashCode(), clientId);
+    }
+
+    public void cleanUp() {
+        DomainEventPublisher.instance().publish(new ClientDeleted(clientId));
+        if(isAccessible()){
+            DomainEventPublisher.instance().publish(new ClientAsResourceDeleted(clientId));
+        }
     }
 }

@@ -22,4 +22,6 @@ public interface ClientRepository {
     SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, ClientPaging clientPaging);
 
     void remove(Collection<Client> clients);
+
+    void removeResourceClient(ClientId clientId);
 }

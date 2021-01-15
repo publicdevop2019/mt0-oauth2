@@ -1,10 +1,10 @@
 package com.mt.identityaccess.port.adapter.persistence.client;
 
+import com.mt.common.persistence.QueryConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.identityaccess.application.client.ClientPaging;
 import com.mt.identityaccess.application.client.ClientQuery;
-import com.mt.common.persistence.QueryConfig;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
@@ -35,6 +35,10 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
     @Query("update #{#entityName} e set e.deleted=true where e.id in ?1")
     void softDeleteAll(Set<Long> id);
 
+    @Modifying
+    @Query(nativeQuery = true, value = "delete from resources_map e where e.domain_id= ?1")
+    void removeClientFromResourcesMap(String domainId);
+
     default ClientId nextIdentity() {
         return new ClientId();
     }
@@ -53,6 +57,10 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
 
     default void remove(Collection<Client> client) {
         softDeleteAll(client.stream().map(Client::getId).collect(Collectors.toSet()));
+    }
+
+    default void removeResourceClient(ClientId clientId) {
+        removeClientFromResourcesMap(clientId.getDomainId());
     }
 
     default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, ClientPaging clientPaging, QueryConfig queryConfig) {

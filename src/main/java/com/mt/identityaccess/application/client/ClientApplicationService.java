@@ -1,6 +1,7 @@
 package com.mt.identityaccess.application.client;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain_event.DomainEvent;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.common.domain_event.StoredEvent;
@@ -120,9 +121,9 @@ public class ClientApplicationService implements ClientDetailsService {
             Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
             if (client.isPresent()) {
                 Client client1 = client.get();
-                if (client1.isNonRoot()) {
+                if (client1.removable()) {
                     DomainRegistry.clientRepository().remove(client1);
-                    DomainEventPublisher.instance().publish(new ClientDeleted(clientId));
+                    client1.cleanUp();
                 } else {
                     throw new RootClientDeleteException();
                 }
@@ -135,7 +136,7 @@ public class ClientApplicationService implements ClientDetailsService {
     public Set<String> removeClients(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
             List<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
-            boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.isNonRoot());
+            boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.removable());
             if (!b) {
                 change.setRequestBody(allClientsOfQuery);
                 DomainRegistry.clientRepository().remove(allClientsOfQuery);
@@ -189,6 +190,11 @@ public class ClientApplicationService implements ClientDetailsService {
         if (EVENTS.contains(o.getName())) {
             DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
             DomainRegistry.revokeTokenService().revokeClientToken((deserialize).getDomainId());
+        } else if (ClientAsResourceDeleted.class.getName().equals(o.getName())) {
+            DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
+            DomainId domainId = deserialize.getDomainId();
+            ClientId clientId = new ClientId(domainId.getDomainId());
+            DomainRegistry.clientRepository().removeResourceClient(clientId);
         }
     }
 }
