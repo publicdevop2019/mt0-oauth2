@@ -1,9 +1,9 @@
 package com.mt.identityaccess.port.adapter.persistence.user;
 
+import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.persistence.QueryConfig;
-import com.mt.identityaccess.application.user.UserPaging;
 import com.mt.identityaccess.application.user.UserQuery;
 import com.mt.identityaccess.domain.model.user.User;
 import com.mt.identityaccess.domain.model.user.UserId;
@@ -47,7 +47,7 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
         softDelete(user.getId());
     }
 
-    default SumPagedRep<User> usersOfQuery(UserQuery userQuery, UserPaging userPaging, QueryConfig queryConfig) {
+    default SumPagedRep<User> usersOfQuery(UserQuery userQuery, DefaultPaging userPaging, QueryConfig queryConfig) {
         return getSumPagedRep(userQuery.getValue(), userPaging.value(), queryConfig.value());
     }
 

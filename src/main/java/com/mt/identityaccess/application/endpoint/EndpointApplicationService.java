@@ -5,6 +5,7 @@ import com.mt.common.domain_event.AppStarted;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
+import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.InvalidClientIdException;
@@ -67,7 +68,7 @@ public class EndpointApplicationService {
     }
 
     public SumPagedRep<Endpoint> endpoints(String queryParam, String pageParam, String config) {
-        return DomainRegistry.endpointRepository().endpointsOfQuery(new EndpointQuery(queryParam), new EndpointPaging(pageParam), new QueryConfig(config));
+        return DomainRegistry.endpointRepository().endpointsOfQuery(new EndpointQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(config));
     }
 
     public Optional<Endpoint> endpoint(String id) {

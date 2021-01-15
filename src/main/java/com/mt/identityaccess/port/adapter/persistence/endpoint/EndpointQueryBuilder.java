@@ -14,7 +14,7 @@ import static com.mt.identityaccess.domain.model.endpoint.Endpoint.*;
 public class EndpointQueryBuilder extends SelectQueryBuilder<Endpoint> {
     {
         DEFAULT_PAGE_SIZE = 10;
-        MAX_PAGE_SIZE = 20;
+        MAX_PAGE_SIZE = 40;
         allowEmptyClause = true;
         mappedSortBy.put("resourceId", "clientId");
         mappedSortBy.put("path", ENTITY_PATH);

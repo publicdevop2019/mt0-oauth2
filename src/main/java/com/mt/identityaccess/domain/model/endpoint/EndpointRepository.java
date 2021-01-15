@@ -1,9 +1,9 @@
 package com.mt.identityaccess.domain.model.endpoint;
 
-import com.mt.common.sql.SumPagedRep;
-import com.mt.identityaccess.application.endpoint.EndpointPaging;
-import com.mt.identityaccess.application.endpoint.EndpointQuery;
 import com.mt.common.persistence.QueryConfig;
+import com.mt.common.query.DefaultPaging;
+import com.mt.common.sql.SumPagedRep;
+import com.mt.identityaccess.application.endpoint.EndpointQuery;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -17,9 +17,9 @@ public interface EndpointRepository {
 
     void remove(Endpoint endpoint);
 
-    SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery endpointQuery, EndpointPaging endpointPaging, QueryConfig queryConfig);
+    SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery endpointQuery, DefaultPaging endpointPaging, QueryConfig queryConfig);
 
-    SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery endpointQuery, EndpointPaging endpointPaging);
+    SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery endpointQuery, DefaultPaging endpointPaging);
 
     void remove(Collection<Endpoint> endpoints);
 }

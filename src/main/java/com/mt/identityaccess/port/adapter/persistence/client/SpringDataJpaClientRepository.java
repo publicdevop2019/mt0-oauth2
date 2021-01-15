@@ -1,9 +1,9 @@
 package com.mt.identityaccess.port.adapter.persistence.client;
 
 import com.mt.common.persistence.QueryConfig;
+import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.identityaccess.application.client.ClientPaging;
 import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
@@ -63,11 +63,11 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
         removeClientFromResourcesMap(clientId.getDomainId());
     }
 
-    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, ClientPaging clientPaging, QueryConfig queryConfig) {
+    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, DefaultPaging clientPaging, QueryConfig queryConfig) {
         return getSumPagedRep(clientQuery.value(), clientPaging.value(), queryConfig.value());
     }
 
-    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, ClientPaging clientPaging) {
+    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, DefaultPaging clientPaging) {
         return getSumPagedRep(clientQuery.value(), clientPaging.value(), null);
     }
 

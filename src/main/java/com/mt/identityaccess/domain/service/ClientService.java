@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.service;
 
+import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.identityaccess.application.client.ClientPaging;
 import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
@@ -49,7 +49,7 @@ public class ClientService {
     }
 
     public List<Client> getClientsOfQuery(ClientQuery queryParam) {
-        ClientPaging queryPagingParam = new ClientPaging();
+        DefaultPaging queryPagingParam = new DefaultPaging();
         SumPagedRep<Client> tSumPagedRep = DomainRegistry.clientRepository().clientsOfQuery(queryParam, queryPagingParam);
         if (tSumPagedRep.getData().size() == 0)
             return new ArrayList<>();

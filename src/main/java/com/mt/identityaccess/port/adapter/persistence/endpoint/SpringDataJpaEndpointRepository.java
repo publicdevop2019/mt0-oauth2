@@ -1,9 +1,9 @@
 package com.mt.identityaccess.port.adapter.persistence.endpoint;
 
 import com.mt.common.persistence.QueryConfig;
+import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.identityaccess.application.endpoint.EndpointPaging;
 import com.mt.identityaccess.application.endpoint.EndpointQuery;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import com.mt.identityaccess.domain.model.endpoint.EndpointId;
@@ -52,11 +52,11 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
         softDeleteAll(endpoints.stream().map(Endpoint::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery endpointQuery, EndpointPaging endpointPaging, QueryConfig queryConfig) {
+    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery endpointQuery, DefaultPaging endpointPaging, QueryConfig queryConfig) {
         return getSumPagedRep(endpointQuery.value(), endpointPaging.value(), queryConfig.value());
     }
 
-    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery clientQuery, EndpointPaging clientPaging) {
+    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery clientQuery, DefaultPaging clientPaging) {
         return getSumPagedRep(clientQuery.value(), clientPaging.value(), null);
     }
 

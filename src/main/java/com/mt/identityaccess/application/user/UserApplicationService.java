@@ -6,6 +6,7 @@ import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.common.domain_event.StoredEvent;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
+import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
@@ -54,7 +55,7 @@ public class UserApplicationService implements UserDetailsService {
     }
 
     public SumPagedRep<User> users(String queryParam, String pageParam, String config) {
-        return DomainRegistry.userRepository().usersOfQuery(new UserQuery(queryParam), new UserPaging(pageParam), new QueryConfig(config));
+        return DomainRegistry.userRepository().usersOfQuery(new UserQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(config));
     }
 
     public Optional<User> user(String id) {
@@ -179,7 +180,7 @@ public class UserApplicationService implements UserDetailsService {
 
     public void revokeTokenBasedOnChange(StoredEvent o) {
         if (EVENTS.contains(o.getName())) {
-            DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(),DomainEvent.class);
+            DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
             DomainRegistry.revokeTokenService().revokeUserToken(deserialize.getDomainId());
         }
     }

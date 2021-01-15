@@ -1,9 +1,9 @@
 package com.mt.identityaccess.domain.model.user;
 
+import com.mt.common.persistence.QueryConfig;
+import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.common.persistence.QueryConfig;
-import com.mt.identityaccess.application.user.UserPaging;
 import com.mt.identityaccess.application.user.UserQuery;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public interface UserRepository {
 
     Optional<User> searchExistingUserWith(String email);
 
-    SumPagedRep<User> usersOfQuery(UserQuery userQuery, UserPaging userPaging, QueryConfig queryConfig);
+    SumPagedRep<User> usersOfQuery(UserQuery userQuery, DefaultPaging userPaging, QueryConfig queryConfig);
 
     void remove(User user1);
 
