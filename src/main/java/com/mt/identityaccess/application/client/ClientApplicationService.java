@@ -184,7 +184,7 @@ public class ClientApplicationService implements ClientDetailsService {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
         return client.map(ClientSpringOAuth2Representation::new).orElse(null);
     }
-
+    @SubscribeForEvent
     @Transactional
     public void revokeTokenBasedOnChange(StoredEvent o) {
         if (EVENTS.contains(o.getName())) {
