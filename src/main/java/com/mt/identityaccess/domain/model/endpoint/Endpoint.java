@@ -4,8 +4,7 @@ import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.ClientId;
-import com.mt.identityaccess.domain.model.endpoint.event.EndpointUpdated;
-import com.mt.identityaccess.domain.model.user.event.UserUpdated;
+import com.mt.identityaccess.domain.model.endpoint.event.EndpointCollectionModified;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -74,8 +73,9 @@ public class Endpoint extends Auditable {
         setPath(path);
         setMethod(method);
     }
+
     @PreUpdate
-    private void preUpdate(){
-        DomainEventPublisher.instance().publish(new EndpointUpdated(endpointId));
+    private void preUpdate() {
+        DomainEventPublisher.instance().publish(new EndpointCollectionModified());
     }
 }

@@ -17,9 +17,7 @@ import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import com.mt.identityaccess.domain.model.endpoint.EndpointId;
-import com.mt.identityaccess.domain.model.endpoint.event.EndpointCreated;
-import com.mt.identityaccess.domain.model.endpoint.event.EndpointDeleted;
-import com.mt.identityaccess.domain.model.endpoint.event.EndpointsBatchDeleted;
+import com.mt.identityaccess.domain.model.endpoint.event.EndpointCollectionModified;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -29,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -59,7 +56,7 @@ public class EndpointApplicationService {
                 Client client1 = client.get();
                 Endpoint endpoint = client1.addNewEndpoint(command.getExpression(), command.getDescription(), command.getPath(), endpointId, command.getMethod());
                 DomainRegistry.endpointRepository().add(endpoint);
-                DomainEventPublisher.instance().publish(new EndpointCreated(endpointId));
+                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
                 return endpointId;
             } else {
                 throw new InvalidClientIdException();
@@ -103,7 +100,7 @@ public class EndpointApplicationService {
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
                 DomainRegistry.endpointRepository().remove(endpoint1);
-                DomainEventPublisher.instance().publish(new EndpointDeleted(endpointId));
+                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
             }
         }, Endpoint.class);
     }
@@ -116,7 +113,7 @@ public class EndpointApplicationService {
             command.setRequestBody(endpoints);
             DomainRegistry.endpointRepository().remove(endpoints);
             DomainEventPublisher.instance().publish(
-                    new EndpointsBatchDeleted(endpoints.stream().map(Endpoint::getEndpointId).collect(Collectors.toSet()))
+                    new EndpointCollectionModified()
             );
         }, Endpoint.class);
     }
