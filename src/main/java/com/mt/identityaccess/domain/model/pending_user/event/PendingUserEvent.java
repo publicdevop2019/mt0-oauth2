@@ -6,7 +6,7 @@ import com.mt.common.domain_event.DomainEvent;
 import java.util.Set;
 
 public class PendingUserEvent extends DomainEvent {
-    public static final String TOPIC_PENDING_USER = "endpoint";
+    public static final String TOPIC_PENDING_USER = "pendingUser";
 
     public PendingUserEvent() {
         super();
