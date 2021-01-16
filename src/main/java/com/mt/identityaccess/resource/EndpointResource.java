@@ -75,7 +75,7 @@ public class EndpointResource {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(path = "root")
+    @PostMapping(path = "root/event/reload")
     public ResponseEntity<Void> postForRoot(@RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         ApplicationServiceRegistry.endpointApplicationService().reloadEndpointCache(changeId);
         return ResponseEntity.ok().build();
