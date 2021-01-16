@@ -169,22 +169,6 @@ public class UserApplicationService implements UserDetailsService {
         return client.map(UserSpringRepresentation::new).orElse(null);
     }
 
-    private static final Set<String> EVENTS = new HashSet<>();
-
-    static {
-        EVENTS.add(UserAuthorityChanged.class.getName());
-        EVENTS.add(UserDeleted.class.getName());
-        EVENTS.add(UserGetLocked.class.getName());
-        EVENTS.add(UserPasswordChanged.class.getName());
-    }
-
-    public void revokeTokenBasedOnChange(StoredEvent o) {
-        if (EVENTS.contains(o.getName())) {
-            DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
-            DomainRegistry.revokeTokenService().revokeUserToken(deserialize.getDomainId());
-        }
-    }
-
     private static final String EMAIL_REGEX = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$";
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE);

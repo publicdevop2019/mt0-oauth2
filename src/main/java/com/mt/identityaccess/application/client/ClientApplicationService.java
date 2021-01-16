@@ -16,7 +16,9 @@ import com.mt.identityaccess.application.client.command.ClientUpdateCommand;
 import com.mt.identityaccess.application.client.representation.ClientSpringOAuth2Representation;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;
-import com.mt.identityaccess.domain.model.client.event.*;
+import com.mt.identityaccess.domain.model.client.event.ClientAsResourceDeleted;
+import com.mt.identityaccess.domain.model.client.event.ClientDeleted;
+import com.mt.identityaccess.domain.model.client.event.ClientResourceCleanUpCompleted;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
@@ -24,25 +26,15 @@ import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class ClientApplicationService implements ClientDetailsService {
-    private static final Set<String> EVENTS = new HashSet<>();
-
-    static {
-        EVENTS.add(ClientAccessibilityRemoved.class.getName());
-        EVENTS.add(ClientAccessTokenValiditySecondsChanged.class.getName());
-        EVENTS.add(ClientAuthoritiesChanged.class.getName());
-        EVENTS.add(ClientGrantTypeChanged.class.getName());
-        EVENTS.add(ClientRefreshTokenChanged.class.getName());
-        EVENTS.add(ClientDeleted.class.getName());
-        EVENTS.add(ClientResourcesChanged.class.getName());
-        EVENTS.add(ClientScopesChanged.class.getName());
-        EVENTS.add(ClientSecretChanged.class.getName());
-    }
 
     @SubscribeForEvent
     @Transactional
@@ -141,11 +133,9 @@ public class ClientApplicationService implements ClientDetailsService {
             if (!b) {
                 change.setRequestBody(allClientsOfQuery);
                 DomainRegistry.clientRepository().remove(allClientsOfQuery);
-                DomainEventPublisher.instance().publish(
-                        new ClientsBatchDeleted(
-                                allClientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet())
-                        )
-                );
+                allClientsOfQuery.forEach(e -> {
+                    DomainEventPublisher.instance().publish(new ClientDeleted(e.getClientId()));
+                });
             } else {
                 throw new RootClientDeleteException();
             }
@@ -185,19 +175,11 @@ public class ClientApplicationService implements ClientDetailsService {
         Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
         return client.map(ClientSpringOAuth2Representation::new).orElse(null);
     }
+
     @SubscribeForEvent
     @Transactional
-    public void revokeTokenBasedOnChange(StoredEvent o) {
-        if (EVENTS.contains(o.getName())) {
-            DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
-            DomainRegistry.revokeTokenService().revokeClientToken(deserialize.getDomainId());
-            if (ClientAccessibilityRemoved.class.getName().equals(o.getName())) {
-                List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(ClientQuery.resourceIds(deserialize.getDomainId().getDomainId()));
-                clientsOfQuery.forEach(e -> {
-                    DomainRegistry.revokeTokenService().revokeClientToken(e.getClientId());
-                });
-            }
-        } else if (ClientAsResourceDeleted.class.getName().equals(o.getName())) {
+    public void handleChange(StoredEvent o) {
+        if (ClientAsResourceDeleted.class.getName().equals(o.getName())) {
             DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
             //remove deleted client from resource_map
             DomainId domainId = deserialize.getDomainId();
@@ -207,10 +189,6 @@ public class ClientApplicationService implements ClientDetailsService {
             Set<ClientId> collect = clientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
             collect.add(clientId);
             DomainEventPublisher.instance().publish(new ClientResourceCleanUpCompleted(collect));
-        } else if (ClientResourceCleanUpCompleted.class.getName().equals(o.getName())) {
-            DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
-            //revoke deleted client token
-            deserialize.getDomainIds().forEach(e -> DomainRegistry.revokeTokenService().revokeClientToken(e));
         }
     }
 }

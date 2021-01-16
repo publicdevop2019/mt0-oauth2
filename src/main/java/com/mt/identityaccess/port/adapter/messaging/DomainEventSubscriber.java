@@ -15,22 +15,22 @@ import static com.mt.identityaccess.domain.model.user.event.UserEvent.TOPIC_USER
 @Component
 public class DomainEventSubscriber {
     private static final String CLIENT_QUEUE_NAME = "client_queue";
-    private static final String USER_QUEUE_NAME = "user_queue";
+    private static final String TOKEN_QUEUE_NAME = "token_queue";
     @Value("${spring.application.name}")
     private String appName;
 
     @PostConstruct
-    private void listenClient() {
-        DomainRegistry.eventStreamService().subscribe(appName, true,CLIENT_QUEUE_NAME, TOPIC_CLIENT, (event) -> {
-            ApplicationServiceRegistry.clientApplicationService().revokeTokenBasedOnChange(event);
-        });
+    private void clientListener() {
+        DomainRegistry.eventStreamService().subscribe(appName, true, CLIENT_QUEUE_NAME, (event) -> {
+            ApplicationServiceRegistry.clientApplicationService().handleChange(event);
+        }, TOPIC_CLIENT);
     }
 
     @PostConstruct
-    private void listenUser() {
-        DomainRegistry.eventStreamService().subscribe(appName, true,USER_QUEUE_NAME, TOPIC_USER, (event) -> {
-            ApplicationServiceRegistry.userApplicationService().revokeTokenBasedOnChange(event);
-        });
+    private void tokenListener() {
+        DomainRegistry.eventStreamService().subscribe(appName, true, TOKEN_QUEUE_NAME, (event) -> {
+            ApplicationServiceRegistry.revokeTokenApplicationService().handleChange(event);
+        }, TOPIC_USER, TOPIC_CLIENT);
     }
 
 }
