@@ -1,10 +1,12 @@
 package com.mt.identityaccess.domain.service;
 
+import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.endpoint.EndpointQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;
+import com.mt.identityaccess.domain.model.endpoint.event.EndpointCollectionModified;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,4 +30,7 @@ public class EndpointService {
         return data;
     }
 
+    public void reloadEndpointCache() {
+        DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+    }
 }

@@ -141,4 +141,11 @@ public class EndpointApplicationService {
         }, Endpoint.class);
     }
 
+    @SubscribeForEvent
+    @Transactional
+    public void reloadEndpointCache(String changeId) {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
+            DomainRegistry.endpointService().reloadEndpointCache();
+        }, Endpoint.class);
+    }
 }

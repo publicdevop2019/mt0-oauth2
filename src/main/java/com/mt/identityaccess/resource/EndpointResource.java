@@ -74,4 +74,10 @@ public class EndpointResource {
         ApplicationServiceRegistry.endpointApplicationService().patchEndpoint(id, patch, changeId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping(path = "root")
+    public ResponseEntity<Void> postForRoot(@RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        ApplicationServiceRegistry.endpointApplicationService().reloadEndpointCache(changeId);
+        return ResponseEntity.ok().build();
+    }
 }
