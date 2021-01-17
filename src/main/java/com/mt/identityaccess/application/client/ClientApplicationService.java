@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -128,7 +127,7 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional
     public Set<String> removeClients(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
-            List<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
+            Set<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
             boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.removable());
             if (!b) {
                 change.setRequestBody(allClientsOfQuery);
@@ -178,17 +177,19 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public void handleChange(StoredEvent o) {
-        if (ClientAsResourceDeleted.class.getName().equals(o.getName())) {
-            DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(o.getEventBody(), DomainEvent.class);
-            //remove deleted client from resource_map
-            DomainId domainId = deserialize.getDomainId();
-            ClientId clientId = new ClientId(domainId.getDomainId());
-            List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(ClientQuery.resourceIds(deserialize.getDomainId().getDomainId()));
-            clientsOfQuery.forEach(e -> e.removeResource(clientId));
-            Set<ClientId> collect = clientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
-            collect.add(clientId);
-            DomainEventPublisher.instance().publish(new ClientResourceCleanUpCompleted(collect));
-        }
+    public void handleChange(StoredEvent event) {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, event.getId().toString(), (ignored) -> {
+            if (ClientAsResourceDeleted.class.getName().equals(event.getName())) {
+                DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
+                //remove deleted client from resource_map
+                DomainId domainId = deserialize.getDomainId();
+                ClientId clientId = new ClientId(domainId.getDomainId());
+                Set<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(ClientQuery.resourceIds(deserialize.getDomainId().getDomainId()));
+                clientsOfQuery.forEach(e -> e.removeResource(clientId));
+                Set<ClientId> collect = clientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
+                collect.add(clientId);
+                DomainEventPublisher.instance().publish(new ClientResourceCleanUpCompleted(collect));
+            }
+        }, Client.class);
     }
 }

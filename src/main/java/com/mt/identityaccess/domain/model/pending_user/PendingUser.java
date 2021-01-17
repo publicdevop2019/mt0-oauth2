@@ -1,5 +1,6 @@
 package com.mt.identityaccess.domain.model.pending_user;
 
+import com.google.common.base.Objects;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.ActivationCode;
@@ -51,5 +52,19 @@ public class PendingUser extends Auditable {
 
     public void newActivationCode(ActivationCode activationCode){
         setActivationCode(activationCode);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PendingUser)) return false;
+        if (!super.equals(o)) return false;
+        PendingUser that = (PendingUser) o;
+        return Objects.equal(registrationEmail, that.registrationEmail);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(super.hashCode(), registrationEmail);
     }
 }

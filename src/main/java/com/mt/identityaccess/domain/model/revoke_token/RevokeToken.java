@@ -1,5 +1,6 @@
 package com.mt.identityaccess.domain.model.revoke_token;
 
+import com.google.common.base.Objects;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,5 +28,18 @@ public class RevokeToken {
     public enum TokenType {
         CLIENT,
         USER;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RevokeToken)) return false;
+        RevokeToken token = (RevokeToken) o;
+        return Objects.equal(revokeTokenId, token.revokeTokenId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(revokeTokenId);
     }
 }

@@ -1,5 +1,6 @@
 package com.mt.identityaccess.domain.model.endpoint;
 
+import com.google.common.base.Objects;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
@@ -77,5 +78,19 @@ public class Endpoint extends Auditable {
     @PreUpdate
     private void preUpdate() {
         DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Endpoint)) return false;
+        if (!super.equals(o)) return false;
+        Endpoint endpoint = (Endpoint) o;
+        return Objects.equal(endpointId, endpoint.endpointId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(super.hashCode(), endpointId);
     }
 }

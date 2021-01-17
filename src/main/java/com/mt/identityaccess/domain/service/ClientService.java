@@ -10,8 +10,7 @@ import com.mt.identityaccess.domain.model.client.event.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -48,17 +47,17 @@ public class ClientService {
         return clientId;
     }
 
-    public List<Client> getClientsOfQuery(ClientQuery queryParam) {
+    public Set<Client> getClientsOfQuery(ClientQuery queryParam) {
         DefaultPaging queryPagingParam = new DefaultPaging();
         SumPagedRep<Client> tSumPagedRep = DomainRegistry.clientRepository().clientsOfQuery(queryParam, queryPagingParam);
         if (tSumPagedRep.getData().size() == 0)
-            return new ArrayList<>();
+            return new HashSet<>();
         double l = (double) tSumPagedRep.getTotalItemCount() / tSumPagedRep.getData().size();//for accuracy
         double ceil = Math.ceil(l);
         int i = BigDecimal.valueOf(ceil).intValue();
-        List<Client> data = new ArrayList<>(tSumPagedRep.getData());
+        Set<Client> data = new HashSet<>(tSumPagedRep.getData());
         for (int a = 1; a < i; a++) {
-            data.addAll(DomainRegistry.clientRepository().clientsOfQuery(queryParam, queryPagingParam.nextPage()).getData());
+            data.addAll(DomainRegistry.clientRepository().clientsOfQuery(queryParam, queryPagingParam.pageOf(a)).getData());
         }
         return data;
     }

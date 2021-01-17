@@ -1,9 +1,7 @@
 package com.mt.identityaccess.application.endpoint;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.domain_event.AppStarted;
-import com.mt.common.domain_event.DomainEventPublisher;
-import com.mt.common.domain_event.SubscribeForEvent;
+import com.mt.common.domain_event.*;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.DefaultPaging;
 import com.mt.common.sql.SumPagedRep;
@@ -15,6 +13,7 @@ import com.mt.identityaccess.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
+import com.mt.identityaccess.domain.model.client.event.ClientDeleted;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import com.mt.identityaccess.domain.model.endpoint.EndpointId;
 import com.mt.identityaccess.domain.model.endpoint.event.EndpointCollectionModified;
@@ -27,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -109,7 +109,7 @@ public class EndpointApplicationService {
     @Transactional
     public void removeEndpoints(String queryParam, String changeId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (command) -> {
-            List<Endpoint> endpoints = DomainRegistry.endpointService().getEndpointsOfQuery(new EndpointQuery(queryParam));
+            Set<Endpoint> endpoints = DomainRegistry.endpointService().getEndpointsOfQuery(new EndpointQuery(queryParam));
             command.setRequestBody(endpoints);
             DomainRegistry.endpointRepository().remove(endpoints);
             DomainEventPublisher.instance().publish(
@@ -143,6 +143,21 @@ public class EndpointApplicationService {
     public void reloadEndpointCache(String changeId) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
             DomainRegistry.endpointService().reloadEndpointCache();
+        }, Endpoint.class);
+    }
+
+    @SubscribeForEvent
+    @Transactional
+    public void handleChange(StoredEvent event) {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, event.getId().toString(), (ignored) -> {
+            if (ClientDeleted.class.getName().equals(event.getName())) {
+                DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
+                Set<Endpoint> endpointsOfQuery = DomainRegistry.endpointService().getEndpointsOfQuery(new EndpointQuery("resourceId:" + deserialize.getDomainId().getDomainId()));
+                if (!endpointsOfQuery.isEmpty()) {
+                    DomainRegistry.endpointRepository().remove(endpointsOfQuery);
+                    DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+                }
+            }
         }, Endpoint.class);
     }
 }

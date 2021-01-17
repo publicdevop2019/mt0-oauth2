@@ -151,7 +151,7 @@ public class Client extends Auditable {
     public void setResources(Set<ClientId> resources) {
         if (!resources.equals(this.resources)) {
             if (!resources.isEmpty()) {
-                List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(resources));
+                Set<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(resources));
                 if (clientsOfQuery.size() != resources.size()) {
                     throw new IllegalArgumentException("invalid resource(s) found");
                 }

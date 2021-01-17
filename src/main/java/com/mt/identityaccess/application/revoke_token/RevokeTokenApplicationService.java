@@ -65,7 +65,7 @@ public class RevokeTokenApplicationService {
                 DomainRegistry.revokeTokenService().revokeClientToken(deserialize.getDomainId());
                 //revoke who is accessing this client's token
                 if (ClientAccessibilityRemoved.class.getName().equals(event.getName())) {
-                    List<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(ClientQuery.resourceIds(deserialize.getDomainId().getDomainId()));
+                    Set<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(ClientQuery.resourceIds(deserialize.getDomainId().getDomainId()));
                     clientsOfQuery.forEach(e -> {
                         DomainRegistry.revokeTokenService().revokeClientToken(e.getClientId());
                     });
