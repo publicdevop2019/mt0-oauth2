@@ -1,6 +1,10 @@
 package com.mt.identityaccess.infrastructure.oauth2;
 
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.RSAKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -20,6 +24,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.security.KeyPair;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -63,15 +70,15 @@ public class BeanFactory {
         return new JwtTokenStore(accessTokenConverter);
     }
 
-    @Bean
-    public JwtAccessTokenConverter accessTokenConverter(KeyPair keyPair) {
-
-        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-
-        converter.setKeyPair(keyPair);
-
-        return converter;
-    }
+//    @Bean
+//    public JwtAccessTokenConverter accessTokenConverter(KeyPair keyPair) {
+//
+//        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+//
+//        converter.setKeyPair(keyPair);
+//
+//        return converter;
+//    }
 
     @Bean
     public KeyPair getKeyPair() {
@@ -105,5 +112,23 @@ public class BeanFactory {
     private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory() {
         log.debug("loading DefaultOAuth2RequestFactory");
         return new DefaultOAuth2RequestFactory(ApplicationServiceRegistry.clientApplicationService());
+    }
+
+    @Bean
+    public JWKSet jwkSet() {
+        RSAKey.Builder builder = new RSAKey.Builder((RSAPublicKey) getKeyPair().getPublic())
+                .keyUse(KeyUse.SIGNATURE)
+                .algorithm(JWSAlgorithm.RS256)
+                .keyID("manytree-id");
+        return new JWKSet(builder.build());
+    }
+
+    @Bean
+    public JwtAccessTokenConverter accessTokenConverter() {
+        Map<String, String> customHeaders =
+                Collections.singletonMap("kid", "manytree-id");
+        return new  JwtCustomHeadersAccessTokenConverter(
+                customHeaders,
+                getKeyPair());
     }
 }
