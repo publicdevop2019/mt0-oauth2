@@ -20,8 +20,8 @@ import org.springframework.util.StringUtils;
 import javax.persistence.*;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Table
 @Entity
@@ -289,8 +289,8 @@ public class Client extends Auditable {
         DomainEventPublisher.instance().publish(new ClientUpdated(getClientId()));
     }
 
-    public Endpoint addNewEndpoint(String expression, String description, String path, EndpointId endpointId, String method) {
-        return new Endpoint(getClientId(), expression, description, path, endpointId, method);
+    public Endpoint addNewEndpoint(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, EndpointId endpointId, String method, boolean secured, boolean userOnly, boolean clientOnly) {
+        return new Endpoint(getClientId(), userRoles, clientRoles, scopes, description, path, endpointId, method, secured, userOnly, clientOnly);
     }
 
     private void setSecret(String secret) {

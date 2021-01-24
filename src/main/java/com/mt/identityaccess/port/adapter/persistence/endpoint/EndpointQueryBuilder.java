@@ -22,7 +22,6 @@ public class EndpointQueryBuilder extends SelectQueryBuilder<Endpoint> {
         supportedWhereField.put(COMMON_ENTITY_ID, new SelectFieldDomainIdEqualClause<>("endpointId"));
         supportedWhereField.put("resourceId", new SelectFieldDomainIdEqualClause<>("clientId"));
         supportedWhereField.put("path", new SelectFieldStringEqualClause<>(ENTITY_PATH));
-        supportedWhereField.put(ENTITY_EXPRESSION, new SelectFieldIsNullClause<>(ENTITY_EXPRESSION));
         supportedWhereField.put(ENTITY_METHOD, new SelectFieldStringEqualClause<>(ENTITY_METHOD));
     }
 

@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 public class EndpointPatchCommand extends TypedClass<EndpointPatchCommand> {
-    private String expression;
     private String description;
     private String resourceId;
     private String path;
@@ -14,7 +13,6 @@ public class EndpointPatchCommand extends TypedClass<EndpointPatchCommand> {
 
     public EndpointPatchCommand(Endpoint bizEndpoint) {
         super(EndpointPatchCommand.class);
-        this.expression = bizEndpoint.getExpression();
         this.description = bizEndpoint.getDescription();
         this.resourceId = bizEndpoint.getClientId().getDomainId();
         this.path = bizEndpoint.getPath();

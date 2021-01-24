@@ -3,10 +3,11 @@ package com.mt.identityaccess.application.endpoint.representation;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 public class EndpointRepresentation {
     private String id;
-    private String expression;
     private String resourceId;
     private String description;
     private String path;
@@ -15,11 +16,22 @@ public class EndpointRepresentation {
     private Long createdAt;
     private String modifiedBy;
     private Long modifiedAt;
+    private Set<String> clientRoles;
+    private Set<String> userRoles;
+    private Set<String> clientScopes;
+    private boolean secured;
+    private boolean userOnly;
+    private boolean clientOnly;
     private Integer version;
 
     public EndpointRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
-        this.expression = endpoint.getExpression();
+        this.clientRoles = endpoint.getClientRoles();
+        this.userRoles = endpoint.getUserRoles();
+        this.clientScopes = endpoint.getClientScopes();
+        this.secured = endpoint.isSecured();
+        this.userOnly = endpoint.isUserOnly();
+        this.clientOnly = endpoint.isClientOnly();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.description = endpoint.getDescription();
         this.path = endpoint.getPath();
