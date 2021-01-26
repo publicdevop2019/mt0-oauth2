@@ -1,6 +1,7 @@
 package com.mt.identityaccess.application;
 
 import com.mt.identityaccess.domain.DomainRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
@@ -20,7 +21,7 @@ import org.springframework.util.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
+@Slf4j
 @Service
 public class AuthorizeCodeApplicationService {
 
@@ -38,8 +39,10 @@ public class AuthorizeCodeApplicationService {
 
         /**make sure authorize client exist*/
 
-        if (ApplicationServiceRegistry.clientApplicationService().loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null)
+        if (ApplicationServiceRegistry.clientApplicationService().loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null){
+            log.error("unable to find authorize client {}",parameters.get(OAuth2Utils.CLIENT_ID));
             throw new IllegalArgumentException("unable to find authorize client");
+        }
 
         Authentication authentication = DomainRegistry.authenticationService().getAuthentication();
 

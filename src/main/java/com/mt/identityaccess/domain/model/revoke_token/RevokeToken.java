@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
 import java.util.Date;
 
 @Data
@@ -20,7 +21,7 @@ public class RevokeToken {
 
     public RevokeToken(String targetId, RevokeTokenId revokeTokenId, TokenType type) {
         this.targetId = targetId;
-        this.issuedAt = new Date().getTime();
+        this.issuedAt = Instant.now().getEpochSecond();
         this.revokeTokenId = revokeTokenId;
         this.type = type;
     }
