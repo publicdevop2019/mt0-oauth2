@@ -31,6 +31,9 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
         setGrantedAuthorities(client.getAuthorities());
         setScopeEnums(client.getScopes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
+        if(client.getPasswordGrant()!=null&&client.getPasswordGrant().getRefreshTokenGrant()!=null){
+            setRefreshTokenValiditySeconds(client.getPasswordGrant().getRefreshTokenGrant().getRefreshTokenValiditySeconds());
+        }
         setResourceIds(client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet()));
         if (client.getAuthorizationCodeGrant() != null)
             setRegisteredRedirectUri(client.getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectURL::getValue).collect(Collectors.toSet()));
