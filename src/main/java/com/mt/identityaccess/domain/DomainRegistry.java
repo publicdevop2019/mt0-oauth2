@@ -31,9 +31,18 @@ public class DomainRegistry {
     private static RevokeTokenRepository revokeTokenRepository;
     private static CustomObjectSerializer objectSerializer;
     private static EventStreamService eventStreamService;
+    private static EndpointValidationService endpointValidationService;
 
+    public static EndpointValidationService endpointValidationService() {
+        return endpointValidationService;
+    }
     public static EventStreamService eventStreamService() {
         return eventStreamService;
+    }
+
+    @Autowired
+    public void setEndpointValidationService(EndpointValidationService endpointValidationService) {
+        DomainRegistry.endpointValidationService = endpointValidationService;
     }
 
     @Autowired

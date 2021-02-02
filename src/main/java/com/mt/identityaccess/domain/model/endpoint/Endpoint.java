@@ -4,6 +4,8 @@ import com.google.common.base.Objects;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.common.persistence.StringSetConverter;
+import com.mt.common.validate.HttpValidationNotificationHandler;
+import com.mt.common.validate.ValidationNotificationHandler;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.endpoint.event.EndpointCollectionModified;
@@ -17,6 +19,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Entity
@@ -87,16 +90,20 @@ public class Endpoint extends Auditable {
         setPath(path);
         setMethod(method);
         setSecured(secured);
-        if (userOnly && clientOnly) {
-            throw new IllegalArgumentException("userOnly and clientOnly can not be true at same time");
-        }
         setUserOnly(userOnly);
         setClientOnly(clientOnly);
+        validate(new HttpValidationNotificationHandler());
+        DomainRegistry.endpointValidationService().validate(this, new HttpValidationNotificationHandler());
     }
 
     @PreUpdate
     private void preUpdate() {
         DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+    }
+
+    @Override
+    public void validate(@NotNull ValidationNotificationHandler handler) {
+        (new EndpointValidator(this, handler)).validate();
     }
 
     @Override

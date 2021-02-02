@@ -3,6 +3,7 @@ package com.mt.identityaccess.domain.model.client;
 import com.google.common.base.Objects;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
+import com.mt.common.validate.HttpValidationNotificationHandler;
 import com.mt.common.validate.ValidationNotificationHandler;
 import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
@@ -19,6 +20,7 @@ import org.hibernate.annotations.Where;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -175,7 +177,7 @@ public class Client extends Auditable {
         setClientCredentialsGrant(clientCredentialsGrant);
         setPasswordGrant(passwordGrant);
         setAuthorizationCodeGrant(authorizationCodeGrant);
-        validate(null);
+        validate(new HttpValidationNotificationHandler());
     }
 
     public Set<GrantType> totalGrantTypes() {
@@ -223,7 +225,7 @@ public class Client extends Auditable {
         setClientCredentialsGrant(clientCredentialsGrant);
         PasswordGrant.detectChange(this.getPasswordGrant(), passwordGrant, getClientId());
         setPasswordGrant(passwordGrant);
-        validate(null);
+        validate(new HttpValidationNotificationHandler());
     }
 
     public void replace(String name,
@@ -266,7 +268,7 @@ public class Client extends Auditable {
         setPasswordGrant(passwordGrant);
         AuthorizationCodeGrant.detectChange(this.getAuthorizationCodeGrant(), authorizationCodeGrant, getClientId());
         setAuthorizationCodeGrant(authorizationCodeGrant);
-        validate(null);
+        validate(new HttpValidationNotificationHandler());
     }
 
     @PreUpdate
@@ -275,7 +277,7 @@ public class Client extends Auditable {
     }
 
     @Override
-    public void validate(ValidationNotificationHandler handler) {
+    public void validate(@NotNull ValidationNotificationHandler handler) {
         (new ClientValidator(this, handler)).validate();
     }
 
