@@ -92,7 +92,7 @@ public class EndpointApplicationService {
                 endpoint1.replace(
                         command.getUserRoles(),
                         command.getClientRoles(),
-                        command.getScopes(),
+                        command.getClientScopes(),
                         command.getDescription(),
                         command.getPath(),
                         command.getMethod(),

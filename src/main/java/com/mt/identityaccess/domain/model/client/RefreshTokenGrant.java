@@ -3,10 +3,8 @@ package com.mt.identityaccess.domain.model.client;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.identityaccess.domain.model.client.event.ClientGrantTypeChanged;
 import com.mt.identityaccess.domain.model.client.event.ClientRefreshTokenChanged;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 
 import javax.annotation.Nullable;
@@ -15,7 +13,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 @NoArgsConstructor
-public class RefreshTokenGrant  implements Serializable {
+public class RefreshTokenGrant implements Serializable {
     public static final GrantType NAME = GrantType.REFRESH_TOKEN;
     @Column(name = "pwd_gt_refresh_token_gt_enabled")
     @Getter
@@ -23,8 +21,11 @@ public class RefreshTokenGrant  implements Serializable {
 
     @Column(name = "pwd_gt_refresh_token_gt_refresh_token_validity_seconds")
     @Getter
-    @Setter(AccessLevel.PRIVATE)
     private int refreshTokenValiditySeconds = 0;
+
+    private void setRefreshTokenValiditySeconds(int refreshTokenValiditySeconds) {
+        this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
+    }
 
     public static void detectChange(RefreshTokenGrant a, RefreshTokenGrant b, ClientId clientId) {
         if (!ObjectUtils.equals(a, b)) {
@@ -37,7 +38,7 @@ public class RefreshTokenGrant  implements Serializable {
         }
     }
 
-    protected void setEnabled(@Nullable Set<GrantType> grantTypes) {
+    private void setEnabled(@Nullable Set<GrantType> grantTypes) {
         if (grantTypes == null)
             this.enabled = false;
         else
@@ -47,6 +48,7 @@ public class RefreshTokenGrant  implements Serializable {
     public RefreshTokenGrant(Set<GrantType> grantTypes, int refreshTokenValiditySeconds) {
         setEnabled(grantTypes);
         setRefreshTokenValiditySeconds(refreshTokenValiditySeconds);
+        new RefreshTokenGrantValidator(this).validate();
     }
 
     private static boolean grantTypeChanged(@Nullable RefreshTokenGrant a, @Nullable RefreshTokenGrant b) {

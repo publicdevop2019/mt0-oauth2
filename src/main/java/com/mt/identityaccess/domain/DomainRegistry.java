@@ -32,12 +32,21 @@ public class DomainRegistry {
     private static CustomObjectSerializer objectSerializer;
     private static EventStreamService eventStreamService;
     private static EndpointValidationService endpointValidationService;
+    private static ClientValidationService clientValidationService;
 
+    public static ClientValidationService clientValidationService() {
+        return clientValidationService;
+    }
     public static EndpointValidationService endpointValidationService() {
         return endpointValidationService;
     }
     public static EventStreamService eventStreamService() {
         return eventStreamService;
+    }
+
+    @Autowired
+    public void setClientValidationService(ClientValidationService clientValidationService) {
+        DomainRegistry.clientValidationService = clientValidationService;
     }
 
     @Autowired

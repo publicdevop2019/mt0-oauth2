@@ -13,14 +13,14 @@ public class ClientValidator {
     }
 
     protected void validate() {
-        accessAndAuthorities();
+        accessAndRoles();
     }
 
-    private void accessAndAuthorities() {
+    private void accessAndRoles() {
         if (client.isAccessible()) {
             if (
-                    client.getAuthorities().stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
-                            || client.getAuthorities().stream().noneMatch(e -> e.equals(Authority.ROLE_FIRST_PARTY))
+                    client.getRoles().stream().noneMatch(e -> e.equals(Role.ROLE_BACKEND))
+                            || client.getRoles().stream().noneMatch(e -> e.equals(Role.ROLE_FIRST_PARTY))
             ) {
                 handler.handleError("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
             }

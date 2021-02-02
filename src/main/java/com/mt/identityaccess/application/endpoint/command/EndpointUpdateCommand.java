@@ -13,7 +13,7 @@ public class EndpointUpdateCommand implements Serializable, AggregateUpdateComma
     private String description;
     private Set<String> clientRoles;
     private Set<String> userRoles;
-    private Set<String> scopes;
+    private Set<String> clientScopes;
     private boolean secured;
     private boolean userOnly;
     private boolean clientOnly;

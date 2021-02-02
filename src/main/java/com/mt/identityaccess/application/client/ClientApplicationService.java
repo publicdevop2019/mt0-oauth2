@@ -115,7 +115,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 Client client1 = client.get();
                 if (client1.removable()) {
                     DomainRegistry.clientRepository().remove(client1);
-                    client1.cleanUp();
+                    client1.removeAllReferenced();
                 } else {
                     throw new RootClientDeleteException();
                 }

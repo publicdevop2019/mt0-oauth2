@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.client.command;
 
-import com.mt.identityaccess.domain.model.client.Authority;
+import com.mt.identityaccess.domain.model.client.Role;
 import com.mt.identityaccess.domain.model.client.GrantType;
 import com.mt.identityaccess.domain.model.client.Scope;
 import lombok.Data;
@@ -21,7 +21,7 @@ public class ClientCreateCommand implements Serializable {
 
     private Set<GrantType> grantTypeEnums;
 
-    private Set<Authority> grantedAuthorities;
+    private Set<Role> grantedAuthorities;
 
     private Set<Scope> scopeEnums;
 

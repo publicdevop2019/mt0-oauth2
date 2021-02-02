@@ -2,7 +2,6 @@ package com.mt.identityaccess.domain.model.endpoint;
 
 
 import com.mt.common.validate.ValidationNotificationHandler;
-import com.mt.identityaccess.domain.model.client.Authority;
 
 public class EndpointValidator {
     private final Endpoint endpoint;
