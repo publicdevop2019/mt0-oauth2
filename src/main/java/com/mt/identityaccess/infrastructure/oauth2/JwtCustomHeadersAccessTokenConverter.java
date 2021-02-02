@@ -15,8 +15,8 @@ import java.util.Map;
 
 public class JwtCustomHeadersAccessTokenConverter extends JwtAccessTokenConverter {
 
-    private Map<String, String> customHeaders = new HashMap<>();
-    private JsonParser objectMapper = JsonParserFactory.create();
+    private final Map<String, String> customHeaders;
+    private final JsonParser objectMapper = JsonParserFactory.create();
     final RsaSigner signer;
 
     public JwtCustomHeadersAccessTokenConverter(Map<String, String> customHeaders, KeyPair keyPair) {
@@ -34,8 +34,7 @@ public class JwtCustomHeadersAccessTokenConverter extends JwtAccessTokenConverte
         } catch (Exception ex) {
             throw new IllegalStateException("Cannot convert access token to JSON", ex);
         }
-        String token = JwtHelper.encode(content, this.signer, this.customHeaders)
+        return JwtHelper.encode(content, this.signer, this.customHeaders)
                 .getEncoded();
-        return token;
     }
 }

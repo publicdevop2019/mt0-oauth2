@@ -3,6 +3,7 @@ package com.mt.identityaccess.domain.model.client;
 import com.google.common.base.Objects;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
+import com.mt.common.validate.ValidationNotificationHandler;
 import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.event.*;
@@ -21,7 +22,6 @@ import javax.persistence.*;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Table
 @Entity
@@ -39,12 +39,12 @@ public class Client extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private ClientId clientId;
-    @Setter
+    @Setter(AccessLevel.PRIVATE)
     @Getter
     private String name;
     @Getter
     private String secret;
-    @Setter
+    @Setter(AccessLevel.PRIVATE)
     @Getter
     private String description;
 
@@ -117,29 +117,11 @@ public class Client extends Auditable {
     public void setAuthorities(Set<Authority> authorities) {
         this.authorities.clear();
         this.authorities.addAll(authorities);
-        if (accessible) {
-            if (
-                    authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
-                            || authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_FIRST_PARTY))
-            ) {
-                throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
-            }
-            setAccessible(true, this.authorities);
-        } else {
-            setAccessible(false, this.authorities);
-        }
     }
 
-    public void setAccessible(boolean accessible, Set<Authority> authorities) {
+    public void setAccessible(boolean accessible) {
         if (this.accessible && !accessible) {
             DomainEventPublisher.instance().publish(new ClientAccessibilityRemoved(clientId));
-        }
-        if (accessible) {
-            if (
-                    authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
-                            || authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_FIRST_PARTY))
-            )
-                throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
         }
         this.accessible = accessible;
     }
@@ -187,12 +169,13 @@ public class Client extends Auditable {
         setScopes(scopes);
         setDescription(description);
         setAuthorities(authorities);
-        setAccessible(accessible, authorities);
+        setAccessible(accessible);
         setName(name);
         setSecret(secret);
         setClientCredentialsGrant(clientCredentialsGrant);
         setPasswordGrant(passwordGrant);
         setAuthorizationCodeGrant(authorizationCodeGrant);
+        validate(null);
     }
 
     public Set<GrantType> totalGrantTypes() {
@@ -233,13 +216,14 @@ public class Client extends Auditable {
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
-        setAccessible(accessible, authorities);
+        setAccessible(accessible);
         setAuthorities(authorities);
         setName(name);
         ClientCredentialsGrant.detectChange(this.getClientCredentialsGrant(), clientCredentialsGrant, getClientId());
         setClientCredentialsGrant(clientCredentialsGrant);
         PasswordGrant.detectChange(this.getPasswordGrant(), passwordGrant, getClientId());
         setPasswordGrant(passwordGrant);
+        validate(null);
     }
 
     public void replace(String name,
@@ -271,7 +255,7 @@ public class Client extends Auditable {
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
-        setAccessible(accessible, authorities);
+        setAccessible(accessible);
         setAuthorities(authorities);
         setName(name);
         if (StringUtils.hasText(secret))
@@ -282,11 +266,17 @@ public class Client extends Auditable {
         setPasswordGrant(passwordGrant);
         AuthorizationCodeGrant.detectChange(this.getAuthorizationCodeGrant(), authorizationCodeGrant, getClientId());
         setAuthorizationCodeGrant(authorizationCodeGrant);
+        validate(null);
     }
 
     @PreUpdate
     private void preUpdate() {
         DomainEventPublisher.instance().publish(new ClientUpdated(getClientId()));
+    }
+
+    @Override
+    public void validate(ValidationNotificationHandler handler) {
+        (new ClientValidator(this, handler)).validate();
     }
 
     public Endpoint addNewEndpoint(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, EndpointId endpointId, String method, boolean secured, boolean userOnly, boolean clientOnly) {
