@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-public class ClientOrderConverter extends OrderClause<Client> {
+public class ClientSortConverter extends OrderClause<Client> {
     @Override
     public List<Order> getOrderClause(String page, CriteriaBuilder cb, Root<Client> root, AbstractQuery<?> abstractQuery) {
         if(page==null){
