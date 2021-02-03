@@ -5,16 +5,14 @@ import lombok.Data;
 
 @Data
 public class RevokeTokenCardRepresentation {
-    private String id;
     private String targetId;
     private Long issuedAt;
     private RevokeToken.TokenType type;
 
     public RevokeTokenCardRepresentation(Object object) {
         RevokeToken token = ((RevokeToken) object);
-        id = token.getRevokeTokenId().getDomainId();
-        targetId = token.getTargetId();
+        targetId = token.getRevokeTokenId().getDomainId();
         issuedAt = token.getIssuedAt();
-        type = token.getType();
+        type = token.getRevokeTokenId().getType();
     }
 }

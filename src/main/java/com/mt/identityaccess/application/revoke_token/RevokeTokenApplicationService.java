@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -30,12 +29,12 @@ public class RevokeTokenApplicationService {
     @SubscribeForEvent
     @Transactional
     public String create(RevokeTokenCreateCommand command, String changeId) {
-        RevokeTokenId revokeTokenId = new RevokeTokenId();
+        RevokeTokenId revokeTokenId = new RevokeTokenId(command.getId());
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
             boolean b = DomainRegistry.authenticationService().userInRole(Role.ROLE_ROOT);
-            if (!b && command.getType().equals(RevokeToken.TokenType.CLIENT))
+            if (!b && revokeTokenId.getType().equals(RevokeToken.TokenType.CLIENT))
                 throw new IllegalArgumentException("type can only be user");
-            DomainRegistry.revokeTokenRepository().add(new RevokeToken(command.getId(), revokeTokenId, command.getType()));
+            DomainRegistry.revokeTokenRepository().add(new RevokeToken(revokeTokenId));
             return revokeTokenId;
         }, RevokeToken.class);
     }
@@ -43,9 +42,9 @@ public class RevokeTokenApplicationService {
     @SubscribeForEvent
     @Transactional
     public String internalOnlyCreate(RevokeTokenCreateCommand command, String changeId) {
-        RevokeTokenId revokeTokenId = new RevokeTokenId();
+        RevokeTokenId revokeTokenId = new RevokeTokenId(command.getId());
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
-            DomainRegistry.revokeTokenRepository().add(new RevokeToken(command.getId(), revokeTokenId, command.getType()));
+            DomainRegistry.revokeTokenRepository().add(new RevokeToken(revokeTokenId));
             return revokeTokenId;
         }, RevokeToken.class);
     }
@@ -59,21 +58,21 @@ public class RevokeTokenApplicationService {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(null, event.getId().toString(), (ignored) -> {
             if (USER_EVENTS.contains(event.getName())) {
                 DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
-                DomainRegistry.revokeTokenService().revokeUserToken(deserialize.getDomainId());
+                DomainRegistry.revokeTokenService().revokeToken(deserialize.getDomainId());
             } else if (CLIENT_EVENTS.contains(event.getName())) {
                 DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
-                DomainRegistry.revokeTokenService().revokeClientToken(deserialize.getDomainId());
+                DomainRegistry.revokeTokenService().revokeToken(deserialize.getDomainId());
                 //revoke who is accessing this client's token
                 if (ClientAccessibilityRemoved.class.getName().equals(event.getName())) {
                     Set<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(ClientQuery.resourceIds(deserialize.getDomainId().getDomainId()));
                     clientsOfQuery.forEach(e -> {
-                        DomainRegistry.revokeTokenService().revokeClientToken(e.getClientId());
+                        DomainRegistry.revokeTokenService().revokeToken(e.getClientId());
                     });
                 }
             } else if (ClientResourceCleanUpCompleted.class.getName().equals(event.getName())) {
                 DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
                 //revoke deleted client token
-                deserialize.getDomainIds().forEach(e -> DomainRegistry.revokeTokenService().revokeClientToken(e));
+                deserialize.getDomainIds().forEach(e -> DomainRegistry.revokeTokenService().revokeToken(e));
             }
         }, RevokeToken.class);
     }

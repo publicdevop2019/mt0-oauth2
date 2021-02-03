@@ -14,16 +14,12 @@ import java.util.Date;
 public class RevokeToken {
     public static final String ENTITY_TARGET_ID = "targetId";
     public static final String ENTITY_ISSUE_AT = "issuedAt";
-    private String targetId;
     private Long issuedAt;
     private RevokeTokenId revokeTokenId;
-    private TokenType type;
 
-    public RevokeToken(String targetId, RevokeTokenId revokeTokenId, TokenType type) {
-        this.targetId = targetId;
+    public RevokeToken(RevokeTokenId revokeTokenId) {
         this.issuedAt = Instant.now().getEpochSecond();
         this.revokeTokenId = revokeTokenId;
-        this.type = type;
     }
 
     public enum TokenType {

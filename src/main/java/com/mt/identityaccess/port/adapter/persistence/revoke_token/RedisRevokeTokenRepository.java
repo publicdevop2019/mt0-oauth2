@@ -50,8 +50,8 @@ public class RedisRevokeTokenRepository implements RevokeTokenRepository {
                 revokeTokenSumPagedRep.setData(revokeTokens);
             }
         } else {
-            query.getTargetIds().forEach(targetId -> {
-                String s = redisTemplate.opsForValue().get(REVOKE_TOKEN_PREFIX + targetId);
+            query.getRevokeTokenId().forEach(tokenId -> {
+                String s = redisTemplate.opsForValue().get(REVOKE_TOKEN_PREFIX + tokenId);
                 if (s != null) {
                     RevokeToken deserialize = DomainRegistry.customObjectSerializer().deserialize(s, RevokeToken.class);
                     revokeTokens.add(deserialize);
@@ -64,6 +64,6 @@ public class RedisRevokeTokenRepository implements RevokeTokenRepository {
     }
 
     public void add(RevokeToken revokeToken) {
-        redisTemplate.opsForValue().set(REVOKE_TOKEN_PREFIX + revokeToken.getTargetId(), DomainRegistry.customObjectSerializer().serialize(revokeToken));
+        redisTemplate.opsForValue().set(REVOKE_TOKEN_PREFIX + revokeToken.getRevokeTokenId().getDomainId(), DomainRegistry.customObjectSerializer().serialize(revokeToken));
     }
 }

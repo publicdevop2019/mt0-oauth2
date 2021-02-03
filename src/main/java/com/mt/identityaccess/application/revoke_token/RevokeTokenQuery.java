@@ -9,7 +9,7 @@ import java.util.Set;
 public class RevokeTokenQuery extends DefaultQuery {
 
     public static final String TARGET_ID = "targetId";
-    private final Set<String> targetIds = new HashSet<>();
+    private final Set<String> revokeTokenId = new HashSet<>();
 
     public RevokeTokenQuery(String queryParam) {
         super(queryParam);
@@ -20,14 +20,14 @@ public class RevokeTokenQuery extends DefaultQuery {
             String s = parsed.get(TARGET_ID);
             if (s.contains("$")) {
                 String[] split = s.split("\\$");
-                targetIds.addAll(List.of(split));
+                revokeTokenId.addAll(List.of(split));
             } else {
-                targetIds.add(s);
+                revokeTokenId.add(s);
             }
         }
     }
 
-    public Set<String> getTargetIds() {
-        return targetIds;
+    public Set<String> getRevokeTokenId() {
+        return revokeTokenId;
     }
 }
