@@ -1,5 +1,7 @@
 package com.mt.identityaccess.infrastructure;
 
+import com.mt.identityaccess.domain.model.user.CurrentPassword;
+import com.mt.identityaccess.domain.model.user.UserPassword;
 import com.mt.identityaccess.domain.service.EncryptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,12 +21,13 @@ public class SpringEncryptionService implements EncryptionService {
         return new BCryptPasswordEncoder(STRENGTH);
     }
 
+    @Override
+    public boolean compare(UserPassword userPassword, CurrentPassword currentPwd) {
+        return encoder.matches(currentPwd.getRawPassword(), userPassword.getPassword());
+    }
+
     public String encryptedValue(String secret) {
         return encoder.encode(secret);
     }
 
-    @Override
-    public boolean compare(String encrypted, String raw) {
-        return encoder.matches(raw, encrypted);
-    }
 }

@@ -114,7 +114,7 @@ public class Client extends Auditable {
     private void setName(String name) {
         Validator.notNull(name);
         String trim = name.trim();
-        Validator.hasText(trim);
+        Validator.notBlank(trim);
         Validator.lengthGreaterThanOrEqualTo(trim, 1);
         Validator.lengthLessThanOrEqualTo(trim, 50);
         Validator.whitelistOnly(trim);

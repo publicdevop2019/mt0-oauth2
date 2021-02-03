@@ -1,5 +1,6 @@
 package com.mt.identityaccess.domain.model;
 
+import com.mt.common.validate.Validator;
 import com.mt.identityaccess.domain.DomainRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,6 +17,7 @@ public class ActivationCode {
     }
 
     public ActivationCode(String activationCode) {
+        Validator.lengthGreaterThanOrEqualTo(activationCode, 6);
         if (!StringUtils.hasText(activationCode))
             throw new IllegalArgumentException("activationCode is empty");
         setActivationCode(activationCode);

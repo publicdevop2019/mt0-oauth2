@@ -6,6 +6,7 @@ import com.mt.common.sql.SumPagedRep;
 import com.mt.common.persistence.QueryConfig;
 import com.mt.identityaccess.application.user.UserQuery;
 import com.mt.identityaccess.domain.model.user.User;
+import com.mt.identityaccess.domain.model.user.UserEmail;
 import com.mt.identityaccess.domain.model.user.UserId;
 import com.mt.identityaccess.domain.model.user.UserRepository;
 import com.mt.identityaccess.port.adapter.persistence.QueryBuilderRegistry;
@@ -39,8 +40,8 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
         save(user);
     }
 
-    default Optional<User> searchExistingUserWith(String email) {
-        return findByEmailEmail(email);
+    default Optional<User> searchExistingUserWith(UserEmail email) {
+        return findByEmailEmail(email.getEmail());
     }
 
     default void remove(User user) {
