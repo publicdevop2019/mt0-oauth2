@@ -20,7 +20,7 @@ public class ClientCardRepresentation {
 
     protected Set<GrantType> grantTypeEnums;
 
-    protected Set<Authority> grantedAuthorities;
+    protected Set<Role> grantedAuthorities;
 
     protected Set<Scope> scopeEnums;
 
@@ -43,7 +43,7 @@ public class ClientCardRepresentation {
         id = client1.getClientId().getDomainId();
         name = client1.getName();
         grantTypeEnums = client1.totalGrantTypes();
-        grantedAuthorities = client1.getAuthorities();
+        grantedAuthorities = client1.getRoles();
         scopeEnums = client1.getScopes();
         accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
         description = client1.getDescription();

@@ -1,17 +1,16 @@
 package com.mt.identityaccess.domain.model.revoke_token;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mt.common.domain.model.domainId.DomainId;
-import com.mt.identityaccess.domain.DomainRegistry;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 public class RevokeTokenId extends DomainId {
-    public RevokeTokenId() {
-        super();
-        Long id = DomainRegistry.uniqueIdGeneratorService().id();
-        String s = Long.toString(id, 36);
-        setDomainId("0T" + s.toUpperCase());
-    }
-
     public RevokeTokenId(String domainId) {
         super(domainId);
+    }
+    @JsonIgnore
+    public RevokeToken.TokenType getType() {
+        return this.getDomainId().indexOf("0C") == 0 ? RevokeToken.TokenType.CLIENT : RevokeToken.TokenType.USER;
     }
 }

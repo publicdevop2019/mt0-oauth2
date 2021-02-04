@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
 import java.util.Date;
 
 @Data
@@ -13,16 +14,12 @@ import java.util.Date;
 public class RevokeToken {
     public static final String ENTITY_TARGET_ID = "targetId";
     public static final String ENTITY_ISSUE_AT = "issuedAt";
-    private String targetId;
     private Long issuedAt;
     private RevokeTokenId revokeTokenId;
-    private TokenType type;
 
-    public RevokeToken(String targetId, RevokeTokenId revokeTokenId, TokenType type) {
-        this.targetId = targetId;
-        this.issuedAt = new Date().getTime();
+    public RevokeToken(RevokeTokenId revokeTokenId) {
+        this.issuedAt = Instant.now().getEpochSecond();
         this.revokeTokenId = revokeTokenId;
-        this.type = type;
     }
 
     public enum TokenType {

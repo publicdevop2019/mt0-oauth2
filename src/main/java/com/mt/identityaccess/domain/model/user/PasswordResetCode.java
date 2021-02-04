@@ -1,13 +1,11 @@
 package com.mt.identityaccess.domain.model.user;
 
 import com.google.common.base.Objects;
+import com.mt.common.validate.Validator;
 import com.mt.identityaccess.domain.DomainRegistry;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
 public class PasswordResetCode {
-    @Setter(AccessLevel.PRIVATE)
     @Getter
     private String value;
 
@@ -15,8 +13,13 @@ public class PasswordResetCode {
         setValue(DomainRegistry.passwordResetTokenService().generate());
     }
 
-    public PasswordResetCode(String token) {
-        setValue(token);
+    public PasswordResetCode(String value) {
+        setValue(value);
+    }
+
+    private void setValue(String value) {
+        Validator.lengthGreaterThanOrEqualTo(value, 9);
+        this.value = value;
     }
 
     @Override

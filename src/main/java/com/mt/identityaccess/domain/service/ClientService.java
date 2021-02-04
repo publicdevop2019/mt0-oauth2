@@ -22,7 +22,7 @@ public class ClientService {
                            String description,
                            boolean accessible,
                            Set<Scope> scopes,
-                           Set<Authority> authorities,
+                           Set<Role> authorities,
                            Set<ClientId> resources,
                            ClientCredentialsGrant clientCredentialsGrant,
                            PasswordGrant passwordGrant,

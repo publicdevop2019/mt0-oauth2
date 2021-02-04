@@ -31,9 +31,49 @@ public class DomainRegistry {
     private static RevokeTokenRepository revokeTokenRepository;
     private static CustomObjectSerializer objectSerializer;
     private static EventStreamService eventStreamService;
+    private static EndpointValidationService endpointValidationService;
+    private static ClientValidationService clientValidationService;
+    private static PendingUserValidationService pendingUserValidationService;
+    private static UserValidationService userValidationService;
+
+    public static UserValidationService userValidationService() {
+        return userValidationService;
+    }
+
+    public static PendingUserValidationService pendingUserValidationService() {
+        return pendingUserValidationService;
+    }
+
+    public static ClientValidationService clientValidationService() {
+        return clientValidationService;
+    }
+
+    public static EndpointValidationService endpointValidationService() {
+        return endpointValidationService;
+    }
 
     public static EventStreamService eventStreamService() {
         return eventStreamService;
+    }
+
+    @Autowired
+    public void setUserValidationService(UserValidationService userValidationService) {
+        DomainRegistry.userValidationService = userValidationService;
+    }
+
+    @Autowired
+    public void setPendingUserValidationService(PendingUserValidationService pendingUserValidationService) {
+        DomainRegistry.pendingUserValidationService = pendingUserValidationService;
+    }
+
+    @Autowired
+    public void setClientValidationService(ClientValidationService clientValidationService) {
+        DomainRegistry.clientValidationService = clientValidationService;
+    }
+
+    @Autowired
+    public void setEndpointValidationService(EndpointValidationService endpointValidationService) {
+        DomainRegistry.endpointValidationService = endpointValidationService;
     }
 
     @Autowired

@@ -3,15 +3,13 @@ package com.mt.identityaccess.resource;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.common.validate.BizValidator;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.user.command.*;
-import com.mt.identityaccess.application.user.representation.UserSystemCardRepresentation;
-import com.mt.identityaccess.application.user.representation.UserCardRepresentation;
 import com.mt.identityaccess.application.user.representation.UserAdminRepresentation;
+import com.mt.identityaccess.application.user.representation.UserCardRepresentation;
+import com.mt.identityaccess.application.user.representation.UserSystemCardRepresentation;
 import com.mt.identityaccess.domain.model.user.User;
 import com.mt.identityaccess.infrastructure.JwtAuthenticationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,12 +22,9 @@ import static com.mt.common.CommonConstant.*;
 @RequestMapping(produces = "application/json", path = "users")
 public class UserResource {
 
-    @Autowired
-    BizValidator validator;
 
     @PostMapping("app")
     public ResponseEntity<Void> createForApp(@RequestBody UserCreateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("appCreateUserCommand", command);
         return ResponseEntity.ok().header("Location", ApplicationServiceRegistry.userApplicationService().create(command, changeId)).build();
     }
 
@@ -53,7 +48,6 @@ public class UserResource {
                                                @PathVariable String id,
                                                @RequestHeader("authorization") String jwt,
                                                @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("adminUpdateUserCommand", command);
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         ApplicationServiceRegistry.userApplicationService().update(id, command, changeId);
@@ -97,21 +91,18 @@ public class UserResource {
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
-        validator.validate("userUpdatePwdCommand", command);
         ApplicationServiceRegistry.userApplicationService().updatePassword(command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("app/forgetPwd")
     public ResponseEntity<Void> forgetPwd(@RequestBody UserForgetPasswordCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("appForgetUserPasswordCommand", command);
         ApplicationServiceRegistry.userApplicationService().forgetPassword(command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("app/resetPwd")
     public ResponseEntity<Void> resetPwd(@RequestBody UserResetPasswordCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("appResetUserPasswordCommand", command);
         ApplicationServiceRegistry.userApplicationService().resetPassword(command, changeId);
         return ResponseEntity.ok().build();
     }

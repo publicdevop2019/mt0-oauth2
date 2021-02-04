@@ -24,14 +24,12 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
 @Service
 public class EndpointApplicationService {
-    public static final String EXCHANGE_RELOAD_EP_CACHE = "reloadEpCache";
     @Value("${proxy.reload}")
     private boolean reloadOnAppStart;
     @Value("${spring.application.name}")
@@ -54,7 +52,18 @@ public class EndpointApplicationService {
             Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(resourceId));
             if (client.isPresent()) {
                 Client client1 = client.get();
-                Endpoint endpoint = client1.addNewEndpoint(command.getExpression(), command.getDescription(), command.getPath(), endpointId, command.getMethod());
+                Endpoint endpoint = client1.addNewEndpoint(
+                        command.getUserRoles(),
+                        command.getClientRoles(),
+                        command.getClientScopes(),
+                        command.getDescription(),
+                        command.getPath(),
+                        endpointId,
+                        command.getMethod(),
+                        command.isSecured(),
+                        command.isUserOnly(),
+                        command.isClientOnly()
+                );
                 DomainRegistry.endpointRepository().add(endpoint);
                 DomainEventPublisher.instance().publish(new EndpointCollectionModified());
                 return endpointId;
@@ -81,10 +90,15 @@ public class EndpointApplicationService {
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
                 endpoint1.replace(
-                        command.getExpression(),
+                        command.getUserRoles(),
+                        command.getClientRoles(),
+                        command.getClientScopes(),
                         command.getDescription(),
                         command.getPath(),
-                        command.getMethod()
+                        command.getMethod(),
+                        command.isSecured(),
+                        command.isUserOnly(),
+                        command.isClientOnly()
                 );
                 DomainRegistry.endpointRepository().add(endpoint1);
             }
@@ -129,10 +143,15 @@ public class EndpointApplicationService {
                 EndpointPatchCommand beforePatch = new EndpointPatchCommand(endpoint1);
                 EndpointPatchCommand afterPatch = DomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, EndpointPatchCommand.class);
                 endpoint1.replace(
-                        afterPatch.getExpression(),
+                        endpoint1.getUserRoles(),
+                        endpoint1.getClientRoles(),
+                        endpoint1.getClientScopes(),
                         afterPatch.getDescription(),
                         afterPatch.getMethod(),
-                        afterPatch.getPath()
+                        afterPatch.getPath(),
+                        endpoint1.isSecured(),
+                        endpoint1.isUserOnly(),
+                        endpoint1.isClientOnly()
                 );
             }
         }, Endpoint.class);

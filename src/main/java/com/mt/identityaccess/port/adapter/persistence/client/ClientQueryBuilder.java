@@ -22,7 +22,7 @@ public class ClientQueryBuilder extends SelectQueryBuilder<Client> {
     {
         DEFAULT_PAGE_SIZE = 20;
         MAX_PAGE_SIZE = 2000;
-        sortConverter = new ClientOrderConverter();
+        sortConverter = new ClientSortConverter();
         supportedWhereField.put(COMMON_ENTITY_ID, new SelectFieldDomainIdEqualClause<>("clientId"));
         supportedWhereField.put(ENTITY_RESOURCE_INDICATOR, new SelectFieldBooleanEqualClause<>("accessible"));
         supportedWhereField.put(ENTITY_CLIENT_ID, new SelectFieldDomainIdEqualClause<>("clientId"));

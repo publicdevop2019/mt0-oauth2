@@ -14,7 +14,7 @@ public class ClientPatchCommand {
     private boolean resourceIndicator;
     private Set<Scope> scopeEnums;
     private Set<GrantType> grantTypeEnums;
-    private Set<Authority> grantedAuthorities;
+    private Set<Role> grantedAuthorities;
     private int accessTokenValiditySeconds = 0;
     private Set<String> resourceIds;
 
@@ -26,7 +26,7 @@ public class ClientPatchCommand {
         this.grantTypeEnums = bizClient.totalGrantTypes();
         this.accessTokenValiditySeconds = bizClient.accessTokenValiditySeconds();
         this.resourceIds = bizClient.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
-        this.grantedAuthorities = bizClient.getAuthorities();
+        this.grantedAuthorities = bizClient.getRoles();
     }
 
 }

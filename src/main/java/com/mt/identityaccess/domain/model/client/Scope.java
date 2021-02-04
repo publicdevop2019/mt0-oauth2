@@ -6,8 +6,8 @@ public enum Scope {
     WRITE,
     READ,
     TRUST;
-    public static class ScopeConverter extends EnumSetConverter<Scope> {
-        public ScopeConverter() {
+    public static class DBConverter extends EnumSetConverter<Scope> {
+        public DBConverter() {
             super(Scope.class);
         }
     }

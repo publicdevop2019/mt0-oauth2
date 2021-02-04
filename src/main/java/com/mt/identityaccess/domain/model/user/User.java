@@ -3,6 +3,7 @@ package com.mt.identityaccess.domain.model.user;
 import com.google.common.base.Objects;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
+import com.mt.common.validate.HttpValidationNotificationHandler;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.user.event.UserAuthorityChanged;
 import com.mt.identityaccess.domain.model.user.event.UserGetLocked;
@@ -77,14 +78,15 @@ public class User extends Auditable {
     @Setter(AccessLevel.NONE)
     private Integer version;
 
-    public User(UserEmail userEmail, String rawPassword, UserId userId) {
+    public User(UserEmail userEmail, UserPassword password, UserId userId) {
         setId(DomainRegistry.uniqueIdGeneratorService().id());
         setEmail(userEmail);
-        setPassword(new UserPassword(rawPassword));
+        setPassword(password);
         setUserId(userId);
         setLocked(false);
         setGrantedAuthorities(Collections.singleton(Role.ROLE_USER));
         setSubscription(false);
+        DomainRegistry.userValidationService().validate(this, new HttpValidationNotificationHandler());
     }
 
     public void setPwdResetToken(PasswordResetCode pwdResetToken) {

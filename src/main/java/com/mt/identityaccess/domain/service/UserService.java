@@ -11,14 +11,13 @@ import com.mt.identityaccess.domain.model.user.event.UserCreated;
 import com.mt.identityaccess.domain.model.user.event.UserGetLocked;
 import com.mt.identityaccess.domain.model.user.event.UserPasswordChanged;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
-    public UserId create(UserEmail userEmail, String password, ActivationCode activationCode, UserId userId) {
+    public UserId create(UserEmail userEmail, UserPassword password, ActivationCode activationCode, UserId userId) {
         Optional<PendingUser> pendingUser = DomainRegistry.pendingUserRepository().pendingUserOfEmail(new RegistrationEmail(userEmail.getEmail()));
         if (pendingUser.isPresent()) {
             if (pendingUser.get().getActivationCode() == null || !pendingUser.get().getActivationCode().getActivationCode().equals(activationCode.getActivationCode()))
@@ -32,17 +31,15 @@ public class UserService {
         }
     }
 
-    public void updatePassword(User user, String currentPwd, String password) {
-        if (!StringUtils.hasText(password) || !StringUtils.hasText(currentPwd))
-            throw new IllegalArgumentException("password(s)");
-        if (!user.getPassword().sameAs(currentPwd))
+    public void updatePassword(User user, CurrentPassword currentPwd, UserPassword password) {
+        if (!DomainRegistry.encryptionService().compare(user.getPassword(), currentPwd))
             throw new IllegalArgumentException("wrong password");
-        user.setPassword(new UserPassword(password));
+        user.setPassword(password);
         DomainRegistry.userRepository().add(user);
         DomainEventPublisher.instance().publish(new UserPasswordChanged(user.getUserId()));
     }
 
-    public void forgetPassword(String email) {
+    public void forgetPassword(UserEmail email) {
         Optional<User> user = DomainRegistry.userRepository().searchExistingUserWith(email);
         if (user.isEmpty()) {
             throw new IllegalArgumentException("user does not exist");
@@ -53,16 +50,16 @@ public class UserService {
 
     }
 
-    public void resetPassword(String email, String newPassword, String token) {
+    public void resetPassword(UserEmail email, UserPassword newPassword, PasswordResetCode token) {
         Optional<User> user = DomainRegistry.userRepository().searchExistingUserWith(email);
         if (user.isEmpty()) {
             throw new IllegalArgumentException("user does not exist");
         }
         if (user.get().getPwdResetToken() == null)
             throw new IllegalArgumentException("token not exist");
-        if (!user.get().getPwdResetToken().equals(new PasswordResetCode(token)))
+        if (!user.get().getPwdResetToken().equals(token))
             throw new IllegalArgumentException("token mismatch");
-        user.get().setPassword(new UserPassword(newPassword));
+        user.get().setPassword(newPassword);
         DomainRegistry.userRepository().add(user.get());
         DomainEventPublisher.instance().publish(new UserPasswordChanged(user.get().getUserId()));
     }

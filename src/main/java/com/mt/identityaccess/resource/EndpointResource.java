@@ -21,12 +21,8 @@ import static com.mt.common.CommonConstant.*;
 @RequestMapping(produces = "application/json", path = "endpoints")
 public class EndpointResource {
 
-    @Autowired
-    BizValidator validator;
-
     @PostMapping("root")
     public ResponseEntity<Void> createForRoot(@RequestBody EndpointCreateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("rootCreateBizEndpointCommand", command);
         return ResponseEntity.ok().header("Location", ApplicationServiceRegistry.endpointApplicationService().create(command, changeId)).build();
     }
 
@@ -48,7 +44,6 @@ public class EndpointResource {
     public ResponseEntity<Void> replaceForRootById(@RequestBody EndpointUpdateCommand command,
                                                    @PathVariable String id,
                                                    @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        validator.validate("rootUpdateBizEndpointCommand", command);
         ApplicationServiceRegistry.endpointApplicationService().update(id, command, changeId);
         return ResponseEntity.ok().build();
     }

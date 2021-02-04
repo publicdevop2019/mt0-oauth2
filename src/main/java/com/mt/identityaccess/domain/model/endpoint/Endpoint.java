@@ -3,6 +3,9 @@ package com.mt.identityaccess.domain.model.endpoint;
 import com.google.common.base.Objects;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
+import com.mt.common.persistence.StringSetConverter;
+import com.mt.common.validate.HttpValidationNotificationHandler;
+import com.mt.common.validate.ValidationNotificationHandler;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.endpoint.event.EndpointCollectionModified;
@@ -16,6 +19,8 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"domainId", "path", "method"}))
@@ -27,13 +32,22 @@ import javax.validation.constraints.NotBlank;
 public class Endpoint extends Auditable {
     public static final String ENTITY_PATH = "path";
     public static final String ENTITY_METHOD = "method";
-    public static final String ENTITY_EXPRESSION = "expression";
-    /**
-     * spring security style expression e.g. "hasRole('ROLE_USER') and #oauth2.hasScope('trust') and #oauth2.isUser()"
-     * for public access this filed can be null
-     */
     @Setter(AccessLevel.PRIVATE)
-    private String expression;
+    @Convert(converter = StringSetConverter.class)
+    private Set<String> clientRoles;
+    @Setter(AccessLevel.PRIVATE)
+    @Convert(converter = StringSetConverter.class)
+    private Set<String> userRoles;
+    @Setter(AccessLevel.PRIVATE)
+    @Convert(converter = StringSetConverter.class)
+    private Set<String> clientScopes;
+    @Setter(AccessLevel.PRIVATE)
+    private boolean secured;
+    @Setter(AccessLevel.PRIVATE)
+    private boolean userOnly;
+    @Setter(AccessLevel.PRIVATE)
+    private boolean clientOnly;
+
     @Setter(AccessLevel.PRIVATE)
     private String description;
     @Embedded
@@ -58,26 +72,38 @@ public class Endpoint extends Auditable {
     @Setter(AccessLevel.NONE)
     private Integer version;
 
-    public Endpoint(ClientId clientId, String expression, String description, @NotBlank String path, EndpointId endpointId, @NotBlank String method) {
+    public Endpoint(ClientId clientId, Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description,
+                    @NotBlank String path, EndpointId endpointId, @NotBlank String method,
+                    boolean secured, boolean userOnly, boolean clientOnly
+    ) {
         setId(DomainRegistry.uniqueIdGeneratorService().id());
-        setExpression(expression);
-        setDescription(description);
         setClientId(clientId);
         setEndpointId(endpointId);
-        setPath(path);
-        setMethod(method);
+        replace(userRoles, clientRoles, scopes, description, path, method, secured, userOnly, clientOnly);
     }
 
-    public void replace(String expression, String description, @NotBlank String path, @NotBlank String method) {
-        setExpression(expression);
+    public void replace(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, @NotBlank String path, @NotBlank String method, boolean secured, boolean userOnly, boolean clientOnly) {
+        setUserRoles(userRoles);
+        setClientRoles(clientRoles);
+        setClientScopes(scopes);
         setDescription(description);
         setPath(path);
         setMethod(method);
+        setSecured(secured);
+        setUserOnly(userOnly);
+        setClientOnly(clientOnly);
+        validate(new HttpValidationNotificationHandler());
+        DomainRegistry.endpointValidationService().validate(this, new HttpValidationNotificationHandler());
     }
 
     @PreUpdate
     private void preUpdate() {
         DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+    }
+
+    @Override
+    public void validate(@NotNull ValidationNotificationHandler handler) {
+        (new EndpointValidator(this, handler)).validate();
     }
 
     @Override

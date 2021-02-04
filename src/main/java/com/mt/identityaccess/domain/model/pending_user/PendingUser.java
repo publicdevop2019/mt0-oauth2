@@ -3,8 +3,9 @@ package com.mt.identityaccess.domain.model.pending_user;
 import com.google.common.base.Objects;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
-import com.mt.identityaccess.domain.model.ActivationCode;
+import com.mt.common.validate.HttpValidationNotificationHandler;
 import com.mt.identityaccess.domain.DomainRegistry;
+import com.mt.identityaccess.domain.model.ActivationCode;
 import com.mt.identityaccess.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -39,18 +40,20 @@ public class PendingUser extends Auditable {
     @Setter(AccessLevel.NONE)
     private Integer version;
 
-    public PendingUser(RegistrationEmail registrationEmail,ActivationCode activationCode) {
+    public PendingUser(RegistrationEmail registrationEmail, ActivationCode activationCode) {
         setId(DomainRegistry.uniqueIdGeneratorService().id());
         setRegistrationEmail(registrationEmail);
         setActivationCode(activationCode);
+        DomainRegistry.pendingUserValidationService().validate(this, new HttpValidationNotificationHandler());
     }
 
     private void setActivationCode(ActivationCode activationCode) {
         this.activationCode = activationCode;
-        DomainEventPublisher.instance().publish(new PendingUserActivationCodeUpdated(registrationEmail,activationCode));
+        DomainEventPublisher.instance().publish(new PendingUserActivationCodeUpdated(registrationEmail, activationCode));
     }
 
-    public void newActivationCode(ActivationCode activationCode){
+    public void newActivationCode(ActivationCode activationCode) {
+        DomainRegistry.pendingUserValidationService().validate(this, new HttpValidationNotificationHandler());
         setActivationCode(activationCode);
     }
 

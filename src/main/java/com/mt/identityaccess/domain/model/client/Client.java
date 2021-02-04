@@ -3,7 +3,9 @@ package com.mt.identityaccess.domain.model.client;
 import com.google.common.base.Objects;
 import com.mt.common.audit.Auditable;
 import com.mt.common.domain_event.DomainEventPublisher;
-import com.mt.identityaccess.application.client.ClientQuery;
+import com.mt.common.validate.HttpValidationNotificationHandler;
+import com.mt.common.validate.ValidationNotificationHandler;
+import com.mt.common.validate.Validator;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.event.*;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;
@@ -18,9 +20,9 @@ import org.hibernate.annotations.Where;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Table
@@ -39,21 +41,21 @@ public class Client extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private ClientId clientId;
-    @Setter
     @Getter
     private String name;
     @Getter
     private String secret;
-    @Setter
     @Getter
     private String description;
 
-    @Convert(converter = Authority.AuthorityConverter.class)
+    @Convert(converter = Role.DBConverter.class)
     @Getter
-    private final Set<Authority> authorities = EnumSet.noneOf(Authority.class);
+    @Column(name = "authorities")
+    private final Set<Role> roles = EnumSet.noneOf(Role.class);
 
-    @Convert(converter = Scope.ScopeConverter.class)
+    @Convert(converter = Scope.DBConverter.class)
     @Getter
+    @Column(name = "scopes")
     private final Set<Scope> scopes = EnumSet.noneOf(Scope.class);
 
     /**
@@ -109,37 +111,42 @@ public class Client extends Auditable {
     @Version
     private Integer version;
 
-    public void setScopes(Set<Scope> scopes) {
+    private void setName(String name) {
+        Validator.notNull(name);
+        String trim = name.trim();
+        Validator.notBlank(trim);
+        Validator.lengthGreaterThanOrEqualTo(trim, 1);
+        Validator.lengthLessThanOrEqualTo(trim, 50);
+        Validator.whitelistOnly(trim);
+        this.name = trim;
+    }
+
+    private void setDescription(String description) {
+        if (description != null) {
+            String trim = description.trim();
+            Validator.lengthLessThanOrEqualTo(trim, 50);
+            Validator.whitelistOnly(trim);
+            this.description = description;
+        }
+    }
+
+    private void setScopes(Set<Scope> scopes) {
+        Validator.notEmpty(scopes);
+        Validator.noNullMember(scopes);
         this.scopes.clear();
         this.scopes.addAll(scopes);
     }
 
-    public void setAuthorities(Set<Authority> authorities) {
-        this.authorities.clear();
-        this.authorities.addAll(authorities);
-        if (accessible) {
-            if (
-                    authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
-                            || authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_FIRST_PARTY))
-            ) {
-                throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
-            }
-            setAccessible(true, this.authorities);
-        } else {
-            setAccessible(false, this.authorities);
-        }
+    private void setRoles(Set<Role> roles) {
+        Validator.notEmpty(roles);
+        Validator.noNullMember(roles);
+        this.roles.clear();
+        this.roles.addAll(roles);
     }
 
-    public void setAccessible(boolean accessible, Set<Authority> authorities) {
+    private void setAccessible(boolean accessible) {
         if (this.accessible && !accessible) {
             DomainEventPublisher.instance().publish(new ClientAccessibilityRemoved(clientId));
-        }
-        if (accessible) {
-            if (
-                    authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_BACKEND))
-                            || authorities.stream().noneMatch(e -> e.equals(Authority.ROLE_FIRST_PARTY))
-            )
-                throw new IllegalArgumentException("invalid grantedAuthorities to be a resource, must be ROLE_FIRST_PARTY & ROLE_BACKEND");
         }
         this.accessible = accessible;
     }
@@ -148,25 +155,17 @@ public class Client extends Auditable {
         this.resources.remove(clientId);
     }
 
-    public void setResources(Set<ClientId> resources) {
+    private void setResources(Set<ClientId> resources) {
+        Validator.notNull(resources);
         if (!resources.equals(this.resources)) {
-            if (!resources.isEmpty()) {
-                Set<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(resources));
-                if (clientsOfQuery.size() != resources.size()) {
-                    throw new IllegalArgumentException("invalid resource(s) found");
-                }
-                boolean b = clientsOfQuery.stream().anyMatch(e -> !e.accessible);
-                if (b) {
-                    throw new IllegalArgumentException("invalid resource(s) found");
-                }
-            }
             this.resources.clear();
             this.resources.addAll(resources);
+            DomainRegistry.clientValidationService().validate(this, new HttpValidationNotificationHandler());
         }
     }
 
     public boolean removable() {
-        return this.authorities.stream().noneMatch(Authority.ROLE_ROOT::equals);
+        return this.roles.stream().noneMatch(Role.ROLE_ROOT::equals);
     }
 
     public Client(ClientId nextIdentity,
@@ -175,7 +174,7 @@ public class Client extends Auditable {
                   String description,
                   boolean accessible,
                   Set<Scope> scopes,
-                  Set<Authority> authorities,
+                  Set<Role> roles,
                   Set<ClientId> resources,
                   ClientCredentialsGrant clientCredentialsGrant,
                   PasswordGrant passwordGrant,
@@ -186,13 +185,14 @@ public class Client extends Auditable {
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
-        setAuthorities(authorities);
-        setAccessible(accessible, authorities);
+        setRoles(roles);
+        setAccessible(accessible);
         setName(name);
         setSecret(secret);
         setClientCredentialsGrant(clientCredentialsGrant);
         setPasswordGrant(passwordGrant);
         setAuthorizationCodeGrant(authorizationCodeGrant);
+        validate(new HttpValidationNotificationHandler());
     }
 
     public Set<GrantType> totalGrantTypes() {
@@ -216,7 +216,7 @@ public class Client extends Auditable {
                         String description,
                         boolean accessible,
                         Set<Scope> scopes,
-                        Set<Authority> authorities,
+                        Set<Role> authorities,
                         Set<ClientId> resources,
                         ClientCredentialsGrant clientCredentialsGrant,
                         PasswordGrant passwordGrant
@@ -233,13 +233,14 @@ public class Client extends Auditable {
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
-        setAccessible(accessible, authorities);
-        setAuthorities(authorities);
+        setAccessible(accessible);
+        setRoles(authorities);
         setName(name);
         ClientCredentialsGrant.detectChange(this.getClientCredentialsGrant(), clientCredentialsGrant, getClientId());
         setClientCredentialsGrant(clientCredentialsGrant);
         PasswordGrant.detectChange(this.getPasswordGrant(), passwordGrant, getClientId());
         setPasswordGrant(passwordGrant);
+        validate(new HttpValidationNotificationHandler());
     }
 
     public void replace(String name,
@@ -247,7 +248,7 @@ public class Client extends Auditable {
                         String description,
                         boolean accessible,
                         Set<Scope> scopes,
-                        Set<Authority> authorities,
+                        Set<Role> authorities,
                         Set<ClientId> resources,
                         ClientCredentialsGrant clientCredentialsGrant,
                         PasswordGrant passwordGrant,
@@ -271,8 +272,8 @@ public class Client extends Auditable {
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
-        setAccessible(accessible, authorities);
-        setAuthorities(authorities);
+        setAccessible(accessible);
+        setRoles(authorities);
         setName(name);
         if (StringUtils.hasText(secret))
             setSecret(secret);
@@ -282,6 +283,7 @@ public class Client extends Auditable {
         setPasswordGrant(passwordGrant);
         AuthorizationCodeGrant.detectChange(this.getAuthorizationCodeGrant(), authorizationCodeGrant, getClientId());
         setAuthorizationCodeGrant(authorizationCodeGrant);
+        validate(new HttpValidationNotificationHandler());
     }
 
     @PreUpdate
@@ -289,8 +291,13 @@ public class Client extends Auditable {
         DomainEventPublisher.instance().publish(new ClientUpdated(getClientId()));
     }
 
-    public Endpoint addNewEndpoint(String expression, String description, String path, EndpointId endpointId, String method) {
-        return new Endpoint(getClientId(), expression, description, path, endpointId, method);
+    @Override
+    public void validate(@NotNull ValidationNotificationHandler handler) {
+        (new ClientValidator(this, handler)).validate();
+    }
+
+    public Endpoint addNewEndpoint(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, EndpointId endpointId, String method, boolean secured, boolean userOnly, boolean clientOnly) {
+        return new Endpoint(getClientId(), userRoles, clientRoles, scopes, description, path, endpointId, method, secured, userOnly, clientOnly);
     }
 
     private void setSecret(String secret) {
@@ -322,8 +329,8 @@ public class Client extends Auditable {
         return isAccessible() != b;
     }
 
-    private boolean authoritiesChanged(Set<Authority> authorities) {
-        return !ObjectUtils.equals(this.authorities, authorities);
+    private boolean authoritiesChanged(Set<Role> authorities) {
+        return !ObjectUtils.equals(this.roles, authorities);
     }
 
     private boolean scopesChanged(Set<Scope> scopes) {
@@ -344,7 +351,7 @@ public class Client extends Auditable {
         return Objects.hashCode(super.hashCode(), clientId);
     }
 
-    public void cleanUp() {
+    public void removeAllReferenced() {
         DomainEventPublisher.instance().publish(new ClientDeleted(clientId));
         if (isAccessible()) {
             DomainEventPublisher.instance().publish(new ClientAsResourceDeleted(clientId));
