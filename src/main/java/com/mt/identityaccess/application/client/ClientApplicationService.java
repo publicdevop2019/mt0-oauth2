@@ -133,6 +133,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 change.setRequestBody(allClientsOfQuery);
                 DomainRegistry.clientRepository().remove(allClientsOfQuery);
                 allClientsOfQuery.forEach(e -> {
+                    e.removeAllReferenced();
                     DomainEventPublisher.instance().publish(new ClientDeleted(e.getClientId()));
                 });
             } else {
