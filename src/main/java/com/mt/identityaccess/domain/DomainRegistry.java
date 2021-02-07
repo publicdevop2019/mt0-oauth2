@@ -35,9 +35,14 @@ public class DomainRegistry {
     private static ClientValidationService clientValidationService;
     private static PendingUserValidationService pendingUserValidationService;
     private static UserValidationService userValidationService;
+    private static TicketService ticketService;
 
     public static UserValidationService userValidationService() {
         return userValidationService;
+    }
+
+    public static TicketService ticketService() {
+        return ticketService;
     }
 
     public static PendingUserValidationService pendingUserValidationService() {
@@ -54,6 +59,11 @@ public class DomainRegistry {
 
     public static EventStreamService eventStreamService() {
         return eventStreamService;
+    }
+
+    @Autowired
+    public void setTicketService(TicketService ticketService) {
+        DomainRegistry.ticketService = ticketService;
     }
 
     @Autowired

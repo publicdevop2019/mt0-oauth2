@@ -1,6 +1,7 @@
 package com.mt.identityaccess.infrastructure;
 
 import com.mt.common.jwt.ServiceUtility;
+import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.user.Role;
 import com.mt.identityaccess.domain.model.user.UserId;
 import com.mt.identityaccess.domain.service.AuthenticationService;
@@ -85,6 +86,12 @@ public class JwtAuthenticationService implements AuthenticationService {
     public UserId getUserId() {
         String jwt = JwtThreadLocal.get();
         return new UserId(ServiceUtility.getUserId(jwt));
+    }
+
+    @Override
+    public ClientId getClientId() {
+        String jwt = JwtThreadLocal.get();
+        return new ClientId(ServiceUtility.getClientId(jwt));
     }
 
     public static class JwtThreadLocal {
