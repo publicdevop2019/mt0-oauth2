@@ -4,7 +4,7 @@ import com.mt.common.domain_event.DomainEvent;
 import com.mt.common.domain_event.StoredEvent;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.ClientQuery;
@@ -50,7 +50,7 @@ public class RevokeTokenApplicationService {
     }
 
     public SumPagedRep<RevokeToken> revokeTokens(String queryParam, String pageParam, String config) {
-        return DomainRegistry.revokeTokenRepository().revokeTokensOfQuery(new RevokeTokenQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(config));
+        return DomainRegistry.revokeTokenRepository().revokeTokensOfQuery(new RevokeTokenQuery(queryParam), new PageConfig(pageParam,2000), new QueryConfig(config));
     }
 
     @Transactional

@@ -20,18 +20,15 @@ public class ClientQueryBuilder extends SelectQueryBuilder<Client> {
     public static final String ENTITY_RESOURCE_IDS = "resourceIds";
 
     {
-        DEFAULT_PAGE_SIZE = 20;
-        MAX_PAGE_SIZE = 2000;
         sortConverter = new ClientSortConverter();
-        supportedWhereField.put(COMMON_ENTITY_ID, new SelectFieldDomainIdEqualClause<>("clientId"));
-        supportedWhereField.put(ENTITY_RESOURCE_INDICATOR, new SelectFieldBooleanEqualClause<>("accessible"));
-        supportedWhereField.put(ENTITY_CLIENT_ID, new SelectFieldDomainIdEqualClause<>("clientId"));
-        supportedWhereField.put(ENTITY_NAME, new SelectFieldStringLikeClause<>(ENTITY_NAME));
-        supportedWhereField.put(ENTITY_GRANT_TYPE_ENUMS, new SelectFieldGrantEnabledBooleanClause());
-        supportedWhereField.put(ENTITY_GRANT_AUTHORITIES, new SelectFieldStringLikeClause<>("authorities"));
-        supportedWhereField.put(ENTITY_SCOPE_ENUMS, new SelectFieldStringLikeClause<>(ENTITY_SCOPE_ENUMS));
-        supportedWhereField.put(ENTITY_RESOURCE_IDS, new SelectFieldResourceIdsClause());
-        supportedWhereField.put(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS, new SelectFieldGrantAccessTokenClause());
-        allowEmptyClause = true;
+        supportedWhere.put(COMMON_ENTITY_ID, new SelectFieldDomainIdEqualClause<>("clientId"));
+        supportedWhere.put(ENTITY_RESOURCE_INDICATOR, new SelectFieldBooleanEqualClause<>("accessible"));
+        supportedWhere.put(ENTITY_CLIENT_ID, new SelectFieldDomainIdEqualClause<>("clientId"));
+        supportedWhere.put(ENTITY_NAME, new SelectFieldStringLikeClause<>(ENTITY_NAME));
+        supportedWhere.put(ENTITY_GRANT_TYPE_ENUMS, new SelectFieldGrantEnabledBooleanClause());
+        supportedWhere.put(ENTITY_GRANT_AUTHORITIES, new SelectFieldStringLikeClause<>("authorities"));
+        supportedWhere.put(ENTITY_SCOPE_ENUMS, new SelectFieldStringLikeClause<>(ENTITY_SCOPE_ENUMS));
+        supportedWhere.put(ENTITY_RESOURCE_IDS, new SelectFieldResourceIdsClause());
+        supportedWhere.put(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS, new SelectFieldGrantAccessTokenClause());
     }
 }

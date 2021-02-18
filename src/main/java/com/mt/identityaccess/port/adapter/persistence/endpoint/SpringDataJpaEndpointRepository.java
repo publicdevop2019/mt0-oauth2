@@ -1,7 +1,7 @@
 package com.mt.identityaccess.port.adapter.persistence.endpoint;
 
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.identityaccess.application.endpoint.EndpointQuery;
@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 @Repository
 public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint, Long>, EndpointRepository {
-    Optional<Endpoint> findByEndpointIdAndDeletedFalse(EndpointId endpointId);
 
     @Modifying
     @Query("update #{#entityName} e set e.deleted=true where e.id = ?1")
@@ -37,7 +36,15 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
     }
 
     default Optional<Endpoint> endpointOfId(EndpointId endpointId) {
-        return findByEndpointIdAndDeletedFalse(endpointId);
+        return getEndpointOfId(endpointId);
+    }
+
+    private Optional<Endpoint> getEndpointOfId(EndpointId endpointId) {
+        SelectQueryBuilder<Endpoint> endpointSelectQueryBuilder = QueryBuilderRegistry.endpointSelectQueryBuilder();
+        List<Endpoint> select = endpointSelectQueryBuilder.select(new EndpointQuery(endpointId), new PageConfig(), Endpoint.class);
+        if (select.isEmpty())
+            return Optional.empty();
+        return Optional.of(select.get(0));
     }
 
     default void add(Endpoint endpoint) {
@@ -52,25 +59,21 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
         softDeleteAll(endpoints.stream().map(Endpoint::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery endpointQuery, DefaultPaging endpointPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(endpointQuery.value(), endpointPaging.value(), queryConfig.value());
+    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery query, PageConfig endpointPaging, QueryConfig queryConfig) {
+        return getSumPagedRep(query, endpointPaging, queryConfig);
     }
 
-    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery clientQuery, DefaultPaging clientPaging) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), null);
+    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery query, PageConfig clientPaging) {
+        return getSumPagedRep(query, clientPaging, new QueryConfig());
     }
 
-    private SumPagedRep<Endpoint> getSumPagedRep(String query, String page, String config) {
+    private SumPagedRep<Endpoint> getSumPagedRep(EndpointQuery query, PageConfig page, QueryConfig config) {
         SelectQueryBuilder<Endpoint> selectQueryBuilder = QueryBuilderRegistry.endpointSelectQueryBuilder();
         List<Endpoint> select = selectQueryBuilder.select(query, page, Endpoint.class);
         Long aLong = null;
-        if (!skipCount(config)) {
-            aLong = selectQueryBuilder.selectCount(query, Endpoint.class);
+        if (!config.isSkipCount()) {
+            aLong = selectQueryBuilder.count(query, Endpoint.class);
         }
         return new SumPagedRep<>(select, aLong);
-    }
-
-    private boolean skipCount(String config) {
-        return config != null && config.contains("sc:1");
     }
 }

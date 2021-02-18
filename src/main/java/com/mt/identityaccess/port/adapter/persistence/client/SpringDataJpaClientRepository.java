@@ -1,7 +1,7 @@
 package com.mt.identityaccess.port.adapter.persistence.client;
 
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.identityaccess.application.client.ClientQuery;
@@ -12,10 +12,8 @@ import com.mt.identityaccess.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.QueryHint;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +22,6 @@ import java.util.stream.Collectors;
 
 @Repository
 public interface SpringDataJpaClientRepository extends JpaRepository<Client, Long>, ClientRepository {
-    @QueryHints(@QueryHint(name = org.hibernate.annotations.QueryHints.CACHEABLE, value = "true"))
-    Optional<Client> findByClientIdAndDeletedFalse(ClientId clientId);
 
     @Modifying
     @Query("update #{#entityName} e set e.deleted=true where e.id = ?1")
@@ -35,16 +31,20 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
     @Query("update #{#entityName} e set e.deleted=true where e.id in ?1")
     void softDeleteAll(Set<Long> id);
 
-    @Modifying
-    @Query(nativeQuery = true, value = "delete from resources_map e where e.domain_id= ?1")
-    void removeClientFromResourcesMap(String domainId);
-
     default ClientId nextIdentity() {
         return new ClientId();
     }
 
     default Optional<Client> clientOfId(ClientId clientId) {
-        return findByClientIdAndDeletedFalse(clientId);
+        return getClientOfId(clientId);
+    }
+
+    private Optional<Client> getClientOfId(ClientId clientId) {
+        SelectQueryBuilder<Client> clientSelectQueryBuilder = QueryBuilderRegistry.clientSelectQueryBuilder();
+        List<Client> select = clientSelectQueryBuilder.select(new ClientQuery(clientId), new PageConfig(), Client.class);
+        if (select.isEmpty())
+            return Optional.empty();
+        return Optional.of(select.get(0));
     }
 
     default void add(Client client) {
@@ -59,29 +59,22 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
         softDeleteAll(client.stream().map(Client::getId).collect(Collectors.toSet()));
     }
 
-    default void removeResourceClient(ClientId clientId) {
-        removeClientFromResourcesMap(clientId.getDomainId());
+    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
+        return getSumPagedRep(clientQuery, clientPaging, queryConfig);
     }
 
-    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, DefaultPaging clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), queryConfig.value());
+    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, PageConfig clientPaging) {
+        return getSumPagedRep(clientQuery, clientPaging, new QueryConfig());
     }
 
-    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, DefaultPaging clientPaging) {
-        return getSumPagedRep(clientQuery.value(), clientPaging.value(), null);
-    }
-
-    private SumPagedRep<Client> getSumPagedRep(String query, String page, String config) {
+    private SumPagedRep<Client> getSumPagedRep(ClientQuery query, PageConfig page, QueryConfig config) {
         SelectQueryBuilder<Client> selectQueryBuilder = QueryBuilderRegistry.clientSelectQueryBuilder();
         List<Client> select = selectQueryBuilder.select(query, page, Client.class);
         Long aLong = null;
-        if (!skipCount(config)) {
-            aLong = selectQueryBuilder.selectCount(query, Client.class);
+        if (!config.isSkipCount()) {
+            aLong = selectQueryBuilder.count(query, Client.class);
         }
         return new SumPagedRep<>(select, aLong);
     }
 
-    private boolean skipCount(String config) {
-        return config != null && config.contains("sc:1");
-    }
 }

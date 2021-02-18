@@ -1,9 +1,10 @@
 package com.mt.identityaccess.port.adapter.persistence.user;
 
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.persistence.QueryConfig;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
-import com.mt.common.persistence.QueryConfig;
+import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.identityaccess.application.user.UserQuery;
 import com.mt.identityaccess.domain.model.user.User;
 import com.mt.identityaccess.domain.model.user.UserEmail;
@@ -24,8 +25,6 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
     @Query("update #{#entityName} e set e.deleted=true where e.id=?1")
     void softDelete(Long id);
 
-    Optional<User> findByUserIdAndDeletedFalse(UserId userId);
-
     Optional<User> findByEmailEmail(String email);
 
     default UserId nextIdentity() {
@@ -33,7 +32,7 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
     }
 
     default Optional<User> userOfId(UserId userId) {
-        return findByUserIdAndDeletedFalse(userId);
+        return getUserOfId(userId);
     }
 
     default void add(User user) {
@@ -48,25 +47,29 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
         softDelete(user.getId());
     }
 
-    default SumPagedRep<User> usersOfQuery(UserQuery userQuery, DefaultPaging userPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(userQuery.getValue(), userPaging.value(), queryConfig.value());
+    default SumPagedRep<User> usersOfQuery(UserQuery userQuery, PageConfig userPaging, QueryConfig queryConfig) {
+        return getSumPagedRep(userQuery, userPaging, queryConfig);
     }
 
     default void batchLock(List<PatchCommand> commands) {
         QueryBuilderRegistry.updateUserQueryBuilder().update(commands, User.class);
     }
 
-    private SumPagedRep<User> getSumPagedRep(String query, String page, String config) {
+    private SumPagedRep<User> getSumPagedRep(UserQuery query, PageConfig page, QueryConfig config) {
         UserQueryBuilder userQueryBuilder = QueryBuilderRegistry.userQueryBuilder();
         List<User> select = userQueryBuilder.select(query, page, User.class);
         Long aLong = null;
-        if (!skipCount(config)) {
-            aLong = userQueryBuilder.selectCount(query, User.class);
+        if (!config.isSkipCount()) {
+            aLong = userQueryBuilder.count(query, User.class);
         }
         return new SumPagedRep<>(select, aLong);
     }
 
-    private boolean skipCount(String config) {
-        return config != null && config.contains("sc:1");
+    private Optional<User> getUserOfId(UserId userId) {
+        SelectQueryBuilder<User> userSelectQueryBuilder = QueryBuilderRegistry.userQueryBuilder();
+        List<User> select = userSelectQueryBuilder.select(new UserQuery(userId), new PageConfig(), User.class);
+        if (select.isEmpty())
+            return Optional.empty();
+        return Optional.of(select.get(0));
     }
 }

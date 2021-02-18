@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.model.client;
 
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.client.ClientQuery;
 
@@ -17,9 +17,9 @@ public interface ClientRepository {
 
     void remove(Client client);
 
-    SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, DefaultPaging clientPaging, QueryConfig queryConfig);
+    SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig);
 
-    SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, DefaultPaging clientPaging);
+    SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, PageConfig clientPaging);
 
     void remove(Collection<Client> clients);
 

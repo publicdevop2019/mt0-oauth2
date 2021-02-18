@@ -7,7 +7,7 @@ import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.common.domain_event.StoredEvent;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.command.ClientCreateCommand;
@@ -67,7 +67,7 @@ public class ClientApplicationService implements ClientDetailsService {
     }
 
     public SumPagedRep<Client> clients(String queryParam, String pagingParam, String configParam) {
-        return DomainRegistry.clientRepository().clientsOfQuery(new ClientQuery(queryParam), new DefaultPaging(pagingParam), new QueryConfig(configParam));
+        return DomainRegistry.clientRepository().clientsOfQuery(new ClientQuery(queryParam,false), new PageConfig(pagingParam,2000), new QueryConfig(configParam));
     }
 
     public Optional<Client> client(String id) {
@@ -127,7 +127,7 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional
     public Set<String> removeClients(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
-            Set<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam));
+            Set<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam,false));
             boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.removable());
             if (!b) {
                 change.setRequestBody(allClientsOfQuery);

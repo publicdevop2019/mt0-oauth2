@@ -1,13 +1,15 @@
 package com.mt.identityaccess.application.user;
 
-import lombok.Getter;
+import com.mt.common.query.QueryCriteria;
+import com.mt.identityaccess.domain.model.user.UserId;
 
-public class UserQuery {
-    @Getter
-    private String value;
+public class UserQuery extends QueryCriteria {
 
     public UserQuery(String queryParam) {
-        this.value = queryParam;
+        super(queryParam);
     }
 
+    public UserQuery(UserId userId) {
+        super(userId);
+    }
 }

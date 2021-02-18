@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.service;
 
 import com.mt.common.domain_event.DomainEventPublisher;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.endpoint.EndpointQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
@@ -16,7 +16,7 @@ import java.util.Set;
 @Service
 public class EndpointService {
     public Set<Endpoint> getEndpointsOfQuery(EndpointQuery queryParam) {
-        DefaultPaging queryPagingParam = new DefaultPaging();
+        PageConfig queryPagingParam = new PageConfig();
         SumPagedRep<Endpoint> tSumPagedRep = DomainRegistry.endpointRepository().endpointsOfQuery(queryParam, queryPagingParam);
         if (tSumPagedRep.getData().size() == 0)
             return new HashSet<>();

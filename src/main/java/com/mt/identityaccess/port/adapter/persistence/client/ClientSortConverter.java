@@ -52,10 +52,10 @@ public class ClientSortConverter extends OrderClause<Client> {
             }
         } else if ("id".equalsIgnoreCase(orderMap.get("by"))) {
             if ("asc".equalsIgnoreCase(orderMap.get("order"))) {
-                Order asc = cb.asc(root.get("clientId").get("clientId"));
+                Order asc = cb.asc(root.get("clientId").get("domainId"));
                 return Collections.singletonList(asc);
             } else {
-                Order desc = cb.desc(root.get("clientId").get("clientId"));
+                Order desc = cb.desc(root.get("clientId").get("domainId"));
                 return Collections.singletonList(desc);
             }
         } else if ("accessTokenValiditySeconds".equalsIgnoreCase(orderMap.get("by"))) {

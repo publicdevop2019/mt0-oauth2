@@ -1,7 +1,7 @@
 package com.mt.identityaccess.port.adapter.persistence.revoke_token;
 
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.revoke_token.RevokeTokenQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
@@ -24,10 +24,10 @@ public class RedisRevokeTokenRepository implements RevokeTokenRepository {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    public SumPagedRep<RevokeToken> revokeTokensOfQuery(RevokeTokenQuery query, DefaultPaging paging, QueryConfig queryConfig) {
+    public SumPagedRep<RevokeToken> revokeTokensOfQuery(RevokeTokenQuery query, PageConfig paging, QueryConfig queryConfig) {
         List<RevokeToken> revokeTokens = new ArrayList<>();
         SumPagedRep<RevokeToken> revokeTokenSumPagedRep = new SumPagedRep<>();
-        if (query.getAll()) {
+        if (query.isGetAll()) {
             Set<String> keys = redisTemplate.keys(REVOKE_TOKEN_PREFIX + "*");
             if (keys != null) {
                 long offset = paging.getPageSize() * paging.getPageNumber();

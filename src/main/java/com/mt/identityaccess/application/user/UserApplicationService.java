@@ -4,7 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain_event.DomainEventPublisher;
 import com.mt.common.domain_event.SubscribeForEvent;
 import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.DefaultPaging;
+import com.mt.common.query.PageConfig;
 import com.mt.common.sql.PatchCommand;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.validate.Validator;
@@ -45,7 +45,7 @@ public class UserApplicationService implements UserDetailsService {
     }
 
     public SumPagedRep<User> users(String queryParam, String pageParam, String config) {
-        return DomainRegistry.userRepository().usersOfQuery(new UserQuery(queryParam), new DefaultPaging(pageParam), new QueryConfig(config));
+        return DomainRegistry.userRepository().usersOfQuery(new UserQuery(queryParam), new PageConfig(pageParam,50), new QueryConfig(config));
     }
 
     public Optional<User> user(String id) {

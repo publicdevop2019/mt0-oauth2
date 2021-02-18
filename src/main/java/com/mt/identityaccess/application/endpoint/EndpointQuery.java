@@ -1,13 +1,16 @@
 package com.mt.identityaccess.application.endpoint;
 
-public class EndpointQuery {
-    private String value;
 
-    public String value() {
-        return value;
-    }
+import com.mt.common.query.QueryCriteria;
+import com.mt.identityaccess.domain.model.endpoint.EndpointId;
+
+public class EndpointQuery extends QueryCriteria {
 
     public EndpointQuery(String queryParam) {
-        this.value = queryParam;
+        super(queryParam);
+    }
+
+    public EndpointQuery(EndpointId endpointId) {
+        super(endpointId);
     }
 }
