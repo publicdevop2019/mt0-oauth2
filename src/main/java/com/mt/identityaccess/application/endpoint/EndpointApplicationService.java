@@ -6,7 +6,6 @@ import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.application.client.InvalidClientIdException;
 import com.mt.identityaccess.application.endpoint.command.EndpointCreateCommand;
 import com.mt.identityaccess.application.endpoint.command.EndpointPatchCommand;
 import com.mt.identityaccess.application.endpoint.command.EndpointUpdateCommand;
@@ -178,5 +177,8 @@ public class EndpointApplicationService {
                 }
             }
         }, Endpoint.class);
+    }
+
+    public static class InvalidClientIdException extends RuntimeException {
     }
 }

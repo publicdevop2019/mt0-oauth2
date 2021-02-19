@@ -193,4 +193,7 @@ public class ClientApplicationService implements ClientDetailsService {
             }
         }, Client.class);
     }
+
+    public static class RootClientDeleteException extends RuntimeException {
+    }
 }

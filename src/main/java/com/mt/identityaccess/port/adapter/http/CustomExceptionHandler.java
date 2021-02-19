@@ -1,8 +1,8 @@
 package com.mt.identityaccess.port.adapter.http;
 
 import com.mt.common.logging.ErrorMessage;
-import com.mt.identityaccess.application.client.InvalidClientIdException;
-import com.mt.identityaccess.application.client.RootClientDeleteException;
+import com.mt.identityaccess.application.client.ClientApplicationService;
+import com.mt.identityaccess.application.endpoint.EndpointApplicationService;
 import com.mt.identityaccess.application.user.RootUserDeleteException;
 import com.mt.identityaccess.domain.model.client.RedirectURL;
 import org.springframework.core.Ordered;
@@ -25,11 +25,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {
             RedirectMismatchException.class,
             AccessDeniedException.class,
-            RootClientDeleteException.class,
+            ClientApplicationService.RootClientDeleteException.class,
             RootUserDeleteException.class,
             IllegalArgumentException.class,
             OAuth2Exception.class,
-            InvalidClientIdException.class,
+            EndpointApplicationService.InvalidClientIdException.class,
             RedirectURL.InvalidRedirectURLException.class,
     })
     protected ResponseEntity<Object> handleException(RuntimeException ex, WebRequest request) {
