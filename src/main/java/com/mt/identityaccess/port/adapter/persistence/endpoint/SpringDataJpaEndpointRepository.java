@@ -2,6 +2,7 @@ package com.mt.identityaccess.port.adapter.persistence.endpoint;
 
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
+import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.identityaccess.application.endpoint.EndpointQuery;
@@ -60,20 +61,10 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
     }
 
     default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery query, PageConfig endpointPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(query, endpointPaging, queryConfig);
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.endpointSelectQueryBuilder(), query, endpointPaging, queryConfig, Endpoint.class);
     }
 
     default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery query, PageConfig clientPaging) {
-        return getSumPagedRep(query, clientPaging, new QueryConfig());
-    }
-
-    private SumPagedRep<Endpoint> getSumPagedRep(EndpointQuery query, PageConfig page, QueryConfig config) {
-        SelectQueryBuilder<Endpoint> selectQueryBuilder = QueryBuilderRegistry.endpointSelectQueryBuilder();
-        List<Endpoint> select = selectQueryBuilder.select(query, page, Endpoint.class);
-        Long aLong = null;
-        if (!config.isSkipCount()) {
-            aLong = selectQueryBuilder.count(query, Endpoint.class);
-        }
-        return new SumPagedRep<>(select, aLong);
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.endpointSelectQueryBuilder(), query, clientPaging, new QueryConfig(), Endpoint.class);
     }
 }

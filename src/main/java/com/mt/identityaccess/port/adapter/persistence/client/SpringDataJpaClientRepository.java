@@ -2,6 +2,7 @@ package com.mt.identityaccess.port.adapter.persistence.client;
 
 import com.mt.common.persistence.QueryConfig;
 import com.mt.common.query.PageConfig;
+import com.mt.common.query.QueryUtility;
 import com.mt.common.sql.SumPagedRep;
 import com.mt.common.sql.builder.SelectQueryBuilder;
 import com.mt.identityaccess.application.client.ClientQuery;
@@ -60,21 +61,10 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
     }
 
     default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
-        return getSumPagedRep(clientQuery, clientPaging, queryConfig);
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.clientSelectQueryBuilder(), clientQuery, clientPaging, queryConfig, Client.class);
     }
 
     default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, PageConfig clientPaging) {
-        return getSumPagedRep(clientQuery, clientPaging, new QueryConfig());
+        return QueryUtility.pagedQuery(QueryBuilderRegistry.clientSelectQueryBuilder(), clientQuery, clientPaging, new QueryConfig(), Client.class);
     }
-
-    private SumPagedRep<Client> getSumPagedRep(ClientQuery query, PageConfig page, QueryConfig config) {
-        SelectQueryBuilder<Client> selectQueryBuilder = QueryBuilderRegistry.clientSelectQueryBuilder();
-        List<Client> select = selectQueryBuilder.select(query, page, Client.class);
-        Long aLong = null;
-        if (!config.isSkipCount()) {
-            aLong = selectQueryBuilder.count(query, Client.class);
-        }
-        return new SumPagedRep<>(select, aLong);
-    }
-
 }
