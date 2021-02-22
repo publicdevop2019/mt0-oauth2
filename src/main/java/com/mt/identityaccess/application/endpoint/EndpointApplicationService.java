@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -73,7 +74,7 @@ public class EndpointApplicationService {
     }
 
     public SumPagedRep<Endpoint> endpoints(String queryParam, String pageParam, String config) {
-        return DomainRegistry.endpointRepository().endpointsOfQuery(new EndpointQuery(queryParam), new PageConfig(pageParam,40), new QueryConfig(config));
+        return DomainRegistry.endpointRepository().endpointsOfQuery(new EndpointQuery(queryParam), new PageConfig(pageParam, 40), new QueryConfig(config));
     }
 
     public Optional<Endpoint> endpoint(String id) {
@@ -83,8 +84,8 @@ public class EndpointApplicationService {
     @SubscribeForEvent
     @Transactional
     public void update(String id, EndpointUpdateCommand command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            EndpointId endpointId = new EndpointId(id);
+        EndpointId endpointId = new EndpointId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(endpointId, command, changeId, (ignored) -> {
             Optional<Endpoint> endpoint = DomainRegistry.endpointRepository().endpointOfId(endpointId);
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
@@ -107,8 +108,8 @@ public class EndpointApplicationService {
     @SubscribeForEvent
     @Transactional
     public void removeEndpoint(String id, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
-            EndpointId endpointId = new EndpointId(id);
+        EndpointId endpointId = new EndpointId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(endpointId, null, changeId, (ignored) -> {
             Optional<Endpoint> endpoint = DomainRegistry.endpointRepository().endpointOfId(endpointId);
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
@@ -121,9 +122,10 @@ public class EndpointApplicationService {
     @SubscribeForEvent
     @Transactional
     public void removeEndpoints(String queryParam, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (command) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null,null, changeId, (change) -> {
             Set<Endpoint> endpoints = DomainRegistry.endpointService().getEndpointsOfQuery(new EndpointQuery(queryParam));
-            command.setRequestBody(endpoints);
+            change.setDeletedIds(endpoints.stream().map(e->e.getEndpointId().getDomainId()).collect(Collectors.toSet()));
+            change.setQuery(queryParam);
             DomainRegistry.endpointRepository().remove(endpoints);
             DomainEventPublisher.instance().publish(
                     new EndpointCollectionModified()
@@ -134,8 +136,8 @@ public class EndpointApplicationService {
     @SubscribeForEvent
     @Transactional
     public void patchEndpoint(String id, JsonPatch command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            EndpointId endpointId = new EndpointId(id);
+        EndpointId endpointId = new EndpointId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(endpointId, command, changeId, (ignored) -> {
             Optional<Endpoint> endpoint = DomainRegistry.endpointRepository().endpointOfId(endpointId);
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
@@ -159,7 +161,7 @@ public class EndpointApplicationService {
     @SubscribeForEvent
     @Transactional
     public void reloadEndpointCache(String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, changeId, (ignored) -> {
             DomainRegistry.endpointService().reloadEndpointCache();
         }, Endpoint.class);
     }
@@ -167,7 +169,7 @@ public class EndpointApplicationService {
     @SubscribeForEvent
     @Transactional
     public void handleChange(StoredEvent event) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, event.getId().toString(), (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
             if (ClientDeleted.class.getName().equals(event.getName())) {
                 DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
                 Set<Endpoint> endpointsOfQuery = DomainRegistry.endpointService().getEndpointsOfQuery(new EndpointQuery("resourceId:" + deserialize.getDomainId().getDomainId()));

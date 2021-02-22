@@ -55,7 +55,7 @@ public class RevokeTokenApplicationService {
 
     @Transactional
     public void handleChange(StoredEvent event) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, event.getId().toString(), (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null,null, event.getId().toString(), (ignored) -> {
             if (USER_EVENTS.contains(event.getName())) {
                 DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
                 DomainRegistry.revokeTokenService().revokeToken(deserialize.getDomainId());

@@ -67,7 +67,7 @@ public class ClientApplicationService implements ClientDetailsService {
     }
 
     public SumPagedRep<Client> clients(String queryParam, String pagingParam, String configParam) {
-        return DomainRegistry.clientRepository().clientsOfQuery(new ClientQuery(queryParam,false), new PageConfig(pagingParam,2000), new QueryConfig(configParam));
+        return DomainRegistry.clientRepository().clientsOfQuery(new ClientQuery(queryParam, false), new PageConfig(pagingParam, 2000), new QueryConfig(configParam));
     }
 
     public Optional<Client> client(String id) {
@@ -77,8 +77,8 @@ public class ClientApplicationService implements ClientDetailsService {
     @SubscribeForEvent
     @Transactional
     public void replaceClient(String id, ClientUpdateCommand command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            ClientId clientId = new ClientId(id);
+        ClientId clientId = new ClientId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(clientId, command, changeId, (ignored) -> {
             Optional<Client> optionalClient = DomainRegistry.clientRepository().clientOfId(clientId);
             if (optionalClient.isPresent()) {
                 Client client = optionalClient.get();
@@ -108,8 +108,8 @@ public class ClientApplicationService implements ClientDetailsService {
     @SubscribeForEvent
     @Transactional
     public void removeClient(String id, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(id, changeId, (change) -> {
-            ClientId clientId = new ClientId(id);
+        ClientId clientId = new ClientId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(clientId, null, changeId, (change) -> {
             Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
             if (client.isPresent()) {
                 Client client1 = client.get();
@@ -126,8 +126,8 @@ public class ClientApplicationService implements ClientDetailsService {
     @SubscribeForEvent
     @Transactional
     public Set<String> removeClients(String queryParam, String changeId) {
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(null, changeId, (change) -> {
-            Set<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam,false));
+        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
+            Set<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam, false));
             boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.removable());
             if (!b) {
                 change.setRequestBody(allClientsOfQuery);
@@ -148,8 +148,8 @@ public class ClientApplicationService implements ClientDetailsService {
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            ClientId clientId = new ClientId(id);
+        ClientId clientId = new ClientId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(clientId, command, changeId, (ignored) -> {
             Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
             if (client.isPresent()) {
                 Client original = client.get();
@@ -179,7 +179,7 @@ public class ClientApplicationService implements ClientDetailsService {
     @SubscribeForEvent
     @Transactional
     public void handleChange(StoredEvent event) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, event.getId().toString(), (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
             if (ClientAsResourceDeleted.class.getName().equals(event.getName())) {
                 DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
                 //remove deleted client from resource_map

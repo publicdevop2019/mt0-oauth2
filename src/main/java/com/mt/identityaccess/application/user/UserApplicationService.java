@@ -45,7 +45,7 @@ public class UserApplicationService implements UserDetailsService {
     }
 
     public SumPagedRep<User> users(String queryParam, String pageParam, String config) {
-        return DomainRegistry.userRepository().usersOfQuery(new UserQuery(queryParam), new PageConfig(pageParam,50), new QueryConfig(config));
+        return DomainRegistry.userRepository().usersOfQuery(new UserQuery(queryParam), new PageConfig(pageParam, 50), new QueryConfig(config));
     }
 
     public Optional<User> user(String id) {
@@ -59,7 +59,7 @@ public class UserApplicationService implements UserDetailsService {
         Optional<User> user = DomainRegistry.userRepository().userOfId(userId);
         if (user.isPresent()) {
             User user1 = user.get();
-            ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+            ApplicationServiceRegistry.idempotentWrapper().idempotent(userId, command, changeId, (ignored) -> {
                 user1.replace(
                         command.getGrantedAuthorities(),
                         command.isLocked(),
@@ -78,7 +78,7 @@ public class UserApplicationService implements UserDetailsService {
         if (user.isPresent()) {
             User user1 = user.get();
             if (user1.isNonRoot()) {
-                ApplicationServiceRegistry.idempotentWrapper().idempotent(null, changeId, (ignored) -> {
+                ApplicationServiceRegistry.idempotentWrapper().idempotent(userId, null, changeId, (ignored) -> {
                     DomainRegistry.userRepository().remove(user1);
                 }, User.class);
                 DomainEventPublisher.instance().publish(new UserDeleted(userId));
@@ -91,8 +91,8 @@ public class UserApplicationService implements UserDetailsService {
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
-            UserId userId = new UserId(id);
+        UserId userId = new UserId(id);
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(userId, command, changeId, (ignored) -> {
             Optional<User> user = DomainRegistry.userRepository().userOfId(userId);
             if (user.isPresent()) {
                 User original = user.get();
@@ -111,7 +111,7 @@ public class UserApplicationService implements UserDetailsService {
     @Transactional
     public void patchBatch(List<PatchCommand> commands, String changeId) {
         List<PatchCommand> deepCopy = DomainRegistry.customObjectSerializer().deepCopy(commands);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(deepCopy, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, deepCopy, changeId, (ignored) -> {
             DomainRegistry.userService().batchLock(commands);
         }, User.class);
     }
@@ -123,7 +123,7 @@ public class UserApplicationService implements UserDetailsService {
         Optional<User> user = DomainRegistry.userRepository().userOfId(userId);
         if (user.isPresent()) {
             User user1 = user.get();
-            ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+            ApplicationServiceRegistry.idempotentWrapper().idempotent(userId, command, changeId, (ignored) -> {
                 DomainRegistry.userService().updatePassword(user1, new CurrentPassword(command.getCurrentPwd()), new UserPassword(command.getPassword()));
             }, User.class);
             DomainRegistry.userRepository().add(user1);
@@ -133,7 +133,7 @@ public class UserApplicationService implements UserDetailsService {
     @SubscribeForEvent
     @Transactional
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, command, changeId, (ignored) -> {
             DomainRegistry.userService().forgetPassword(new UserEmail(command.getEmail()));
         }, User.class);
     }
@@ -141,7 +141,7 @@ public class UserApplicationService implements UserDetailsService {
     @SubscribeForEvent
     @Transactional
     public void resetPassword(UserResetPasswordCommand command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, command, changeId, (ignored) -> {
             DomainRegistry.userService().resetPassword(new UserEmail(command.getEmail()), new UserPassword(command.getNewPassword()), new PasswordResetCode(command.getToken()));
         }, User.class);
     }
