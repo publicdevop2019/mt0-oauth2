@@ -106,11 +106,6 @@ public class Client extends Auditable {
     })
     private AuthorizationCodeGrant authorizationCodeGrant;
 
-    @Getter
-    @Setter(AccessLevel.NONE)
-    @Version
-    private Integer version;
-
     private void setName(String name) {
         Validator.notNull(name);
         String trim = name.trim();

@@ -68,9 +68,6 @@ public class Endpoint extends Auditable {
     @Id
     @Setter(AccessLevel.PRIVATE)
     private Long id;
-    @Version
-    @Setter(AccessLevel.NONE)
-    private Integer version;
 
     public Endpoint(ClientId clientId, Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description,
                     @NotBlank String path, EndpointId endpointId, @NotBlank String method,

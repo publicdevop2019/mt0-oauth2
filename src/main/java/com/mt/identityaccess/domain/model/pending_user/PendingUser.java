@@ -31,14 +31,9 @@ public class PendingUser extends Auditable {
     private RegistrationEmail registrationEmail;
 
     @Column
-    @Setter(AccessLevel.PRIVATE)
     @Getter
     @Embedded
     private ActivationCode activationCode;
-
-    @Version
-    @Setter(AccessLevel.NONE)
-    private Integer version;
 
     public PendingUser(RegistrationEmail registrationEmail, ActivationCode activationCode) {
         setId(DomainRegistry.uniqueIdGeneratorService().id());

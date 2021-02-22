@@ -61,7 +61,6 @@ public class User extends Auditable {
     @Getter
     private boolean locked = false;
 
-    @Setter
     @Getter
     @Embedded
     private PasswordResetCode pwdResetToken;
@@ -74,9 +73,6 @@ public class User extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private boolean subscription;
-    @Version
-    @Setter(AccessLevel.NONE)
-    private Integer version;
 
     public User(UserEmail userEmail, UserPassword password, UserId userId) {
         setId(DomainRegistry.uniqueIdGeneratorService().id());
