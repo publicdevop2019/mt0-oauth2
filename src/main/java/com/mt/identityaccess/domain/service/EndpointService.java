@@ -1,8 +1,8 @@
 package com.mt.identityaccess.domain.service;
 
-import com.mt.common.domain_event.DomainEventPublisher;
-import com.mt.common.query.PageConfig;
-import com.mt.common.sql.SumPagedRep;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+import com.mt.common.domain.model.restful.query.PageConfig;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.identityaccess.application.endpoint.EndpointQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;

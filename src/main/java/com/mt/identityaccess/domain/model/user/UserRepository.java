@@ -1,9 +1,9 @@
 package com.mt.identityaccess.domain.model.user;
 
-import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.PageConfig;
-import com.mt.common.sql.PatchCommand;
-import com.mt.common.sql.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryConfig;
+import com.mt.common.domain.model.restful.query.PageConfig;
+import com.mt.common.domain.model.restful.PatchCommand;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.identityaccess.application.user.UserQuery;
 
 import java.util.List;

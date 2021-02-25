@@ -1,7 +1,7 @@
 package com.mt.identityaccess.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.sql.SumPagedRep;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.*;
 import com.mt.identityaccess.application.client.command.ClientCreateCommand;

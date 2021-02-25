@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.pending_user;
 
-import com.mt.common.domain_event.SubscribeForEvent;
+import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.ActivationCode;

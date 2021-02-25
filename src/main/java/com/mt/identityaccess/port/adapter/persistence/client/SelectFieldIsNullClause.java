@@ -1,13 +1,13 @@
 package com.mt.identityaccess.port.adapter.persistence.client;
 
-import com.mt.common.sql.clause.SelectFieldStringLikeClause;
+import com.mt.common.domain.model.sql.clause.FieldStringLikeClause;
 
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-public class SelectFieldIsNullClause<T> extends SelectFieldStringLikeClause<T> {
+public class SelectFieldIsNullClause<T> extends FieldStringLikeClause<T> {
     public SelectFieldIsNullClause(String fieldName) {
         super(fieldName);
     }

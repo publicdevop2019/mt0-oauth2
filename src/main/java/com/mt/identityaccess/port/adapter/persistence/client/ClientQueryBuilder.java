@@ -1,8 +1,8 @@
 package com.mt.identityaccess.port.adapter.persistence.client;
 
-import com.mt.common.sql.builder.SelectQueryBuilder;
-import com.mt.common.sql.clause.SelectFieldBooleanEqualClause;
-import com.mt.common.sql.clause.SelectFieldStringLikeClause;
+import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
+import com.mt.common.domain.model.sql.clause.FieldBooleanEqualClause;
+import com.mt.common.domain.model.sql.clause.FieldStringLikeClause;
 import com.mt.identityaccess.domain.model.client.Client;
 import org.springframework.stereotype.Component;
 
@@ -22,12 +22,12 @@ public class ClientQueryBuilder extends SelectQueryBuilder<Client> {
     {
         sortConverter = new ClientSortConverter();
         supportedWhere.put(COMMON_ENTITY_ID, new SelectFieldDomainIdEqualClause<>("clientId"));
-        supportedWhere.put(ENTITY_RESOURCE_INDICATOR, new SelectFieldBooleanEqualClause<>("accessible"));
+        supportedWhere.put(ENTITY_RESOURCE_INDICATOR, new FieldBooleanEqualClause<>("accessible"));
         supportedWhere.put(ENTITY_CLIENT_ID, new SelectFieldDomainIdEqualClause<>("clientId"));
-        supportedWhere.put(ENTITY_NAME, new SelectFieldStringLikeClause<>(ENTITY_NAME));
+        supportedWhere.put(ENTITY_NAME, new FieldStringLikeClause<>(ENTITY_NAME));
         supportedWhere.put(ENTITY_GRANT_TYPE_ENUMS, new SelectFieldGrantEnabledBooleanClause());
-        supportedWhere.put(ENTITY_GRANT_AUTHORITIES, new SelectFieldStringLikeClause<>("authorities"));
-        supportedWhere.put(ENTITY_SCOPE_ENUMS, new SelectFieldStringLikeClause<>(ENTITY_SCOPE_ENUMS));
+        supportedWhere.put(ENTITY_GRANT_AUTHORITIES, new FieldStringLikeClause<>("authorities"));
+        supportedWhere.put(ENTITY_SCOPE_ENUMS, new FieldStringLikeClause<>(ENTITY_SCOPE_ENUMS));
         supportedWhere.put(ENTITY_RESOURCE_IDS, new SelectFieldResourceIdsClause());
         supportedWhere.put(ENTITY_ACCESS_TOKEN_VALIDITY_SECONDS, new SelectFieldGrantAccessTokenClause());
     }

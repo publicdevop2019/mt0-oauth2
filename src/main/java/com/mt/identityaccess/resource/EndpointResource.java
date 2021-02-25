@@ -1,15 +1,13 @@
 package com.mt.identityaccess.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.sql.SumPagedRep;
-import com.mt.common.validate.BizValidator;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.endpoint.command.EndpointCreateCommand;
 import com.mt.identityaccess.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.identityaccess.application.endpoint.representation.EndpointCardRepresentation;
 import com.mt.identityaccess.application.endpoint.representation.EndpointRepresentation;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

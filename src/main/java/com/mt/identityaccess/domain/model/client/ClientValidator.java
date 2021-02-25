@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.model.client;
 
 
-import com.mt.common.validate.ValidationNotificationHandler;
+import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 
 public class ClientValidator {
     private final Client client;

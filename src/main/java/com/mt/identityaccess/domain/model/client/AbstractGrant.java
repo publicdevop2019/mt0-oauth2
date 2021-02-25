@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.model.client;
 
-import com.mt.common.domain_event.DomainEventPublisher;
-import com.mt.common.validate.Validator;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+import com.mt.common.domain.model.validate.Validator;
 import com.mt.identityaccess.domain.model.client.event.ClientAccessTokenValiditySecondsChanged;
 import com.mt.identityaccess.domain.model.client.event.ClientGrantTypeChanged;
 import lombok.EqualsAndHashCode;

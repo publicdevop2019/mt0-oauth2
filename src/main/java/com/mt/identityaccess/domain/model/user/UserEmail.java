@@ -1,13 +1,8 @@
 package com.mt.identityaccess.domain.model.user;
 
-import com.mt.common.validate.Validator;
-import com.mt.identityaccess.domain.DomainRegistry;
-import com.mt.identityaccess.domain.model.pending_user.PendingUser;
-import com.mt.identityaccess.domain.model.pending_user.RegistrationEmail;
+import com.mt.common.domain.model.validate.Validator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Optional;
 
 @NoArgsConstructor
 public class UserEmail {

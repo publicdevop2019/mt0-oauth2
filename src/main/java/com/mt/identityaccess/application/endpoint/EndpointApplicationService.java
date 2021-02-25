@@ -1,10 +1,10 @@
 package com.mt.identityaccess.application.endpoint;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.domain_event.*;
-import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.PageConfig;
-import com.mt.common.sql.SumPagedRep;
+import com.mt.common.domain.model.domain_event.*;
+import com.mt.common.domain.model.restful.query.QueryConfig;
+import com.mt.common.domain.model.restful.query.PageConfig;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.endpoint.command.EndpointCreateCommand;
 import com.mt.identityaccess.application.endpoint.command.EndpointPatchCommand;

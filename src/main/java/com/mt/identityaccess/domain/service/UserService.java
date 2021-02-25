@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.service;
 
-import com.mt.common.domain_event.DomainEventPublisher;
-import com.mt.common.sql.PatchCommand;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.ActivationCode;
 import com.mt.identityaccess.domain.model.pending_user.PendingUser;

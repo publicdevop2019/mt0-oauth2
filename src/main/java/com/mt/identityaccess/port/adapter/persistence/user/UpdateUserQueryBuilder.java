@@ -1,9 +1,9 @@
 package com.mt.identityaccess.port.adapter.persistence.user;
 
 
-import com.mt.common.rest.exception.UpdateFiledValueException;
-import com.mt.common.sql.PatchCommand;
-import com.mt.common.sql.builder.UpdateByIdQueryBuilder;
+import com.mt.common.domain.model.restful.exception.UpdateFiledValueException;
+import com.mt.common.domain.model.restful.PatchCommand;
+import com.mt.common.domain.model.sql.builder.UpdateByIdQueryBuilder;
 import com.mt.identityaccess.domain.model.user.User;
 import org.springframework.stereotype.Component;
 

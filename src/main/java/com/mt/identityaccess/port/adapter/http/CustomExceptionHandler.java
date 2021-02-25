@@ -1,6 +1,6 @@
 package com.mt.identityaccess.port.adapter.http;
 
-import com.mt.common.logging.ErrorMessage;
+import com.mt.common.domain.model.logging.ErrorMessage;
 import com.mt.identityaccess.application.client.ClientApplicationService;
 import com.mt.identityaccess.application.endpoint.EndpointApplicationService;
 import com.mt.identityaccess.application.user.RootUserDeleteException;

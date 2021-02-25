@@ -1,6 +1,6 @@
 package com.mt.identityaccess.port.adapter.persistence.client;
 
-import com.mt.common.sql.clause.WhereClause;
+import com.mt.common.domain.model.sql.clause.WhereClause;
 
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;

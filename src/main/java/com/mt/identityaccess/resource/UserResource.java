@@ -1,8 +1,8 @@
 package com.mt.identityaccess.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.sql.PatchCommand;
-import com.mt.common.sql.SumPagedRep;
+import com.mt.common.domain.model.restful.PatchCommand;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.user.command.*;
 import com.mt.identityaccess.application.user.representation.UserAdminRepresentation;

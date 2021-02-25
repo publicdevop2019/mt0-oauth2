@@ -1,10 +1,10 @@
 package com.mt.identityaccess.port.adapter.persistence.client;
 
-import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.PageConfig;
-import com.mt.common.query.QueryUtility;
-import com.mt.common.sql.SumPagedRep;
-import com.mt.common.sql.builder.SelectQueryBuilder;
+import com.mt.common.domain.model.restful.query.QueryConfig;
+import com.mt.common.domain.model.restful.query.PageConfig;
+import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
 import com.mt.identityaccess.application.client.ClientQuery;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;

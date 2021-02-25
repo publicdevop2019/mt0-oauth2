@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain;
 
 import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
-import com.mt.common.domain_event.EventStreamService;
+import com.mt.common.domain.model.domain_event.EventStreamService;
 import com.mt.common.domain.model.serializer.CustomObjectSerializer;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
 import com.mt.identityaccess.domain.model.endpoint.EndpointRepository;

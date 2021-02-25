@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.revoke_token;
 
-import com.mt.common.query.QueryCriteria;
+import com.mt.common.domain.model.restful.query.QueryCriteria;
 
 import java.util.HashSet;
 import java.util.List;

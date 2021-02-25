@@ -1,11 +1,11 @@
 package com.mt.identityaccess.domain.model.client;
 
 import com.google.common.base.Objects;
-import com.mt.common.audit.Auditable;
-import com.mt.common.domain_event.DomainEventPublisher;
-import com.mt.common.validate.HttpValidationNotificationHandler;
-import com.mt.common.validate.ValidationNotificationHandler;
-import com.mt.common.validate.Validator;
+import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import com.mt.common.domain.model.validate.ValidationNotificationHandler;
+import com.mt.common.domain.model.validate.Validator;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.event.*;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;

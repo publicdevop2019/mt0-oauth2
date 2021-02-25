@@ -1,7 +1,7 @@
 package com.mt.identityaccess.application.client;
 
-import com.mt.common.query.QueryCriteria;
-import com.mt.common.sql.exception.EmptyQueryValueException;
+import com.mt.common.CommonConstant;
+import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.user.Role;
@@ -40,18 +40,13 @@ public class ClientQuery extends QueryCriteria {
                     throw new IllegalArgumentException("only root role allows empty query");
                 }
             } else {
-                String[] queryParams = rawValue.split(",");
-                for (String param : queryParams) {
-                    String[] split = param.split(":");
-                    if (split.length != 2) {
-                        throw new EmptyQueryValueException();
-                    }
+                parsed.forEach((e, v) -> {
                     //only root user and general user can query, general user can only query by id
                     if (!isRoot) {
-                        if (!"id".equals(split[0]))
+                        if (!CommonConstant.COMMON_ENTITY_ID.equals(e))
                             throw new IllegalArgumentException("user role can only query by id");
                     }
-                }
+                });
             }
         } else {
             throw new IllegalArgumentException("only root/user role allows empty query");

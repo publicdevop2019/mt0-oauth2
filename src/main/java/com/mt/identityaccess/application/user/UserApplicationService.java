@@ -1,13 +1,13 @@
 package com.mt.identityaccess.application.user;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.domain_event.DomainEventPublisher;
-import com.mt.common.domain_event.SubscribeForEvent;
-import com.mt.common.persistence.QueryConfig;
-import com.mt.common.query.PageConfig;
-import com.mt.common.sql.PatchCommand;
-import com.mt.common.sql.SumPagedRep;
-import com.mt.common.validate.Validator;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+import com.mt.common.domain.model.restful.query.QueryConfig;
+import com.mt.common.domain.model.restful.query.PageConfig;
+import com.mt.common.domain.model.restful.PatchCommand;
+import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.validate.Validator;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.user.command.*;
 import com.mt.identityaccess.application.user.representation.UserSpringRepresentation;

@@ -1,6 +1,6 @@
 package com.mt.identityaccess.resource;
 
-import com.mt.common.sql.SumPagedRep;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.revoke_token.RevokeTokenCreateCommand;
 import com.mt.identityaccess.application.revoke_token.RevokeTokenCardRepresentation;

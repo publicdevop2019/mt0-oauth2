@@ -1,15 +1,11 @@
 package com.mt.identityaccess.domain.model.pending_user;
 
 import com.mt.common.domain.model.domainId.DomainId;
-import com.mt.common.validate.Validator;
-import com.mt.identityaccess.domain.DomainRegistry;
-import com.mt.identityaccess.domain.model.user.User;
-import com.mt.identityaccess.domain.model.user.UserEmail;
+import com.mt.common.domain.model.validate.Validator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
-import java.util.Optional;
 
 @NoArgsConstructor
 public class RegistrationEmail extends DomainId {

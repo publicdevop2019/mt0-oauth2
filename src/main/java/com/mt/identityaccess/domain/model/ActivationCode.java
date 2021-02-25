@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model;
 
-import com.mt.common.validate.Validator;
+import com.mt.common.domain.model.validate.Validator;
 import com.mt.identityaccess.domain.DomainRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;

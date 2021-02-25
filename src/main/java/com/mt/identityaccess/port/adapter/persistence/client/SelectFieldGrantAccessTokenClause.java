@@ -1,7 +1,7 @@
 package com.mt.identityaccess.port.adapter.persistence.client;
 
-import com.mt.common.sql.clause.WhereClause;
-import com.mt.common.sql.exception.UnsupportedQueryException;
+import com.mt.common.domain.model.sql.clause.WhereClause;
+import com.mt.common.domain.model.sql.exception.UnsupportedQueryException;
 import com.mt.identityaccess.domain.model.client.Client;
 
 import javax.persistence.criteria.AbstractQuery;

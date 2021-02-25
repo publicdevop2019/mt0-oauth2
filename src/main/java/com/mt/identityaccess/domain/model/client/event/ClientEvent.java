@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.model.client.event;
 
 import com.mt.common.domain.model.domainId.DomainId;
-import com.mt.common.domain_event.DomainEvent;
+import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.identityaccess.domain.model.client.ClientId;
 
 import java.util.Set;

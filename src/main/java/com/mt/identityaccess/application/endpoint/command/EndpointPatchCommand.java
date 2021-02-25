@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application.endpoint.command;
 
-import com.mt.common.rest.TypedClass;
+import com.mt.common.domain.model.restful.TypedClass;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import lombok.Data;
 

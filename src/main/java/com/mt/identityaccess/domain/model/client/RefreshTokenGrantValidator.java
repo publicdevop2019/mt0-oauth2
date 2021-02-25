@@ -1,6 +1,6 @@
 package com.mt.identityaccess.domain.model.client;
 
-import com.mt.common.validate.Validator;
+import com.mt.common.domain.model.validate.Validator;
 
 public class RefreshTokenGrantValidator {
     private final RefreshTokenGrant refreshTokenGrant;

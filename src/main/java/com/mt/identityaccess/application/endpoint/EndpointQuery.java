@@ -1,7 +1,7 @@
 package com.mt.identityaccess.application.endpoint;
 
 
-import com.mt.common.query.QueryCriteria;
+import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.identityaccess.domain.model.endpoint.EndpointId;
 
 public class EndpointQuery extends QueryCriteria {
