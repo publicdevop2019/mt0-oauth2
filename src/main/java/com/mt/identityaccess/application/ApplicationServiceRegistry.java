@@ -1,6 +1,6 @@
 package com.mt.identityaccess.application;
 
-import com.mt.common.idempotent.ApplicationServiceIdempotentWrapper;
+import com.mt.common.domain.model.idempotent.IdempotentService;
 import com.mt.identityaccess.application.client.ClientApplicationService;
 import com.mt.identityaccess.application.endpoint.EndpointApplicationService;
 import com.mt.identityaccess.application.pending_user.PendingUserApplicationService;
@@ -71,12 +71,12 @@ public class ApplicationServiceRegistry {
     }
 
     @Autowired
-    public void setClientIdempotentApplicationService(ApplicationServiceIdempotentWrapper clientIdempotentApplicationService) {
+    public void setClientIdempotentApplicationService(IdempotentService clientIdempotentApplicationService) {
         ApplicationServiceRegistry.applicationServiceIdempotentWrapper = clientIdempotentApplicationService;
     }
 
     private static AuthorizeCodeApplicationService authorizeCodeApplicationService;
-    private static ApplicationServiceIdempotentWrapper applicationServiceIdempotentWrapper;
+    private static IdempotentService applicationServiceIdempotentWrapper;
 
     public static ClientApplicationService clientApplicationService() {
         return clientApplicationService;
@@ -86,7 +86,7 @@ public class ApplicationServiceRegistry {
         return authorizeCodeApplicationService;
     }
 
-    public static ApplicationServiceIdempotentWrapper idempotentWrapper() {
+    public static IdempotentService idempotentWrapper() {
         return applicationServiceIdempotentWrapper;
     }
 
