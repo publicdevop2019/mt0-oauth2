@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.revoke_token;
+package com.mt.identityaccess.domain.model.revoke_token;
 
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 

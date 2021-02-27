@@ -1,9 +1,8 @@
-package com.mt.identityaccess.application.client;
+package com.mt.identityaccess.domain.model.client;
 
 import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.identityaccess.domain.DomainRegistry;
-import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.user.Role;
 
 import java.util.Set;

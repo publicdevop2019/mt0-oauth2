@@ -2,7 +2,7 @@ package com.mt.identityaccess.domain.service;
 
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.identityaccess.application.client.ClientQuery;
+import com.mt.identityaccess.domain.model.client.ClientQuery;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.*;

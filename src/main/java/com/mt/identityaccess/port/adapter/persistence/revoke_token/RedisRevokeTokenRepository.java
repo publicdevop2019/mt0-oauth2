@@ -3,7 +3,7 @@ package com.mt.identityaccess.port.adapter.persistence.revoke_token;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.identityaccess.application.revoke_token.RevokeTokenQuery;
+import com.mt.identityaccess.domain.model.revoke_token.RevokeTokenQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.revoke_token.RevokeToken;
 import com.mt.identityaccess.domain.model.revoke_token.RevokeTokenRepository;

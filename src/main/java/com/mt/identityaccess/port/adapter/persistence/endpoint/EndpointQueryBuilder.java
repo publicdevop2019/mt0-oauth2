@@ -12,6 +12,7 @@ import static com.mt.identityaccess.domain.model.endpoint.Endpoint.*;
 @Component
 public class EndpointQueryBuilder extends SelectQueryBuilder<Endpoint> {
     {
+        supportedSort.put("id", "endpointId");
         supportedSort.put("resourceId", "clientId");
         supportedSort.put("path", ENTITY_PATH);
         supportedSort.put("method", ENTITY_METHOD);

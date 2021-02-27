@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.user;
+package com.mt.identityaccess.domain.model.user;
 
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.identityaccess.domain.model.user.UserId;

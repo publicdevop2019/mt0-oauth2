@@ -15,9 +15,11 @@ public class UserQueryBuilder extends SelectQueryBuilder<User> {
     private static final String USER_ID_LITERAL = "userId";
 
     {
+        supportedSort.put("id", USER_ID_LITERAL);
         supportedSort.put(ENTITY_EMAIL, ENTITY_EMAIL);
         supportedSort.put("createdAt", "createdAt");
-        supportedWhere.put(ENTITY_EMAIL, new SelectFieldUserEmailClause());
+        supportedSort.put("locked", ENTITY_LOCKED);
+        supportedWhere.put(ENTITY_EMAIL, new FieldUserEmailClause());
         supportedWhere.put(COMMON_ENTITY_ID, new DomainIdQueryClause<>(USER_ID_LITERAL));
         supportedWhere.put(ENTITY_SUBSCRIPTION, new FieldBooleanEqualClause<>(ENTITY_SUBSCRIPTION));
         supportedWhere.put(ENTITY_GRANTED_AUTHORITIES, new FieldStringLikeClause<>(ENTITY_GRANTED_AUTHORITIES));

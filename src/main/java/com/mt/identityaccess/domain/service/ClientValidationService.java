@@ -1,7 +1,7 @@
 package com.mt.identityaccess.domain.service;
 
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
-import com.mt.identityaccess.application.client.ClientQuery;
+import com.mt.identityaccess.domain.model.client.ClientQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.Client;
 import org.springframework.stereotype.Service;

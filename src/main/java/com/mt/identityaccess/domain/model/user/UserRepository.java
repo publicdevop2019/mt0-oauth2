@@ -4,7 +4,6 @@ import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.identityaccess.application.user.UserQuery;
 
 import java.util.List;
 import java.util.Optional;

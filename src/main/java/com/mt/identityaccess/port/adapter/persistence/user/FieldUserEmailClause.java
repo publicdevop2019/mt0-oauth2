@@ -10,8 +10,8 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectFieldUserEmailClause extends WhereClause<User> {
-    public SelectFieldUserEmailClause() {
+public class FieldUserEmailClause extends WhereClause<User> {
+    public FieldUserEmailClause() {
         super();
     }
 

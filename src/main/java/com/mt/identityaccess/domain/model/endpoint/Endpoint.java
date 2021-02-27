@@ -70,7 +70,7 @@ public class Endpoint extends Auditable {
     private Long id;
 
     public Endpoint(ClientId clientId, Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description,
-                    @NotBlank String path, EndpointId endpointId, @NotBlank String method,
+                    String path, EndpointId endpointId, String method,
                     boolean secured, boolean userOnly, boolean clientOnly
     ) {
         setId(DomainRegistry.uniqueIdGeneratorService().id());
@@ -79,7 +79,7 @@ public class Endpoint extends Auditable {
         replace(userRoles, clientRoles, scopes, description, path, method, secured, userOnly, clientOnly);
     }
 
-    public void replace(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, @NotBlank String path, @NotBlank String method, boolean secured, boolean userOnly, boolean clientOnly) {
+    public void replace(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, String method, boolean secured, boolean userOnly, boolean clientOnly) {
         setUserRoles(userRoles);
         setClientRoles(clientRoles);
         setClientScopes(scopes);

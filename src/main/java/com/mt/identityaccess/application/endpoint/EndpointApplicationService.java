@@ -15,6 +15,7 @@ import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.client.event.ClientDeleted;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import com.mt.identityaccess.domain.model.endpoint.EndpointId;
+import com.mt.identityaccess.domain.model.endpoint.EndpointQuery;
 import com.mt.identityaccess.domain.model.endpoint.event.EndpointCollectionModified;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -148,8 +149,8 @@ public class EndpointApplicationService {
                         endpoint1.getClientRoles(),
                         endpoint1.getClientScopes(),
                         afterPatch.getDescription(),
-                        afterPatch.getMethod(),
                         afterPatch.getPath(),
+                        afterPatch.getMethod(),
                         endpoint1.isSecured(),
                         endpoint1.isUserOnly(),
                         endpoint1.isClientOnly()

@@ -1,6 +1,7 @@
 package com.mt.identityaccess.port.adapter.persistence.user;
 
 
+import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.restful.exception.UpdateFiledValueException;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.sql.builder.UpdateByIdQueryBuilder;
@@ -28,7 +29,7 @@ public class UpdateUserQueryBuilder extends UpdateByIdQueryBuilder<User> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         List<Predicate> results = new ArrayList<>();
         for (String str : query) {
-            Predicate equal = cb.equal(root.get("userId").get("domainId"), str);
+            Predicate equal = cb.equal(root.get("userId").get(CommonConstant.DOMAIN_ID), str);
             results.add(equal);
         }
         return cb.or(results.toArray(new Predicate[0]));

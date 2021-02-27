@@ -3,7 +3,6 @@ package com.mt.identityaccess.domain.model.client;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.identityaccess.application.client.ClientQuery;
 
 import java.util.Collection;
 import java.util.Optional;

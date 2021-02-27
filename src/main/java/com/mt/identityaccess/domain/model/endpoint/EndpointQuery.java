@@ -1,4 +1,4 @@
-package com.mt.identityaccess.application.endpoint;
+package com.mt.identityaccess.domain.model.endpoint;
 
 
 import com.mt.common.domain.model.restful.query.QueryCriteria;

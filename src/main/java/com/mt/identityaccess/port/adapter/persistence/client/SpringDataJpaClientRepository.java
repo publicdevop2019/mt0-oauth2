@@ -5,7 +5,7 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
-import com.mt.identityaccess.application.client.ClientQuery;
+import com.mt.identityaccess.domain.model.client.ClientQuery;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
