@@ -5,7 +5,7 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 
 import java.util.Set;
 
-public class UserEvent extends DomainEvent {
+public abstract class UserEvent extends DomainEvent {
     public static final String TOPIC_USER = "user";
     public UserEvent() {
         super();

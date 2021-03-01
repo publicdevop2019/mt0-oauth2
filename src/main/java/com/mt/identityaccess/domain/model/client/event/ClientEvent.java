@@ -7,7 +7,7 @@ import com.mt.identityaccess.domain.model.client.ClientId;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ClientEvent extends DomainEvent {
+public abstract class ClientEvent extends DomainEvent {
     public static final String TOPIC_CLIENT = "client";
 
     public ClientEvent() {

@@ -5,7 +5,7 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 
 import java.util.Set;
 
-public class PendingUserEvent extends DomainEvent {
+public abstract class PendingUserEvent extends DomainEvent {
     public static final String TOPIC_PENDING_USER = "pendingUser";
 
     public PendingUserEvent() {

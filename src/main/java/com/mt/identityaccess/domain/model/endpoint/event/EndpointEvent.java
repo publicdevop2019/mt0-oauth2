@@ -5,7 +5,7 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 
 import java.util.Set;
 
-public class EndpointEvent extends DomainEvent {
+public abstract class EndpointEvent extends DomainEvent {
     public static final String TOPIC_ENDPOINT = "endpoint";
     public EndpointEvent() {
         super();
