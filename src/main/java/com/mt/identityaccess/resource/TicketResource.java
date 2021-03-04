@@ -14,7 +14,7 @@ import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 @RestController
 @RequestMapping(produces = "application/json", path = "tickets")
 public class TicketResource {
-    @PostMapping("root")
+    @PostMapping("admin")
     public ResponseEntity<Void> createForRootByQuery(@RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
