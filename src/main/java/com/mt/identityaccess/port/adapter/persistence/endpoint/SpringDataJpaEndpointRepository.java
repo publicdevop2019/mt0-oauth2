@@ -1,25 +1,28 @@
 package com.mt.identityaccess.port.adapter.persistence.endpoint;
 
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
-import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
-import com.mt.identityaccess.domain.model.endpoint.EndpointQuery;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.identityaccess.domain.model.endpoint.Endpoint;
 import com.mt.identityaccess.domain.model.endpoint.EndpointId;
+import com.mt.identityaccess.domain.model.endpoint.EndpointQuery;
 import com.mt.identityaccess.domain.model.endpoint.EndpointRepository;
 import com.mt.identityaccess.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.mt.identityaccess.domain.model.endpoint.Endpoint.ENTITY_METHOD;
+import static com.mt.identityaccess.domain.model.endpoint.Endpoint.ENTITY_PATH;
 
 @Repository
 public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint, Long>, EndpointRepository {
@@ -32,21 +35,10 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
     @Query("update #{#entityName} e set e.deleted=true where e.id in ?1")
     void softDeleteAll(Set<Long> id);
 
-    default EndpointId nextIdentity() {
-        return new EndpointId();
-    }
-
     default Optional<Endpoint> endpointOfId(EndpointId endpointId) {
-        return getEndpointOfId(endpointId);
+        return endpointsOfQuery(new EndpointQuery(endpointId)).findFirst();
     }
 
-    private Optional<Endpoint> getEndpointOfId(EndpointId endpointId) {
-        SelectQueryBuilder<Endpoint> endpointSelectQueryBuilder = QueryBuilderRegistry.endpointSelectQueryBuilder();
-        List<Endpoint> select = endpointSelectQueryBuilder.select(new EndpointQuery(endpointId), new PageConfig(), Endpoint.class);
-        if (select.isEmpty())
-            return Optional.empty();
-        return Optional.of(select.get(0));
-    }
 
     default void add(Endpoint endpoint) {
         save(endpoint);
@@ -60,11 +52,36 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
         softDeleteAll(endpoints.stream().map(Endpoint::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery query, PageConfig endpointPaging, QueryConfig queryConfig) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.endpointSelectQueryBuilder(), query, endpointPaging, queryConfig, Endpoint.class);
+    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery query) {
+        return QueryBuilderRegistry.getEndpointQueryBuilder().execute(query);
     }
 
-    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery query, PageConfig clientPaging) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.endpointSelectQueryBuilder(), query, clientPaging, new QueryConfig(), Endpoint.class);
+
+    @Component
+    class JpaCriteriaApiEndpointAdapter {
+
+        public static final String ENDPOINT_ID = "endpointId";
+        public static final String CLIENT_ID = "clientId";
+
+        public SumPagedRep<Endpoint> execute(EndpointQuery endpointQuery) {
+            QueryUtility.QueryContext<Endpoint> queryContext = QueryUtility.prepareContext(Endpoint.class);
+            Optional.ofNullable(endpointQuery.getEndpointIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), ENDPOINT_ID, queryContext)));
+            Optional.ofNullable(endpointQuery.getClientIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), CLIENT_ID, queryContext)));
+            Optional.ofNullable(endpointQuery.getPath()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(e, ENTITY_PATH, queryContext)));
+            Optional.ofNullable(endpointQuery.getMethod()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(e, ENTITY_METHOD, queryContext)));
+            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
+            Order order = null;
+            if (endpointQuery.getEndpointSort().isById())
+                order = QueryUtility.getDomainIdOrder(ENDPOINT_ID, queryContext, endpointQuery.getEndpointSort().isAsc());
+            if (endpointQuery.getEndpointSort().isByClientId())
+                order = QueryUtility.getOrder(CLIENT_ID, queryContext, endpointQuery.getEndpointSort().isAsc());
+            if (endpointQuery.getEndpointSort().isByPath())
+                order = QueryUtility.getOrder(ENTITY_PATH, queryContext, endpointQuery.getEndpointSort().isAsc());
+            if (endpointQuery.getEndpointSort().isByMethod())
+                order = QueryUtility.getOrder(ENTITY_METHOD, queryContext, endpointQuery.getEndpointSort().isAsc());
+            return QueryUtility.pagedQuery(predicate, order, endpointQuery, queryContext);
+        }
+
+
     }
 }

@@ -1,24 +1,23 @@
 package com.mt.identityaccess.port.adapter.persistence.client;
 
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
-import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.sql.builder.SelectQueryBuilder;
-import com.mt.identityaccess.domain.model.client.ClientQuery;
+import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.sql.clause.OrderClause;
+import com.mt.common.domain.model.sql.exception.UnsupportedQueryException;
 import com.mt.identityaccess.domain.model.client.Client;
 import com.mt.identityaccess.domain.model.client.ClientId;
+import com.mt.identityaccess.domain.model.client.ClientQuery;
 import com.mt.identityaccess.domain.model.client.ClientRepository;
 import com.mt.identityaccess.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import javax.persistence.criteria.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -32,20 +31,8 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
     @Query("update #{#entityName} e set e.deleted=true where e.id in ?1")
     void softDeleteAll(Set<Long> id);
 
-    default ClientId nextIdentity() {
-        return new ClientId();
-    }
-
     default Optional<Client> clientOfId(ClientId clientId) {
-        return getClientOfId(clientId);
-    }
-
-    private Optional<Client> getClientOfId(ClientId clientId) {
-        SelectQueryBuilder<Client> clientSelectQueryBuilder = QueryBuilderRegistry.clientSelectQueryBuilder();
-        List<Client> select = clientSelectQueryBuilder.select(new ClientQuery(clientId), new PageConfig(), Client.class);
-        if (select.isEmpty())
-            return Optional.empty();
-        return Optional.of(select.get(0));
+        return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(new ClientQuery(clientId)).findFirst();
     }
 
     default void add(Client client) {
@@ -60,11 +47,190 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
         softDeleteAll(client.stream().map(Client::getId).collect(Collectors.toSet()));
     }
 
-    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.clientSelectQueryBuilder(), clientQuery, clientPaging, queryConfig, Client.class);
+    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery) {
+        return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(clientQuery);
     }
 
-    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, PageConfig clientPaging) {
-        return QueryUtility.pagedQuery(QueryBuilderRegistry.clientSelectQueryBuilder(), clientQuery, clientPaging, new QueryConfig(), Client.class);
+    @Component
+    class JpaCriteriaApiClientAdaptor {
+        public static final String ENTITY_NAME = "name";
+
+        public SumPagedRep<Client> execute(ClientQuery clientQuery) {
+            QueryUtility.QueryContext<Client> queryContext = QueryUtility.prepareContext(Client.class);
+            Optional.ofNullable(clientQuery.getClientIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), "clientId", queryContext)));
+            Optional.ofNullable(clientQuery.getResourceFlag()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getBooleanEqualPredicate(e, "accessible", queryContext)));
+            Optional.ofNullable(clientQuery.getName()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringLikePredicate(e, ENTITY_NAME, queryContext)));
+            Optional.ofNullable(clientQuery.getAuthoritiesSearch()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringLikePredicate(e, "authorities", queryContext)));
+            Optional.ofNullable(clientQuery.getScopeSearch()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringLikePredicate(e, "scopes", queryContext)));
+            Optional.ofNullable(clientQuery.getGrantTypeSearch()).ifPresent(e -> queryContext.getPredicates().add(GrantEnabledPredicateConverter.getPredicate(e, queryContext)));
+
+            Optional.ofNullable(clientQuery.getResources()).ifPresent(e -> queryContext.getPredicates().add(ResourceIdsPredicateConverter.getPredicate(e, queryContext.getRoot(), queryContext)));
+
+            Optional.ofNullable(clientQuery.getAccessTokenSecSearch()).ifPresent(e -> queryContext.getPredicates().add(GrantAccessTokenClausePredicateConverter.getPredicate(e, queryContext)));
+            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
+            ClientOrderConverter clientSortConverter = new ClientOrderConverter();
+            List<Order> orderClause = clientSortConverter.getOrderClause(clientQuery.getPageConfig().getRawValue(), queryContext.getCriteriaBuilder(), queryContext.getRoot(), queryContext.getQuery());
+            return QueryUtility.pagedQuery(predicate, orderClause, clientQuery, queryContext);
+        }
+
+        public static class GrantAccessTokenClausePredicateConverter {
+
+            public static Predicate getPredicate(String query, QueryUtility.QueryContext<Client> context) {
+                CriteriaBuilder cb = context.getCriteriaBuilder();
+                Root<Client> root = context.getRoot();
+                String[] split = query.split("\\$");
+                List<Predicate> results = new ArrayList<>();
+                List<Predicate> results2 = new ArrayList<>();
+                List<Predicate> results3 = new ArrayList<>();
+                for (String str : split) {
+                    if (str.contains("<=")) {
+                        int i = Integer.parseInt(str.replace("<=", ""));
+                        results.add(cb.lessThanOrEqualTo(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"), i));
+                        results2.add(cb.lessThanOrEqualTo(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"), i));
+                        results3.add(cb.lessThanOrEqualTo(root.get("passwordGrant").get("accessTokenValiditySeconds"), i));
+                    } else if (str.contains(">=")) {
+                        int i = Integer.parseInt(str.replace(">=", ""));
+                        results.add(cb.greaterThanOrEqualTo(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"), i));
+                        results2.add(cb.greaterThanOrEqualTo(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"), i));
+                        results3.add(cb.greaterThanOrEqualTo(root.get("passwordGrant").get("accessTokenValiditySeconds"), i));
+                    } else if (str.contains("<")) {
+                        int i = Integer.parseInt(str.replace("<", ""));
+                        results.add(cb.lessThan(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"), i));
+                        results2.add(cb.lessThan(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"), i));
+                        results3.add(cb.lessThan(root.get("passwordGrant").get("accessTokenValiditySeconds"), i));
+                    } else if (str.contains(">")) {
+                        int i = Integer.parseInt(str.replace(">", ""));
+                        results.add(cb.greaterThan(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"), i));
+                        results2.add(cb.greaterThan(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"), i));
+                        results3.add(cb.greaterThan(root.get("passwordGrant").get("accessTokenValiditySeconds"), i));
+                    } else {
+                        throw new UnsupportedQueryException();
+                    }
+                }
+                Predicate and = cb.and(results.toArray(new Predicate[0]));
+                Predicate and2 = cb.and(results2.toArray(new Predicate[0]));
+                Predicate and3 = cb.and(results3.toArray(new Predicate[0]));
+                return cb.or(and, and2, and3);
+            }
+        }
+
+        private static class GrantEnabledPredicateConverter {
+            public static Predicate getPredicate(String query, QueryUtility.QueryContext<Client> context) {
+                CriteriaBuilder cb = context.getCriteriaBuilder();
+                Root<Client> root = context.getRoot();
+                if (query.contains("$")) {
+                    Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\$")));
+                    List<Predicate> list2 = new ArrayList<>();
+                    for (String str : strings) {
+                        if ("CLIENT_CREDENTIALS".equalsIgnoreCase(str)) {
+                            list2.add(cb.isTrue(root.get("clientCredentialsGrant").get("enabled")));
+                        } else if ("PASSWORD".equalsIgnoreCase(str)) {
+                            list2.add(cb.isTrue(root.get("passwordGrant").get("enabled")));
+                        } else if ("AUTHORIZATION_CODE".equalsIgnoreCase(str)) {
+                            list2.add(cb.isTrue(root.get("authorizationCodeGrant").get("enabled")));
+                        } else if ("REFRESH_TOKEN".equalsIgnoreCase(str)) {
+                            list2.add(cb.isTrue(root.get("passwordGrant").get("refreshTokenGrant").get("enabled")));
+                        }
+                    }
+                    return cb.and(list2.toArray(Predicate[]::new));
+                } else {
+                    return getExpression(query, cb, root);
+                }
+            }
+
+            private static Predicate getExpression(String str, CriteriaBuilder cb, Root<Client> root) {
+                if ("CLIENT_CREDENTIALS".equalsIgnoreCase(str)) {
+                    return cb.isTrue(root.get("clientCredentialsGrant").get("enabled"));
+                } else if ("PASSWORD".equalsIgnoreCase(str)) {
+                    return cb.isTrue(root.get("passwordGrant").get("enabled"));
+                } else if ("AUTHORIZATION_CODE".equalsIgnoreCase(str)) {
+                    return cb.isTrue(root.get("authorizationCodeGrant").get("enabled"));
+                } else if ("REFRESH_TOKEN".equalsIgnoreCase(str)) {
+                    return cb.isTrue(root.get("passwordGrant").get("refreshTokenGrant").get("enabled"));
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        public static class ResourceIdsPredicateConverter {
+            public static Predicate getPredicate(Set<ClientId> query, Root<Client> root, QueryUtility.QueryContext<Client> context) {
+                CriteriaBuilder cb = context.getCriteriaBuilder();
+                Join<Object, Object> tags = root.join("resources");
+                CriteriaBuilder.In<Object> clause = cb.in(tags.get("domainId"));
+                query.forEach(e -> clause.value(e.getDomainId()));
+                return clause;
+            }
+        }
+
+        static class ClientOrderConverter extends OrderClause<Client> {
+            @Override
+            public List<Order> getOrderClause(String page, CriteriaBuilder cb, Root<Client> root, AbstractQuery<?> abstractQuery) {
+                if (page == null) {
+                    Order asc = cb.asc(root.get("name"));
+                    return Collections.singletonList(asc);
+                }
+                String[] params = page.split(",");
+                HashMap<String, String> orderMap = new HashMap<>();
+
+                for (String param : params) {
+                    String[] values = param.split(":");
+                    if (values.length > 1) {
+                        if (values[0].equals("by") && values[1] != null) {
+                            orderMap.put("by", values[1]);
+                        }
+                        if (values[0].equals("order") && values[1] != null) {
+                            orderMap.put("order", values[1]);
+                        }
+                    }
+                }
+                if ("name".equalsIgnoreCase(orderMap.get("by"))) {
+                    if ("asc".equalsIgnoreCase(orderMap.get("order"))) {
+                        Order asc = cb.asc(root.get("name"));
+                        return Collections.singletonList(asc);
+                    } else {
+                        Order desc = cb.desc(root.get("name"));
+                        return Collections.singletonList(desc);
+                    }
+                } else if ("resourceIndicator".equalsIgnoreCase(orderMap.get("by"))) {
+                    if ("asc".equalsIgnoreCase(orderMap.get("order"))) {
+                        Order asc = cb.asc(root.get("accessible"));
+                        return Collections.singletonList(asc);
+                    } else {
+                        Order desc = cb.desc(root.get("accessible"));
+                        return Collections.singletonList(desc);
+                    }
+                } else if ("id".equalsIgnoreCase(orderMap.get("by"))) {
+                    if ("asc".equalsIgnoreCase(orderMap.get("order"))) {
+                        Order asc = cb.asc(root.get("clientId").get("domainId"));
+                        return Collections.singletonList(asc);
+                    } else {
+                        Order desc = cb.desc(root.get("clientId").get("domainId"));
+                        return Collections.singletonList(desc);
+                    }
+                } else if ("accessTokenValiditySeconds".equalsIgnoreCase(orderMap.get("by"))) {
+                    if ("asc".equalsIgnoreCase(orderMap.get("order"))) {
+                        Order asc = cb.asc(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"));
+                        Order asc2 = cb.asc(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"));
+                        Order asc3 = cb.asc(root.get("passwordGrant").get("accessTokenValiditySeconds"));
+                        return Arrays.asList(asc, asc2, asc3);
+                    } else {
+                        Order desc = cb.desc(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"));
+                        Order desc1 = cb.desc(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"));
+                        Order desc2 = cb.desc(root.get("passwordGrant").get("accessTokenValiditySeconds"));
+                        return Arrays.asList(desc, desc1, desc2);
+                    }
+                } else {
+                    //default sort
+                    if (orderMap.get("by") == null) {
+                        Order asc = cb.asc(root.get("name"));
+                        return Collections.singletonList(asc);
+                    } else {
+                        throw new UnsupportedQueryException();
+                    }
+                }
+            }
+        }
     }
+
 }

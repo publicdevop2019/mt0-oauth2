@@ -1,33 +1,25 @@
 package com.mt.identityaccess.domain.model.revoke_token;
 
+import com.mt.common.domain.model.restful.query.PageConfig;
+import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
+import com.mt.common.domain.model.restful.query.QueryUtility;
+import lombok.Getter;
 
-import java.util.HashSet;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+@Getter
 public class RevokeTokenQuery extends QueryCriteria {
+    private Set<RevokeTokenId> revokeTokenId;
 
-    public static final String TARGET_ID = "targetId";
-    private final Set<String> revokeTokenId = new HashSet<>();
-
-    public RevokeTokenQuery(String queryParam) {
-        super(queryParam);
-        if (parsed.size() > 1 || (parsed.size() != 0 && parsed.get(TARGET_ID) == null)) {
-            throw new QueryParseException();
-        }
-        if (!isGetAll()) {
-            String s = parsed.get(TARGET_ID);
-            if (s.contains("$")) {
-                String[] split = s.split("\\$");
-                revokeTokenId.addAll(List.of(split));
-            } else {
-                revokeTokenId.add(s);
-            }
-        }
-    }
-
-    public Set<String> getRevokeTokenId() {
-        return revokeTokenId;
+    public RevokeTokenQuery(String queryParam, String pageParam, String config) {
+        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam);
+        Optional.ofNullable(stringStringMap.get("targetId")).ifPresent(e -> revokeTokenId = Arrays.stream(e.split("\\$")).map(RevokeTokenId::new).collect(Collectors.toSet()));
+        setPageConfig(PageConfig.limited(pageParam, 2000));
+        setQueryConfig(new QueryConfig(config));
     }
 }

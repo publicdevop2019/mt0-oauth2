@@ -1,27 +1,40 @@
 package com.mt.identityaccess.port.adapter.persistence;
 
-import com.mt.identityaccess.port.adapter.persistence.client.ClientQueryBuilder;
-import com.mt.identityaccess.port.adapter.persistence.endpoint.EndpointQueryBuilder;
+import com.mt.identityaccess.port.adapter.persistence.client.SpringDataJpaClientRepository;
+import com.mt.identityaccess.port.adapter.persistence.endpoint.SpringDataJpaEndpointRepository;
+import com.mt.identityaccess.port.adapter.persistence.revoke_token.RedisRevokeTokenRepository;
+import com.mt.identityaccess.port.adapter.persistence.user.SpringDataJpaUserRepository;
 import com.mt.identityaccess.port.adapter.persistence.user.UpdateUserQueryBuilder;
-import com.mt.identityaccess.port.adapter.persistence.user.UserQueryBuilder;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class QueryBuilderRegistry {
-    private static ClientQueryBuilder clientSelectQueryBuilder;
-    private static UserQueryBuilder userQueryBuilder;
+    @Getter
+    private static SpringDataJpaClientRepository.JpaCriteriaApiClientAdaptor clientSelectQueryBuilder;
+    @Getter
+    private static SpringDataJpaUserRepository.JpaCriteriaApiUserAdaptor userQueryBuilder;
+    @Getter
     private static UpdateUserQueryBuilder updateUserQueryBuilder;
-    private static EndpointQueryBuilder endpointQueryBuilder;
+    @Getter
+    private static RedisRevokeTokenRepository.RedisRevokeTokenAdaptor redisRevokeTokenAdaptor;
+    @Getter
+    private static SpringDataJpaEndpointRepository.JpaCriteriaApiEndpointAdapter endpointQueryBuilder;
 
 
     @Autowired
-    public void setEndpointQueryBuilder(EndpointQueryBuilder endpointQueryBuilder) {
+    public void setEndpointQueryBuilder(SpringDataJpaEndpointRepository.JpaCriteriaApiEndpointAdapter endpointQueryBuilder) {
         QueryBuilderRegistry.endpointQueryBuilder = endpointQueryBuilder;
     }
 
     @Autowired
-    public void setClientQueryBuilder(ClientQueryBuilder clientSelectQueryBuilder) {
+    public void setRevokeTokenAdaptor(RedisRevokeTokenRepository.RedisRevokeTokenAdaptor redisRevokeTokenAdaptor) {
+        QueryBuilderRegistry.redisRevokeTokenAdaptor = redisRevokeTokenAdaptor;
+    }
+
+    @Autowired
+    public void setClientQueryBuilder(SpringDataJpaClientRepository.JpaCriteriaApiClientAdaptor clientSelectQueryBuilder) {
         QueryBuilderRegistry.clientSelectQueryBuilder = clientSelectQueryBuilder;
     }
 
@@ -30,24 +43,8 @@ public class QueryBuilderRegistry {
         QueryBuilderRegistry.updateUserQueryBuilder = userUpdateQueryBuilder;
     }
 
-    public static ClientQueryBuilder clientSelectQueryBuilder() {
-        return clientSelectQueryBuilder;
-    }
-
-    public static EndpointQueryBuilder endpointSelectQueryBuilder() {
-        return endpointQueryBuilder;
-    }
-
     @Autowired
-    public void setUserQueryBuilder(UserQueryBuilder userQueryBuilder) {
+    public void setUserQueryBuilder(SpringDataJpaUserRepository.JpaCriteriaApiUserAdaptor userQueryBuilder) {
         QueryBuilderRegistry.userQueryBuilder = userQueryBuilder;
-    }
-
-    public static UserQueryBuilder userQueryBuilder() {
-        return userQueryBuilder;
-    }
-
-    public static UpdateUserQueryBuilder updateUserQueryBuilder() {
-        return updateUserQueryBuilder;
     }
 }

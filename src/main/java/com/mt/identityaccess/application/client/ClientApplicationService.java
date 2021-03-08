@@ -6,9 +6,8 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.client.command.ClientCreateCommand;
 import com.mt.identityaccess.application.client.command.ClientPatchCommand;
@@ -38,7 +37,7 @@ public class ClientApplicationService implements ClientDetailsService {
     @SubscribeForEvent
     @Transactional
     public String create(ClientCreateCommand command, String operationId) {
-        ClientId clientId = DomainRegistry.clientRepository().nextIdentity();
+        ClientId clientId = new ClientId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, clientId,
                 () -> {
                     RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
@@ -67,7 +66,7 @@ public class ClientApplicationService implements ClientDetailsService {
     }
 
     public SumPagedRep<Client> clients(String queryParam, String pagingParam, String configParam) {
-        return DomainRegistry.clientRepository().clientsOfQuery(new ClientQuery(queryParam, false), new PageConfig(pagingParam, 2000), new QueryConfig(configParam));
+        return DomainRegistry.clientRepository().clientsOfQuery(new ClientQuery(queryParam, pagingParam, configParam, false));
     }
 
     public Optional<Client> client(String id) {
@@ -127,21 +126,21 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional
     public Set<String> removeClients(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Client> allClientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(new ClientQuery(queryParam, false));
-            boolean b = allClientsOfQuery.stream().anyMatch(e -> !e.removable());
+            Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.clientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(queryParam, false));
+            boolean b = allByQuery.stream().anyMatch(e -> !e.removable());
             if (!b) {
-                change.setRequestBody(allClientsOfQuery);
-                DomainRegistry.clientRepository().remove(allClientsOfQuery);
-                allClientsOfQuery.forEach(e -> {
+                change.setRequestBody(allByQuery);
+                DomainRegistry.clientRepository().remove(allByQuery);
+                allByQuery.forEach(e -> {
                     e.removeAllReferenced();
                     DomainEventPublisher.instance().publish(new ClientDeleted(e.getClientId()));
                 });
             } else {
                 throw new RootClientDeleteException();
             }
-            change.setDeletedIds(allClientsOfQuery.stream().map(e -> e.getClientId().getDomainId()).collect(Collectors.toSet()));
+            change.setDeletedIds(allByQuery.stream().map(e -> e.getClientId().getDomainId()).collect(Collectors.toSet()));
             change.setQuery(queryParam);
-            return allClientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
+            return allByQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
         }, Client.class);
     }
 
@@ -185,9 +184,9 @@ public class ClientApplicationService implements ClientDetailsService {
                 //remove deleted client from resource_map
                 DomainId domainId = deserialize.getDomainId();
                 ClientId clientId = new ClientId(domainId.getDomainId());
-                Set<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(ClientQuery.resourceIds(deserialize.getDomainId().getDomainId()));
-                clientsOfQuery.forEach(e -> e.removeResource(clientId));
-                Set<ClientId> collect = clientsOfQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
+                Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.clientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(deserialize.getDomainId()));
+                allByQuery.forEach(e -> e.removeResource(clientId));
+                Set<ClientId> collect = allByQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
                 collect.add(clientId);
                 DomainEventPublisher.instance().publish(new ClientResourceCleanUpCompleted(collect));
             }
