@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -64,12 +63,11 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
         public static final String CLIENT_ID = "clientId";
 
         public SumPagedRep<Endpoint> execute(EndpointQuery endpointQuery) {
-            QueryUtility.QueryContext<Endpoint> queryContext = QueryUtility.prepareContext(Endpoint.class);
-            Optional.ofNullable(endpointQuery.getEndpointIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), ENDPOINT_ID, queryContext)));
-            Optional.ofNullable(endpointQuery.getClientIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), CLIENT_ID, queryContext)));
-            Optional.ofNullable(endpointQuery.getPath()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(e, ENTITY_PATH, queryContext)));
-            Optional.ofNullable(endpointQuery.getMethod()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringEqualPredicate(e, ENTITY_METHOD, queryContext)));
-            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
+            QueryUtility.QueryContext<Endpoint> queryContext = QueryUtility.prepareContext(Endpoint.class, endpointQuery);
+            Optional.ofNullable(endpointQuery.getEndpointIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), ENDPOINT_ID, queryContext));
+            Optional.ofNullable(endpointQuery.getClientIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), CLIENT_ID, queryContext));
+            Optional.ofNullable(endpointQuery.getPath()).ifPresent(e -> QueryUtility.addStringEqualPredicate(e, ENTITY_PATH, queryContext));
+            Optional.ofNullable(endpointQuery.getMethod()).ifPresent(e -> QueryUtility.addStringEqualPredicate(e, ENTITY_METHOD, queryContext));
             Order order = null;
             if (endpointQuery.getEndpointSort().isById())
                 order = QueryUtility.getDomainIdOrder(ENDPOINT_ID, queryContext, endpointQuery.getEndpointSort().isAsc());
@@ -79,7 +77,8 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
                 order = QueryUtility.getOrder(ENTITY_PATH, queryContext, endpointQuery.getEndpointSort().isAsc());
             if (endpointQuery.getEndpointSort().isByMethod())
                 order = QueryUtility.getOrder(ENTITY_METHOD, queryContext, endpointQuery.getEndpointSort().isAsc());
-            return QueryUtility.pagedQuery(predicate, order, endpointQuery, queryContext);
+            queryContext.setOrder(order);
+            return QueryUtility.pagedQuery(endpointQuery, queryContext);
         }
 
 

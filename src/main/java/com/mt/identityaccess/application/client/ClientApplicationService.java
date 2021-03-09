@@ -183,11 +183,11 @@ public class ClientApplicationService implements ClientDetailsService {
                 DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
                 //remove deleted client from resource_map
                 DomainId domainId = deserialize.getDomainId();
-                ClientId clientId = new ClientId(domainId.getDomainId());
-                Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.clientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(deserialize.getDomainId()));
-                allByQuery.forEach(e -> e.removeResource(clientId));
+                ClientId removedClientId = new ClientId(domainId.getDomainId());
+                Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.clientRepository().clientsOfQuery((ClientQuery) query), ClientQuery.resourceIds(removedClientId));
+                allByQuery.forEach(e -> e.removeResource(removedClientId));
                 Set<ClientId> collect = allByQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
-                collect.add(clientId);
+                collect.add(removedClientId);
                 DomainEventPublisher.instance().publish(new ClientResourceCleanUpCompleted(collect));
             }
         }, Client.class);

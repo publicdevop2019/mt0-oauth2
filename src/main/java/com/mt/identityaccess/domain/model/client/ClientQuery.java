@@ -7,7 +7,9 @@ import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.user.Role;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 @Getter
 public class ClientQuery extends QueryCriteria {
     private Set<ClientId> clientIds;
+    @Setter(AccessLevel.PRIVATE)
     private Set<ClientId> resources;
     private Boolean resourceFlag;
     private String name;
@@ -52,11 +55,21 @@ public class ClientQuery extends QueryCriteria {
         validate();
     }
 
-    public ClientQuery(Set<ClientId> resources) {
-        this.resources = resources;
+    public ClientQuery(Set<ClientId> clientIds) {
+        this.clientIds = clientIds;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
-        validate();
+    }
+
+    public static ClientQuery resourceIds(ClientId removedClientId) {
+        ClientQuery clientQuery = new ClientQuery();
+        clientQuery.resources = new HashSet<>(List.of(removedClientId));
+        clientQuery.setPageConfig(PageConfig.defaultConfig());
+        clientQuery.setQueryConfig(QueryConfig.countRequired());
+        return clientQuery;
+    }
+
+    private ClientQuery() {
     }
 
     private void updateQueryParam(String queryParam) {

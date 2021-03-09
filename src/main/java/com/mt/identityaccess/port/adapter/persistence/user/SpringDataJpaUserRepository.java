@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -60,12 +61,15 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
         private static final String USER_ID_LITERAL = "userId";
 
         public SumPagedRep<User> execute(UserQuery userQuery) {
-            QueryUtility.QueryContext<User> queryContext = QueryUtility.prepareContext(User.class);
-            Optional.ofNullable(userQuery.getUserEmails()).ifPresent(e -> queryContext.getPredicates().add(UserEmailPredicateConverter.getPredicate(e, queryContext)));
-            Optional.ofNullable(userQuery.getUserIds()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), USER_ID_LITERAL, queryContext)));
-            Optional.ofNullable(userQuery.getSubscription()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getBooleanEqualPredicate(e, ENTITY_SUBSCRIPTION, queryContext)));
-            Optional.ofNullable(userQuery.getAuthoritiesSearch()).ifPresent(e -> queryContext.getPredicates().add(QueryUtility.getStringLikePredicate(e, ENTITY_GRANTED_AUTHORITIES, queryContext)));
-            Predicate predicate = QueryUtility.combinePredicate(queryContext, queryContext.getPredicates());
+            QueryUtility.QueryContext<User> queryContext = QueryUtility.prepareContext(User.class, userQuery);
+            Optional.ofNullable(userQuery.getUserEmails()).ifPresent(e -> {
+                queryContext.getPredicates().add(UserEmailPredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
+                queryContext.getCountPredicates().add(UserEmailPredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getCountRoot()));
+            });
+
+            Optional.ofNullable(userQuery.getUserIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), USER_ID_LITERAL, queryContext));
+            Optional.ofNullable(userQuery.getSubscription()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, ENTITY_SUBSCRIPTION, queryContext));
+            Optional.ofNullable(userQuery.getAuthoritiesSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, ENTITY_GRANTED_AUTHORITIES, queryContext));
             Order order = null;
             if (userQuery.getUserSort().isById())
                 order = QueryUtility.getDomainIdOrder(USER_ID_LITERAL, queryContext, userQuery.getUserSort().isAsc());
@@ -75,15 +79,15 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
                 order = QueryUtility.getOrder("createdAt", queryContext, userQuery.getUserSort().isAsc());
             if (userQuery.getUserSort().isByLocked())
                 order = QueryUtility.getOrder(ENTITY_LOCKED, queryContext, userQuery.getUserSort().isAsc());
-            return QueryUtility.pagedQuery(predicate, order, userQuery, queryContext);
+            queryContext.setOrder(order);
+            return QueryUtility.pagedQuery(userQuery, queryContext);
         }
 
         public static class UserEmailPredicateConverter {
-            public static Predicate getPredicate(Set<String> values, QueryUtility.QueryContext<User> context) {
-                CriteriaBuilder cb = context.getCriteriaBuilder();
+            public static Predicate getPredicate(Set<String> values, CriteriaBuilder cb, Root<User> root) {
                 List<Predicate> results = new ArrayList<>();
                 for (String str : values) {
-                    results.add(cb.like(context.getRoot().get("email").get("email"), "%" + str + "%"));
+                    results.add(cb.like(root.get("email").get("email"), "%" + str + "%"));
                 }
                 return cb.or(results.toArray(new Predicate[0]));
             }
