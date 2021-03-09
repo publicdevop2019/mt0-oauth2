@@ -1,14 +1,11 @@
 package com.mt.identityaccess.domain.model.client;
 
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.SumPagedRep;
 
 import java.util.Collection;
 import java.util.Optional;
 
 public interface ClientRepository {
-    ClientId nextIdentity();
 
     Optional<Client> clientOfId(ClientId clientId);
 
@@ -16,9 +13,7 @@ public interface ClientRepository {
 
     void remove(Client client);
 
-    SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, PageConfig clientPaging, QueryConfig queryConfig);
-
-    SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery, PageConfig clientPaging);
+    SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery);
 
     void remove(Collection<Client> clients);
 

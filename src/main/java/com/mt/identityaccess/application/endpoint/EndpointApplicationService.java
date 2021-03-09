@@ -2,9 +2,8 @@ package com.mt.identityaccess.application.endpoint;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.model.domain_event.*;
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
 import com.mt.identityaccess.application.endpoint.command.EndpointCreateCommand;
 import com.mt.identityaccess.application.endpoint.command.EndpointPatchCommand;
@@ -75,7 +74,7 @@ public class EndpointApplicationService {
     }
 
     public SumPagedRep<Endpoint> endpoints(String queryParam, String pageParam, String config) {
-        return DomainRegistry.endpointRepository().endpointsOfQuery(new EndpointQuery(queryParam), new PageConfig(pageParam, 40), new QueryConfig(config));
+        return DomainRegistry.endpointRepository().endpointsOfQuery(new EndpointQuery(queryParam, pageParam, config));
     }
 
     public Optional<Endpoint> endpoint(String id) {
@@ -123,11 +122,11 @@ public class EndpointApplicationService {
     @SubscribeForEvent
     @Transactional
     public void removeEndpoints(String queryParam, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null,null, changeId, (change) -> {
-            Set<Endpoint> endpoints = DomainRegistry.endpointService().getEndpointsOfQuery(new EndpointQuery(queryParam));
-            change.setDeletedIds(endpoints.stream().map(e->e.getEndpointId().getDomainId()).collect(Collectors.toSet()));
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, changeId, (change) -> {
+            Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.endpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(queryParam));
+            change.setDeletedIds(allByQuery.stream().map(e -> e.getEndpointId().getDomainId()).collect(Collectors.toSet()));
             change.setQuery(queryParam);
-            DomainRegistry.endpointRepository().remove(endpoints);
+            DomainRegistry.endpointRepository().remove(allByQuery);
             DomainEventPublisher.instance().publish(
                     new EndpointCollectionModified()
             );
@@ -173,9 +172,9 @@ public class EndpointApplicationService {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
             if (ClientDeleted.class.getName().equals(event.getName())) {
                 DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
-                Set<Endpoint> endpointsOfQuery = DomainRegistry.endpointService().getEndpointsOfQuery(new EndpointQuery("resourceId:" + deserialize.getDomainId().getDomainId()));
-                if (!endpointsOfQuery.isEmpty()) {
-                    DomainRegistry.endpointRepository().remove(endpointsOfQuery);
+                Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.endpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(deserialize.getDomainId()));
+                if (!allByQuery.isEmpty()) {
+                    DomainRegistry.endpointRepository().remove(allByQuery);
                     DomainEventPublisher.instance().publish(new EndpointCollectionModified());
                 }
             }

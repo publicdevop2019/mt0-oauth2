@@ -3,13 +3,12 @@ package com.mt.identityaccess.application.revoke_token;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.identityaccess.application.ApplicationServiceRegistry;
-import com.mt.identityaccess.domain.model.client.ClientQuery;
 import com.mt.identityaccess.domain.DomainRegistry;
 import com.mt.identityaccess.domain.model.client.Client;
+import com.mt.identityaccess.domain.model.client.ClientQuery;
 import com.mt.identityaccess.domain.model.client.event.*;
 import com.mt.identityaccess.domain.model.revoke_token.RevokeToken;
 import com.mt.identityaccess.domain.model.revoke_token.RevokeTokenId;
@@ -51,12 +50,12 @@ public class RevokeTokenApplicationService {
     }
 
     public SumPagedRep<RevokeToken> revokeTokens(String queryParam, String pageParam, String config) {
-        return DomainRegistry.revokeTokenRepository().revokeTokensOfQuery(new RevokeTokenQuery(queryParam), new PageConfig(pageParam,2000), new QueryConfig(config));
+        return DomainRegistry.revokeTokenRepository().revokeTokensOfQuery(new RevokeTokenQuery(queryParam, pageParam, config));
     }
 
     @Transactional
     public void handleChange(StoredEvent event) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null,null, event.getId().toString(), (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
             if (USER_EVENTS.contains(event.getName())) {
                 DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
                 DomainRegistry.revokeTokenService().revokeToken(deserialize.getDomainId());
@@ -65,8 +64,8 @@ public class RevokeTokenApplicationService {
                 DomainRegistry.revokeTokenService().revokeToken(deserialize.getDomainId());
                 //revoke who is accessing this client's token
                 if (ClientAccessibilityRemoved.class.getName().equals(event.getName())) {
-                    Set<Client> clientsOfQuery = DomainRegistry.clientService().getClientsOfQuery(ClientQuery.resourceIds(deserialize.getDomainId().getDomainId()));
-                    clientsOfQuery.forEach(e -> {
+                    Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.clientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(deserialize.getDomainId()));
+                    allByQuery.forEach(e -> {
                         DomainRegistry.revokeTokenService().revokeToken(e.getClientId());
                     });
                 }

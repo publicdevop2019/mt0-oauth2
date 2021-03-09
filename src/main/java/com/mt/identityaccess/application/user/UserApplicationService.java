@@ -3,8 +3,6 @@ package com.mt.identityaccess.application.user;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
@@ -32,7 +30,7 @@ public class UserApplicationService implements UserDetailsService {
     @SubscribeForEvent
     @Transactional
     public String create(UserCreateCommand command, String operationId) {
-        UserId userId = DomainRegistry.userRepository().nextIdentity();
+        UserId userId = new UserId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, userId,
                 () -> DomainRegistry.userService().create(
                         new UserEmail(command.getEmail()),
@@ -45,7 +43,7 @@ public class UserApplicationService implements UserDetailsService {
     }
 
     public SumPagedRep<User> users(String queryParam, String pageParam, String config) {
-        return DomainRegistry.userRepository().usersOfQuery(new UserQuery(queryParam), new PageConfig(pageParam, 50), new QueryConfig(config));
+        return DomainRegistry.userRepository().usersOfQuery(new UserQuery(queryParam, pageParam, config));
     }
 
     public Optional<User> user(String id) {
@@ -157,5 +155,8 @@ public class UserApplicationService implements UserDetailsService {
             client = DomainRegistry.userRepository().userOfId(new UserId(username));
         }
         return client.map(UserSpringRepresentation::new).orElse(null);
+    }
+
+    public static class RootUserDeleteException extends RuntimeException {
     }
 }

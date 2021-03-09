@@ -1,7 +1,5 @@
 package com.mt.identityaccess.domain.model.user;
 
-import com.mt.common.domain.model.restful.query.QueryConfig;
-import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 
@@ -9,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository {
-    UserId nextIdentity();
 
     Optional<User> userOfId(UserId userId);
 
@@ -17,7 +14,7 @@ public interface UserRepository {
 
     Optional<User> searchExistingUserWith(UserEmail email);
 
-    SumPagedRep<User> usersOfQuery(UserQuery userQuery, PageConfig userPaging, QueryConfig queryConfig);
+    SumPagedRep<User> usersOfQuery(UserQuery userQuery);
 
     void remove(User user1);
 
