@@ -1,0 +1,20 @@
+package com.mt.access.domain.model.client;
+
+
+import com.mt.common.domain.model.sql.converter.EnumSetConverter;
+
+public enum Role {
+    ROLE_FRONTEND,
+    ROLE_BACKEND,
+    ROLE_FIRST_PARTY,
+    ROLE_THIRD_PARTY,
+    ROLE_TRUST,
+    ROLE_ROOT;
+
+    public static class DBConverter extends EnumSetConverter<Role> {
+        public DBConverter() {
+            super(Role.class);
+        }
+    }
+
+}
