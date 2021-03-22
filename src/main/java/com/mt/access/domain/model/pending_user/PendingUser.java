@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.pending_user;
 
 import com.google.common.base.Objects;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -36,10 +37,10 @@ public class PendingUser extends Auditable {
     private ActivationCode activationCode;
 
     public PendingUser(RegistrationEmail registrationEmail, ActivationCode activationCode) {
-        setId(DomainRegistry.uniqueIdGeneratorService().id());
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setRegistrationEmail(registrationEmail);
         setActivationCode(activationCode);
-        DomainRegistry.pendingUserValidationService().validate(this, new HttpValidationNotificationHandler());
+        DomainRegistry.getPendingUserValidationService().validate(this, new HttpValidationNotificationHandler());
     }
 
     private void setActivationCode(ActivationCode activationCode) {
@@ -48,7 +49,7 @@ public class PendingUser extends Auditable {
     }
 
     public void newActivationCode(ActivationCode activationCode) {
-        DomainRegistry.pendingUserValidationService().validate(this, new HttpValidationNotificationHandler());
+        DomainRegistry.getPendingUserValidationService().validate(this, new HttpValidationNotificationHandler());
         setActivationCode(activationCode);
     }
 

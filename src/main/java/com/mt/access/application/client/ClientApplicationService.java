@@ -1,13 +1,6 @@
 package com.mt.access.application.client;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.domain.model.domainId.DomainId;
-import com.mt.common.domain.model.domain_event.DomainEvent;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
-import com.mt.common.domain.model.domain_event.StoredEvent;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
-import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.client.command.ClientCreateCommand;
 import com.mt.access.application.client.command.ClientPatchCommand;
@@ -18,6 +11,14 @@ import com.mt.access.domain.model.client.*;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted;
+import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.common.domain.model.domain_event.DomainEvent;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+import com.mt.common.domain.model.domain_event.StoredEvent;
+import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
@@ -42,7 +43,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 () -> {
                     RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
                     PasswordGrant passwordGrantDetail = new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);
-                    return DomainRegistry.clientService().create(
+                    return DomainRegistry.getClientService().create(
                             clientId,
                             command.getName(),
                             command.getClientSecret(),
@@ -66,11 +67,11 @@ public class ClientApplicationService implements ClientDetailsService {
     }
 
     public SumPagedRep<Client> clients(String queryParam, String pagingParam, String configParam) {
-        return DomainRegistry.clientRepository().clientsOfQuery(new ClientQuery(queryParam, pagingParam, configParam, false));
+        return DomainRegistry.getClientRepository().clientsOfQuery(new ClientQuery(queryParam, pagingParam, configParam, false));
     }
 
     public Optional<Client> client(String id) {
-        return DomainRegistry.clientRepository().clientOfId(new ClientId(id));
+        return DomainRegistry.getClientRepository().clientOfId(new ClientId(id));
     }
 
     @SubscribeForEvent
@@ -78,7 +79,7 @@ public class ClientApplicationService implements ClientDetailsService {
     public void replaceClient(String id, ClientUpdateCommand command, String changeId) {
         ClientId clientId = new ClientId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(clientId, command, changeId, (ignored) -> {
-            Optional<Client> optionalClient = DomainRegistry.clientRepository().clientOfId(clientId);
+            Optional<Client> optionalClient = DomainRegistry.getClientRepository().clientOfId(clientId);
             if (optionalClient.isPresent()) {
                 Client client = optionalClient.get();
                 RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
@@ -99,7 +100,7 @@ public class ClientApplicationService implements ClientDetailsService {
                                 command.getAccessTokenValiditySeconds()
                         )
                 );
-                DomainRegistry.clientRepository().add(client);
+                DomainRegistry.getClientRepository().add(client);
             }
         }, Client.class);
     }
@@ -109,11 +110,11 @@ public class ClientApplicationService implements ClientDetailsService {
     public void removeClient(String id, String changeId) {
         ClientId clientId = new ClientId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(clientId, null, changeId, (change) -> {
-            Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
+            Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
             if (client.isPresent()) {
                 Client client1 = client.get();
                 if (client1.removable()) {
-                    DomainRegistry.clientRepository().remove(client1);
+                    DomainRegistry.getClientRepository().remove(client1);
                     client1.removeAllReferenced();
                 } else {
                     throw new RootClientDeleteException();
@@ -126,11 +127,11 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional
     public Set<String> removeClients(String queryParam, String changeId) {
         return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
-            Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.clientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(queryParam, false));
+            Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(queryParam, false));
             boolean b = allByQuery.stream().anyMatch(e -> !e.removable());
             if (!b) {
                 change.setRequestBody(allByQuery);
-                DomainRegistry.clientRepository().remove(allByQuery);
+                DomainRegistry.getClientRepository().remove(allByQuery);
                 allByQuery.forEach(e -> {
                     e.removeAllReferenced();
                     DomainEventPublisher.instance().publish(new ClientDeleted(e.getClientId()));
@@ -149,11 +150,11 @@ public class ClientApplicationService implements ClientDetailsService {
     public void patch(String id, JsonPatch command, String changeId) {
         ClientId clientId = new ClientId(id);
         ApplicationServiceRegistry.idempotentWrapper().idempotent(clientId, command, changeId, (ignored) -> {
-            Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
+            Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
             if (client.isPresent()) {
                 Client original = client.get();
                 ClientPatchCommand beforePatch = new ClientPatchCommand(original);
-                ClientPatchCommand afterPatch = DomainRegistry.customObjectSerializer().applyJsonPatch(command, beforePatch, ClientPatchCommand.class);
+                ClientPatchCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, ClientPatchCommand.class);
                 RefreshTokenGrant refreshTokenGrantDetail = original.getPasswordGrant().getRefreshTokenGrant();
                 original.replace(
                         afterPatch.getName(),
@@ -171,7 +172,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
-        Optional<Client> client = DomainRegistry.clientRepository().clientOfId(new ClientId(id));
+        Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(new ClientId(id));
         return client.map(ClientSpringOAuth2Representation::new).orElse(null);
     }
 
@@ -180,11 +181,11 @@ public class ClientApplicationService implements ClientDetailsService {
     public void handleChange(StoredEvent event) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
             if (ClientAsResourceDeleted.class.getName().equals(event.getName())) {
-                DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
+                DomainEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
                 //remove deleted client from resource_map
                 DomainId domainId = deserialize.getDomainId();
                 ClientId removedClientId = new ClientId(domainId.getDomainId());
-                Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.clientRepository().clientsOfQuery((ClientQuery) query), ClientQuery.resourceIds(removedClientId));
+                Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) query), ClientQuery.resourceIds(removedClientId));
                 allByQuery.forEach(e -> e.removeResource(removedClientId));
                 Set<ClientId> collect = allByQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
                 collect.add(removedClientId);

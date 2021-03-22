@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.endpoint;
 
 import com.google.common.base.Objects;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
@@ -73,7 +74,7 @@ public class Endpoint extends Auditable {
                     String path, EndpointId endpointId, String method,
                     boolean secured, boolean userOnly, boolean clientOnly
     ) {
-        setId(DomainRegistry.uniqueIdGeneratorService().id());
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setClientId(clientId);
         setEndpointId(endpointId);
         replace(userRoles, clientRoles, scopes, description, path, method, secured, userOnly, clientOnly);
@@ -90,7 +91,7 @@ public class Endpoint extends Auditable {
         setUserOnly(userOnly);
         setClientOnly(clientOnly);
         validate(new HttpValidationNotificationHandler());
-        DomainRegistry.endpointValidationService().validate(this, new HttpValidationNotificationHandler());
+        DomainRegistry.getEndpointValidationService().validate(this, new HttpValidationNotificationHandler());
     }
 
     @PreUpdate

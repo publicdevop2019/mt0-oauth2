@@ -10,7 +10,7 @@ public class PasswordResetCode {
     private String value;
 
     public PasswordResetCode() {
-        setValue(DomainRegistry.passwordResetTokenService().generate());
+        setValue(DomainRegistry.getPasswordResetTokenService().generate());
     }
 
     public PasswordResetCode(String value) {

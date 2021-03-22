@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.user;
 
 import com.google.common.base.Objects;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -75,14 +76,14 @@ public class User extends Auditable {
     private boolean subscription;
 
     public User(UserEmail userEmail, UserPassword password, UserId userId) {
-        setId(DomainRegistry.uniqueIdGeneratorService().id());
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setEmail(userEmail);
         setPassword(password);
         setUserId(userId);
         setLocked(false);
         setGrantedAuthorities(Collections.singleton(Role.ROLE_USER));
         setSubscription(false);
-        DomainRegistry.userValidationService().validate(this, new HttpValidationNotificationHandler());
+        DomainRegistry.getUserValidationService().validate(this, new HttpValidationNotificationHandler());
     }
 
     public void setPwdResetToken(PasswordResetCode pwdResetToken) {
@@ -99,9 +100,9 @@ public class User extends Auditable {
             throw new IllegalArgumentException("root account can not be modified");
         if (grantedAuthorities.stream().anyMatch(e -> ROLE_ROOT.equals(e.name())))
             throw new IllegalArgumentException("assign root grantedAuthorities is prohibited");
-        if (!getGrantedAuthorities().equals(grantedAuthorities) && !DomainRegistry.authenticationService().userInRole(Role.ROLE_ROOT))
+        if (!getGrantedAuthorities().equals(grantedAuthorities) && !DomainRegistry.getAuthenticationService().userInRole(Role.ROLE_ROOT))
             throw new IllegalArgumentException("only root user can change grantedAuthorities");
-        if (isSubscription() != subscription && !DomainRegistry.authenticationService().userInRole(Role.ROLE_ROOT))
+        if (isSubscription() != subscription && !DomainRegistry.getAuthenticationService().userInRole(Role.ROLE_ROOT))
             throw new IllegalArgumentException("only root user can change subscription");
         if (!getGrantedAuthorities().equals(grantedAuthorities)) {
             DomainEventPublisher.instance().publish(new UserAuthorityChanged(getUserId()));

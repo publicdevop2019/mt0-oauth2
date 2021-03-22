@@ -1,64 +1,62 @@
 package com.mt.access.domain;
 
-import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
-import com.mt.common.domain.model.domain_event.EventStreamService;
-import com.mt.common.domain.model.serializer.CustomObjectSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.pending_user.PendingUserRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.service.*;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DomainRegistry {
+    @Getter
     private static ClientRepository clientRepository;
+    @Getter
     private static UserRepository userRepository;
+    @Getter
     private static PendingUserRepository pendingUserRepository;
+    @Getter
     private static EndpointRepository endpointRepository;
+    @Getter
     private static EndpointService endpointService;
+    @Getter
     private static EncryptionService encryptionService;
+    @Getter
     private static AuthenticationService authenticationService;
+    @Getter
     private static ClientService clientService;
+    @Getter
     private static PendingUserService pendingUserService;
+    @Getter
     private static UserService userService;
-    private static UniqueIdGeneratorService uniqueIdGeneratorService;
+    @Getter
     private static RevokeTokenService revokeTokenService;
+    @Getter
     private static ActivationCodeService activationCodeService;
+    @Getter
     private static PasswordResetTokenService passwordResetTokenService;
+    @Getter
     private static RevokeTokenRepository revokeTokenRepository;
-    private static CustomObjectSerializer objectSerializer;
-    private static EventStreamService eventStreamService;
+    @Getter
     private static EndpointValidationService endpointValidationService;
+    @Getter
     private static ClientValidationService clientValidationService;
+    @Getter
     private static PendingUserValidationService pendingUserValidationService;
+    @Getter
     private static UserValidationService userValidationService;
+    @Getter
     private static TicketService ticketService;
+    @Getter
+    private static ObjectMapper objectMapper;
 
-    public static UserValidationService userValidationService() {
-        return userValidationService;
-    }
-
-    public static TicketService ticketService() {
-        return ticketService;
-    }
-
-    public static PendingUserValidationService pendingUserValidationService() {
-        return pendingUserValidationService;
-    }
-
-    public static ClientValidationService clientValidationService() {
-        return clientValidationService;
-    }
-
-    public static EndpointValidationService endpointValidationService() {
-        return endpointValidationService;
-    }
-
-    public static EventStreamService eventStreamService() {
-        return eventStreamService;
+    @Autowired
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        DomainRegistry.objectMapper = objectMapper;
     }
 
     @Autowired
@@ -84,16 +82,6 @@ public class DomainRegistry {
     @Autowired
     public void setEndpointValidationService(EndpointValidationService endpointValidationService) {
         DomainRegistry.endpointValidationService = endpointValidationService;
-    }
-
-    @Autowired
-    public void setEventStreamService(EventStreamService eventStreamService) {
-        DomainRegistry.eventStreamService = eventStreamService;
-    }
-
-    @Autowired
-    public void setCustomObjectSerializer(CustomObjectSerializer customObjectSerializer) {
-        DomainRegistry.objectSerializer = customObjectSerializer;
     }
 
     @Autowired
@@ -165,75 +153,5 @@ public class DomainRegistry {
     public void setPendingUserService(PendingUserService pendingUserService) {
         DomainRegistry.pendingUserService = pendingUserService;
     }
-
-    @Autowired
-    public void setUniqueIdGeneratorService(UniqueIdGeneratorService uniqueIdGeneratorService) {
-        DomainRegistry.uniqueIdGeneratorService = uniqueIdGeneratorService;
-    }
-
-    public static ClientRepository clientRepository() {
-        return clientRepository;
-    }
-
-    public static PendingUserRepository pendingUserRepository() {
-        return pendingUserRepository;
-    }
-
-    public static UserRepository userRepository() {
-        return userRepository;
-    }
-
-    public static EncryptionService encryptionService() {
-        return encryptionService;
-    }
-
-    public static ClientService clientService() {
-        return clientService;
-    }
-
-    public static PendingUserService pendingUserService() {
-        return pendingUserService;
-    }
-
-    public static UniqueIdGeneratorService uniqueIdGeneratorService() {
-        return uniqueIdGeneratorService;
-    }
-
-    public static RevokeTokenService revokeTokenService() {
-        return revokeTokenService;
-    }
-
-    public static ActivationCodeService activationCodeService() {
-        return activationCodeService;
-    }
-
-    public static CustomObjectSerializer customObjectSerializer() {
-        return objectSerializer;
-    }
-
-    public static RevokeTokenRepository revokeTokenRepository() {
-        return revokeTokenRepository;
-    }
-
-    public static AuthenticationService authenticationService() {
-        return authenticationService;
-    }
-
-    public static EndpointService endpointService() {
-        return endpointService;
-    }
-
-    public static EndpointRepository endpointRepository() {
-        return endpointRepository;
-    }
-
-    public static PasswordResetTokenService passwordResetTokenService() {
-        return passwordResetTokenService;
-    }
-
-    public static UserService userService() {
-        return userService;
-    }
-
 
 }

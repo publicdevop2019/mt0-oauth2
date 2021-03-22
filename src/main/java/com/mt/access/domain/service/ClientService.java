@@ -37,7 +37,7 @@ public class ClientService {
                 passwordGrant,
                 authorizationCodeGrant
         );
-        DomainRegistry.clientRepository().add(client);
+        DomainRegistry.getClientRepository().add(client);
         DomainEventPublisher.instance().publish(new ClientCreated(client.getClientId()));
         return clientId;
     }

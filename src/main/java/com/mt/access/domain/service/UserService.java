@@ -18,12 +18,12 @@ import java.util.Optional;
 @Service
 public class UserService {
     public UserId create(UserEmail userEmail, UserPassword password, ActivationCode activationCode, UserId userId) {
-        Optional<PendingUser> pendingUser = DomainRegistry.pendingUserRepository().pendingUserOfEmail(new RegistrationEmail(userEmail.getEmail()));
+        Optional<PendingUser> pendingUser = DomainRegistry.getPendingUserRepository().pendingUserOfEmail(new RegistrationEmail(userEmail.getEmail()));
         if (pendingUser.isPresent()) {
             if (pendingUser.get().getActivationCode() == null || !pendingUser.get().getActivationCode().getActivationCode().equals(activationCode.getActivationCode()))
                 throw new IllegalArgumentException("activation code mismatch");
             User user = new User(userEmail, password, userId);
-            DomainRegistry.userRepository().add(user);
+            DomainRegistry.getUserRepository().add(user);
             DomainEventPublisher.instance().publish(new UserCreated(user.getUserId()));
             return user.getUserId();
         } else {
@@ -32,26 +32,26 @@ public class UserService {
     }
 
     public void updatePassword(User user, CurrentPassword currentPwd, UserPassword password) {
-        if (!DomainRegistry.encryptionService().compare(user.getPassword(), currentPwd))
+        if (!DomainRegistry.getEncryptionService().compare(user.getPassword(), currentPwd))
             throw new IllegalArgumentException("wrong password");
         user.setPassword(password);
-        DomainRegistry.userRepository().add(user);
+        DomainRegistry.getUserRepository().add(user);
         DomainEventPublisher.instance().publish(new UserPasswordChanged(user.getUserId()));
     }
 
     public void forgetPassword(UserEmail email) {
-        Optional<User> user = DomainRegistry.userRepository().searchExistingUserWith(email);
+        Optional<User> user = DomainRegistry.getUserRepository().searchExistingUserWith(email);
         if (user.isEmpty()) {
             throw new IllegalArgumentException("user does not exist");
         }
         PasswordResetCode passwordResetToken = new PasswordResetCode();
         user.get().setPwdResetToken(passwordResetToken);
-        DomainRegistry.userRepository().add(user.get());
+        DomainRegistry.getUserRepository().add(user.get());
 
     }
 
     public void resetPassword(UserEmail email, UserPassword newPassword, PasswordResetCode token) {
-        Optional<User> user = DomainRegistry.userRepository().searchExistingUserWith(email);
+        Optional<User> user = DomainRegistry.getUserRepository().searchExistingUserWith(email);
         if (user.isEmpty()) {
             throw new IllegalArgumentException("user does not exist");
         }
@@ -60,7 +60,7 @@ public class UserService {
         if (!user.get().getPwdResetToken().equals(token))
             throw new IllegalArgumentException("token mismatch");
         user.get().setPassword(newPassword);
-        DomainRegistry.userRepository().add(user.get());
+        DomainRegistry.getUserRepository().add(user.get());
         DomainEventPublisher.instance().publish(new UserPasswordChanged(user.get().getUserId()));
     }
 
@@ -70,6 +70,6 @@ public class UserService {
                 DomainEventPublisher.instance().publish(new UserGetLocked(e));
             });
         }
-        DomainRegistry.userRepository().batchLock(commands);
+        DomainRegistry.getUserRepository().batchLock(commands);
     }
 }

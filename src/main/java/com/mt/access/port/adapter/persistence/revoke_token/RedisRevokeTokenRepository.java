@@ -1,5 +1,6 @@
 package com.mt.access.port.adapter.persistence.revoke_token;
 
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.revoke_token.RevokeToken;
@@ -29,7 +30,7 @@ public class RedisRevokeTokenRepository implements RevokeTokenRepository {
     }
 
     public void add(RevokeToken revokeToken) {
-        redisTemplate.opsForValue().set(REVOKE_TOKEN_PREFIX + revokeToken.getRevokeTokenId().getDomainId(), DomainRegistry.customObjectSerializer().serialize(revokeToken));
+        redisTemplate.opsForValue().set(REVOKE_TOKEN_PREFIX + revokeToken.getRevokeTokenId().getDomainId(), CommonDomainRegistry.getCustomObjectSerializer().serialize(revokeToken));
     }
 
     @Component
@@ -53,7 +54,7 @@ public class RedisRevokeTokenRepository implements RevokeTokenRepository {
                     }
                     for (String str : outputKey) {
                         String s = redisTemplate.opsForValue().get(str);
-                        RevokeToken deserialize = DomainRegistry.customObjectSerializer().deserialize(s, RevokeToken.class);
+                        RevokeToken deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(s, RevokeToken.class);
                         revokeTokens.add(deserialize);
                     }
                     revokeTokenSumPagedRep.setTotalItemCount((long) keys.size());
@@ -63,7 +64,7 @@ public class RedisRevokeTokenRepository implements RevokeTokenRepository {
                 query.getRevokeTokenId().forEach(tokenId -> {
                     String s = redisTemplate.opsForValue().get(REVOKE_TOKEN_PREFIX + tokenId);
                     if (s != null) {
-                        RevokeToken deserialize = DomainRegistry.customObjectSerializer().deserialize(s, RevokeToken.class);
+                        RevokeToken deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(s, RevokeToken.class);
                         revokeTokens.add(deserialize);
                         revokeTokenSumPagedRep.setData(revokeTokens);
                         revokeTokenSumPagedRep.setTotalItemCount(1L);

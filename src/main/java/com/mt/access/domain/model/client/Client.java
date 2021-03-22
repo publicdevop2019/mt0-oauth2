@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.client;
 
 import com.google.common.base.Objects;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -155,7 +156,7 @@ public class Client extends Auditable {
         if (!resources.equals(this.resources)) {
             this.resources.clear();
             this.resources.addAll(resources);
-            DomainRegistry.clientValidationService().validate(this, new HttpValidationNotificationHandler());
+            DomainRegistry.getClientValidationService().validate(this, new HttpValidationNotificationHandler());
         }
     }
 
@@ -175,7 +176,7 @@ public class Client extends Auditable {
                   PasswordGrant passwordGrant,
                   AuthorizationCodeGrant authorizationCodeGrant
     ) {
-        setId(DomainRegistry.uniqueIdGeneratorService().id());
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setClientId(nextIdentity);
         setResources(resources);
         setScopes(scopes);
@@ -296,7 +297,7 @@ public class Client extends Auditable {
     }
 
     private void setSecret(String secret) {
-        this.secret = DomainRegistry.encryptionService().encryptedValue(secret);
+        this.secret = DomainRegistry.getEncryptionService().encryptedValue(secret);
     }
 
     private boolean secretChanged(String secret) {

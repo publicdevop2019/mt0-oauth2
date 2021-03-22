@@ -17,6 +17,6 @@ public class UserPassword {
     private void setPassword(String password) {
         Validator.notNull(password);
         Validator.notBlank(password);
-        this.password = DomainRegistry.encryptionService().encryptedValue(password);
+        this.password = DomainRegistry.getEncryptionService().encryptedValue(password);
     }
 }
