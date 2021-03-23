@@ -23,10 +23,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Table
@@ -55,12 +52,12 @@ public class Client extends Auditable {
     @Convert(converter = Role.DBConverter.class)
     @Getter
     @Column(name = "authorities")
-    private Set<Role> roles;
+    private final Set<Role> roles = EnumSet.noneOf(Role.class);
 
     @Convert(converter = Scope.DBConverter.class)
     @Getter
     @Column(name = "scopes")
-    private Set<Scope> scopes;
+    private final Set<Scope> scopes = EnumSet.noneOf(Scope.class);
 
     /**
      * if lazy then loadClientByClientId needs to be transactional
