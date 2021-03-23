@@ -95,7 +95,7 @@ public class Client extends Auditable {
 
     private void setGrantTypes(Set<GrantType> grantTypes) {
         if (grantTypes.contains(GrantType.REFRESH_TOKEN) && !grantTypes.contains(GrantType.PASSWORD))
-            Validator.handleError("refresh token grant requires password grant");
+            throw new IllegalArgumentException("refresh token grant requires password grant");
         this.grantTypes = grantTypes;
     }
 

@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.client;
 
-import com.mt.common.domain.model.validate.Validator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,12 +20,10 @@ public class TokenDetail implements Serializable {
     }
 
     private void setAccessTokenValiditySeconds(Integer accessTokenValiditySeconds) {
-        Validator.greaterThanOrEqualTo(accessTokenValiditySeconds, 60);
         this.accessTokenValiditySeconds = accessTokenValiditySeconds;
     }
 
     private void setRefreshTokenValiditySeconds(Integer refreshTokenValiditySeconds) {
-        Validator.greaterThanOrEqualTo(refreshTokenValiditySeconds, 120);
         this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
     }
 
