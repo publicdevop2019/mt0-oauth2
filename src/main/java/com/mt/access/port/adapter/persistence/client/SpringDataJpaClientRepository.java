@@ -55,11 +55,11 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
 
         public SumPagedRep<Client> execute(ClientQuery clientQuery) {
             QueryUtility.QueryContext<Client> queryContext = QueryUtility.prepareContext(Client.class, clientQuery);
-            Optional.ofNullable(clientQuery.getClientIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), "clientId", queryContext));
-            Optional.ofNullable(clientQuery.getResourceFlag()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, "accessible", queryContext));
+            Optional.ofNullable(clientQuery.getClientIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Client_.CLIENT_ID, queryContext));
+            Optional.ofNullable(clientQuery.getResourceFlag()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, Client_.ACCESSIBLE, queryContext));
             Optional.ofNullable(clientQuery.getName()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, ENTITY_NAME, queryContext));
-            Optional.ofNullable(clientQuery.getAuthoritiesSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, "authorities", queryContext));
-            Optional.ofNullable(clientQuery.getScopeSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, "scopes", queryContext));
+            Optional.ofNullable(clientQuery.getAuthoritiesSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, Client_.ROLES, queryContext));
+            Optional.ofNullable(clientQuery.getScopeSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, Client_.SCOPES, queryContext));
 
             Optional.ofNullable(clientQuery.getGrantTypeSearch()).ifPresent(e -> {
                 queryContext.getPredicates().add(GrantEnabledPredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
@@ -116,13 +116,13 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
                     List<Predicate> list2 = new ArrayList<>();
                     for (String str : strings) {
                         if ("CLIENT_CREDENTIALS".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), GrantType.CLIENT_CREDENTIALS.name()));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.CLIENT_CREDENTIALS.name() + "%"));
                         } else if ("PASSWORD".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), GrantType.PASSWORD.name()));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.PASSWORD.name() + "%"));
                         } else if ("AUTHORIZATION_CODE".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), GrantType.AUTHORIZATION_CODE.name()));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.AUTHORIZATION_CODE.name() + "%"));
                         } else if ("REFRESH_TOKEN".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), GrantType.REFRESH_TOKEN.name()));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.REFRESH_TOKEN.name() + "%"));
                         }
                     }
                     return cb.and(list2.toArray(Predicate[]::new));
@@ -133,13 +133,13 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
 
             private static Predicate getExpression(String str, CriteriaBuilder cb, Root<Client> root) {
                 if ("CLIENT_CREDENTIALS".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), GrantType.CLIENT_CREDENTIALS.name());
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.CLIENT_CREDENTIALS.name() + "%");
                 } else if ("PASSWORD".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), GrantType.PASSWORD.name());
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.PASSWORD.name() + "%");
                 } else if ("AUTHORIZATION_CODE".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), GrantType.AUTHORIZATION_CODE.name());
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.AUTHORIZATION_CODE.name() + "%");
                 } else if ("REFRESH_TOKEN".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), GrantType.REFRESH_TOKEN.name());
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.REFRESH_TOKEN.name() + "%");
                 } else {
                     return null;
                 }
