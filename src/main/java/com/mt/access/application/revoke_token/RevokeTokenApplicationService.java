@@ -91,10 +91,9 @@ public class RevokeTokenApplicationService {
 
     static {
         CLIENT_EVENTS.add(ClientAccessibilityRemoved.class.getName());
-        CLIENT_EVENTS.add(ClientAccessTokenValiditySecondsChanged.class.getName());
         CLIENT_EVENTS.add(ClientAuthoritiesChanged.class.getName());
         CLIENT_EVENTS.add(ClientGrantTypeChanged.class.getName());
-        CLIENT_EVENTS.add(ClientRefreshTokenChanged.class.getName());
+        CLIENT_EVENTS.add(ClientTokenDetailChanged.class.getName());
         CLIENT_EVENTS.add(ClientDeleted.class.getName());
         CLIENT_EVENTS.add(ClientResourcesChanged.class.getName());
         CLIENT_EVENTS.add(ClientScopesChanged.class.getName());

@@ -41,9 +41,7 @@ public class ClientApplicationService implements ClientDetailsService {
         ClientId clientId = new ClientId();
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, clientId,
                 () -> {
-                    RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
-                    PasswordGrant passwordGrantDetail = new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail);
-                    return DomainRegistry.getClientService().create(
+                    Client client = new Client(
                             clientId,
                             command.getName(),
                             command.getClientSecret(),
@@ -52,15 +50,14 @@ public class ClientApplicationService implements ClientDetailsService {
                             command.getScopeEnums(),
                             command.getGrantedAuthorities(),
                             command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
-                            new ClientCredentialsGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds()),
-                            passwordGrantDetail,
-                            new AuthorizationCodeGrant(
-                                    command.getGrantTypeEnums(),
+                            command.getGrantTypeEnums(),
+                            new TokenDetail(command.getAccessTokenValiditySeconds(), command.getRefreshTokenValiditySeconds()),
+                            new RedirectDetail(
                                     command.getRegisteredRedirectUri(),
-                                    command.isAutoApprove(),
-                                    command.getAccessTokenValiditySeconds()
+                                    command.isAutoApprove()
                             )
                     );
+                    return client.getClientId();
                 }, Client.class
         );
 
@@ -82,7 +79,6 @@ public class ClientApplicationService implements ClientDetailsService {
             Optional<Client> optionalClient = DomainRegistry.getClientRepository().clientOfId(clientId);
             if (optionalClient.isPresent()) {
                 Client client = optionalClient.get();
-                RefreshTokenGrant refreshTokenGrantDetail = new RefreshTokenGrant(command.getGrantTypeEnums(), command.getRefreshTokenValiditySeconds());
                 client.replace(
                         command.getName(),
                         command.getClientSecret(),
@@ -91,13 +87,11 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getScopeEnums(),
                         command.getGrantedAuthorities(),
                         command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
-                        new ClientCredentialsGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds()),
-                        new PasswordGrant(command.getGrantTypeEnums(), command.getAccessTokenValiditySeconds(), refreshTokenGrantDetail),
-                        new AuthorizationCodeGrant(
-                                command.getGrantTypeEnums(),
+                        command.getGrantTypeEnums(),
+                        new TokenDetail(command.getAccessTokenValiditySeconds(),command.getRefreshTokenValiditySeconds()),
+                        new RedirectDetail(
                                 command.getRegisteredRedirectUri(),
-                                command.isAutoApprove(),
-                                command.getAccessTokenValiditySeconds()
+                                command.isAutoApprove()
                         )
                 );
                 DomainRegistry.getClientRepository().add(client);
@@ -155,16 +149,17 @@ public class ClientApplicationService implements ClientDetailsService {
                 Client original = client.get();
                 ClientPatchCommand beforePatch = new ClientPatchCommand(original);
                 ClientPatchCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, ClientPatchCommand.class);
-                RefreshTokenGrant refreshTokenGrantDetail = original.getPasswordGrant().getRefreshTokenGrant();
                 original.replace(
                         afterPatch.getName(),
+                        null,
                         afterPatch.getDescription(),
                         afterPatch.isResourceIndicator(),
                         afterPatch.getScopeEnums(),
                         afterPatch.getGrantedAuthorities(),
                         afterPatch.getResourceIds() != null ? afterPatch.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
-                        new ClientCredentialsGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds()),
-                        new PasswordGrant(afterPatch.getGrantTypeEnums(), afterPatch.getAccessTokenValiditySeconds(), refreshTokenGrantDetail)
+                        afterPatch.getGrantTypeEnums(),
+                        new TokenDetail(afterPatch.getAccessTokenValiditySeconds(), original.getTokenDetail().getRefreshTokenValiditySeconds()),
+                        original.getAuthorizationCodeGrant()
                 );
             }
         }, Client.class);

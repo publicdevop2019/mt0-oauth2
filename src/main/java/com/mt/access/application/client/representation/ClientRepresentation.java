@@ -42,14 +42,13 @@ public class ClientRepresentation {
         id = client.getClientId().getDomainId();
         name = client.getName();
         description = client.getDescription();
-        grantTypeEnums = client.totalGrantTypes();
+        grantTypeEnums = client.getGrantTypes();
         grantedAuthorities = client.getRoles();
         scopeEnums = client.getScopes();
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
         if (client.getAuthorizationCodeGrant() != null)
             registeredRedirectUri = client.getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectURL::getValue).collect(Collectors.toSet());
-        if (client.getPasswordGrant() != null && client.getPasswordGrant().getRefreshTokenGrant() != null)
-            refreshTokenValiditySeconds = client.getPasswordGrant().getAccessTokenValiditySeconds();
+        refreshTokenValiditySeconds = client.getTokenDetail().getAccessTokenValiditySeconds();
         if (!ObjectUtils.isEmpty(client.getResources()))
             resourceIds = client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
         resourceIndicator = client.isAccessible();

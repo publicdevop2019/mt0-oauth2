@@ -28,8 +28,6 @@ public class DomainRegistry {
     @Getter
     private static AuthenticationService authenticationService;
     @Getter
-    private static ClientService clientService;
-    @Getter
     private static PendingUserService pendingUserService;
     @Getter
     private static UserService userService;
@@ -142,11 +140,6 @@ public class DomainRegistry {
     @Autowired
     public void setAuthenticationService(AuthenticationService authenticationService) {
         DomainRegistry.authenticationService = authenticationService;
-    }
-
-    @Autowired
-    public void setClientService(ClientService clientService) {
-        DomainRegistry.clientService = clientService;
     }
 
     @Autowired
