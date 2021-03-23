@@ -9,9 +9,10 @@ import org.apache.commons.lang.ObjectUtils;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Set;
-
+@Embeddable
 @NoArgsConstructor
 public class RefreshTokenGrant implements Serializable {
     public static final GrantType NAME = GrantType.REFRESH_TOKEN;

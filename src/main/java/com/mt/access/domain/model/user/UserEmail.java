@@ -4,6 +4,9 @@ import com.mt.common.domain.model.validate.Validator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 @NoArgsConstructor
 public class UserEmail {
     @Getter

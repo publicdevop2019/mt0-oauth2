@@ -4,7 +4,11 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.access.domain.DomainRegistry;
 
-public class UserId extends DomainId {
+import javax.persistence.Embeddable;
+import java.io.Serializable;
+
+@Embeddable
+public class UserId extends DomainId implements Serializable {
     public UserId() {
         super();
         Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();

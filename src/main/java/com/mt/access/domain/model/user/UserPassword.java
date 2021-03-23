@@ -5,6 +5,9 @@ import com.mt.access.domain.DomainRegistry;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 @NoArgsConstructor
 public class UserPassword {
     @Getter
