@@ -1,15 +1,16 @@
 package com.mt.access.domain.model.client;
 
 import com.google.common.base.Objects;
-import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
-import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import com.mt.common.domain.model.validate.ValidationNotificationHandler;
-import com.mt.common.domain.model.validate.Validator;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.event.*;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+import com.mt.common.domain.model.validate.ValidationNotificationHandler;
+import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,11 +20,11 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Table
 @Entity
@@ -82,29 +83,21 @@ public class Client extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     @Getter
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "enabled", column = @Column(name = "client_credentials_gt_enabled")),
-            @AttributeOverride(name = "accessTokenValiditySeconds", column = @Column(name = "client_credentials_gt_access_token_validity_seconds"))
-    })
-    private ClientCredentialsGrant clientCredentialsGrant;
-
-    @Setter(AccessLevel.PRIVATE)
+    private RedirectDetail authorizationCodeGrant;
+    @Convert(converter = GrantType.DBConverter.class)
     @Getter
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "enabled", column = @Column(name = "password_gt_enabled")),
-            @AttributeOverride(name = "accessTokenValiditySeconds", column = @Column(name = "password_gt_access_token_validity_seconds"))
-    })
-    private PasswordGrant passwordGrant;
+    private Set<GrantType> grantTypes;
 
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "enabled", column = @Column(name = "authorization_code_gt_enabled")),
-            @AttributeOverride(name = "accessTokenValiditySeconds", column = @Column(name = "authorization_code_gt_access_token_validity_seconds"))
-    })
-    private AuthorizationCodeGrant authorizationCodeGrant;
+    @Getter
+    @Setter(AccessLevel.PRIVATE)
+    private TokenDetail tokenDetail;
+
+    private void setGrantTypes(Set<GrantType> grantTypes) {
+        if (grantTypes.contains(GrantType.REFRESH_TOKEN) && !grantTypes.contains(GrantType.PASSWORD))
+            throw new IllegalArgumentException("refresh token grant requires password grant");
+        this.grantTypes = grantTypes;
+    }
 
     private void setName(String name) {
         Validator.notNull(name);
@@ -140,9 +133,6 @@ public class Client extends Auditable {
     }
 
     private void setAccessible(boolean accessible) {
-        if (this.accessible && !accessible) {
-            DomainEventPublisher.instance().publish(new ClientAccessibilityRemoved(clientId));
-        }
         this.accessible = accessible;
     }
 
@@ -155,7 +145,7 @@ public class Client extends Auditable {
         if (!resources.equals(this.resources)) {
             this.resources.clear();
             this.resources.addAll(resources);
-            DomainRegistry.clientValidationService().validate(this, new HttpValidationNotificationHandler());
+            DomainRegistry.getClientValidationService().validate(this, new HttpValidationNotificationHandler());
         }
     }
 
@@ -163,20 +153,20 @@ public class Client extends Auditable {
         return this.roles.stream().noneMatch(Role.ROLE_ROOT::equals);
     }
 
-    public Client(ClientId nextIdentity,
+    public Client(ClientId clientId,
                   String name,
-                  String secret,
+                  @Nullable String secret,
                   String description,
                   boolean accessible,
                   Set<Scope> scopes,
                   Set<Role> roles,
                   Set<ClientId> resources,
-                  ClientCredentialsGrant clientCredentialsGrant,
-                  PasswordGrant passwordGrant,
-                  AuthorizationCodeGrant authorizationCodeGrant
+                  Set<GrantType> grantTypes,
+                  TokenDetail tokenDetail,
+                  RedirectDetail authorizationCodeGrant
     ) {
-        setId(DomainRegistry.uniqueIdGeneratorService().id());
-        setClientId(nextIdentity);
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        setClientId(clientId);
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
@@ -184,58 +174,12 @@ public class Client extends Auditable {
         setAccessible(accessible);
         setName(name);
         setSecret(secret);
-        setClientCredentialsGrant(clientCredentialsGrant);
-        setPasswordGrant(passwordGrant);
+        setGrantTypes(grantTypes);
+        setTokenDetail(tokenDetail);
         setAuthorizationCodeGrant(authorizationCodeGrant);
+        DomainEventPublisher.instance().publish(new ClientCreated(clientId));
         validate(new HttpValidationNotificationHandler());
-    }
-
-    public Set<GrantType> totalGrantTypes() {
-        HashSet<GrantType> grantTypes = new HashSet<>();
-        if (clientCredentialsGrant != null && clientCredentialsGrant.isEnabled()) {
-            grantTypes.add(clientCredentialsGrant.name());
-        }
-        if (passwordGrant != null && passwordGrant.isEnabled()) {
-            grantTypes.add(passwordGrant.name());
-            if (passwordGrant.getRefreshTokenGrant() != null && passwordGrant.getRefreshTokenGrant().isEnabled()) {
-                grantTypes.add(RefreshTokenGrant.NAME);
-            }
-        }
-        if (authorizationCodeGrant != null && authorizationCodeGrant.isEnabled()) {
-            grantTypes.add(authorizationCodeGrant.name());
-        }
-        return grantTypes;
-    }
-
-    public void replace(String name,
-                        String description,
-                        boolean accessible,
-                        Set<Scope> scopes,
-                        Set<Role> authorities,
-                        Set<ClientId> resources,
-                        ClientCredentialsGrant clientCredentialsGrant,
-                        PasswordGrant passwordGrant
-    ) {
-        if (authoritiesChanged(authorities)) {
-            DomainEventPublisher.instance().publish(new ClientAuthoritiesChanged(clientId));
-        }
-        if (scopesChanged(scopes)) {
-            DomainEventPublisher.instance().publish(new ClientScopesChanged(clientId));
-        }
-        if (resourcesChanged(resources)) {
-            DomainEventPublisher.instance().publish(new ClientResourcesChanged(clientId));
-        }
-        setResources(resources);
-        setScopes(scopes);
-        setDescription(description);
-        setAccessible(accessible);
-        setRoles(authorities);
-        setName(name);
-        ClientCredentialsGrant.detectChange(this.getClientCredentialsGrant(), clientCredentialsGrant, getClientId());
-        setClientCredentialsGrant(clientCredentialsGrant);
-        PasswordGrant.detectChange(this.getPasswordGrant(), passwordGrant, getClientId());
-        setPasswordGrant(passwordGrant);
-        validate(new HttpValidationNotificationHandler());
+        DomainRegistry.getClientRepository().add(this);
     }
 
     public void replace(String name,
@@ -243,40 +187,42 @@ public class Client extends Auditable {
                         String description,
                         boolean accessible,
                         Set<Scope> scopes,
-                        Set<Role> authorities,
+                        Set<Role> roles,
                         Set<ClientId> resources,
-                        ClientCredentialsGrant clientCredentialsGrant,
-                        PasswordGrant passwordGrant,
-                        AuthorizationCodeGrant authorizationCodeGrant
+                        Set<GrantType> grantTypes,
+                        TokenDetail tokenDetail,
+                        RedirectDetail authorizationCodeGrant
     ) {
-        if (authoritiesChanged(authorities)) {
-            DomainEventPublisher.instance().publish(new ClientAuthoritiesChanged(clientId));
-        }
         if (scopesChanged(scopes)) {
             DomainEventPublisher.instance().publish(new ClientScopesChanged(clientId));
         }
         if (resourcesChanged(resources)) {
             DomainEventPublisher.instance().publish(new ClientResourcesChanged(clientId));
         }
-        if (accessibleChanged(accessible)) {
+        if (tokenDetailChanged(tokenDetail)) {
+            DomainEventPublisher.instance().publish(new ClientTokenDetailChanged(clientId));
+        }
+        if (rolesChanged(roles)) {
+            DomainEventPublisher.instance().publish(new ClientAuthoritiesChanged(clientId));
+        }
+        if (this.accessible && !accessible) {
             DomainEventPublisher.instance().publish(new ClientAccessibilityRemoved(clientId));
         }
         if (secretChanged(secret)) {
             DomainEventPublisher.instance().publish(new ClientSecretChanged(clientId));
         }
-        setResources(resources);
+        if (!ObjectUtils.equals(grantTypes, this.grantTypes)) {
+            DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId));
+        }
         setScopes(scopes);
-        setDescription(description);
+        setResources(resources);
+        setRoles(roles);
         setAccessible(accessible);
-        setRoles(authorities);
+        setSecret(secret);
+        setGrantTypes(grantTypes);
+        setTokenDetail(tokenDetail);
         setName(name);
-        if (StringUtils.hasText(secret))
-            setSecret(secret);
-        ClientCredentialsGrant.detectChange(this.getClientCredentialsGrant(), clientCredentialsGrant, getClientId());
-        setClientCredentialsGrant(clientCredentialsGrant);
-        PasswordGrant.detectChange(this.getPasswordGrant(), passwordGrant, getClientId());
-        setPasswordGrant(passwordGrant);
-        AuthorizationCodeGrant.detectChange(this.getAuthorizationCodeGrant(), authorizationCodeGrant, getClientId());
+        setDescription(description);
         setAuthorizationCodeGrant(authorizationCodeGrant);
         validate(new HttpValidationNotificationHandler());
     }
@@ -291,12 +237,13 @@ public class Client extends Auditable {
         (new ClientValidator(this, handler)).validate();
     }
 
-    public Endpoint addNewEndpoint(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, EndpointId endpointId, String method, boolean secured, boolean userOnly, boolean clientOnly) {
-        return new Endpoint(getClientId(), userRoles, clientRoles, scopes, description, path, endpointId, method, secured, userOnly, clientOnly);
+    public Endpoint addNewEndpoint(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, EndpointId endpointId, String method, boolean secured, boolean userOnly, boolean clientOnly,boolean isWebsocket) {
+        return new Endpoint(getClientId(), userRoles, clientRoles, scopes, description, path, endpointId, method, secured, userOnly, clientOnly,isWebsocket);
     }
 
     private void setSecret(String secret) {
-        this.secret = DomainRegistry.encryptionService().encryptedValue(secret);
+        if (StringUtils.hasText(secret))
+            this.secret = DomainRegistry.getEncryptionService().encryptedValue(secret);
     }
 
     private boolean secretChanged(String secret) {
@@ -304,32 +251,23 @@ public class Client extends Auditable {
     }
 
     public int accessTokenValiditySeconds() {
-        if (getClientCredentialsGrant() != null) {
-            return getClientCredentialsGrant().getAccessTokenValiditySeconds();
-        } else if (getPasswordGrant() != null) {
-            return getPasswordGrant().getAccessTokenValiditySeconds();
-        } else if (getAuthorizationCodeGrant() != null) {
-            return getAuthorizationCodeGrant().getAccessTokenValiditySeconds();
-        } else {
-            return 0;
-        }
-
+        return tokenDetail.getAccessTokenValiditySeconds();
     }
 
     private boolean resourcesChanged(Set<ClientId> clientIds) {
         return !ObjectUtils.equals(this.resources, clientIds);
     }
 
-    private boolean accessibleChanged(boolean b) {
-        return isAccessible() != b;
-    }
-
-    private boolean authoritiesChanged(Set<Role> authorities) {
+    private boolean rolesChanged(Set<Role> authorities) {
         return !ObjectUtils.equals(this.roles, authorities);
     }
 
     private boolean scopesChanged(Set<Scope> scopes) {
         return !ObjectUtils.equals(this.scopes, scopes);
+    }
+
+    private boolean tokenDetailChanged(TokenDetail tokenDetail) {
+        return !ObjectUtils.equals(this.tokenDetail, scopes);
     }
 
     @Override
@@ -351,5 +289,27 @@ public class Client extends Auditable {
         if (isAccessible()) {
             DomainEventPublisher.instance().publish(new ClientAsResourceDeleted(clientId));
         }
+    }
+
+    public int getRefreshTokenValiditySeconds() {
+        if (grantTypes.contains(GrantType.PASSWORD) && grantTypes.contains(GrantType.REFRESH_TOKEN)) {
+            return getTokenDetail().getRefreshTokenValiditySeconds();
+        }
+        return 0;
+    }
+
+    public boolean getAutoApprove() {
+        if (grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
+            return getAuthorizationCodeGrant().isAutoApprove();
+        }
+        return false;
+    }
+
+    public Set<String> getRegisteredRedirectUri() {
+        if (grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
+            return getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectURL::getValue).collect(Collectors.toSet());
+        }
+        return Collections.emptySet();
+
     }
 }

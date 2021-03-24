@@ -1,15 +1,13 @@
 package com.mt.access.port.adapter.persistence.client;
 
+import com.mt.access.domain.model.client.*;
+import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.common.domain.model.domainId.DomainId_;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.sql.clause.OrderClause;
 import com.mt.common.domain.model.sql.exception.UnsupportedQueryException;
-import com.mt.access.domain.model.client.Client;
-import com.mt.access.domain.model.client.ClientId;
-import com.mt.access.domain.model.client.ClientQuery;
-import com.mt.access.domain.model.client.ClientRepository;
-import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -57,11 +55,11 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
 
         public SumPagedRep<Client> execute(ClientQuery clientQuery) {
             QueryUtility.QueryContext<Client> queryContext = QueryUtility.prepareContext(Client.class, clientQuery);
-            Optional.ofNullable(clientQuery.getClientIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), "clientId", queryContext));
-            Optional.ofNullable(clientQuery.getResourceFlag()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, "accessible", queryContext));
+            Optional.ofNullable(clientQuery.getClientIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Client_.CLIENT_ID, queryContext));
+            Optional.ofNullable(clientQuery.getResourceFlag()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, Client_.ACCESSIBLE, queryContext));
             Optional.ofNullable(clientQuery.getName()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, ENTITY_NAME, queryContext));
-            Optional.ofNullable(clientQuery.getAuthoritiesSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, "authorities", queryContext));
-            Optional.ofNullable(clientQuery.getScopeSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, "scopes", queryContext));
+            Optional.ofNullable(clientQuery.getAuthoritiesSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, Client_.ROLES, queryContext));
+            Optional.ofNullable(clientQuery.getScopeSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, Client_.SCOPES, queryContext));
 
             Optional.ofNullable(clientQuery.getGrantTypeSearch()).ifPresent(e -> {
                 queryContext.getPredicates().add(GrantEnabledPredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
@@ -90,37 +88,24 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
             public static Predicate getPredicate(String query, CriteriaBuilder cb, Root<Client> root) {
                 String[] split = query.split("\\$");
                 List<Predicate> results = new ArrayList<>();
-                List<Predicate> results2 = new ArrayList<>();
-                List<Predicate> results3 = new ArrayList<>();
                 for (String str : split) {
                     if (str.contains("<=")) {
                         int i = Integer.parseInt(str.replace("<=", ""));
-                        results.add(cb.lessThanOrEqualTo(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"), i));
-                        results2.add(cb.lessThanOrEqualTo(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"), i));
-                        results3.add(cb.lessThanOrEqualTo(root.get("passwordGrant").get("accessTokenValiditySeconds"), i));
+                        results.add(cb.lessThanOrEqualTo(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
                     } else if (str.contains(">=")) {
                         int i = Integer.parseInt(str.replace(">=", ""));
-                        results.add(cb.greaterThanOrEqualTo(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"), i));
-                        results2.add(cb.greaterThanOrEqualTo(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"), i));
-                        results3.add(cb.greaterThanOrEqualTo(root.get("passwordGrant").get("accessTokenValiditySeconds"), i));
+                        results.add(cb.greaterThanOrEqualTo(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
                     } else if (str.contains("<")) {
                         int i = Integer.parseInt(str.replace("<", ""));
-                        results.add(cb.lessThan(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"), i));
-                        results2.add(cb.lessThan(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"), i));
-                        results3.add(cb.lessThan(root.get("passwordGrant").get("accessTokenValiditySeconds"), i));
+                        results.add(cb.lessThan(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
                     } else if (str.contains(">")) {
                         int i = Integer.parseInt(str.replace(">", ""));
-                        results.add(cb.greaterThan(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"), i));
-                        results2.add(cb.greaterThan(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"), i));
-                        results3.add(cb.greaterThan(root.get("passwordGrant").get("accessTokenValiditySeconds"), i));
+                        results.add(cb.greaterThan(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
                     } else {
                         throw new UnsupportedQueryException();
                     }
                 }
-                Predicate and = cb.and(results.toArray(new Predicate[0]));
-                Predicate and2 = cb.and(results2.toArray(new Predicate[0]));
-                Predicate and3 = cb.and(results3.toArray(new Predicate[0]));
-                return cb.or(and, and2, and3);
+                return cb.and(results.toArray(new Predicate[0]));
             }
         }
 
@@ -131,13 +116,13 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
                     List<Predicate> list2 = new ArrayList<>();
                     for (String str : strings) {
                         if ("CLIENT_CREDENTIALS".equalsIgnoreCase(str)) {
-                            list2.add(cb.isTrue(root.get("clientCredentialsGrant").get("enabled")));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.CLIENT_CREDENTIALS.name() + "%"));
                         } else if ("PASSWORD".equalsIgnoreCase(str)) {
-                            list2.add(cb.isTrue(root.get("passwordGrant").get("enabled")));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.PASSWORD.name() + "%"));
                         } else if ("AUTHORIZATION_CODE".equalsIgnoreCase(str)) {
-                            list2.add(cb.isTrue(root.get("authorizationCodeGrant").get("enabled")));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.AUTHORIZATION_CODE.name() + "%"));
                         } else if ("REFRESH_TOKEN".equalsIgnoreCase(str)) {
-                            list2.add(cb.isTrue(root.get("passwordGrant").get("refreshTokenGrant").get("enabled")));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.REFRESH_TOKEN.name() + "%"));
                         }
                     }
                     return cb.and(list2.toArray(Predicate[]::new));
@@ -148,13 +133,13 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
 
             private static Predicate getExpression(String str, CriteriaBuilder cb, Root<Client> root) {
                 if ("CLIENT_CREDENTIALS".equalsIgnoreCase(str)) {
-                    return cb.isTrue(root.get("clientCredentialsGrant").get("enabled"));
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.CLIENT_CREDENTIALS.name() + "%");
                 } else if ("PASSWORD".equalsIgnoreCase(str)) {
-                    return cb.isTrue(root.get("passwordGrant").get("enabled"));
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.PASSWORD.name() + "%");
                 } else if ("AUTHORIZATION_CODE".equalsIgnoreCase(str)) {
-                    return cb.isTrue(root.get("authorizationCodeGrant").get("enabled"));
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.AUTHORIZATION_CODE.name() + "%");
                 } else if ("REFRESH_TOKEN".equalsIgnoreCase(str)) {
-                    return cb.isTrue(root.get("passwordGrant").get("refreshTokenGrant").get("enabled"));
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.REFRESH_TOKEN.name() + "%");
                 } else {
                     return null;
                 }
@@ -163,8 +148,8 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
 
         public static class ResourceIdsPredicateConverter {
             public static Predicate getPredicate(Set<ClientId> query, CriteriaBuilder cb, Root<Client> root) {
-                Join<Object, Object> tags = root.join("resources");
-                CriteriaBuilder.In<Object> clause = cb.in(tags.get("domainId"));
+                Join<Object, Object> tags = root.join(Client_.RESOURCES);
+                CriteriaBuilder.In<Object> clause = cb.in(tags.get(DomainId_.DOMAIN_ID));
                 query.forEach(e -> clause.value(e.getDomainId()));
                 return clause;
             }
@@ -174,7 +159,7 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
             @Override
             public List<Order> getOrderClause(String page, CriteriaBuilder cb, Root<Client> root, AbstractQuery<?> abstractQuery) {
                 if (page == null) {
-                    Order asc = cb.asc(root.get("name"));
+                    Order asc = cb.asc(root.get(Client_.NAME));
                     return Collections.singletonList(asc);
                 }
                 String[] params = page.split(",");
@@ -193,44 +178,40 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
                 }
                 if ("name".equalsIgnoreCase(orderMap.get("by"))) {
                     if ("asc".equalsIgnoreCase(orderMap.get("order"))) {
-                        Order asc = cb.asc(root.get("name"));
+                        Order asc = cb.asc(root.get(Client_.NAME));
                         return Collections.singletonList(asc);
                     } else {
-                        Order desc = cb.desc(root.get("name"));
+                        Order desc = cb.desc(root.get(Client_.NAME));
                         return Collections.singletonList(desc);
                     }
                 } else if ("resourceIndicator".equalsIgnoreCase(orderMap.get("by"))) {
                     if ("asc".equalsIgnoreCase(orderMap.get("order"))) {
-                        Order asc = cb.asc(root.get("accessible"));
+                        Order asc = cb.asc(root.get(Client_.ACCESSIBLE));
                         return Collections.singletonList(asc);
                     } else {
-                        Order desc = cb.desc(root.get("accessible"));
+                        Order desc = cb.desc(root.get(Client_.ACCESSIBLE));
                         return Collections.singletonList(desc);
                     }
                 } else if ("id".equalsIgnoreCase(orderMap.get("by"))) {
                     if ("asc".equalsIgnoreCase(orderMap.get("order"))) {
-                        Order asc = cb.asc(root.get("clientId").get("domainId"));
+                        Order asc = cb.asc(root.get(Client_.CLIENT_ID).get(DomainId_.DOMAIN_ID));
                         return Collections.singletonList(asc);
                     } else {
-                        Order desc = cb.desc(root.get("clientId").get("domainId"));
+                        Order desc = cb.desc(root.get(Client_.CLIENT_ID).get(DomainId_.DOMAIN_ID));
                         return Collections.singletonList(desc);
                     }
                 } else if ("accessTokenValiditySeconds".equalsIgnoreCase(orderMap.get("by"))) {
                     if ("asc".equalsIgnoreCase(orderMap.get("order"))) {
-                        Order asc = cb.asc(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"));
-                        Order asc2 = cb.asc(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"));
-                        Order asc3 = cb.asc(root.get("passwordGrant").get("accessTokenValiditySeconds"));
-                        return Arrays.asList(asc, asc2, asc3);
+                        Order asc = cb.asc(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS));
+                        return Collections.singletonList(asc);
                     } else {
-                        Order desc = cb.desc(root.get("clientCredentialsGrant").get("accessTokenValiditySeconds"));
-                        Order desc1 = cb.desc(root.get("authorizationCodeGrant").get("accessTokenValiditySeconds"));
-                        Order desc2 = cb.desc(root.get("passwordGrant").get("accessTokenValiditySeconds"));
-                        return Arrays.asList(desc, desc1, desc2);
+                        Order desc = cb.desc(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS));
+                        return Collections.singletonList(desc);
                     }
                 } else {
                     //default sort
                     if (orderMap.get("by") == null) {
-                        Order asc = cb.asc(root.get("name"));
+                        Order asc = cb.asc(root.get(Client_.NAME));
                         return Collections.singletonList(asc);
                     } else {
                         throw new UnsupportedQueryException();

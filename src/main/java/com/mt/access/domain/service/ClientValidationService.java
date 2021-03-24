@@ -13,7 +13,7 @@ import java.util.Set;
 public class ClientValidationService {
     public void validate(Client client, ValidationNotificationHandler handler) {
         if (!client.getResources().isEmpty()) {
-            Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.clientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(client.getResources()));
+            Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(client.getResources()));
             if (allByQuery.size() != client.getResources().size()) {
                 handler.handleError("unable to find all resource(s)");
             }

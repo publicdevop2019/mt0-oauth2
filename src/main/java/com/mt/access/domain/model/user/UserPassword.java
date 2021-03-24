@@ -5,6 +5,9 @@ import com.mt.access.domain.DomainRegistry;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 @NoArgsConstructor
 public class UserPassword {
     @Getter
@@ -17,6 +20,6 @@ public class UserPassword {
     private void setPassword(String password) {
         Validator.notNull(password);
         Validator.notBlank(password);
-        this.password = DomainRegistry.encryptionService().encryptedValue(password);
+        this.password = DomainRegistry.getEncryptionService().encryptedValue(password);
     }
 }

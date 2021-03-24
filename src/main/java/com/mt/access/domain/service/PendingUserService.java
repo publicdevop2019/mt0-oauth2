@@ -17,10 +17,10 @@ public class PendingUserService {
             RegistrationEmail email,
             ActivationCode activationCode
     ) {
-        Optional<PendingUser> pendingResourceOwner = DomainRegistry.pendingUserRepository().pendingUserOfEmail(email);
+        Optional<PendingUser> pendingResourceOwner = DomainRegistry.getPendingUserRepository().pendingUserOfEmail(email);
         if (pendingResourceOwner.isEmpty()) {
             PendingUser pendingUser = new PendingUser(email, activationCode);
-            DomainRegistry.pendingUserRepository().add(pendingUser);
+            DomainRegistry.getPendingUserRepository().add(pendingUser);
             DomainEventPublisher.instance().publish(new PendingUserCreated(pendingUser.getRegistrationEmail()));
             return pendingUser.getRegistrationEmail();
         } else {

@@ -13,7 +13,7 @@ public class ActivationCode {
     private String activationCode;
 
     public ActivationCode() {
-        setActivationCode(DomainRegistry.activationCodeService().generate());
+        setActivationCode(DomainRegistry.getActivationCodeService().generate());
     }
 
     public ActivationCode(String activationCode) {

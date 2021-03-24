@@ -2,6 +2,7 @@ package com.mt.access.port.adapter.messaging;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -22,21 +23,21 @@ public class DomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void clientListener() {
-        DomainRegistry.eventStreamService().subscribe(appName, true, CLIENT_QUEUE_NAME, (event) -> {
+        CommonDomainRegistry.getEventStreamService().subscribe(appName, true, CLIENT_QUEUE_NAME, (event) -> {
             ApplicationServiceRegistry.clientApplicationService().handleChange(event);
         }, TOPIC_CLIENT);
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void tokenListener() {
-        DomainRegistry.eventStreamService().subscribe(appName, true, TOKEN_QUEUE_NAME, (event) -> {
+        CommonDomainRegistry.getEventStreamService().subscribe(appName, true, TOKEN_QUEUE_NAME, (event) -> {
             ApplicationServiceRegistry.revokeTokenApplicationService().handleChange(event);
         }, TOPIC_USER, TOPIC_CLIENT);
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void epListener() {
-        DomainRegistry.eventStreamService().subscribe(appName, true, EP_QUEUE_NAME, (event) -> {
+        CommonDomainRegistry.getEventStreamService().subscribe(appName, true, EP_QUEUE_NAME, (event) -> {
             ApplicationServiceRegistry.endpointApplicationService().handleChange(event);
         }, TOPIC_CLIENT);
     }

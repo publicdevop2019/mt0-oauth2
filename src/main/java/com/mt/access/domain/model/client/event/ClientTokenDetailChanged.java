@@ -2,8 +2,8 @@ package com.mt.access.domain.model.client.event;
 
 import com.mt.access.domain.model.client.ClientId;
 
-public class ClientRefreshTokenChanged extends ClientEvent{
-    public ClientRefreshTokenChanged(ClientId clientId) {
+public class ClientTokenDetailChanged extends ClientEvent{
+    public ClientTokenDetailChanged(ClientId clientId) {
         super(clientId);
     }
 }

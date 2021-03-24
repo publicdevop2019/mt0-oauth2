@@ -42,15 +42,14 @@ public class ClientCardRepresentation {
         Client client1 = (Client) client;
         id = client1.getClientId().getDomainId();
         name = client1.getName();
-        grantTypeEnums = client1.totalGrantTypes();
+        grantTypeEnums = client1.getGrantTypes();
         grantedAuthorities = client1.getRoles();
         scopeEnums = client1.getScopes();
         accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
         description = client1.getDescription();
         if (client1.getAuthorizationCodeGrant() != null)
             registeredRedirectUri = client1.getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectURL::getValue).collect(Collectors.toSet());
-        if (client1.getPasswordGrant() != null && client1.getPasswordGrant().getRefreshTokenGrant() != null)
-            refreshTokenValiditySeconds = client1.getPasswordGrant().getAccessTokenValiditySeconds();
+        refreshTokenValiditySeconds = client1.getTokenDetail().getRefreshTokenValiditySeconds();
         if (!ObjectUtils.isEmpty(client1.getResources()))
             resourceIds = client1.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
         resourceIndicator = client1.isAccessible();

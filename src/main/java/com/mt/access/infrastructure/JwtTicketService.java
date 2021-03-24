@@ -1,5 +1,6 @@
 package com.mt.access.infrastructure;
 
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.ticket.SignedTicket;
 import com.mt.access.domain.model.ticket.TicketInfo;
@@ -20,8 +21,7 @@ import org.springframework.stereotype.Service;
 import java.security.KeyPair;
 import java.util.Date;
 
-import static com.mt.access.domain.model.ticket.TicketInfo.CLIENT_ID;
-import static com.mt.access.domain.model.ticket.TicketInfo.USER_ID;
+import static com.mt.access.domain.model.ticket.TicketInfo.*;
 
 @Slf4j
 @Service
@@ -30,8 +30,8 @@ public class JwtTicketService implements TicketService {
     JwtInfoProviderService jwtInfoProviderService;
 
     @Override
-    public SignedTicket create(UserId userId, ClientId clientId) {
-        TicketInfo ticket = TicketInfo.create(userId, clientId);
+    public SignedTicket create(UserId userId, ClientId clientId, ClientId aud) {
+        TicketInfo ticket = TicketInfo.create(userId, clientId, aud);
         return encrypt(ticket);
     }
 
@@ -49,6 +49,9 @@ public class JwtTicketService implements TicketService {
                         .expirationTime(new Date(ticket.getExp()))
                         .claim(USER_ID, ticket.getUserId().getDomainId())
                         .claim(CLIENT_ID, ticket.getClientId().getDomainId())
+                        .claim(AUD, ticket.getAud().getDomainId())
+                        .claim(AUTHORITIES, DomainRegistry.getAuthenticationService().userRoles())
+                        .claim(SCOPES, DomainRegistry.getAuthenticationService().clientScopes())
                         .build());
 
         try {

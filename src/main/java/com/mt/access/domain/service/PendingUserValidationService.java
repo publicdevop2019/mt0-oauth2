@@ -12,7 +12,7 @@ import java.util.Optional;
 @Service
 public class PendingUserValidationService {
     public void validate(PendingUser pendingUser, ValidationNotificationHandler handler) {
-        Optional<User> user = DomainRegistry.userRepository().searchExistingUserWith(new UserEmail(pendingUser.getRegistrationEmail().getEmail()));
+        Optional<User> user = DomainRegistry.getUserRepository().searchExistingUserWith(new UserEmail(pendingUser.getRegistrationEmail().getEmail()));
         if (user.isPresent())
             handler.handleError("already an user " + pendingUser.getRegistrationEmail().getEmail());
     }

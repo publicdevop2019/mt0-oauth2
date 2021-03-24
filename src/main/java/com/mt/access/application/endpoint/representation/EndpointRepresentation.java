@@ -22,6 +22,7 @@ public class EndpointRepresentation {
     private boolean secured;
     private boolean userOnly;
     private boolean clientOnly;
+    private boolean websocket;
     private Integer version;
 
     public EndpointRepresentation(Endpoint endpoint) {
@@ -29,6 +30,7 @@ public class EndpointRepresentation {
         this.clientRoles = endpoint.getClientRoles();
         this.userRoles = endpoint.getUserRoles();
         this.clientScopes = endpoint.getClientScopes();
+        this.websocket = endpoint.isWebsocket();
         this.secured = endpoint.isSecured();
         this.userOnly = endpoint.isUserOnly();
         this.clientOnly = endpoint.isClientOnly();

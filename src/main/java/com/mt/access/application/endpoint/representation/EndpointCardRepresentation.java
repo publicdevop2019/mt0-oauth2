@@ -16,6 +16,7 @@ public class EndpointCardRepresentation {
     private Set<String> clientRoles;
     private Set<String> userRoles;
     private Set<String> clientScopes;
+    private boolean websocket;
     private boolean secured;
     private boolean userOnly;
     private boolean clientOnly;
@@ -23,6 +24,7 @@ public class EndpointCardRepresentation {
         Endpoint endpoint = (Endpoint) o;
         this.id = endpoint.getEndpointId().getDomainId();
         this.description = endpoint.getDescription();
+        this.websocket = endpoint.isWebsocket();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();

@@ -13,7 +13,7 @@ import java.util.Optional;
 public class EndpointValidationService {
     public void validate(Endpoint endpoint, ValidationNotificationHandler handler) {
         ClientId clientId = endpoint.getClientId();
-        Optional<Client> client = DomainRegistry.clientRepository().clientOfId(clientId);
+        Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
         if (client.isEmpty()) {
             handler.handleError("can not update endpoint it which clientId is deleted or unknown");
         }

@@ -95,10 +95,10 @@ public class ClientQuery extends QueryCriteria {
 
     private void validate() {
         if (!isInternal) {
-            boolean isRoot = DomainRegistry.authenticationService().isUser()
-                    && DomainRegistry.authenticationService().userInRole(Role.ROLE_ROOT);
-            boolean isUser = DomainRegistry.authenticationService().isUser()
-                    && DomainRegistry.authenticationService().userInRole(Role.ROLE_USER);
+            boolean isRoot = DomainRegistry.getAuthenticationService().isUser()
+                    && DomainRegistry.getAuthenticationService().userInRole(Role.ROLE_ROOT);
+            boolean isUser = DomainRegistry.getAuthenticationService().isUser()
+                    && DomainRegistry.getAuthenticationService().userInRole(Role.ROLE_USER);
             if (isRoot || isUser) {
                 if (!isRoot) {
                     if (clientIds == null)

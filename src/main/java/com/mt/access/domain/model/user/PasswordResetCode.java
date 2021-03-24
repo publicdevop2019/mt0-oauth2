@@ -5,12 +5,15 @@ import com.mt.common.domain.model.validate.Validator;
 import com.mt.access.domain.DomainRegistry;
 import lombok.Getter;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class PasswordResetCode {
     @Getter
     private String value;
 
     public PasswordResetCode() {
-        setValue(DomainRegistry.passwordResetTokenService().generate());
+        setValue(DomainRegistry.getPasswordResetTokenService().generate());
     }
 
     public PasswordResetCode(String value) {

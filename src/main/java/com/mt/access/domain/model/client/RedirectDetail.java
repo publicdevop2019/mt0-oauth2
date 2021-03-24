@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.client;
 
-import com.mt.access.domain.DomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,14 +8,19 @@ import lombok.Setter;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Convert;
+import javax.persistence.Embeddable;
 import javax.persistence.Lob;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Embeddable
 @NoArgsConstructor
-public class AuthorizationCodeGrant extends AbstractGrant implements Serializable {
+public class RedirectDetail implements Serializable {
 
     @Lob
     @Getter
@@ -25,8 +30,7 @@ public class AuthorizationCodeGrant extends AbstractGrant implements Serializabl
     @Getter
     private boolean autoApprove = false;
 
-    public AuthorizationCodeGrant(Set<GrantType> grantTypes, Set<String> redirectUrls, boolean autoApprove, int accessTokenValiditySeconds) {
-        super(grantTypes, accessTokenValiditySeconds);
+    public RedirectDetail(Set<String> redirectUrls, boolean autoApprove) {
         if (redirectUrls != null) {
             setRedirectUrls(redirectUrls.stream().map(RedirectURL::new).collect(Collectors.toSet()));
         }
@@ -38,20 +42,20 @@ public class AuthorizationCodeGrant extends AbstractGrant implements Serializabl
         this.redirectUrls.addAll(redirectUrls);
     }
 
-    @Override
-    public GrantType name() {
-        return GrantType.AUTHORIZATION_CODE;
-    }
-
     private static class RedirectURLConverter implements AttributeConverter<Set<RedirectURL>, byte[]> {
         @Override
         public byte[] convertToDatabaseColumn(Set<RedirectURL> redirectURLS) {
-            return DomainRegistry.customObjectSerializer().nativeSerialize(redirectURLS);
+            if (redirectURLS == null || redirectURLS.isEmpty())
+                return null;
+            return CommonDomainRegistry.getCustomObjectSerializer().serializeCollection(redirectURLS).getBytes();
         }
 
         @Override
         public Set<RedirectURL> convertToEntityAttribute(byte[] bytes) {
-            return (Set<RedirectURL>) DomainRegistry.customObjectSerializer().nativeDeserialize(bytes);
+            if (bytes == null || bytes.length == 0)
+                return Collections.emptySet();
+            Collection<RedirectURL> redirectURLS = CommonDomainRegistry.getCustomObjectSerializer().deserializeCollection(new String(bytes, StandardCharsets.UTF_8), RedirectURL.class);
+            return new HashSet<>(redirectURLS);
         }
     }
 }

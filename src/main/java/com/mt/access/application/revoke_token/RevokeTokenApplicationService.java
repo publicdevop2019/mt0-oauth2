@@ -1,5 +1,6 @@
 package com.mt.access.application.revoke_token;
 
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
@@ -31,10 +32,10 @@ public class RevokeTokenApplicationService {
     public String create(RevokeTokenCreateCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId(command.getId());
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
-            boolean b = DomainRegistry.authenticationService().userInRole(Role.ROLE_ROOT);
+            boolean b = DomainRegistry.getAuthenticationService().userInRole(Role.ROLE_ROOT);
             if (!b && revokeTokenId.getType().equals(RevokeToken.TokenType.CLIENT))
                 throw new IllegalArgumentException("type can only be user");
-            DomainRegistry.revokeTokenRepository().add(new RevokeToken(revokeTokenId));
+            DomainRegistry.getRevokeTokenRepository().add(new RevokeToken(revokeTokenId));
             return revokeTokenId;
         }, RevokeToken.class);
     }
@@ -44,35 +45,35 @@ public class RevokeTokenApplicationService {
     public String internalOnlyCreate(RevokeTokenCreateCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId(command.getId());
         return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
-            DomainRegistry.revokeTokenRepository().add(new RevokeToken(revokeTokenId));
+            DomainRegistry.getRevokeTokenRepository().add(new RevokeToken(revokeTokenId));
             return revokeTokenId;
         }, RevokeToken.class);
     }
 
     public SumPagedRep<RevokeToken> revokeTokens(String queryParam, String pageParam, String config) {
-        return DomainRegistry.revokeTokenRepository().revokeTokensOfQuery(new RevokeTokenQuery(queryParam, pageParam, config));
+        return DomainRegistry.getRevokeTokenRepository().revokeTokensOfQuery(new RevokeTokenQuery(queryParam, pageParam, config));
     }
 
     @Transactional
     public void handleChange(StoredEvent event) {
         ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
             if (USER_EVENTS.contains(event.getName())) {
-                DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
-                DomainRegistry.revokeTokenService().revokeToken(deserialize.getDomainId());
+                DomainEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
+                DomainRegistry.getRevokeTokenService().revokeToken(deserialize.getDomainId());
             } else if (CLIENT_EVENTS.contains(event.getName())) {
-                DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
-                DomainRegistry.revokeTokenService().revokeToken(deserialize.getDomainId());
+                DomainEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
+                DomainRegistry.getRevokeTokenService().revokeToken(deserialize.getDomainId());
                 //revoke who is accessing this client's token
                 if (ClientAccessibilityRemoved.class.getName().equals(event.getName())) {
-                    Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.clientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(deserialize.getDomainId()));
+                    Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(deserialize.getDomainId()));
                     allByQuery.forEach(e -> {
-                        DomainRegistry.revokeTokenService().revokeToken(e.getClientId());
+                        DomainRegistry.getRevokeTokenService().revokeToken(e.getClientId());
                     });
                 }
             } else if (ClientResourceCleanUpCompleted.class.getName().equals(event.getName())) {
-                DomainEvent deserialize = DomainRegistry.customObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
+                DomainEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
                 //revoke deleted client token
-                deserialize.getDomainIds().forEach(e -> DomainRegistry.revokeTokenService().revokeToken(e));
+                deserialize.getDomainIds().forEach(e -> DomainRegistry.getRevokeTokenService().revokeToken(e));
             }
         }, RevokeToken.class);
     }
@@ -90,10 +91,9 @@ public class RevokeTokenApplicationService {
 
     static {
         CLIENT_EVENTS.add(ClientAccessibilityRemoved.class.getName());
-        CLIENT_EVENTS.add(ClientAccessTokenValiditySecondsChanged.class.getName());
         CLIENT_EVENTS.add(ClientAuthoritiesChanged.class.getName());
         CLIENT_EVENTS.add(ClientGrantTypeChanged.class.getName());
-        CLIENT_EVENTS.add(ClientRefreshTokenChanged.class.getName());
+        CLIENT_EVENTS.add(ClientTokenDetailChanged.class.getName());
         CLIENT_EVENTS.add(ClientDeleted.class.getName());
         CLIENT_EVENTS.add(ClientResourcesChanged.class.getName());
         CLIENT_EVENTS.add(ClientScopesChanged.class.getName());
