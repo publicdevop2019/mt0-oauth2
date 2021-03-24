@@ -15,6 +15,7 @@ public class EndpointCreateCommand implements Serializable {
     private boolean secured;
     private boolean userOnly;
     private boolean clientOnly;
+    private boolean isWebsocket;
 
     private String resourceId;
 

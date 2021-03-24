@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TicketApplicationService {
-    public SignedTicket create() {
+    public SignedTicket create(String resourceId) {
         UserId userId = DomainRegistry.getAuthenticationService().getUserId();
         ClientId clientId = DomainRegistry.getAuthenticationService().getClientId();
-        return DomainRegistry.getTicketService().create(userId, clientId);
+        return DomainRegistry.getTicketService().create(userId, clientId, new ClientId(resourceId));
     }
 }

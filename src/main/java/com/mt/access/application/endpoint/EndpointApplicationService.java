@@ -1,10 +1,6 @@
 package com.mt.access.application.endpoint;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.*;
-import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.endpoint.command.EndpointCreateCommand;
 import com.mt.access.application.endpoint.command.EndpointPatchCommand;
@@ -17,6 +13,10 @@ import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
+import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.domain_event.*;
+import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -63,7 +63,8 @@ public class EndpointApplicationService {
                         command.getMethod(),
                         command.isSecured(),
                         command.isUserOnly(),
-                        command.isClientOnly()
+                        command.isClientOnly(),
+                        command.isWebsocket()
                 );
                 DomainRegistry.getEndpointRepository().add(endpoint);
                 DomainEventPublisher.instance().publish(new EndpointCollectionModified());
@@ -99,7 +100,8 @@ public class EndpointApplicationService {
                         command.getMethod(),
                         command.isSecured(),
                         command.isUserOnly(),
-                        command.isClientOnly()
+                        command.isClientOnly(),
+                        command.isWebsocket()
                 );
                 DomainRegistry.getEndpointRepository().add(endpoint1);
             }
@@ -153,7 +155,8 @@ public class EndpointApplicationService {
                         afterPatch.getMethod(),
                         endpoint1.isSecured(),
                         endpoint1.isUserOnly(),
-                        endpoint1.isClientOnly()
+                        endpoint1.isClientOnly(),
+                        endpoint1.isWebsocket()
                 );
             }
         }, Endpoint.class);

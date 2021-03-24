@@ -1,15 +1,16 @@
 package com.mt.access.domain.model.endpoint;
 
 import com.google.common.base.Objects;
+import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
-import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
-import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.client.ClientId;
-import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
+import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
@@ -51,19 +51,18 @@ public class Endpoint extends Auditable {
 
     @Setter(AccessLevel.PRIVATE)
     private String description;
+    @Setter(AccessLevel.PRIVATE)
+    private boolean isWebsocket;
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
             @AttributeOverride(name = "domainId", column = @Column(name = "clientId", updatable = false, nullable = false))
     })
     private ClientId clientId;
-    @NotBlank
-    @Setter(AccessLevel.PRIVATE)
     private String path;
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     private EndpointId endpointId;
-    @NotBlank
     @Setter(AccessLevel.PRIVATE)
     private String method;
     @Id
@@ -72,19 +71,20 @@ public class Endpoint extends Auditable {
 
     public Endpoint(ClientId clientId, Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description,
                     String path, EndpointId endpointId, String method,
-                    boolean secured, boolean userOnly, boolean clientOnly
+                    boolean secured, boolean userOnly, boolean clientOnly, boolean isWebsocket
     ) {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setClientId(clientId);
         setEndpointId(endpointId);
-        replace(userRoles, clientRoles, scopes, description, path, method, secured, userOnly, clientOnly);
+        replace(userRoles, clientRoles, scopes, description, path, method, secured, userOnly, clientOnly, isWebsocket);
     }
 
-    public void replace(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, String method, boolean secured, boolean userOnly, boolean clientOnly) {
+    public void replace(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, String method, boolean secured, boolean userOnly, boolean clientOnly, boolean isWebsocket) {
         setUserRoles(userRoles);
         setClientRoles(clientRoles);
         setClientScopes(scopes);
         setDescription(description);
+        setWebsocket(isWebsocket);
         setPath(path);
         setMethod(method);
         setSecured(secured);
@@ -92,6 +92,11 @@ public class Endpoint extends Auditable {
         setClientOnly(clientOnly);
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService().validate(this, new HttpValidationNotificationHandler());
+    }
+
+    private void setPath(String path) {
+        Validator.notBlank(path);
+        this.path = path;
     }
 
     @PreUpdate

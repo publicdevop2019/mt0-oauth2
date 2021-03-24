@@ -1,16 +1,18 @@
 package com.mt.access.infrastructure;
 
-import com.mt.common.domain.model.jwt.JwtUtility;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.client.Scope;
 import com.mt.access.domain.model.user.Role;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.service.AuthenticationService;
+import com.mt.common.domain.model.jwt.JwtUtility;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +22,20 @@ public class JwtAuthenticationService implements AuthenticationService {
         String jwt = JwtThreadLocal.get();
         List<String> authorities = JwtUtility.getAuthorities(jwt);
         return authorities.stream().anyMatch(e -> role.toString().equals(e));
+    }
+
+    @Override
+    public Set<Role> userRoles() {
+        String jwt = JwtThreadLocal.get();
+        List<String> authorities = JwtUtility.getAuthorities(jwt);
+        return authorities.stream().map(Role::valueOf).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Scope> clientScopes() {
+        String jwt = JwtThreadLocal.get();
+        List<String> authorities = JwtUtility.getScopes(jwt);
+        return authorities.stream().map(Scope::valueOf).collect(Collectors.toSet());
     }
 
     @Override
