@@ -167,8 +167,9 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
-        log.debug("before loading client for spring security");
+        log.debug("before loading client {} for spring security",id);
         Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(new ClientId(id));
+        log.debug("after loading client for spring security, result is {}",client.isPresent());
         return client.map(ClientSpringOAuth2Representation::new).orElse(null);
     }
 
