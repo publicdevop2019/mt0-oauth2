@@ -18,9 +18,11 @@ import org.springframework.security.oauth2.provider.request.DefaultOAuth2Request
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 @Slf4j
 @Service
 public class AuthorizeCodeApplicationService {
@@ -39,14 +41,26 @@ public class AuthorizeCodeApplicationService {
 
         /**make sure authorize client exist*/
 
-        if (ApplicationServiceRegistry.clientApplicationService().loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null){
-            log.error("unable to find authorize client {}",parameters.get(OAuth2Utils.CLIENT_ID));
+        if (ApplicationServiceRegistry.clientApplicationService().loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null) {
+            log.error("unable to find authorize client {}", parameters.get(OAuth2Utils.CLIENT_ID));
             throw new IllegalArgumentException("unable to find authorize client");
         }
 
         Authentication authentication = DomainRegistry.getAuthenticationService().getAuthentication();
-
+        log.debug("before create authorization request");
+        if (log.isDebugEnabled()) {
+            try {
+                Class<?> aClass = Class.forName(defaultOAuth2RequestFactory.getClass().getName());
+                Field field = aClass.getDeclaredField("clientDetailsService");
+                field.setAccessible(true);
+                Object o = field.get(defaultOAuth2RequestFactory);
+                log.debug("clientDetailsService is {}", o == null ? "null" : "not null");
+            } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
         AuthorizationRequest authorizationRequest = defaultOAuth2RequestFactory.createAuthorizationRequest(parameters);
+        log.debug("after create authorization request");
 
         Set<String> responseTypes = authorizationRequest.getResponseTypes();
 
