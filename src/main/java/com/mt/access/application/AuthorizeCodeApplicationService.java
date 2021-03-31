@@ -48,17 +48,6 @@ public class AuthorizeCodeApplicationService {
 
         Authentication authentication = DomainRegistry.getAuthenticationService().getAuthentication();
         log.debug("before create authorization request");
-        if (log.isDebugEnabled()) {
-            try {
-                Class<?> aClass = Class.forName(defaultOAuth2RequestFactory.getClass().getName());
-                Field field = aClass.getDeclaredField("clientDetailsService");
-                field.setAccessible(true);
-                Object o = field.get(defaultOAuth2RequestFactory);
-                log.debug("clientDetailsService is {}", o == null ? "null" : "not null");
-            } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
         AuthorizationRequest authorizationRequest = defaultOAuth2RequestFactory.createAuthorizationRequest(parameters);
         log.debug("after create authorization request");
 
