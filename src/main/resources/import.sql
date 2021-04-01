@@ -21,8 +21,42 @@ INSERT INTO oauthDB.client(id, created_at, created_by, deleted, deleted_at, dele
 INSERT INTO oauthDB.client(id, created_at, created_by, deleted, deleted_at, deleted_by, modified_at, modified_by, restored_at, restored_by, version, accessible_, auto_approve, redirect_urls, domain_id, description, grant_types, name, authorities, scopes, secret, access_token_validity_seconds, refresh_token_validity_seconds)VALUES(843594578001923, '2020-12-27 05:29:26', '0', 0, NULL, '', '2021-03-23 21:21:31', '0U8AZTODP4H0', NULL, '', 4, 0, 1, 0x5B7B2276616C7565223A22687474703A2F2F6C6F63616C686F73743A343230302F6163636F756E74227D5D, '0C8B11ZYRXFM', '', 'AUTHORIZATION_CODE', 'objectMarket', 'ROLE_FIRST_PARTY,ROLE_FRONTEND', 'READ,WRITE,TRUST', '$2a$12$5PlVPPijEbr69oYIdC9e2uvDzW7NPqxnoxU9aKFiemB2vG7UmaC1S', 1200, 0);
 INSERT INTO oauthDB.client(id, created_at, created_by, deleted, deleted_at, deleted_by, modified_at, modified_by, restored_at, restored_by, version, accessible_, auto_approve, redirect_urls, domain_id, description, grant_types, name, authorities, scopes, secret, access_token_validity_seconds, refresh_token_validity_seconds)VALUES(843594578001960, '2020-12-27 05:29:26', '0', 0, NULL, '', '2021-03-23 20:47:50', '0U8AZTODP4H0', NULL, '', 4, 0, 1, 0x5B7B2276616C7565223A22687474703A2F2F6C6F63616C686F73743A33303030227D5D, '0C8AZTODP4H9', 'bbs ui client', 'AUTHORIZATION_CODE', 'bbs', 'ROLE_FIRST_PARTY,ROLE_FRONTEND', 'READ,WRITE', '$2a$12$5PlVPPijEbr69oYIdC9e2uvDzW7NPqxnoxU9aKFiemB2vG7UmaC1S', 120, 0);
 
-INSERT INTO resources_map (id,domain_id) VALUES(843509757116417,'0C8AZTODP4H4'),(843509757116417,'0C8BLWABG1S0'),(843509757116417,'0C8AZTODP4H5'),(843509757116417,'0C8AZTODP4H0'),(843509757116417,'0C8AZTODP4H6'),(843509757116417,'0C8AZTODP4HT'),(843509757116417,'0C8AZTODP4H7'),(843509757116417,'0C8AZYTQ5W5C'),(843509757116417,'0C8AZTODP4H1'),(843509757116417,'0C8AZTODP4H2'),(843511877861378,'0C8AZTODP4HT'),(843594578001923,'0C8AZTODP4H7'),(843594578001923,'0C8AZTODP4H6'),(843512635457539,'0C8AZTODP4H4'),(843512635457539,'0C8AZTODP4H6'),(843512635457539,'0C8AZTODP4HT'),(843512635457539,'0C8AZTODP4H7'),(843512635457539,'0C8AZYTQ5W5C'),(843498099048452,'0C8AZTODP4H3'),(843498099048452,'0C8AZTODP4H5'),(843498099048452,'0C8AZTODP4H6'),(843498099048452,'0C8AZTODP4H1'),(843498099048456,'0C8AZTODP4HT'),(843498099048458,'0C8AZTODP4H3'),(843498099048458,'0C8AZTODP4H5'),(843498099048458,'0C8AZTODP4H6'),(843498099048458,'0C8AZTODP4H1'),(843509306228737,'0C8AZTODP4HT'),(843498099048459,'0C8AZTODP4HT'),(843498099048450,'0C8AZTODP4H5'),(843498099048450,'0C8AZTODP4HT'),(843498099048450,'0C8AZYTQ5W5C'),(843594578001960,'0C8AZTODP4H4'),(843594578001960,'0C8AZTODP4H2'),(843512635457561,'0C8AZTODP4HT');
-
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843509757116417, '0C8AZTODP4H0');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048452, '0C8AZTODP4H1');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048458, '0C8AZTODP4H1');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843509757116417, '0C8AZTODP4H1');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843509757116417, '0C8AZTODP4H2');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843594578001960, '0C8AZTODP4H2');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048452, '0C8AZTODP4H3');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048458, '0C8AZTODP4H3');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843509757116417, '0C8AZTODP4H4');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843512635457539, '0C8AZTODP4H4');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843594578001960, '0C8AZTODP4H4');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048450, '0C8AZTODP4H5');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048452, '0C8AZTODP4H5');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048458, '0C8AZTODP4H5');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843509757116417, '0C8AZTODP4H5');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048452, '0C8AZTODP4H6');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048458, '0C8AZTODP4H6');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843509757116417, '0C8AZTODP4H6');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843512635457539, '0C8AZTODP4H6');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843594578001923, '0C8AZTODP4H6');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048452, '0C8AZTODP4H7');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843509757116417, '0C8AZTODP4H7');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843512635457539, '0C8AZTODP4H7');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843594578001923, '0C8AZTODP4H7');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048450, '0C8AZTODP4HT');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048456, '0C8AZTODP4HT');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048459, '0C8AZTODP4HT');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843509306228737, '0C8AZTODP4HT');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843509757116417, '0C8AZTODP4HT');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843511877861378, '0C8AZTODP4HT');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843512635457539, '0C8AZTODP4HT');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843512635457561, '0C8AZTODP4HT');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843498099048450, '0C8AZYTQ5W5C');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843509757116417, '0C8AZYTQ5W5C');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843512635457539, '0C8AZYTQ5W5C');
+INSERT INTO oauthDB.resources_map(id, domain_id)VALUES(843509757116417, '0C8BLWABG1S0');
 
 
 INSERT INTO oauthDB.endpoint (id,created_at,created_by,deleted,deleted_at,deleted_by,modified_at,modified_by,restored_at,restored_by,version,client_id,client_only,client_roles,client_scopes,description,domain_id,is_websocket,`method`,`path`,secured,user_only,user_roles) VALUES	 (0,NULL,'',0,NULL,'',NULL,'',NULL,'',0,'0C8AZTODP4HT',0,'','TRUST','','0E8AZTODP400',0,'GET','/auth-svc/clients/root',1,1,'ROLE_ROOT'),	 (1,NULL,'',0,NULL,'',NULL,'',NULL,'',0,'0C8AZTODP4HT',0,'','WRITE','','0E8AZTODP401',0,'GET','/auth-svc/clients/user',1,1,'ROLE_USER'),	 (2,NULL,'',0,NULL,'',NULL,'',NULL,'',0,'0C8AZTODP4HT',0,'','TRUST','','0E8AZTODP402',0,'POST','/auth-svc/clients/root',1,1,'ROLE_ROOT'),	 (3,NULL,'',0,NULL,'',NULL,'',NULL,'',0,'0C8AZTODP4HT',0,'','TRUST','','0E8AZTODP403',0,'PUT','/auth-svc/clients/root/**',1,1,'ROLE_ROOT'),	 (4,NULL,'',0,NULL,'',NULL,'',NULL,'',0,'0C8AZTODP4HT',0,'','TRUST','','0E8AZTODP404',0,'DELETE','/auth-svc/clients/root/**',1,1,'ROLE_ROOT'),	 (5,NULL,'',0,NULL,'',NULL,'',NULL,'',0,'0C8AZTODP4HT',1,'ROLE_FRONTEND,ROLE_FIRST_PARTY','WRITE','','0E8AZTODP405',0,'POST','/auth-svc/users/app',1,0,''),	 (6,NULL,'',0,NULL,'',NULL,'',NULL,'',0,'0C8AZTODP4HT',0,'','TRUST','','0E8AZTODP406',0,'GET','/auth-svc/users/admin',1,1,'ROLE_ADMIN'),	 (7,NULL,'',0,NULL,'',NULL,'',NULL,'',0,'0C8AZTODP4HT',0,'','TRUST','','0E8AZTODP407',0,'PUT','/auth-svc/users/admin/**',1,1,'ROLE_ADMIN'),	 (8,NULL,'',0,NULL,'',NULL,'',NULL,'',0,'0C8AZTODP4HT',0,'','TRUST','','0E8AZTODP408',0,'DELETE','/auth-svc/users/admin/**',1,1,'ROLE_ROOT'),	 (9,NULL,'',0,NULL,'',NULL,'',NULL,'',0,'0C8AZTODP4HT',0,'','TRUST','','0E8AZTODP409',0,'PUT','/auth-svc/users/user/pwd',1,1,'ROLE_USER');
