@@ -39,8 +39,8 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional
     public String create(ClientCreateCommand command, String operationId) {
         ClientId clientId = new ClientId();
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, clientId,
-                () -> {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotent(operationId,
+                (change) -> {
                     Client client = new Client(
                             clientId,
                             command.getName(),
@@ -57,8 +57,8 @@ public class ClientApplicationService implements ClientDetailsService {
                                     command.isAutoApprove()
                             )
                     );
-                    return client.getClientId();
-                }, Client.class
+                    return client.getClientId().getDomainId();
+                }, "Client"
         );
 
     }
@@ -75,7 +75,7 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional
     public void replaceClient(String id, ClientUpdateCommand command, String changeId) {
         ClientId clientId = new ClientId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(clientId, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent( changeId, (ignored) -> {
             Optional<Client> optionalClient = DomainRegistry.getClientRepository().clientOfId(clientId);
             if (optionalClient.isPresent()) {
                 Client client = optionalClient.get();
@@ -96,14 +96,15 @@ public class ClientApplicationService implements ClientDetailsService {
                 );
                 DomainRegistry.getClientRepository().add(client);
             }
-        }, Client.class);
+            return null;
+        }, "Client");
     }
 
     @SubscribeForEvent
     @Transactional
     public void removeClient(String id, String changeId) {
         ClientId clientId = new ClientId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(clientId, null, changeId, (change) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(changeId, (change) -> {
             Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
             if (client.isPresent()) {
                 Client client1 = client.get();
@@ -114,17 +115,17 @@ public class ClientApplicationService implements ClientDetailsService {
                     throw new RootClientDeleteException();
                 }
             }
-        }, Client.class);
+            return null;
+        }, "Client");
     }
 
     @SubscribeForEvent
     @Transactional
-    public Set<String> removeClients(String queryParam, String changeId) {
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentDeleteByQuery(queryParam, changeId, (change) -> {
+    public void removeClients(String queryParam, String changeId) {
+         ApplicationServiceRegistry.idempotentWrapper().idempotent( changeId, (change) -> {
             Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(queryParam, false));
             boolean b = allByQuery.stream().anyMatch(e -> !e.removable());
             if (!b) {
-                change.setRequestBody(allByQuery);
                 DomainRegistry.getClientRepository().remove(allByQuery);
                 allByQuery.forEach(e -> {
                     e.removeAllReferenced();
@@ -133,17 +134,15 @@ public class ClientApplicationService implements ClientDetailsService {
             } else {
                 throw new RootClientDeleteException();
             }
-            change.setDeletedIds(allByQuery.stream().map(e -> e.getClientId().getDomainId()).collect(Collectors.toSet()));
-            change.setQuery(queryParam);
-            return allByQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
-        }, Client.class);
+            return null;
+        }, "Client");
     }
 
     @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         ClientId clientId = new ClientId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(clientId, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent( changeId, (ignored) -> {
             Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
             if (client.isPresent()) {
                 Client original = client.get();
@@ -162,7 +161,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         original.getAuthorizationCodeGrant()
                 );
             }
-        }, Client.class);
+            return null;
+        }, "Client");
     }
 
     @Override
@@ -176,7 +176,7 @@ public class ClientApplicationService implements ClientDetailsService {
     @SubscribeForEvent
     @Transactional
     public void handleChange(StoredEvent event) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent( event.getId().toString(), (ignored) -> {
             if (ClientAsResourceDeleted.class.getName().equals(event.getName())) {
                 DomainEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
                 //remove deleted client from resource_map
@@ -188,7 +188,8 @@ public class ClientApplicationService implements ClientDetailsService {
                 collect.add(removedClientId);
                 DomainEventPublisher.instance().publish(new ClientResourceCleanUpCompleted(collect));
             }
-        }, Client.class);
+            return null;
+        }, "Client");
     }
 
     public static class RootClientDeleteException extends RuntimeException {

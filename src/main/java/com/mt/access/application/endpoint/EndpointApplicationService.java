@@ -48,7 +48,7 @@ public class EndpointApplicationService {
     @Transactional
     public String create(EndpointCreateCommand command, String changeId) {
         EndpointId endpointId = new EndpointId();
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, endpointId, () -> {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotent(changeId, (change) -> {
             String resourceId = command.getResourceId();
             Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(new ClientId(resourceId));
             if (client.isPresent()) {
@@ -64,15 +64,16 @@ public class EndpointApplicationService {
                         command.isSecured(),
                         command.isUserOnly(),
                         command.isClientOnly(),
-                        command.isWebsocket()
+                        command.isWebsocket(),
+                        command.isCsrfEnabled()
                 );
                 DomainRegistry.getEndpointRepository().add(endpoint);
                 DomainEventPublisher.instance().publish(new EndpointCollectionModified());
-                return endpointId;
+                return endpointId.getDomainId();
             } else {
                 throw new InvalidClientIdException();
             }
-        }, Endpoint.class);
+        }, "Endpoint");
     }
 
     public SumPagedRep<Endpoint> endpoints(String queryParam, String pageParam, String config) {
@@ -87,7 +88,7 @@ public class EndpointApplicationService {
     @Transactional
     public void update(String id, EndpointUpdateCommand command, String changeId) {
         EndpointId endpointId = new EndpointId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(endpointId, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(changeId, (ignored) -> {
             Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
@@ -101,46 +102,48 @@ public class EndpointApplicationService {
                         command.isSecured(),
                         command.isUserOnly(),
                         command.isClientOnly(),
-                        command.isWebsocket()
+                        command.isWebsocket(),
+                        command.isCsrfEnabled()
                 );
                 DomainRegistry.getEndpointRepository().add(endpoint1);
             }
-        }, Endpoint.class);
+                return null;
+        }, "Endpoint");
     }
 
     @SubscribeForEvent
     @Transactional
     public void removeEndpoint(String id, String changeId) {
         EndpointId endpointId = new EndpointId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(endpointId, null, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(changeId, (ignored) -> {
             Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
                 DomainRegistry.getEndpointRepository().remove(endpoint1);
                 DomainEventPublisher.instance().publish(new EndpointCollectionModified());
             }
-        }, Endpoint.class);
+            return null;
+        }, "Endpoint");
     }
 
     @SubscribeForEvent
     @Transactional
     public void removeEndpoints(String queryParam, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, changeId, (change) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent( changeId, (change) -> {
             Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(queryParam));
-            change.setDeletedIds(allByQuery.stream().map(e -> e.getEndpointId().getDomainId()).collect(Collectors.toSet()));
-            change.setQuery(queryParam);
             DomainRegistry.getEndpointRepository().remove(allByQuery);
             DomainEventPublisher.instance().publish(
                     new EndpointCollectionModified()
             );
-        }, Endpoint.class);
+            return null;
+        }, "Endpoint");
     }
 
     @SubscribeForEvent
     @Transactional
     public void patchEndpoint(String id, JsonPatch command, String changeId) {
         EndpointId endpointId = new EndpointId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(endpointId, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent( changeId, (ignored) -> {
             Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
@@ -156,24 +159,27 @@ public class EndpointApplicationService {
                         endpoint1.isSecured(),
                         endpoint1.isUserOnly(),
                         endpoint1.isClientOnly(),
-                        endpoint1.isWebsocket()
+                        endpoint1.isWebsocket(),
+                        endpoint1.isCsrfEnabled()
                 );
             }
-        }, Endpoint.class);
+            return null;
+        }, "Endpoint");
     }
 
     @SubscribeForEvent
     @Transactional
     public void reloadEndpointCache(String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(changeId, (ignored) -> {
             DomainRegistry.getEndpointService().reloadEndpointCache();
-        }, Endpoint.class);
+            return null;
+        }, "Endpoint");
     }
 
     @SubscribeForEvent
     @Transactional
     public void handleChange(StoredEvent event) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(event.getId().toString(), (ignored) -> {
             if (ClientDeleted.class.getName().equals(event.getName())) {
                 DomainEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
                 Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(deserialize.getDomainId()));
@@ -182,7 +188,8 @@ public class EndpointApplicationService {
                     DomainEventPublisher.instance().publish(new EndpointCollectionModified());
                 }
             }
-        }, Endpoint.class);
+            return null;
+        }, "Endpoint");
     }
 
     public static class InvalidClientIdException extends RuntimeException {

@@ -33,13 +33,16 @@ public class UserApplicationService implements UserDetailsService {
     @Transactional
     public String create(UserCreateCommand command, String operationId) {
         UserId userId = new UserId();
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, userId,
-                () -> DomainRegistry.getUserService().create(
-                        new UserEmail(command.getEmail()),
-                        new UserPassword(command.getPassword()),
-                        new ActivationCode(command.getActivationCode()),
-                        userId
-                ), User.class
+        return ApplicationServiceRegistry.idempotentWrapper().idempotent(operationId,
+                (change) -> {
+                    UserId userId1 = DomainRegistry.getUserService().create(
+                            new UserEmail(command.getEmail()),
+                            new UserPassword(command.getPassword()),
+                            new ActivationCode(command.getActivationCode()),
+                            userId
+                    );
+                    return userId1.getDomainId();
+                }, "User"
         );
 
     }
@@ -59,13 +62,14 @@ public class UserApplicationService implements UserDetailsService {
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isPresent()) {
             User user1 = user.get();
-            ApplicationServiceRegistry.idempotentWrapper().idempotent(userId, command, changeId, (ignored) -> {
+            ApplicationServiceRegistry.idempotentWrapper().idempotent( changeId, (ignored) -> {
                 user1.replace(
                         command.getGrantedAuthorities(),
                         command.isLocked(),
                         command.isSubscription()
                 );
-            }, User.class);
+                return null;
+            }, "User");
             DomainRegistry.getUserRepository().add(user1);
         }
     }
@@ -78,9 +82,10 @@ public class UserApplicationService implements UserDetailsService {
         if (user.isPresent()) {
             User user1 = user.get();
             if (user1.isNonRoot()) {
-                ApplicationServiceRegistry.idempotentWrapper().idempotent(userId, null, changeId, (ignored) -> {
+                ApplicationServiceRegistry.idempotentWrapper().idempotent(changeId, (ignored) -> {
                     DomainRegistry.getUserRepository().remove(user1);
-                }, User.class);
+                    return null;
+                }, "User");
                 DomainEventPublisher.instance().publish(new UserDeleted(userId));
             } else {
                 throw new RootUserDeleteException();
@@ -92,7 +97,7 @@ public class UserApplicationService implements UserDetailsService {
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         UserId userId = new UserId(id);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(userId, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent( changeId, (ignored) -> {
             Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
             if (user.isPresent()) {
                 User original = user.get();
@@ -104,16 +109,18 @@ public class UserApplicationService implements UserDetailsService {
                         original.isSubscription()
                 );
             }
-        }, User.class);
+            return null;
+        }, "User");
     }
 
     @SubscribeForEvent
     @Transactional
     public void patchBatch(List<PatchCommand> commands, String changeId) {
         Collection<PatchCommand> patchCommands = CommonDomainRegistry.getCustomObjectSerializer().deepCopyCollection(commands);
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, patchCommands, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent( changeId, (ignored) -> {
             DomainRegistry.getUserService().batchLock(commands);
-        }, User.class);
+            return null;
+        }, "User");
     }
 
     @SubscribeForEvent
@@ -123,9 +130,10 @@ public class UserApplicationService implements UserDetailsService {
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isPresent()) {
             User user1 = user.get();
-            ApplicationServiceRegistry.idempotentWrapper().idempotent(userId, command, changeId, (ignored) -> {
+            ApplicationServiceRegistry.idempotentWrapper().idempotent(changeId, (ignored) -> {
                 DomainRegistry.getUserService().updatePassword(user1, new CurrentPassword(command.getCurrentPwd()), new UserPassword(command.getPassword()));
-            }, User.class);
+                return null;
+            }, "User");
             DomainRegistry.getUserRepository().add(user1);
         }
     }
@@ -133,17 +141,19 @@ public class UserApplicationService implements UserDetailsService {
     @SubscribeForEvent
     @Transactional
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(changeId, (ignored) -> {
             DomainRegistry.getUserService().forgetPassword(new UserEmail(command.getEmail()));
-        }, User.class);
+            return null;
+        }, "User");
     }
 
     @SubscribeForEvent
     @Transactional
     public void resetPassword(UserResetPasswordCommand command, String changeId) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, command, changeId, (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent( changeId, (ignored) -> {
             DomainRegistry.getUserService().resetPassword(new UserEmail(command.getEmail()), new UserPassword(command.getNewPassword()), new PasswordResetCode(command.getToken()));
-        }, User.class);
+            return null;
+        }, "User");
     }
 
     @Override

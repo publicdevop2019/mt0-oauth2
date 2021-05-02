@@ -16,6 +16,7 @@ public class EndpointUpdateCommand implements Serializable {
     private boolean userOnly;
     private boolean clientOnly;
     private boolean isWebsocket;
+    private boolean csrfEnabled;
     private String resourceId;
 
     private String path;

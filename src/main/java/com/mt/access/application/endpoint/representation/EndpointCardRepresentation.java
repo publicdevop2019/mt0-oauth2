@@ -17,6 +17,7 @@ public class EndpointCardRepresentation {
     private Set<String> userRoles;
     private Set<String> clientScopes;
     private boolean websocket;
+    private boolean csrfEnabled;
     private boolean secured;
     private boolean userOnly;
     private boolean clientOnly;
@@ -35,5 +36,6 @@ public class EndpointCardRepresentation {
         this.secured = endpoint.isSecured();
         this.userOnly = endpoint.isUserOnly();
         this.clientOnly = endpoint.isClientOnly();
+        this.csrfEnabled = endpoint.isCsrfEnabled();
     }
 }

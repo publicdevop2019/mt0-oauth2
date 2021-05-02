@@ -65,21 +65,23 @@ public class Endpoint extends Auditable {
     private EndpointId endpointId;
     @Setter(AccessLevel.PRIVATE)
     private String method;
+    @Setter(AccessLevel.PRIVATE)
+    private boolean csrfEnabled=true;
     @Id
     @Setter(AccessLevel.PRIVATE)
     private Long id;
 
     public Endpoint(ClientId clientId, Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description,
                     String path, EndpointId endpointId, String method,
-                    boolean secured, boolean userOnly, boolean clientOnly, boolean isWebsocket
+                    boolean secured, boolean userOnly, boolean clientOnly, boolean isWebsocket, boolean csrfEnabled
     ) {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setClientId(clientId);
         setEndpointId(endpointId);
-        replace(userRoles, clientRoles, scopes, description, path, method, secured, userOnly, clientOnly, isWebsocket);
+        replace(userRoles, clientRoles, scopes, description, path, method, secured, userOnly, clientOnly, isWebsocket,csrfEnabled);
     }
 
-    public void replace(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, String method, boolean secured, boolean userOnly, boolean clientOnly, boolean isWebsocket) {
+    public void replace(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, String method, boolean secured, boolean userOnly, boolean clientOnly, boolean isWebsocket,boolean csrfEnabled) {
         setUserRoles(userRoles);
         setClientRoles(clientRoles);
         setClientScopes(scopes);
@@ -90,6 +92,7 @@ public class Endpoint extends Auditable {
         setSecured(secured);
         setUserOnly(userOnly);
         setClientOnly(clientOnly);
+        setCsrfEnabled(csrfEnabled);
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService().validate(this, new HttpValidationNotificationHandler());
     }

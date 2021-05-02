@@ -1,11 +1,10 @@
 package com.mt.access.application.pending_user;
 
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.ActivationCode;
-import com.mt.access.domain.model.pending_user.PendingUser;
 import com.mt.access.domain.model.pending_user.RegistrationEmail;
+import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +14,11 @@ public class PendingUserApplicationService {
     @Transactional
     public String create(PendingUserCreateCommand command, String operationId) {
         RegistrationEmail registrationEmail = new RegistrationEmail(command.getEmail());
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, operationId, registrationEmail,
-                () -> DomainRegistry.getPendingUserService().createOrUpdatePendingUser(registrationEmail, new ActivationCode()), PendingUser.class
+        return ApplicationServiceRegistry.idempotentWrapper().idempotent(operationId,
+                (change) -> {
+                    RegistrationEmail orUpdatePendingUser = DomainRegistry.getPendingUserService().createOrUpdatePendingUser(registrationEmail, new ActivationCode());
+                    return orUpdatePendingUser.getDomainId();
+                }, "PendingUser"
         );
     }
 }

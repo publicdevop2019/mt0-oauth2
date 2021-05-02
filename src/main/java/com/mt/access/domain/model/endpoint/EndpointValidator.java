@@ -16,6 +16,13 @@ public class EndpointValidator {
         userOnlyAndClientOnly();
         websocket();
         httpMethod();
+        csrf();
+    }
+
+    private void csrf() {
+        if (endpoint.isWebsocket()&&endpoint.isCsrfEnabled()) {
+            handler.handleError("websocket endpoints can not have csrf enabled");
+        }
     }
 
     private void httpMethod() {

@@ -237,8 +237,8 @@ public class Client extends Auditable {
         (new ClientValidator(this, handler)).validate();
     }
 
-    public Endpoint addNewEndpoint(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, EndpointId endpointId, String method, boolean secured, boolean userOnly, boolean clientOnly,boolean isWebsocket) {
-        return new Endpoint(getClientId(), userRoles, clientRoles, scopes, description, path, endpointId, method, secured, userOnly, clientOnly,isWebsocket);
+    public Endpoint addNewEndpoint(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, EndpointId endpointId, String method, boolean secured, boolean userOnly, boolean clientOnly,boolean isWebsocket,boolean csrfEnabled) {
+        return new Endpoint(getClientId(), userRoles, clientRoles, scopes, description, path, endpointId, method, secured, userOnly, clientOnly,isWebsocket,csrfEnabled);
     }
 
     private void setSecret(String secret) {

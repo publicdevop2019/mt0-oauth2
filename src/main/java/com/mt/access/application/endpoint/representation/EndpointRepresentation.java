@@ -23,6 +23,7 @@ public class EndpointRepresentation {
     private boolean userOnly;
     private boolean clientOnly;
     private boolean websocket;
+    private boolean csrfEnabled;
     private Integer version;
 
     public EndpointRepresentation(Endpoint endpoint) {
@@ -43,5 +44,6 @@ public class EndpointRepresentation {
         this.modifiedBy = endpoint.getModifiedBy();
         this.modifiedAt = endpoint.getModifiedAt() != null ? endpoint.getModifiedAt().getTime() : null;
         this.version = endpoint.getVersion();
+        this.csrfEnabled = endpoint.isCsrfEnabled();
     }
 }

@@ -31,23 +31,23 @@ public class RevokeTokenApplicationService {
     @Transactional
     public String create(RevokeTokenCreateCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId(command.getId());
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotent(changeId, (change) -> {
             boolean b = DomainRegistry.getAuthenticationService().userInRole(Role.ROLE_ROOT);
             if (!b && revokeTokenId.getType().equals(RevokeToken.TokenType.CLIENT))
                 throw new IllegalArgumentException("type can only be user");
             DomainRegistry.getRevokeTokenRepository().add(new RevokeToken(revokeTokenId));
-            return revokeTokenId;
-        }, RevokeToken.class);
+            return revokeTokenId.getDomainId();
+        }, "RevokeToken");
     }
 
     @SubscribeForEvent
     @Transactional
     public String internalOnlyCreate(RevokeTokenCreateCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId(command.getId());
-        return ApplicationServiceRegistry.idempotentWrapper().idempotentCreate(command, changeId, revokeTokenId, () -> {
+        return ApplicationServiceRegistry.idempotentWrapper().idempotent(changeId, (change) -> {
             DomainRegistry.getRevokeTokenRepository().add(new RevokeToken(revokeTokenId));
-            return revokeTokenId;
-        }, RevokeToken.class);
+            return revokeTokenId.getDomainId();
+        }, "RevokeToken");
     }
 
     public SumPagedRep<RevokeToken> revokeTokens(String queryParam, String pageParam, String config) {
@@ -56,7 +56,7 @@ public class RevokeTokenApplicationService {
 
     @Transactional
     public void handleChange(StoredEvent event) {
-        ApplicationServiceRegistry.idempotentWrapper().idempotent(null, null, event.getId().toString(), (ignored) -> {
+        ApplicationServiceRegistry.idempotentWrapper().idempotent(event.getId().toString(), (ignored) -> {
             if (USER_EVENTS.contains(event.getName())) {
                 DomainEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), DomainEvent.class);
                 DomainRegistry.getRevokeTokenService().revokeToken(deserialize.getDomainId());
@@ -75,7 +75,8 @@ public class RevokeTokenApplicationService {
                 //revoke deleted client token
                 deserialize.getDomainIds().forEach(e -> DomainRegistry.getRevokeTokenService().revokeToken(e));
             }
-        }, RevokeToken.class);
+            return null;
+        }, "RevokeToken");
     }
 
     private static final Set<String> USER_EVENTS = new HashSet<>();
