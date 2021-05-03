@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -65,7 +64,8 @@ public class EndpointApplicationService {
                         command.isUserOnly(),
                         command.isClientOnly(),
                         command.isWebsocket(),
-                        command.isCsrfEnabled()
+                        command.isCsrfEnabled(),
+                        command.getCorsConfig()
                 );
                 DomainRegistry.getEndpointRepository().add(endpoint);
                 DomainEventPublisher.instance().publish(new EndpointCollectionModified());
@@ -92,7 +92,7 @@ public class EndpointApplicationService {
             Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
-                endpoint1.replace(
+                endpoint1.update(
                         command.getUserRoles(),
                         command.getClientRoles(),
                         command.getClientScopes(),
@@ -103,7 +103,8 @@ public class EndpointApplicationService {
                         command.isUserOnly(),
                         command.isClientOnly(),
                         command.isWebsocket(),
-                        command.isCsrfEnabled()
+                        command.isCsrfEnabled(),
+                        command.getCorsConfig()
                 );
                 DomainRegistry.getEndpointRepository().add(endpoint1);
             }
@@ -149,7 +150,7 @@ public class EndpointApplicationService {
                 Endpoint endpoint1 = endpoint.get();
                 EndpointPatchCommand beforePatch = new EndpointPatchCommand(endpoint1);
                 EndpointPatchCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, EndpointPatchCommand.class);
-                endpoint1.replace(
+                endpoint1.update(
                         endpoint1.getUserRoles(),
                         endpoint1.getClientRoles(),
                         endpoint1.getClientScopes(),
@@ -160,7 +161,8 @@ public class EndpointApplicationService {
                         endpoint1.isUserOnly(),
                         endpoint1.isClientOnly(),
                         endpoint1.isWebsocket(),
-                        endpoint1.isCsrfEnabled()
+                        endpoint1.isCsrfEnabled(),
+                        endpoint1.getCorsConfig()
                 );
             }
             return null;

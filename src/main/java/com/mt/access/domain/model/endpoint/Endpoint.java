@@ -53,6 +53,9 @@ public class Endpoint extends Auditable {
     private String description;
     @Setter(AccessLevel.PRIVATE)
     private boolean isWebsocket;
+    @Setter(AccessLevel.PRIVATE)
+    @Embedded
+    private CorsConfig corsConfig;
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
@@ -73,15 +76,18 @@ public class Endpoint extends Auditable {
 
     public Endpoint(ClientId clientId, Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description,
                     String path, EndpointId endpointId, String method,
-                    boolean secured, boolean userOnly, boolean clientOnly, boolean isWebsocket, boolean csrfEnabled
+                    boolean secured, boolean userOnly, boolean clientOnly, boolean isWebsocket, boolean csrfEnabled,CorsConfig corsConfig
     ) {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setClientId(clientId);
         setEndpointId(endpointId);
-        replace(userRoles, clientRoles, scopes, description, path, method, secured, userOnly, clientOnly, isWebsocket,csrfEnabled);
+        update(userRoles, clientRoles, scopes, description, path, method, secured, userOnly, clientOnly, isWebsocket,csrfEnabled,corsConfig);
     }
 
-    public void replace(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, String method, boolean secured, boolean userOnly, boolean clientOnly, boolean isWebsocket,boolean csrfEnabled) {
+    public void update(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes,
+                       String description, String path, String method, boolean secured,
+                       boolean userOnly, boolean clientOnly, boolean isWebsocket,
+                       boolean csrfEnabled,CorsConfig corsConfig) {
         setUserRoles(userRoles);
         setClientRoles(clientRoles);
         setClientScopes(scopes);
@@ -93,6 +99,7 @@ public class Endpoint extends Auditable {
         setUserOnly(userOnly);
         setClientOnly(clientOnly);
         setCsrfEnabled(csrfEnabled);
+        setCorsConfig(corsConfig);
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService().validate(this, new HttpValidationNotificationHandler());
     }

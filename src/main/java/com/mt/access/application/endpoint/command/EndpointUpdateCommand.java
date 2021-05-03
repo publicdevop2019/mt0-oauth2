@@ -1,5 +1,6 @@
 package com.mt.access.application.endpoint.command;
 
+import com.mt.access.domain.model.endpoint.CorsConfig;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,6 +18,7 @@ public class EndpointUpdateCommand implements Serializable {
     private boolean clientOnly;
     private boolean isWebsocket;
     private boolean csrfEnabled;
+    private CorsConfig corsConfig;
     private String resourceId;
 
     private String path;

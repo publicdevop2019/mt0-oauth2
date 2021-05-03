@@ -1,5 +1,6 @@
 package com.mt.access.application.endpoint.representation;
 
+import com.mt.access.domain.model.endpoint.CorsConfig;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import lombok.Data;
 
@@ -24,6 +25,7 @@ public class EndpointRepresentation {
     private boolean clientOnly;
     private boolean websocket;
     private boolean csrfEnabled;
+    private CorsConfig corsConfig;
     private Integer version;
 
     public EndpointRepresentation(Endpoint endpoint) {
@@ -45,5 +47,6 @@ public class EndpointRepresentation {
         this.modifiedAt = endpoint.getModifiedAt() != null ? endpoint.getModifiedAt().getTime() : null;
         this.version = endpoint.getVersion();
         this.csrfEnabled = endpoint.isCsrfEnabled();
+        this.corsConfig = endpoint.getCorsConfig();
     }
 }

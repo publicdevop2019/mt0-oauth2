@@ -3,6 +3,7 @@ package com.mt.access.domain.model.client;
 import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.event.*;
+import com.mt.access.domain.model.endpoint.CorsConfig;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -237,8 +238,13 @@ public class Client extends Auditable {
         (new ClientValidator(this, handler)).validate();
     }
 
-    public Endpoint addNewEndpoint(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes, String description, String path, EndpointId endpointId, String method, boolean secured, boolean userOnly, boolean clientOnly,boolean isWebsocket,boolean csrfEnabled) {
-        return new Endpoint(getClientId(), userRoles, clientRoles, scopes, description, path, endpointId, method, secured, userOnly, clientOnly,isWebsocket,csrfEnabled);
+    public Endpoint addNewEndpoint(Set<String> userRoles, Set<String> clientRoles, Set<String> scopes,
+                                   String description, String path, EndpointId endpointId, String method,
+                                   boolean secured, boolean userOnly, boolean clientOnly,
+                                   boolean isWebsocket, boolean csrfEnabled, CorsConfig corsConfig) {
+        return new Endpoint(getClientId(), userRoles, clientRoles,
+                scopes, description, path, endpointId, method, secured,
+                userOnly, clientOnly,isWebsocket,csrfEnabled,corsConfig);
     }
 
     private void setSecret(String secret) {

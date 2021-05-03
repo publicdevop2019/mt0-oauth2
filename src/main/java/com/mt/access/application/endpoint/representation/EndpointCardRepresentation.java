@@ -1,5 +1,6 @@
 package com.mt.access.application.endpoint.representation;
 
+import com.mt.access.domain.model.endpoint.CorsConfig;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import lombok.Data;
 
@@ -21,6 +22,7 @@ public class EndpointCardRepresentation {
     private boolean secured;
     private boolean userOnly;
     private boolean clientOnly;
+    private CorsConfig corsConfig;
     public EndpointCardRepresentation(Object o) {
         Endpoint endpoint = (Endpoint) o;
         this.id = endpoint.getEndpointId().getDomainId();
@@ -37,5 +39,6 @@ public class EndpointCardRepresentation {
         this.userOnly = endpoint.isUserOnly();
         this.clientOnly = endpoint.isClientOnly();
         this.csrfEnabled = endpoint.isCsrfEnabled();
+        this.corsConfig = endpoint.getCorsConfig();
     }
 }
