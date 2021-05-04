@@ -47,6 +47,15 @@ public class EndpointRepresentation {
         this.modifiedAt = endpoint.getModifiedAt() != null ? endpoint.getModifiedAt().getTime() : null;
         this.version = endpoint.getVersion();
         this.csrfEnabled = endpoint.isCsrfEnabled();
-        this.corsConfig = endpoint.getCorsConfig();
+        if (endpoint.getCorsConfig() == null) {
+            this.corsConfig = null;
+        } else {
+            CorsConfig corsConfig = endpoint.getCorsConfig();
+            if (corsConfig.getAllowedHeaders().isEmpty() && corsConfig.getOrigin().isEmpty() && corsConfig.getExposedHeaders().isEmpty() && corsConfig.getCredentials() == null) {
+                this.corsConfig = null;
+            } else {
+                this.corsConfig = endpoint.getCorsConfig();
+            }
+        }
     }
 }

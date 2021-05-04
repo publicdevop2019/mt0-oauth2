@@ -3,6 +3,7 @@ package com.mt.access.domain.model.endpoint;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import lombok.Getter;
 
+import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embeddable;
 import java.util.Set;
@@ -12,7 +13,8 @@ import java.util.Set;
 public class CorsConfig {
     @Convert(converter = StringSetConverter.class)
     private Set<String> origin;
-    private boolean credentials;
+    @Column
+    private Boolean credentials;
     @Convert(converter = StringSetConverter.class)
     private Set<String> allowedHeaders;
     @Convert(converter = StringSetConverter.class)
