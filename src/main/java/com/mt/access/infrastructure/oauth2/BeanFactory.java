@@ -79,7 +79,7 @@ public class BeanFactory {
 
     @Bean
     private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory() {
-        log.debug("loading DefaultOAuth2RequestFactory");
+        log.debug("loading DefaultOAuth2RequestFactory, clientApplicationService is {}", ApplicationServiceRegistry.clientApplicationService() == null ? "null" : "not null");
         return new DefaultOAuth2RequestFactory(ApplicationServiceRegistry.clientApplicationService());
     }
 
